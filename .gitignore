@@ -1,0 +1,12 @@
+node_modules/
+.nyc_output/*
+.env
+start-local-server
+test-local-server
+coverage
+start-my-infra
+dist/routes/**
+test-v1
+nohup.out
+slp-tx-db/
+logs/
