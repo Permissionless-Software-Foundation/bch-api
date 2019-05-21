@@ -2,6 +2,8 @@
 
 This is a fork and alternative implementation of
 the [rest.bitcoin.com](https://github.com/Bitcoin-com/rest.bitcoin.com) repository.
+The function of this code is to create a REST API server to provide a common
+interface for working with a BCH full node and various indexers.
 This repository is intended to be used for my own personal use, but it's licensed
 under the MIT license like the original rest repo was, so people are free to use
 it and modify it as they see fit.
@@ -11,6 +13,7 @@ of [BITBOX SDK](https://github.com/Bitcoin-com/bitbox-sdk):
 [BITBOX JS](https://github.com/christroutner/bitbox-js).
 
 Here is a YouTube video explaining the use of BITBOX and this REST API:
+
 https://www.youtube.com/watch?v=o0FfW5rZPFs
 
 Since this repo is being worked on by one person, as a hobby, updates will be
@@ -19,9 +22,12 @@ slow. But the road map I have planned is as follows:
 - Remove TypeScript and any other compiled languages, converting the repository
 to standard ES8 JavaScript.
 
-- Replace the need for Insight API with Blockbook API.
+- Replace the requirement for Insight API with Blockbook API for address and
+utxo based calls.
 
 - Audit all npm dependencies and try to fix/remove any vulnerabilities.
+
+- Remove rate limiting.
 
 - Setup automated dependency management through Greenkeeper, and automated
 continuous-release with semantic versioning through Semantic Release.
@@ -29,6 +35,8 @@ continuous-release with semantic versioning through Semantic Release.
 - Ensure all unit and integration tests are passing.
 
 - Update SLP token endpoints. Not totally sure of the scope here.
+
+- Add end-to-end tests.
 
 ----
 
