@@ -167,7 +167,3 @@ PORT=3000 BITCOINCOM_BASEURL=http://localhost:3000/api/ RPC_BASEURL=http://local
 #### View in browser
 
 Finally open `http://localhost:3000/` and confirm you see the GUI
-
-[![Greenkeeper badge](https://badges.greenkeeper.io/Bitcoin.com/rest.bitcoin.com.svg)](https://greenkeeper.io/)
-
-deploy
