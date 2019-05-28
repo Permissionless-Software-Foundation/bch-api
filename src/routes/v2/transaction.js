@@ -1,9 +1,9 @@
 "use strict"
 
-import * as express from "express"
+const express = require("express")
 const router = express.Router()
-import axios from "axios"
-import { IRequestConfig } from "./interfaces/IRequestConfig"
+const axios = require("axios")
+
 const routeUtils = require("./route-utils")
 const logger = require("./logging.js")
 const wlogger = require("../../util/winston-logging")
@@ -16,10 +16,10 @@ const util = require("util")
 util.inspect.defaultOptions = { depth: 3 }
 
 // Manipulates and formats the raw data comming from Insight API.
-const processInputs = (tx: any) => {
+const processInputs = tx => {
   // Add legacy and cashaddr to tx vin
   if (tx.vin) {
-    tx.vin.forEach((vin: any) => {
+    tx.vin.forEach(vin => {
       if (!vin.coinbase) {
         vin.value = vin.valueSat
         const address = vin.addr
@@ -36,14 +36,14 @@ const processInputs = (tx: any) => {
 
   // Add legacy and cashaddr to tx vout
   if (tx.vout) {
-    tx.vout.forEach((vout: any) => {
+    tx.vout.forEach(vout => {
       // Overwrite value string with value in satoshis
       //vout.value = parseFloat(vout.value) * 100000000
 
       if (vout.scriptPubKey) {
         if (vout.scriptPubKey.addresses) {
           const cashAddrs = []
-          vout.scriptPubKey.addresses.forEach((addr: any) => {
+          vout.scriptPubKey.addresses.forEach(addr => {
             const cashAddr = BITBOX.Address.toCashAddress(addr)
             cashAddrs.push(cashAddr)
           })
@@ -58,19 +58,15 @@ router.get("/", root)
 router.post("/details", detailsBulk)
 router.get("/details/:txid", detailsSingle)
 
-function root(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+function root(req, res, next) {
   return res.json({ status: "transaction" })
 }
 
 // Retrieve transaction data from the Insight API
 // This function is also used by the SLP route library.
-async function transactionsFromInsight(txid: string) {
+async function transactionsFromInsight(txid) {
   try {
-    let path = `${process.env.BITCOINCOM_BASEURL}tx/${txid}`
+    const path = `${process.env.BITCOINCOM_BASEURL}tx/${txid}`
 
     // Query the Insight server.
     const response = await axios.get(path)
@@ -88,11 +84,7 @@ async function transactionsFromInsight(txid: string) {
   }
 }
 
-async function detailsBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function detailsBulk(req, res, next) {
   try {
     const txids = req.body.txids
 
@@ -113,12 +105,12 @@ async function detailsBulk(
     logger.debug(`Executing transaction/details with these txids: `, txids)
 
     // Collect an array of promises
-    const promises = txids.map(async (txid: any) => {
-      return await transactionsFromInsight(txid)
-    })
+    const promises = txids.map(
+      async txid => await transactionsFromInsight(txid)
+    )
 
     // Wait for all parallel promises to return.
-    const result: Array<any> = await Promise.all(promises)
+    const result = await Promise.all(promises)
 
     // Return the array of retrieved transaction information.
     res.status(200)
@@ -140,11 +132,7 @@ async function detailsBulk(
 }
 
 // GET handler. Retrieve any unconfirmed TX information for a given address.
-async function detailsSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function detailsSingle(req, res, next) {
   try {
     const txid = req.params.txid
     if (!txid || txid === "") {

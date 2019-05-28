@@ -1,6 +1,6 @@
 "use strict"
 
-const blockRoute = require("../../dist/routes/v2/block")
+const blockRoute = require("../../src/routes/v2/block")
 const chai = require("chai")
 const assert = chai.assert
 const nock = require("nock") // HTTP mocking

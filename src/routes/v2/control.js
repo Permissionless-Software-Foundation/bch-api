@@ -1,9 +1,9 @@
 "use strict"
 
-import * as express from "express"
+const express = require("express")
 const router = express.Router()
-import axios from "axios"
-import { IRequestConfig } from "./interfaces/IRequestConfig"
+const axios = require("axios")
+
 const logger = require("./logging.js")
 const routeUtils = require("./route-utils")
 const wlogger = require("../../util/winston-logging")
@@ -15,21 +15,18 @@ util.inspect.defaultOptions = { depth: 1 }
 router.get("/", root)
 router.get("/getInfo", getInfo)
 
-function root(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+function root(req, res, next) {
   return res.json({ status: "control" })
 }
 
 // Execute the RPC getinfo call.
-async function getInfo(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
-  const {BitboxHTTP, username, password, requestConfig} = routeUtils.setEnvVars()
+async function getInfo(req, res, next) {
+  const {
+    BitboxHTTP,
+    username,
+    password,
+    requestConfig
+  } = routeUtils.setEnvVars()
 
   requestConfig.data.id = "getinfo"
   requestConfig.data.method = "getinfo"

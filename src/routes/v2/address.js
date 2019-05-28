@@ -4,16 +4,15 @@
 
 "use strict"
 
-import * as express from "express"
-import * as requestUtils from "./services/requestUtils"
-import { IResponse } from "./interfaces/IResponse"
-import axios from "axios"
+const express = require("express")
+const requestUtils = require("./services/requestUtils")
+const axios = require("axios")
 const logger = require("./logging.js")
 const routeUtils = require("./route-utils")
 const wlogger = require("../../util/winston-logging")
 
 //const router = express.Router()
-const router: express.Router = express.Router()
+const router = express.Router()
 
 // Used for processing error messages before sending them to the user.
 const util = require("util")
@@ -39,29 +38,20 @@ router.post("/transactions", transactionsBulk)
 router.get("/fromXPub/:xpub", fromXPubSingle)
 
 // Root API endpoint. Simply acknowledges that it exists.
-function root(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+function root(req, res, next) {
   return res.json({ status: "address" })
 }
 
 // Query the Insight API for details on a single BCH address.
 // Returns a Promise.
-async function detailsFromInsight(
-  thisAddress: string,
-  currentPage: number = 0
-) {
+async function detailsFromInsight(thisAddress, currentPage = 0) {
   try {
-    let addr: string
+    let addr
     if (
       process.env.BITCOINCOM_BASEURL === "https://bch-insight.bitpay.com/api/"
-    ) {
+    )
       addr = BITBOX.Address.toCashAddress(thisAddress)
-    } else {
-      addr = BITBOX.Address.toLegacyAddress(thisAddress)
-    }
+    else addr = BITBOX.Address.toLegacyAddress(thisAddress)
 
     let path = `${process.env.BITCOINCOM_BASEURL}addr/${addr}`
 
@@ -99,11 +89,7 @@ async function detailsFromInsight(
 // POST handler for bulk queries on address details
 // curl -d '{"addresses": ["bchtest:qzjtnzcvzxx7s0na88yrg3zl28wwvfp97538sgrrmr", "bchtest:qp6hgvevf4gzz6l7pgcte3gaaud9km0l459fa23dul"]}' -H "Content-Type: application/json" http://localhost:3000/v2/address/details
 // curl -d '{"addresses": ["bchtest:qzjtnzcvzxx7s0na88yrg3zl28wwvfp97538sgrrmr", "bchtest:qp6hgvevf4gzz6l7pgcte3gaaud9km0l459fa23dul"], "from": 1, "to": 5}' -H "Content-Type: application/json" http://localhost:3000/v2/address/details
-async function detailsBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function detailsBulk(req, res, next) {
   try {
     let addresses = req.body.addresses
     const currentPage = req.body.page ? parseInt(req.body.page, 10) : 0
@@ -153,12 +139,12 @@ async function detailsBulk(
 
     // Loops through each address and creates an array of Promises, querying
     // Insight API in parallel.
-    addresses = addresses.map(async (address: any, index: number) => {
-      return detailsFromInsight(address, currentPage)
-    })
+    addresses = addresses.map(async (address, index) =>
+      detailsFromInsight(address, currentPage)
+    )
 
     // Wait for all parallel Insight requests to return.
-    let result: Array<any> = await axios.all(addresses)
+    const result = await axios.all(addresses)
 
     // Return the array of retrieved address information.
     res.status(200)
@@ -180,11 +166,7 @@ async function detailsBulk(
 }
 
 // GET handler for single address details
-async function detailsSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function detailsSingle(req, res, next) {
   try {
     const address = req.params.address
     const currentPage = req.query.page ? parseInt(req.query.page, 10) : 0
@@ -228,7 +210,7 @@ async function detailsSingle(
     }
 
     // Query the Insight API.
-    let retData: any = await detailsFromInsight(address, currentPage)
+    const retData = await detailsFromInsight(address, currentPage)
 
     // Return the retrieved address information.
     res.status(200)
@@ -251,16 +233,14 @@ async function detailsSingle(
 }
 
 // Retrieve UTXO data from the Insight API
-async function utxoFromInsight(thisAddress: string) {
+async function utxoFromInsight(thisAddress) {
   try {
-    let addr: string
+    let addr
     if (
       process.env.BITCOINCOM_BASEURL === "https://bch-insight.bitpay.com/api/"
-    ) {
+    )
       addr = BITBOX.Address.toCashAddress(thisAddress)
-    } else {
-      addr = BITBOX.Address.toLegacyAddress(thisAddress)
-    }
+    else addr = BITBOX.Address.toLegacyAddress(thisAddress)
 
     const path = `${process.env.BITCOINCOM_BASEURL}addr/${addr}/utxo`
 
@@ -275,12 +255,12 @@ async function utxoFromInsight(thisAddress: string) {
       scriptPubKey: String
     }
     if (response.data.length && response.data[0].scriptPubKey) {
-      let spk = response.data[0].scriptPubKey
+      const spk = response.data[0].scriptPubKey
       retData.scriptPubKey = spk
     }
     retData.legacyAddress = BITBOX.Address.toLegacyAddress(thisAddress)
     retData.cashAddress = BITBOX.Address.toCashAddress(thisAddress)
-    retData.utxos = response.data.map((utxo: any) => {
+    retData.utxos = response.data.map(utxo => {
       delete utxo.address
       delete utxo.scriptPubKey
       return utxo
@@ -296,11 +276,7 @@ async function utxoFromInsight(thisAddress: string) {
 }
 
 // Retrieve UTXO information for an address.
-async function utxoBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function utxoBulk(req, res, next) {
   try {
     let addresses = req.body.addresses
 
@@ -351,12 +327,12 @@ async function utxoBulk(
 
     // Loops through each address and creates an array of Promises, querying
     // Insight API in parallel.
-    addresses = addresses.map(async (address: any, index: number) => {
-      return utxoFromInsight(address)
-    })
+    addresses = addresses.map(async (address, index) =>
+      utxoFromInsight(address)
+    )
 
     // Wait for all parallel Insight requests to return.
-    let result: Array<any> = await axios.all(addresses)
+    const result = await axios.all(addresses)
 
     res.status(200)
     return res.json(result)
@@ -378,11 +354,7 @@ async function utxoBulk(
 }
 
 // GET handler for single address details
-async function utxoSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function utxoSingle(req, res, next) {
   try {
     const address = req.params.address
     if (!address || address === "") {
@@ -444,13 +416,9 @@ async function utxoSingle(
 }
 
 // Retrieve any unconfirmed TX information for a given address.
-async function unconfirmedBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function unconfirmedBulk(req, res, next) {
   try {
-    let addresses = req.body.addresses
+    const addresses = req.body.addresses
 
     // Reject if address is not an array.
     if (!Array.isArray(addresses)) {
@@ -497,16 +465,16 @@ async function unconfirmedBulk(
     const promises = addresses.map(address => utxoFromInsight(address))
 
     // Wait for all parallel Insight requests to return.
-    let result: Array<any> = await axios.all(promises)
+    const result = await axios.all(promises)
 
     // Loop through each result
     const finalResult = result.map(elem => {
       //console.log(`elem: ${util.inspect(elem)}`)
 
       // Filter out confirmed transactions.
-      const unconfirmedUtxos = elem.utxos.filter((utxo: any) => {
-        return utxo.confirmations === 0
-      })
+      const unconfirmedUtxos = elem.utxos.filter(
+        utxo => utxo.confirmations === 0
+      )
 
       elem.utxos = unconfirmedUtxos
 
@@ -534,11 +502,7 @@ async function unconfirmedBulk(
 }
 
 // GET handler. Retrieve any unconfirmed TX information for a given address.
-async function unconfirmedSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function unconfirmedSingle(req, res, next) {
   try {
     const address = req.params.address
     if (!address || address === "") {
@@ -576,25 +540,14 @@ async function unconfirmedSingle(
       })
     }
 
-    interface Iutxo {
-      address: String
-      txid: String
-      vout: Number
-      scriptPubKey: String
-      amount: Number
-      satoshis: Number
-      height: Number
-      confirmations: Number
-    }
-
     // Query the Insight API.
-    const retData: any = await utxoFromInsight(address)
+    const retData = await utxoFromInsight(address)
     //console.log(`retData: ${JSON.stringify(retData,null,2)}`)
 
     // Loop through each returned UTXO.
     const unconfirmedUTXOs = []
     for (let j = 0; j < retData.utxos.length; j++) {
-      const thisUtxo: Iutxo = retData.utxos[j]
+      const thisUtxo = retData.utxos[j]
 
       // Only interested in UTXOs with no confirmations.
       if (thisUtxo.confirmations === 0) unconfirmedUTXOs.push(thisUtxo)
@@ -623,10 +576,7 @@ async function unconfirmedSingle(
 }
 
 // Retrieve transaction data from the Insight API
-async function transactionsFromInsight(
-  thisAddress: string,
-  currentPage: number = 0
-) {
+async function transactionsFromInsight(thisAddress, currentPage = 0) {
   try {
     const path = `${
       process.env.BITCOINCOM_BASEURL
@@ -650,11 +600,7 @@ async function transactionsFromInsight(
 }
 
 // Get an array of TX information for a given address.
-async function transactionsBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function transactionsBulk(req, res, next) {
   try {
     let addresses = req.body.addresses
     const currentPage = req.body.page ? parseInt(req.body.page, 10) : 0
@@ -701,12 +647,12 @@ async function transactionsBulk(
     }
 
     // Loop through each address and collect an array of promises.
-    addresses = addresses.map(async (address: any, index: number) => {
-      return transactionsFromInsight(address, currentPage)
-    })
+    addresses = addresses.map(async (address, index) =>
+      transactionsFromInsight(address, currentPage)
+    )
 
     // Wait for all parallel Insight requests to return.
-    let result: Array<any> = await axios.all(addresses)
+    const result = await axios.all(addresses)
 
     // Return the array of retrieved address information.
     res.status(200)
@@ -729,11 +675,7 @@ async function transactionsBulk(
 }
 
 // GET handler. Retrieve any unconfirmed TX information for a given address.
-async function transactionsSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function transactionsSingle(req, res, next) {
   try {
     const address = req.params.address
     const currentPage = req.query.page ? parseInt(req.query.page, 10) : 0
@@ -803,11 +745,7 @@ async function transactionsSingle(
   }
 }
 
-async function fromXPubSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function fromXPubSingle(req, res, next) {
   try {
     const xpub = req.params.xpub
     const hdPath = req.query.hdPath ? req.query.hdPath : "0"
@@ -828,8 +766,8 @@ async function fromXPubSingle(
     logger.debug(`Executing address/fromXPub with this xpub: `, xpub)
     wlogger.debug(`Executing address/fromXPub with this xpub: `, xpub)
 
-    let cashAddr = BITBOX.Address.fromXPub(xpub, hdPath)
-    let legacyAddr = BITBOX.Address.toLegacyAddress(cashAddr)
+    const cashAddr = BITBOX.Address.fromXPub(xpub, hdPath)
+    const legacyAddr = BITBOX.Address.toLegacyAddress(cashAddr)
     res.status(200)
     return res.json({
       cashAddress: cashAddr,

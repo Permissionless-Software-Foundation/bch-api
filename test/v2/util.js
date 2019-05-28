@@ -10,7 +10,7 @@
 
 const chai = require("chai")
 const assert = chai.assert
-const utilRoute = require("../../dist/routes/v2/util")
+const utilRoute = require("../../src/routes/v2/util")
 const nock = require("nock") // HTTP mocking
 
 let originalEnvVars // Used during transition from integration to unit tests.

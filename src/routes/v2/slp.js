@@ -1,9 +1,9 @@
 "use strict"
 
-import * as express from "express"
+const express = require("express")
 const router = express.Router()
-import axios from "axios"
-import { IRequestConfig } from "./interfaces/IRequestConfig"
+const axios = require("axios")
+
 const routeUtils = require("./route-utils")
 const logger = require("./logging.js")
 const strftime = require("strftime")
@@ -79,7 +79,7 @@ if (process.env.NON_JS_FRAMEWORK && process.env.NON_JS_FRAMEWORK === "true") {
 // Retrieve raw transactions details from the full node.
 // TODO: move this function to a separate support library.
 // TODO: Add unit tests for this function.
-async function getRawTransactionsFromNode(txids: string[]) {
+async function getRawTransactionsFromNode(txids) {
   try {
     const {
       BitboxHTTP,
@@ -106,9 +106,7 @@ async function getRawTransactionsFromNode(txids: string[]) {
 
       // Insert to slpTxDb
       try {
-        if (slpTxDb.isOpen()) {
-          await slpTxDb.put(txid, result)
-        }
+        if (slpTxDb.isOpen()) await slpTxDb.put(txid, result)
       } catch (err) {
         // console.log("Error inserting to slpTxDb", err)
       }
@@ -125,16 +123,14 @@ async function getRawTransactionsFromNode(txids: string[]) {
 }
 
 // Create a validator for validating SLP transactions.
-function createValidator(network: string, getRawTransactions: any = null): any {
-  let tmpSLP: any
+function createValidator(network, getRawTransactions = null) {
+  let tmpSLP
 
-  if (network === "mainnet") {
+  if (network === "mainnet")
     tmpSLP = new SLPSDK({ restURL: process.env.REST_URL })
-  } else {
-    tmpSLP = new SLPSDK({ restURL: process.env.TREST_URL })
-  }
+  else tmpSLP = new SLPSDK({ restURL: process.env.TREST_URL })
 
-  const slpValidator: any = new slp.LocalValidator(
+  const slpValidator = new slp.LocalValidator(
     tmpSLP,
     getRawTransactions
       ? getRawTransactions
@@ -153,7 +149,7 @@ const slpValidator = createValidator(
 // Instantiate the bitboxproxy class in SLPJS.
 const bitboxproxy = new slp.BitboxNetwork(SLP, slpValidator)
 
-const requestConfig: IRequestConfig = {
+const requestConfig = {
   method: "post",
   auth: {
     username: username,
@@ -199,19 +195,11 @@ function formatTokenOutput(token) {
   return token
 }
 
-function root(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+function root(req, res, next) {
   return res.json({ status: "slp" })
 }
 
-async function list(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function list(req, res, next) {
   try {
     const query = {
       v: 3,
@@ -233,10 +221,10 @@ async function list(
     // Get data from SLPDB.
     const tokenRes = await axios.get(url)
 
-    let formattedTokens: Array<any> = []
+    const formattedTokens = []
 
     if (tokenRes.data.t.length) {
-      tokenRes.data.t.forEach((token: any) => {
+      tokenRes.data.t.forEach(token => {
         token = formatTokenOutput(token)
         formattedTokens.push(token.tokenDetails)
       })
@@ -257,13 +245,9 @@ async function list(
   }
 }
 
-async function listSingleToken(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function listSingleToken(req, res, next) {
   try {
-    let tokenId = req.params.tokenId
+    const tokenId = req.params.tokenId
 
     if (!tokenId || tokenId === "") {
       res.status(400)
@@ -287,13 +271,9 @@ async function listSingleToken(
   }
 }
 
-async function listBulkToken(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function listBulkToken(req, res, next) {
   try {
-    let tokenIds = req.body.tokenIds
+    const tokenIds = req.body.tokenIds
 
     // Reject if tokenIds is not an array.
     if (!Array.isArray(tokenIds)) {
@@ -332,18 +312,18 @@ async function listBulkToken(
 
     const tokenRes = await axios.get(url)
 
-    let formattedTokens: Array<any> = []
-    let txids: Array<any> = []
+    const formattedTokens = []
+    const txids = []
 
     if (tokenRes.data.t.length) {
-      tokenRes.data.t.forEach((token: any) => {
+      tokenRes.data.t.forEach(token => {
         txids.push(token.tokenDetails.tokenIdHex)
         token = formatTokenOutput(token)
         formattedTokens.push(token.tokenDetails)
       })
     }
 
-    tokenIds.forEach((tokenId: string) => {
+    tokenIds.forEach(tokenId => {
       if (!txids.includes(tokenId)) {
         formattedTokens.push({
           id: tokenId,
@@ -391,17 +371,17 @@ async function lookupToken(tokenId) {
     //console.log(`tokenRes.data: ${util.inspect(tokenRes.data,null,2)}`)
     //console.log(`tokenRes.data.t[0]: ${util.inspect(tokenRes.data.t[0],null,2)}`)
 
-    let formattedTokens: Array<any> = []
+    const formattedTokens = []
 
     if (tokenRes.data.t.length) {
-      tokenRes.data.t.forEach((token: any) => {
+      tokenRes.data.t.forEach(token => {
         token = formatTokenOutput(token)
         formattedTokens.push(token.tokenDetails)
       })
     }
 
     let t
-    formattedTokens.forEach((token: any) => {
+    formattedTokens.forEach(token => {
       if (token.id === tokenId) t = token
     })
 
@@ -421,14 +401,10 @@ async function lookupToken(tokenId) {
 }
 
 // Retrieve token balances for all tokens for a single address.
-async function balancesForAddress(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function balancesForAddress(req, res, next) {
   try {
     // Validate the input data.
-    let address = req.params.address
+    const address = req.params.address
     if (!address || address === "") {
       res.status(400)
       return res.json({ error: "address can not be empty" })
@@ -436,7 +412,7 @@ async function balancesForAddress(
 
     // Ensure the input is a valid BCH address.
     try {
-      let cash = utils.toCashAddress(address)
+      const cash = utils.toCashAddress(address)
     } catch (err) {
       res.status(400)
       return res.json({
@@ -445,7 +421,7 @@ async function balancesForAddress(
     }
 
     // Prevent a common user error. Ensure they are using the correct network address.
-    let cashAddr = utils.toCashAddress(address)
+    const cashAddr = utils.toCashAddress(address)
     const networkIsValid = routeUtils.validateNetwork(cashAddr)
     if (!networkIsValid) {
       res.status(400)
@@ -472,7 +448,7 @@ async function balancesForAddress(
 
     const tokenRes = await axios.get(url)
 
-    let tokenIds: string[] = []
+    const tokenIds = []
     if (tokenRes.data.a.length > 0) {
       tokenRes.data.a = tokenRes.data.a.map(token => {
         token.tokenId = token.tokenDetails.tokenIdHex
@@ -521,17 +497,15 @@ async function balancesForAddress(
       const details = await axios.all(promises)
       tokenRes.data.a = tokenRes.data.a.map(token => {
         details.forEach(detail => {
-          if (detail.t[0].tokenDetails.tokenIdHex === token.tokenId) {
+          if (detail.t[0].tokenDetails.tokenIdHex === token.tokenId)
             token.decimalCount = detail.t[0].tokenDetails.decimals
-          }
         })
         return token
       })
 
       return res.json(tokenRes.data.a)
-    } else {
-      return res.json("No balance for this address")
     }
+    return res.json("No balance for this address")
   } catch (err) {
     wlogger.error(`Error in slp.ts/balancesForAddress().`, err)
 
@@ -550,14 +524,10 @@ async function balancesForAddress(
 }
 
 // Retrieve token balances for all addresses by single tokenId.
-async function balancesForTokenSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function balancesForTokenSingle(req, res, next) {
   try {
     // Validate the input data.
-    let tokenId = req.params.tokenId
+    const tokenId = req.params.tokenId
     if (!tokenId || tokenId === "") {
       res.status(400)
       return res.json({ error: "tokenId can not be empty" })
@@ -581,7 +551,7 @@ async function balancesForTokenSingle(
 
     // Get data from SLPDB.
     const tokenRes = await axios.get(url)
-    let resBalances: any[] = tokenRes.data.a.map((addy, index) => {
+    const resBalances = tokenRes.data.a.map((addy, index) => {
       delete addy.satoshis_balance
       addy.tokenBalance = parseFloat(addy.token_balance)
       addy.slpAddress = addy.address
@@ -609,20 +579,16 @@ async function balancesForTokenSingle(
 }
 
 // Retrieve token balances for a single token class, for a single address.
-async function balancesForAddressByTokenID(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function balancesForAddressByTokenID(req, res, next) {
   try {
     // Validate input data.
-    let address: string = req.params.address
+    const address = req.params.address
     if (!address || address === "") {
       res.status(400)
       return res.json({ error: "address can not be empty" })
     }
 
-    let tokenId: string = req.params.tokenId
+    const tokenId = req.params.tokenId
     if (!tokenId || tokenId === "") {
       res.status(400)
       return res.json({ error: "tokenId can not be empty" })
@@ -630,7 +596,7 @@ async function balancesForAddressByTokenID(
 
     // Ensure the input is a valid BCH address.
     try {
-      let cash = utils.toCashAddress(address)
+      const cash = utils.toCashAddress(address)
     } catch (err) {
       res.status(400)
       return res.json({
@@ -639,7 +605,7 @@ async function balancesForAddressByTokenID(
     }
 
     // Prevent a common user error. Ensure they are using the correct network address.
-    let cashAddr = utils.toCashAddress(address)
+    const cashAddr = utils.toCashAddress(address)
     const networkIsValid = routeUtils.validateNetwork(cashAddr)
     if (!networkIsValid) {
       res.status(400)
@@ -669,7 +635,7 @@ async function balancesForAddressByTokenID(
 
     // Get data from SLPDB.
     const tokenRes = await axios.get(url)
-    let resVal: any
+    let resVal
     res.status(200)
     if (tokenRes.data.a.length > 0) {
       tokenRes.data.a.forEach(async token => {
@@ -740,13 +706,9 @@ async function balancesForAddressByTokenID(
   }
 }
 
-async function convertAddressSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function convertAddressSingle(req, res, next) {
   try {
-    let address = req.params.address
+    const address = req.params.address
 
     // Validate input
     if (!address || address === "") {
@@ -756,11 +718,7 @@ async function convertAddressSingle(
 
     const slpAddr = SLP.Address.toSLPAddress(address)
 
-    const obj: {
-      [slpAddress: string]: any
-      cashAddress: any
-      legacyAddress: any
-    } = {
+    const obj = {
       slpAddress: "",
       cashAddress: "",
       legacyAddress: ""
@@ -786,12 +744,8 @@ async function convertAddressSingle(
   }
 }
 
-async function convertAddressBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
-  let addresses = req.body.addresses
+async function convertAddressBulk(req, res, next) {
+  const addresses = req.body.addresses
 
   // Reject if hashes is not an array.
   if (!Array.isArray(addresses)) {
@@ -822,11 +776,7 @@ async function convertAddressBulk(
 
     const slpAddr = SLP.Address.toSLPAddress(address)
 
-    const obj: {
-      [slpAddress: string]: any
-      cashAddress: any
-      legacyAddress: any
-    } = {
+    const obj = {
       slpAddress: "",
       cashAddress: "",
       legacyAddress: ""
@@ -842,11 +792,7 @@ async function convertAddressBulk(
   return res.json(convertedAddresses)
 }
 
-async function validateBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function validateBulk(req, res, next) {
   try {
     const txids = req.body.txids
 
@@ -874,7 +820,7 @@ async function validateBulk(
           txid
         )
 
-        let tmp: any = {
+        const tmp = {
           txid: txid,
           valid: isValid ? true : false
         }
@@ -907,11 +853,7 @@ async function validateBulk(
   }
 }
 
-async function validateSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function validateSingle(req, res, next) {
   try {
     const txid = req.params.txid
 
@@ -927,7 +869,7 @@ async function validateSingle(
     // Dev note: must call module.exports to allow stubs in unit tests.
     const isValid = await module.exports.testableComponents.isValidSlpTxid(txid)
 
-    let tmp: any = {
+    const tmp = {
       txid: txid,
       valid: isValid ? true : false
     }
@@ -950,7 +892,7 @@ async function validateSingle(
 }
 
 // Returns a Boolean if the input TXID is a valid SLP TXID.
-async function isValidSlpTxid(txid: string): Promise<boolean> {
+async function isValidSlpTxid(txid) {
   const isValid = await slpValidator.isValidSlpTxid(txid)
   return isValid
 }
@@ -958,78 +900,74 @@ async function isValidSlpTxid(txid: string): Promise<boolean> {
 // Below are functions which are enabled for teams not using our javascript SDKs which still need to create txs
 // These should never be enabled on our public REST API
 
-async function createTokenType1(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
-  let fundingAddress = req.params.fundingAddress
+async function createTokenType1(req, res, next) {
+  const fundingAddress = req.params.fundingAddress
   if (!fundingAddress || fundingAddress === "") {
     res.status(400)
     return res.json({ error: "fundingAddress can not be empty" })
   }
 
-  let fundingWif = req.params.fundingWif
+  const fundingWif = req.params.fundingWif
   if (!fundingWif || fundingWif === "") {
     res.status(400)
     return res.json({ error: "fundingWif can not be empty" })
   }
 
-  let tokenReceiverAddress = req.params.tokenReceiverAddress
+  const tokenReceiverAddress = req.params.tokenReceiverAddress
   if (!tokenReceiverAddress || tokenReceiverAddress === "") {
     res.status(400)
     return res.json({ error: "tokenReceiverAddress can not be empty" })
   }
 
-  let batonReceiverAddress = req.params.batonReceiverAddress
+  const batonReceiverAddress = req.params.batonReceiverAddress
   if (!batonReceiverAddress || batonReceiverAddress === "") {
     res.status(400)
     return res.json({ error: "batonReceiverAddress can not be empty" })
   }
 
-  let bchChangeReceiverAddress = req.params.bchChangeReceiverAddress
+  const bchChangeReceiverAddress = req.params.bchChangeReceiverAddress
   if (!bchChangeReceiverAddress || bchChangeReceiverAddress === "") {
     res.status(400)
     return res.json({ error: "bchChangeReceiverAddress can not be empty" })
   }
 
-  let decimals = req.params.decimals
+  const decimals = req.params.decimals
   if (!decimals || decimals === "") {
     res.status(400)
     return res.json({ error: "decimals can not be empty" })
   }
 
-  let name = req.params.name
+  const name = req.params.name
   if (!name || name === "") {
     res.status(400)
     return res.json({ error: "name can not be empty" })
   }
 
-  let symbol = req.params.symbol
+  const symbol = req.params.symbol
   if (!symbol || symbol === "") {
     res.status(400)
     return res.json({ error: "symbol can not be empty" })
   }
 
-  let documentUri = req.params.documentUri
+  const documentUri = req.params.documentUri
   if (!documentUri || documentUri === "") {
     res.status(400)
     return res.json({ error: "documentUri can not be empty" })
   }
 
-  let documentHash = req.params.documentHash
+  const documentHash = req.params.documentHash
   if (!documentHash || documentHash === "") {
     res.status(400)
     return res.json({ error: "documentHash can not be empty" })
   }
 
-  let initialTokenQty = req.params.initialTokenQty
+  const initialTokenQty = req.params.initialTokenQty
   if (!initialTokenQty || initialTokenQty === "") {
     res.status(400)
     return res.json({ error: "initialTokenQty can not be empty" })
   }
 
-  let token = await SLP.TokenType1.create({
+  const token = await SLP.TokenType1.create({
     fundingAddress: fundingAddress,
     fundingWif: fundingWif,
     tokenReceiverAddress: tokenReceiverAddress,
@@ -1047,54 +985,50 @@ async function createTokenType1(
   return res.json(token)
 }
 
-async function mintTokenType1(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
-  let fundingAddress = req.params.fundingAddress
+async function mintTokenType1(req, res, next) {
+  const fundingAddress = req.params.fundingAddress
   if (!fundingAddress || fundingAddress === "") {
     res.status(400)
     return res.json({ error: "fundingAddress can not be empty" })
   }
 
-  let fundingWif = req.params.fundingWif
+  const fundingWif = req.params.fundingWif
   if (!fundingWif || fundingWif === "") {
     res.status(400)
     return res.json({ error: "fundingWif can not be empty" })
   }
 
-  let tokenReceiverAddress = req.params.tokenReceiverAddress
+  const tokenReceiverAddress = req.params.tokenReceiverAddress
   if (!tokenReceiverAddress || tokenReceiverAddress === "") {
     res.status(400)
     return res.json({ error: "tokenReceiverAddress can not be empty" })
   }
 
-  let batonReceiverAddress = req.params.batonReceiverAddress
+  const batonReceiverAddress = req.params.batonReceiverAddress
   if (!batonReceiverAddress || batonReceiverAddress === "") {
     res.status(400)
     return res.json({ error: "batonReceiverAddress can not be empty" })
   }
 
-  let bchChangeReceiverAddress = req.params.bchChangeReceiverAddress
+  const bchChangeReceiverAddress = req.params.bchChangeReceiverAddress
   if (!bchChangeReceiverAddress || bchChangeReceiverAddress === "") {
     res.status(400)
     return res.json({ error: "bchChangeReceiverAddress can not be empty" })
   }
 
-  let tokenId = req.params.tokenId
+  const tokenId = req.params.tokenId
   if (!tokenId || tokenId === "") {
     res.status(400)
     return res.json({ error: "tokenId can not be empty" })
   }
 
-  let additionalTokenQty = req.params.additionalTokenQty
+  const additionalTokenQty = req.params.additionalTokenQty
   if (!additionalTokenQty || additionalTokenQty === "") {
     res.status(400)
     return res.json({ error: "additionalTokenQty can not be empty" })
   }
 
-  let mint = await SLP.TokenType1.mint({
+  const mint = await SLP.TokenType1.mint({
     fundingAddress: fundingAddress,
     fundingWif: fundingWif,
     tokenReceiverAddress: tokenReceiverAddress,
@@ -1108,47 +1042,43 @@ async function mintTokenType1(
   return res.json(mint)
 }
 
-async function sendTokenType1(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
-  let fundingAddress = req.params.fundingAddress
+async function sendTokenType1(req, res, next) {
+  const fundingAddress = req.params.fundingAddress
   if (!fundingAddress || fundingAddress === "") {
     res.status(400)
     return res.json({ error: "fundingAddress can not be empty" })
   }
 
-  let fundingWif = req.params.fundingWif
+  const fundingWif = req.params.fundingWif
   if (!fundingWif || fundingWif === "") {
     res.status(400)
     return res.json({ error: "fundingWif can not be empty" })
   }
 
-  let tokenReceiverAddress = req.params.tokenReceiverAddress
+  const tokenReceiverAddress = req.params.tokenReceiverAddress
   if (!tokenReceiverAddress || tokenReceiverAddress === "") {
     res.status(400)
     return res.json({ error: "tokenReceiverAddress can not be empty" })
   }
 
-  let bchChangeReceiverAddress = req.params.bchChangeReceiverAddress
+  const bchChangeReceiverAddress = req.params.bchChangeReceiverAddress
   if (!bchChangeReceiverAddress || bchChangeReceiverAddress === "") {
     res.status(400)
     return res.json({ error: "bchChangeReceiverAddress can not be empty" })
   }
 
-  let tokenId = req.params.tokenId
+  const tokenId = req.params.tokenId
   if (!tokenId || tokenId === "") {
     res.status(400)
     return res.json({ error: "tokenId can not be empty" })
   }
 
-  let amount = req.params.amount
+  const amount = req.params.amount
   if (!amount || amount === "") {
     res.status(400)
     return res.json({ error: "amount can not be empty" })
   }
-  let send = await SLP.TokenType1.send({
+  const send = await SLP.TokenType1.send({
     fundingAddress: fundingAddress,
     fundingWif: fundingWif,
     tokenReceiverAddress: tokenReceiverAddress,
@@ -1161,42 +1091,38 @@ async function sendTokenType1(
   return res.json(send)
 }
 
-async function burnTokenType1(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
-  let fundingAddress = req.params.fundingAddress
+async function burnTokenType1(req, res, next) {
+  const fundingAddress = req.params.fundingAddress
   if (!fundingAddress || fundingAddress === "") {
     res.status(400)
     return res.json({ error: "fundingAddress can not be empty" })
   }
 
-  let fundingWif = req.params.fundingWif
+  const fundingWif = req.params.fundingWif
   if (!fundingWif || fundingWif === "") {
     res.status(400)
     return res.json({ error: "fundingWif can not be empty" })
   }
 
-  let bchChangeReceiverAddress = req.params.bchChangeReceiverAddress
+  const bchChangeReceiverAddress = req.params.bchChangeReceiverAddress
   if (!bchChangeReceiverAddress || bchChangeReceiverAddress === "") {
     res.status(400)
     return res.json({ error: "bchChangeReceiverAddress can not be empty" })
   }
 
-  let tokenId = req.params.tokenId
+  const tokenId = req.params.tokenId
   if (!tokenId || tokenId === "") {
     res.status(400)
     return res.json({ error: "tokenId can not be empty" })
   }
 
-  let amount = req.params.amount
+  const amount = req.params.amount
   if (!amount || amount === "") {
     res.status(400)
     return res.json({ error: "amount can not be empty" })
   }
 
-  let burn = await SLP.TokenType1.burn({
+  const burn = await SLP.TokenType1.burn({
     fundingAddress: fundingAddress,
     fundingWif: fundingWif,
     tokenId: tokenId,
@@ -1208,36 +1134,32 @@ async function burnTokenType1(
   return res.json(burn)
 }
 
-async function burnAllTokenType1(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
-  let fundingAddress = req.params.fundingAddress
+async function burnAllTokenType1(req, res, next) {
+  const fundingAddress = req.params.fundingAddress
   if (!fundingAddress || fundingAddress === "") {
     res.status(400)
     return res.json({ error: "fundingAddress can not be empty" })
   }
 
-  let fundingWif = req.params.fundingWif
+  const fundingWif = req.params.fundingWif
   if (!fundingWif || fundingWif === "") {
     res.status(400)
     return res.json({ error: "fundingWif can not be empty" })
   }
 
-  let bchChangeReceiverAddress = req.params.bchChangeReceiverAddress
+  const bchChangeReceiverAddress = req.params.bchChangeReceiverAddress
   if (!bchChangeReceiverAddress || bchChangeReceiverAddress === "") {
     res.status(400)
     return res.json({ error: "bchChangeReceiverAddress can not be empty" })
   }
 
-  let tokenId = req.params.tokenId
+  const tokenId = req.params.tokenId
   if (!tokenId || tokenId === "") {
     res.status(400)
     return res.json({ error: "tokenId can not be empty" })
   }
 
-  let burnAll = await SLP.TokenType1.burnAll({
+  const burnAll = await SLP.TokenType1.burnAll({
     fundingAddress: fundingAddress,
     fundingWif: fundingWif,
     tokenId: tokenId,
@@ -1248,11 +1170,7 @@ async function burnAllTokenType1(
   return res.json(burnAll)
 }
 
-async function txDetails(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function txDetails(req, res, next) {
   try {
     // Validate input parameter
     const txid = req.params.txid
@@ -1272,11 +1190,13 @@ async function txDetails(
     else tmpSLP = new SLPSDK({ restURL: process.env.REST_URL })
 
     const tmpbitboxNetwork = new slp.BitboxNetwork(tmpSLP, slpValidator)
-    console.log(`tmpbitboxNetwork: ${JSON.stringify(tmpbitboxNetwork,null,2)}`)
+    //console.log(
+    //  `tmpbitboxNetwork: ${JSON.stringify(tmpbitboxNetwork, null, 2)}`
+    //)
 
     // Get TX info + token info
     const result = await tmpbitboxNetwork.getTransactionDetails(txid)
-    console.log(`result: ${JSON.stringify(result,null,2)}`)
+    //console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
     res.status(200)
     return res.json(result)
@@ -1301,12 +1221,8 @@ async function txDetails(
   }
 }
 
-async function tokenStats(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
-  let tokenId: string = req.params.tokenId
+async function tokenStats(req, res, next) {
+  const tokenId = req.params.tokenId
   if (!tokenId || tokenId === "") {
     res.status(400)
     return res.json({ error: "tokenId can not be empty" })
@@ -1334,10 +1250,10 @@ async function tokenStats(
     // Get data from BitDB.
     const tokenRes = await axios.get(url)
 
-    let formattedTokens: Array<any> = []
+    const formattedTokens = []
 
     if (tokenRes.data.t.length) {
-      tokenRes.data.t.forEach((token: any) => {
+      tokenRes.data.t.forEach(token => {
         token = formatTokenOutput(token)
         formattedTokens.push(token.tokenDetails)
       })
@@ -1359,20 +1275,16 @@ async function tokenStats(
 }
 
 // Retrieve transactions by tokenId and address.
-async function txsTokenIdAddressSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function txsTokenIdAddressSingle(req, res, next) {
   try {
     // Validate the input data.
-    let tokenId = req.params.tokenId
+    const tokenId = req.params.tokenId
     if (!tokenId || tokenId === "") {
       res.status(400)
       return res.json({ error: "tokenId can not be empty" })
     }
 
-    let address = req.params.address
+    const address = req.params.address
     if (!address || address === "") {
       res.status(400)
       return res.json({ error: "address can not be empty" })

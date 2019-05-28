@@ -7,7 +7,9 @@
   freemium rate limits apply.
 */
 
-import * as express from "express"
+"use strict"
+
+const express = require("express")
 const RateLimit = require("express-rate-limit")
 
 // Set max requests per minute
@@ -19,25 +21,12 @@ const maxRequests = process.env.RATE_LIMIT_MAX_REQUESTS
 const PRO_RPM = 10 * maxRequests
 
 // Unique route mapped to its rate limit
-const uniqueRateLimits: any = {}
+const uniqueRateLimits = {}
 
-// Add the 'locals' property to the express.Request interface.
-declare global {
-  namespace Express {
-    interface Request {
-      locals: any
-    }
-  }
-}
-
-const routeRateLimit = function(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+const routeRateLimit = function(req, res, next) {
   // Create a res.locals object if not passed in.
-  if(!req.locals) req.locals = {}
-  
+  if (!req.locals) req.locals = {}
+
   // Disable rate limiting if 0 passed from RATE_LIMIT_MAX_REQUESTS
   if (maxRequests === 0) return next()
 
@@ -66,10 +55,7 @@ const routeRateLimit = function(
         windowMs: 60 * 1000, // 1 minute window
         delayMs: 0, // disable delaying - full speed until the max limit is reached
         max: PRO_RPM, // start blocking after this many requests per minute
-        handler: function(
-          req: express.Request,
-          res: express.Response /*next*/
-        ) {
+        handler: function(req, res) {
           //console.log(`pro-tier rate-handler triggered.`)
 
           res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
@@ -91,10 +77,7 @@ const routeRateLimit = function(
         windowMs: 60 * 1000, // 1 minute window
         delayMs: 0, // disable delaying - full speed until the max limit is reached
         max: maxRequests, // start blocking after maxRequests
-        handler: function(
-          req: express.Request,
-          res: express.Response /*next*/
-        ) {
+        handler: function(req, res) {
           //console.log(`freemium rate-handler triggered.`)
 
           res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
@@ -110,4 +93,4 @@ const routeRateLimit = function(
   uniqueRateLimits[route](req, res, next)
 }
 
-export { routeRateLimit }
+module.exports = { routeRateLimit }

@@ -18,9 +18,9 @@ const sinon = require("sinon")
 const proxyquire = require("proxyquire").noPreserveCache()
 
 // Prepare the slpRoute for stubbing dependcies on slpjs.
-const slpRoute = require("../../dist/routes/v2/slp")
+const slpRoute = require("../../src/routes/v2/slp")
 const pathStub = {} // Used to stub methods within slpjs.
-const slpRouteStub = proxyquire("../../dist/routes/v2/slp", { slpjs: pathStub })
+const slpRouteStub = proxyquire("../../src/routes/v2/slp", { slpjs: pathStub })
 
 let originalEnvVars // Used during transition from integration to unit tests.
 
@@ -913,7 +913,7 @@ describe("#SLP", () => {
         "57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b9457822d446"
 
       const result = await txDetails(req, res)
-      console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      //console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.hasAnyKeys(result, ["tokenIsValid", "tokenInfo"])
     })
