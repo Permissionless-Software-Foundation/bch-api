@@ -17,7 +17,7 @@
 
 const chai = require("chai")
 const assert = chai.assert
-const addressRoute = require("../../dist/routes/v2/address")
+const addressRoute = require("../../src/routes/v2/address")
 const nock = require("nock") // HTTP mocking
 
 let originalUrl // Used during transition from integration to unit tests.

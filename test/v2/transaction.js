@@ -15,7 +15,7 @@
 
 const chai = require("chai")
 const assert = chai.assert
-const transactionRoute = require("../../dist/routes/v2/transaction")
+const transactionRoute = require("../../src/routes/v2/transaction")
 const nock = require("nock") // HTTP mocking
 
 let originalEnvVars // Used during transition from integration to unit tests.

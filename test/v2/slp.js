@@ -18,9 +18,9 @@ const sinon = require("sinon")
 const proxyquire = require("proxyquire").noPreserveCache()
 
 // Prepare the slpRoute for stubbing dependcies on slpjs.
-const slpRoute = require("../../dist/routes/v2/slp")
+const slpRoute = require("../../src/routes/v2/slp")
 const pathStub = {} // Used to stub methods within slpjs.
-const slpRouteStub = proxyquire("../../dist/routes/v2/slp", { slpjs: pathStub })
+const slpRouteStub = proxyquire("../../src/routes/v2/slp", { slpjs: pathStub })
 
 let originalEnvVars // Used during transition from integration to unit tests.
 

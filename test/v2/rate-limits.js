@@ -12,8 +12,8 @@ util.inspect.defaultOptions = { depth: 1 }
 const { mockReq, mockRes, mockNext } = require("./mocks/express-mocks")
 
 // Libraries under test
-let rateLimitMiddleware = require("../../dist/middleware/route-ratelimit")
-const controlRoute = require("../../dist/routes/v2/control")
+let rateLimitMiddleware = require("../../src/middleware/route-ratelimit")
+const controlRoute = require("../../src/routes/v2/control")
 
 let req, res, next
 let originalEnvVars // Used during transition from integration to unit tests.
