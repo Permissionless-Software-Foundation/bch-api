@@ -1272,9 +1272,11 @@ async function txDetails(
     else tmpSLP = new SLPSDK({ restURL: process.env.REST_URL })
 
     const tmpbitboxNetwork = new slp.BitboxNetwork(tmpSLP, slpValidator)
+    console.log(`tmpbitboxNetwork: ${JSON.stringify(tmpbitboxNetwork,null,2)}`)
 
     // Get TX info + token info
     const result = await tmpbitboxNetwork.getTransactionDetails(txid)
+    console.log(`result: ${JSON.stringify(result,null,2)}`)
 
     res.status(200)
     return res.json(result)

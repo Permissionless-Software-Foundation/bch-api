@@ -27,7 +27,7 @@ utxo based calls.
 
 - Audit all npm dependencies and try to fix/remove any vulnerabilities.
 
-- Remove rate limiting.
+- Remove rate limiting
 
 - Setup automated dependency management through Greenkeeper, and automated
 continuous-release with semantic versioning through Semantic Release.
