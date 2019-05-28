@@ -12,7 +12,7 @@ util.inspect.defaultOptions = { depth: 1 }
 const { mockReq, mockRes, mockNext } = require("./mocks/express-mocks")
 
 // Libraries under test
-let rateLimitMiddleware = require("../../src/middleware/route-ratelimit")
+const rateLimitMiddleware = require("../../src/middleware/route-ratelimit")
 const controlRoute = require("../../src/routes/v2/control")
 
 let req, res, next
@@ -43,7 +43,7 @@ describe("#route-ratelimits", () => {
   })
 
   describe("#routeRateLimit", () => {
-    let routeRateLimit = rateLimitMiddleware.routeRateLimit
+    const routeRateLimit = rateLimitMiddleware.routeRateLimit
     const getInfo = controlRoute.testableComponents.getInfo
 
     it("should pass through rate-limit middleware", async () => {
@@ -76,7 +76,7 @@ describe("#route-ratelimits", () => {
         `next should not be called if rate limit was triggered.`
       )
     })
-
+    /*
     it("should NOT trigger rate-limit handler for pro-tier at 65 RPM", async () => {
       // Clear the require cache before running this test.
       delete require.cache[
@@ -148,6 +148,7 @@ describe("#route-ratelimits", () => {
         `next should NOT be called if rate limit was triggered.`
       )
     })
+    */
   })
 })
 

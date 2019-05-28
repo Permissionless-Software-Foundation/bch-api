@@ -1,18 +1,19 @@
 "use strict"
 
-import * as express from "express"
-import * as requestUtils from "./services/requestUtils"
-import * as bitbox from "./services/bitbox"
+const express = require("express")
+const requestUtils = require("./services/requestUtils")
+const axios = require("axios")
+const bitbox = require("./services/bitbox")
 const logger = require("./logging.js")
 const wlogger = require("../../util/winston-logging")
-import axios from "axios"
+
 const routeUtils = require("./route-utils")
 
 // Used for processing error messages before sending them to the user.
 const util = require("util")
 util.inspect.defaultOptions = { depth: 3 }
 
-const router: express.Router = express.Router()
+const router = express.Router()
 //const BitboxHTTP = bitbox.getInstance()
 
 router.get("/", root)
@@ -21,20 +22,12 @@ router.post("/detailsByHash", detailsByHashBulk)
 router.get("/detailsByHeight/:height", detailsByHeightSingle)
 router.post("/detailsByHeight", detailsByHeightBulk)
 
-function root(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+function root(req, res, next) {
   return res.json({ status: "block" })
 }
 
 // Call the insight server to get block details based on the hash.
-async function detailsByHashSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function detailsByHashSingle(req, res, next) {
   try {
     const hash = req.params.hash
 
@@ -75,11 +68,7 @@ async function detailsByHashSingle(
   }
 }
 
-async function detailsByHashBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function detailsByHashBulk(req, res, next) {
   try {
     const hashes = req.body.hashes
 
@@ -112,12 +101,12 @@ async function detailsByHashBulk(
     }
 
     // Loop through each hash and creates an array of promises
-    const axiosPromises = hashes.map(async (hash: any) => {
-      return axios.get(`${process.env.BITCOINCOM_BASEURL}block/${hash}`)
-    })
+    const axiosPromises = hashes.map(async hash =>
+      axios.get(`${process.env.BITCOINCOM_BASEURL}block/${hash}`)
+    )
 
     // Wait for all parallel promises to return.
-    const axiosResult: Array<any> = await axios.all(axiosPromises)
+    const axiosResult = await axios.all(axiosPromises)
 
     // Extract the data component from the axios response.
     const result = axiosResult.map(x => x.data)
@@ -149,11 +138,7 @@ async function detailsByHashBulk(
 
 // Call the Full Node to get block hash based on height, then call the Insight
 // server to get details from that hash.
-async function detailsByHeightSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function detailsByHeightSingle(req, res, next) {
   try {
     const height = req.params.height
 
@@ -183,7 +168,6 @@ async function detailsByHeightSingle(
     req.params.hash = hash
     return detailsByHashSingle(req, res, next)
   } catch (err) {
-
     // Attempt to decode the error message.
     const { msg, status } = routeUtils.decodeError(err)
     if (msg) {
@@ -200,13 +184,9 @@ async function detailsByHeightSingle(
   }
 }
 
-async function detailsByHeightBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function detailsByHeightBulk(req, res, next) {
   try {
-    let heights = req.body.heights
+    const heights = req.body.heights
 
     // Reject if heights is not an array.
     if (!Array.isArray(heights)) {
@@ -245,7 +225,7 @@ async function detailsByHeightBulk(
     } = routeUtils.setEnvVars()
 
     // Loop through each height and creates an array of requests to call in parallel
-    const promises = heights.map(async (height: any) => {
+    const promises = heights.map(async height => {
       requestConfig.data.id = "getblockhash"
       requestConfig.data.method = "getblockhash"
       requestConfig.data.params = [parseInt(height)]
@@ -262,7 +242,7 @@ async function detailsByHeightBulk(
     })
 
     // Wait for all parallel Insight requests to return.
-    let result: Array<any> = await axios.all(promises)
+    const result = await axios.all(promises)
 
     res.status(200)
     return res.json(result)

@@ -5,10 +5,10 @@
 
 "use strict"
 
-import * as express from "express"
+const express = require("express")
 const router = express.Router()
-import axios from "axios"
-import { IRequestConfig } from "./interfaces/IRequestConfig"
+const axios = require("axios")
+
 const routeUtils = require("./route-utils")
 const logger = require("./logging.js")
 const wlogger = require("../../util/winston-logging")
@@ -39,20 +39,12 @@ router.post("/getTxOutProof", getTxOutProofBulk)
 router.get("/verifyTxOutProof/:proof", verifyTxOutProofSingle)
 router.post("/verifyTxOutProof", verifyTxOutProofBulk)
 
-function root(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+function root(req, res, next) {
   return res.json({ status: "blockchain" })
 }
 
 // Returns the hash of the best (tip) block in the longest block chain.
-async function getBestBlockHash(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getBestBlockHash(req, res, next) {
   try {
     const {
       BitboxHTTP,
@@ -84,11 +76,7 @@ async function getBestBlockHash(
   }
 }
 
-async function getBlockchainInfo(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getBlockchainInfo(req, res, next) {
   try {
     const {
       BitboxHTTP,
@@ -121,11 +109,7 @@ async function getBlockchainInfo(
   }
 }
 
-async function getBlockCount(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getBlockCount(req, res, next) {
   try {
     const {
       BitboxHTTP,
@@ -157,11 +141,7 @@ async function getBlockCount(
   }
 }
 
-async function getBlockHeaderSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getBlockHeaderSingle(req, res, next) {
   try {
     let verbose = false
     if (req.query.verbose && req.query.verbose.toString() === "true")
@@ -204,13 +184,9 @@ async function getBlockHeaderSingle(
   }
 }
 
-async function getBlockHeaderBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getBlockHeaderBulk(req, res, next) {
   try {
-    let hashes = req.body.hashes
+    const hashes = req.body.hashes
     const verbose = req.body.verbose ? req.body.verbose : false
 
     if (!Array.isArray(hashes)) {
@@ -251,7 +227,7 @@ async function getBlockHeaderBulk(
     } = routeUtils.setEnvVars()
 
     // Loop through each hash and creates an array of requests to call in parallel
-    const promises = hashes.map(async (hash: any) => {
+    const promises = hashes.map(async hash => {
       requestConfig.data.id = "getblockheader"
       requestConfig.data.method = "getblockheader"
       requestConfig.data.params = [hash, verbose]
@@ -259,7 +235,7 @@ async function getBlockHeaderBulk(
       return await BitboxHTTP(requestConfig)
     })
 
-    const axiosResult: Array<any> = await axios.all(promises)
+    const axiosResult = await axios.all(promises)
 
     // Extract the data component from the axios response.
     const result = axiosResult.map(x => x.data.result)
@@ -283,11 +259,7 @@ async function getBlockHeaderBulk(
   }
 }
 
-async function getChainTips(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getChainTips(req, res, next) {
   try {
     const {
       BitboxHTTP,
@@ -320,11 +292,7 @@ async function getChainTips(
 }
 
 // Get the current difficulty value, used to regulate mining power on the network.
-async function getDifficulty(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getDifficulty(req, res, next) {
   try {
     const {
       BitboxHTTP,
@@ -358,11 +326,7 @@ async function getDifficulty(
 }
 
 // Returns mempool data for given transaction. TXID must be in mempool (unconfirmed)
-async function getMempoolEntrySingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getMempoolEntrySingle(req, res, next) {
   try {
     // Validate input parameter
     const txid = req.params.txid
@@ -402,13 +366,9 @@ async function getMempoolEntrySingle(
   }
 }
 
-async function getMempoolEntryBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getMempoolEntryBulk(req, res, next) {
   try {
-    let txids = req.body.txids
+    const txids = req.body.txids
 
     if (!Array.isArray(txids)) {
       res.status(400)
@@ -448,7 +408,7 @@ async function getMempoolEntryBulk(
     } = routeUtils.setEnvVars()
 
     // Loop through each txid and creates an array of requests to call in parallel
-    const promises = txids.map(async (txid: any) => {
+    const promises = txids.map(async txid => {
       requestConfig.data.id = "getmempoolentry"
       requestConfig.data.method = "getmempoolentry"
       requestConfig.data.params = [txid]
@@ -456,7 +416,7 @@ async function getMempoolEntryBulk(
       return await BitboxHTTP(requestConfig)
     })
 
-    const axiosResult: Array<any> = await axios.all(promises)
+    const axiosResult = await axios.all(promises)
 
     // Extract the data component from the axios response.
     const result = axiosResult.map(x => x.data.result)
@@ -480,11 +440,7 @@ async function getMempoolEntryBulk(
   }
 }
 
-async function getMempoolInfo(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getMempoolInfo(req, res, next) {
   try {
     const {
       BitboxHTTP,
@@ -516,11 +472,7 @@ async function getMempoolInfo(
   }
 }
 
-async function getRawMempool(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getRawMempool(req, res, next) {
   try {
     const {
       BitboxHTTP,
@@ -557,11 +509,7 @@ async function getRawMempool(
 }
 
 // Returns details about an unspent transaction output.
-async function getTxOut(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getTxOut(req, res, next) {
   try {
     // Validate input parameter
     const txid = req.params.txid
@@ -613,11 +561,7 @@ async function getTxOut(
 }
 
 // Returns a hex-encoded proof that 'txid' was included in a block.
-async function getTxOutProofSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getTxOutProofSingle(req, res, next) {
   try {
     // Validate input parameter
     const txid = req.params.txid
@@ -658,13 +602,9 @@ async function getTxOutProofSingle(
 }
 
 // Returns a hex-encoded proof that 'txid' was included in a block.
-async function getTxOutProofBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getTxOutProofBulk(req, res, next) {
   try {
-    let txids = req.body.txids
+    const txids = req.body.txids
 
     // Reject if txids is not an array.
     if (!Array.isArray(txids)) {
@@ -704,7 +644,7 @@ async function getTxOutProofBulk(
     logger.debug(`Executing blockchain/getTxOutProof with these txids: `, txids)
 
     // Loop through each txid and creates an array of requests to call in parallel
-    const promises = txids.map(async (txid: any) => {
+    const promises = txids.map(async txid => {
       requestConfig.data.id = "gettxoutproof"
       requestConfig.data.method = "gettxoutproof"
       requestConfig.data.params = [[txid]]
@@ -713,7 +653,7 @@ async function getTxOutProofBulk(
     })
 
     // Wait for all parallel promisses to resolve.
-    const axiosResult: Array<any> = await axios.all(promises)
+    const axiosResult = await axios.all(promises)
 
     // Extract the data component from the axios response.
     const result = axiosResult.map(x => x.data.result)
@@ -809,11 +749,7 @@ async function getTxOutProofBulk(
 // });
 */
 
-async function verifyTxOutProofSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function verifyTxOutProofSingle(req, res, next) {
   try {
     // Validate input parameter
     const proof = req.params.proof
@@ -853,13 +789,9 @@ async function verifyTxOutProofSingle(
   }
 }
 
-async function verifyTxOutProofBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function verifyTxOutProofBulk(req, res, next) {
   try {
-    let proofs = req.body.proofs
+    const proofs = req.body.proofs
 
     // Reject if proofs is not an array.
     if (!Array.isArray(proofs)) {
@@ -900,7 +832,7 @@ async function verifyTxOutProofBulk(
     )
 
     // Loop through each proof and creates an array of requests to call in parallel
-    const promises = proofs.map(async (proof: any) => {
+    const promises = proofs.map(async proof => {
       requestConfig.data.id = "verifytxoutproof"
       requestConfig.data.method = "verifytxoutproof"
       requestConfig.data.params = [proof]
@@ -909,7 +841,7 @@ async function verifyTxOutProofBulk(
     })
 
     // Wait for all parallel promisses to resolve.
-    const axiosResult: Array<any> = await axios.all(promises)
+    const axiosResult = await axios.all(promises)
 
     // Extract the data component from the axios response.
     const result = axiosResult.map(x => x.data.result[0])

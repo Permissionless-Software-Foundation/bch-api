@@ -1,18 +1,11 @@
 "use strict"
 
-import * as express from "express"
+const express = require("express")
 const router = express.Router()
 
-router.get(
-  "/",
-  async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    res.json({ status: "network" })
-  }
-)
+router.get("/", async (req, res, next) => {
+  res.json({ status: "network" })
+})
 
 // router.post('/addNode/:node/:command', (req, res, next) => {
 //   BITBOX.Network.addNode(req.params.node, req.params.command)

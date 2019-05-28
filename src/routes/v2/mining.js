@@ -1,9 +1,9 @@
 "use strict"
 
-import * as express from "express"
+const express = require("express")
 const router = express.Router()
-import axios from "axios"
-import { IRequestConfig } from "./interfaces/IRequestConfig"
+const axios = require("axios")
+
 const routeUtils = require("./route-utils")
 const logger = require("./logging.js")
 const wlogger = require("../../util/winston-logging")
@@ -18,7 +18,7 @@ const BitboxHTTP = axios.create({
 const username = process.env.RPC_USERNAME
 const password = process.env.RPC_PASSWORD
 
-const requestConfig: IRequestConfig = {
+const requestConfig = {
   method: "post",
   auth: {
     username: username,
@@ -33,11 +33,7 @@ router.get("/", root)
 router.get("/getMiningInfo", getMiningInfo)
 router.get("/getNetworkHashps", getNetworkHashPS)
 
-function root(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+function root(req, res, next) {
   return res.json({ status: "mining" })
 }
 
@@ -66,11 +62,7 @@ function root(
 //   });
 // });
 
-async function getMiningInfo(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getMiningInfo(req, res, next) {
   try {
     const {
       BitboxHTTP,
@@ -101,11 +93,7 @@ async function getMiningInfo(
   }
 }
 
-async function getNetworkHashPS(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getNetworkHashPS(req, res, next) {
   try {
     let nblocks = 120 // Default
     let height = -1 // Default

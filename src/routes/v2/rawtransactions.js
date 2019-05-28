@@ -1,10 +1,9 @@
 "use strict"
 
-import * as express from "express"
+const express = require("express")
 const router = express.Router()
-import axios from "axios"
-import { IRequestConfig } from "./interfaces/IRequestConfig"
-import { IResponse } from "./interfaces/IResponse"
+const axios = require("axios")
+
 const routeUtils = require("./route-utils")
 const logger = require("./logging.js")
 const wlogger = require("../../util/winston-logging")
@@ -19,7 +18,7 @@ const BitboxHTTP = axios.create({
 const username = process.env.RPC_USERNAME
 const password = process.env.RPC_PASSWORD
 
-const requestConfig: IRequestConfig = {
+const requestConfig = {
   method: "post",
   auth: {
     username: username,
@@ -40,21 +39,13 @@ router.get("/getRawTransaction/:txid", getRawTransactionSingle)
 router.post("/sendRawTransaction", sendRawTransactionBulk)
 router.get("/sendRawTransaction/:hex", sendRawTransactionSingle)
 
-function root(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+function root(req, res, next) {
   return res.json({ status: "rawtransactions" })
 }
 
 // Decode transaction hex into a JSON object.
 // GET
-async function decodeRawTransactionSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function decodeRawTransactionSingle(req, res, next) {
   try {
     const hex = req.params.hex
 
@@ -97,13 +88,9 @@ async function decodeRawTransactionSingle(
   }
 }
 
-async function decodeRawTransactionBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function decodeRawTransactionBulk(req, res, next) {
   try {
-    let hexes = req.body.hexes
+    const hexes = req.body.hexes
 
     if (!Array.isArray(hexes)) {
       res.status(400)
@@ -139,7 +126,7 @@ async function decodeRawTransactionBulk(
     } = routeUtils.setEnvVars()
 
     // Loop through each height and creates an array of requests to call in parallel
-    const promises = hexes.map(async (hex: any) => {
+    const promises = hexes.map(async hex => {
       requestConfig.data.id = "decoderawtransaction"
       requestConfig.data.method = "decoderawtransaction"
       requestConfig.data.params = [hex]
@@ -148,7 +135,7 @@ async function decodeRawTransactionBulk(
     })
 
     // Wait for all parallel Insight requests to return.
-    const axiosResult: Array<any> = await axios.all(promises)
+    const axiosResult = await axios.all(promises)
 
     // Retrieve the data part of the result.
     const result = axiosResult.map(x => x.data.result)
@@ -213,11 +200,7 @@ async function decodeRawTransactionBulk(
 
 // Decode a raw transaction from hex to assembly.
 // GET single
-async function decodeScriptSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function decodeScriptSingle(req, res, next) {
   try {
     const hex = req.params.hex
 
@@ -259,11 +242,7 @@ async function decodeScriptSingle(
 
 // Decode a raw transaction from hex to assembly.
 // POST bulk
-async function decodeScriptBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function decodeScriptBulk(req, res, next) {
   try {
     const hexes = req.body.hexes
 
@@ -300,7 +279,7 @@ async function decodeScriptBulk(
     } = routeUtils.setEnvVars()
 
     // Loop through each hex and create an array of promises
-    const promises = hexes.map(async (hex: any) => {
+    const promises = hexes.map(async hex => {
       requestConfig.data.id = "decodescript"
       requestConfig.data.method = "decodescript"
       requestConfig.data.params = [hex]
@@ -310,7 +289,7 @@ async function decodeScriptBulk(
     })
 
     // Wait for all parallel promises to return.
-    const resolved: Array<any> = await Promise.all(promises)
+    const resolved = await Promise.all(promises)
 
     // Retrieve the data from each resolved promise.
     const result = resolved.map(x => x.data.result)
@@ -335,7 +314,7 @@ async function decodeScriptBulk(
 }
 
 // Retrieve raw transactions details from the full node.
-async function getRawTransactionsFromNode(txid: string, verbose: number) {
+async function getRawTransactionsFromNode(txid, verbose) {
   try {
     const {
       BitboxHTTP,
@@ -359,16 +338,12 @@ async function getRawTransactionsFromNode(txid: string, verbose: number) {
 
 // Get a JSON object breakdown of transaction details.
 // POST
-async function getRawTransactionBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getRawTransactionBulk(req, res, next) {
   try {
     let verbose = 0
     if (req.body.verbose) verbose = 1
 
-    let txids = req.body.txids
+    const txids = req.body.txids
     if (!Array.isArray(txids)) {
       res.status(400)
       return res.json({ error: "txids must be an array" })
@@ -383,7 +358,7 @@ async function getRawTransactionBulk(
     }
 
     // stub response object
-    let returnResponse: IResponse = {
+    const returnResponse = {
       status: 100,
       json: {
         error: ""
@@ -408,12 +383,12 @@ async function getRawTransactionBulk(
     }
 
     // Loop through each txid and create an array of promises
-    const promises = txids.map(async (txid: any) => {
-      return getRawTransactionsFromNode(txid, verbose)
-    })
+    const promises = txids.map(async txid =>
+      getRawTransactionsFromNode(txid, verbose)
+    )
 
     // Wait for all parallel promises to return.
-    const axiosResult: Array<any> = await axios.all(promises)
+    const axiosResult = await axios.all(promises)
 
     res.status(200)
     return res.json(axiosResult)
@@ -436,11 +411,7 @@ async function getRawTransactionBulk(
 
 // Get a JSON object breakdown of transaction details.
 // GET
-async function getRawTransactionSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function getRawTransactionSingle(req, res, next) {
   try {
     let verbose = 0
     if (req.query.verbose === "true") verbose = 1
@@ -472,11 +443,7 @@ async function getRawTransactionSingle(
 }
 
 // Transmit a raw transaction to the BCH network.
-async function sendRawTransactionBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function sendRawTransactionBulk(req, res, next) {
   try {
     // Validation
     const hexes = req.body.hexes
@@ -571,11 +538,7 @@ async function sendRawTransactionBulk(
 }
 
 // Transmit a raw transaction to the BCH network.
-async function sendRawTransactionSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function sendRawTransactionSingle(req, res, next) {
   try {
     const hex = req.params.hex // URL parameter
 

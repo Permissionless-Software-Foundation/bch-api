@@ -1,9 +1,9 @@
 "use strict"
 
-import * as express from "express"
+const express = require("express")
 const router = express.Router()
-import axios from "axios"
-import { IRequestConfig } from "./interfaces/IRequestConfig"
+const axios = require("axios")
+
 const routeUtils = require("./route-utils")
 const logger = require("./logging.js")
 const wlogger = require("../../util/winston-logging")
@@ -22,7 +22,7 @@ const BitboxHTTP = axios.create({
 const username = process.env.RPC_USERNAME
 const password = process.env.RPC_PASSWORD
 
-const requestConfig: IRequestConfig = {
+const requestConfig = {
   method: "post",
   auth: {
     username: username,
@@ -34,25 +34,14 @@ const requestConfig: IRequestConfig = {
 }
 
 router.get("/", root)
-router.get(
-  "/validateAddress/:address",
-  validateAddressSingle
-)
+router.get("/validateAddress/:address", validateAddressSingle)
 router.post("/validateAddress", validateAddressBulk)
 
-function root(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+function root(req, res, next) {
   return res.json({ status: "util" })
 }
 
-async function validateAddressSingle(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function validateAddressSingle(req, res, next) {
   try {
     const address = req.params.address
     if (!address || address === "") {
@@ -89,13 +78,9 @@ async function validateAddressSingle(
   }
 }
 
-async function validateAddressBulk(
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) {
+async function validateAddressBulk(req, res, next) {
   try {
-    let addresses = req.body.addresses
+    const addresses = req.body.addresses
 
     // Reject if addresses is not an array.
     if (!Array.isArray(addresses)) {
@@ -114,7 +99,7 @@ async function validateAddressBulk(
     }
 
     // Validate each element in the array.
-    for(let i=0; i < addresses.length; i++) {
+    for (let i = 0; i < addresses.length; i++) {
       const address = addresses[i]
 
       // Ensure the input is a valid BCH address.
@@ -147,8 +132,7 @@ async function validateAddressBulk(
     } = routeUtils.setEnvVars()
 
     // Loop through each address and creates an array of requests to call in parallel
-    const promises = addresses.map(async (address: any) => {
-
+    const promises = addresses.map(async address => {
       requestConfig.data.id = "validateaddress"
       requestConfig.data.method = "validateaddress"
       requestConfig.data.params = [address]
@@ -157,14 +141,13 @@ async function validateAddressBulk(
     })
 
     // Wait for all parallel Insight requests to return.
-    const axiosResult: Array<any> = await axios.all(promises)
+    const axiosResult = await axios.all(promises)
 
     // Retrieve the data part of the result.
     const result = axiosResult.map(x => x.data.result)
 
     res.status(200)
     return res.json(result)
-
   } catch (err) {
     // Attempt to decode the error message.
     const { msg, status } = routeUtils.decodeError(err)
