@@ -19,13 +19,8 @@ https://www.youtube.com/watch?v=o0FfW5rZPFs
 Since this repo is being worked on by one person, as a hobby, updates will be
 slow. But the road map I have planned is as follows:
 
-- Remove TypeScript and any other compiled languages, converting the repository
-to standard ES8 JavaScript.
-
 - Replace the requirement for Insight API with Blockbook API for address and
 utxo based calls.
-
-- Audit all npm dependencies and try to fix/remove any vulnerabilities.
 
 - Remove rate limiting
 
@@ -37,6 +32,12 @@ continuous-release with semantic versioning through Semantic Release.
 - Update SLP token endpoints. Not totally sure of the scope here.
 
 - Add end-to-end tests.
+
+## Features
+The following features have been implemented:
+
+- Typescript removed and ES8 JavaScript used instead.
+- npm audit run on all depedencies.
 
 ----
 
