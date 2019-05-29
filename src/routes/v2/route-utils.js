@@ -10,8 +10,8 @@ const wlogger = require("../../util/winston-logging")
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
-const BITBOXCli = require("bitbox-sdk/lib/bitbox-sdk").default
-const BITBOX = new BITBOXCli()
+const BITBOXJS = require("@chris.troutner/bitbox-js")
+const BITBOX = new BITBOXJS()
 
 module.exports = {
   validateNetwork, // Prevents a common user error
