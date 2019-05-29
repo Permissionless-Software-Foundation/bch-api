@@ -1,10 +1,10 @@
 {
-  "name": "rest.bitcoin.com",
-  "version": "3.3.8",
-  "description": "REST API for Bitcoin.com's Cloud",
-  "author": "Gabriel Cardona <gabriel@bitcoin.com>",
+  "name": "bch-api",
+  "version": "1.0.0",
+  "description": "REST API based on rest.bitcoin.com",
+  "author": "Chris Troutner <chris.troutner@gmail.com>",
   "contributors": [
-    "Chris Troutner <chris.troutner@gmail.com>"
+    "Gabriel Cardona <gabriel@bitcoin.com>"
   ],
   "license": "MIT",
   "scripts": {
