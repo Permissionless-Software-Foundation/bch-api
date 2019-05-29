@@ -18,8 +18,8 @@ const router = express.Router()
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
-const BITBOXCli = require("bitbox-sdk/lib/bitbox-sdk").default
-const BITBOX = new BITBOXCli()
+const BITBOXJS = require("@chris.troutner/bitbox-js")
+const BITBOX = new BITBOXJS()
 
 // Use the default (and max) page size of 1000
 // https://github.com/bitpay/insight-api#notes-on-upgrading-from-v03
