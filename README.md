@@ -1,5 +1,7 @@
 # BCH API
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/christroutner/bch-api.svg)](https://greenkeeper.io/)
+
 This is a fork and alternative implementation of
 the [rest.bitcoin.com](https://github.com/Bitcoin-com/rest.bitcoin.com) repository.
 The function of this code is to create a REST API server to provide a common
