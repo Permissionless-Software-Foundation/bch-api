@@ -12,8 +12,6 @@ const wlogger = require("../../util/winston-logging")
 
 const router = express.Router()
 
-const BITCORE_URL = process.env.BITCORE_URL
-
 // Used for processing error messages before sending them to the user.
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
@@ -21,9 +19,11 @@ util.inspect.defaultOptions = { depth: 1 }
 const BITBOXJS = require("@chris.troutner/bitbox-js")
 const BITBOX = new BITBOXJS()
 
+//const BITCORE_URL = process.env.BITCORE_URL
+
 // Connect the route endpoints to their handler functions.
 router.get("/", root)
-router.get("/balance/:address", balance)
+router.get("/balance/:address", balanceSingle)
 
 // Root API endpoint. Simply acknowledges that it exists.
 function root(req, res, next) {
@@ -34,9 +34,7 @@ function root(req, res, next) {
 // Returns a Promise.
 async function balanceFromBitcore(thisAddress) {
   try {
-    // Throw an error if the Bitcore Env Var is not defined
-    if (BITCORE_URL === "" || !BITCORE_URL)
-      throw new Error(`BITCORE_URL is undefined.`)
+    //console.log(`BITCORE_URL: ${BITCORE_URL}`)
 
     // Convert the address to a cashaddr without a prefix.
     const addr = BITBOX.Address.toCashAddress(thisAddress, false)
@@ -45,7 +43,9 @@ async function balanceFromBitcore(thisAddress) {
     let network = "mainnet"
     if (process.env.NETWORK === "testnet") network = "testnet"
 
-    const path = `${BITCORE_URL}/api/BCH/${network}/address/${addr}/balance`
+    const path = `${
+      process.env.BITCORE_URL
+    }api/BCH/${network}/address/${addr}/balance`
 
     // Query the Bitcore Node API.
     const axiosResponse = await axios.get(path)
