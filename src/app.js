@@ -46,6 +46,21 @@ const transactionV2 = require("./routes/v2/transaction")
 const utilV2 = require("./routes/v2/util")
 const slpV2 = require("./routes/v2/slp")
 
+// v3
+const indexV3 = require("./routes/v3/index")
+const healthCheckV3 = require("./routes/v3/health-check")
+const addressV3 = require("./routes/v3/address")
+const blockV3 = require("./routes/v3/block")
+const blockchainV3 = require("./routes/v3/blockchain")
+const controlV3 = require("./routes/v3/control")
+const generatingV3 = require("./routes/v3/generating")
+const miningV3 = require("./routes/v3/mining")
+const networkV3 = require("./routes/v3/network")
+const rawtransactionsV3 = require("./routes/v3/rawtransactions")
+const transactionV3 = require("./routes/v3/transaction")
+const utilV3 = require("./routes/v3/util")
+const slpV3 = require("./routes/v3/slp")
+
 require("dotenv").config()
 
 const app = express()
@@ -88,10 +103,12 @@ app.use((req, res, next) => {
 })
 
 const v2prefix = "v2"
+const v3prefix = "v3"
 
 // Instantiate the authorization middleware, used to implement pro-tier rate limiting.
 const auth = new AuthMW()
 app.use(`/${v2prefix}/`, auth.mw())
+app.use(`/${v3prefix}/`, auth.mw())
 
 // Rate limit on all v2 routes
 app.use(`/${v2prefix}/`, routeRateLimit)
@@ -108,6 +125,21 @@ app.use(`/${v2prefix}/` + `rawtransactions`, rawtransactionsV2.router)
 app.use(`/${v2prefix}/` + `transaction`, transactionV2.router)
 app.use(`/${v2prefix}/` + `util`, utilV2.router)
 app.use(`/${v2prefix}/` + `slp`, slpV2.router)
+
+// Rate limit on all v2 routes
+app.use(`/${v3prefix}/`, routeRateLimit)
+app.use(`/${v3prefix}/` + `health-check`, healthCheckV3)
+app.use(`/${v3prefix}/` + `address`, addressV3.router)
+app.use(`/${v3prefix}/` + `blockchain`, blockchainV3.router)
+app.use(`/${v3prefix}/` + `block`, blockV3.router)
+app.use(`/${v3prefix}/` + `control`, controlV3.router)
+app.use(`/${v3prefix}/` + `generating`, generatingV3)
+app.use(`/${v3prefix}/` + `mining`, miningV3.router)
+app.use(`/${v3prefix}/` + `network`, networkV3)
+app.use(`/${v3prefix}/` + `rawtransactions`, rawtransactionsV3.router)
+app.use(`/${v3prefix}/` + `transaction`, transactionV3.router)
+app.use(`/${v3prefix}/` + `util`, utilV3.router)
+app.use(`/${v3prefix}/` + `slp`, slpV3.router)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
