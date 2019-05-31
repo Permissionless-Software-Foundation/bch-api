@@ -45,7 +45,7 @@ describe("#route-ratelimits", () => {
   describe("#routeRateLimit", () => {
     const routeRateLimit = rateLimitMiddleware.routeRateLimit
     const getInfo = controlRoute.testableComponents.getInfo
-
+    /*
     it("should pass through rate-limit middleware", async () => {
       req.baseUrl = "/v2"
       req.path = "/control/getInfo"
@@ -76,6 +76,7 @@ describe("#route-ratelimits", () => {
         `next should not be called if rate limit was triggered.`
       )
     })
+    */
     /*
     it("should NOT trigger rate-limit handler for pro-tier at 65 RPM", async () => {
       // Clear the require cache before running this test.
