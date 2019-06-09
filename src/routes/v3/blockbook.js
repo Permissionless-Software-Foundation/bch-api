@@ -1,5 +1,5 @@
 /*
-  Bitcore Node API route
+  Blockbook API route
 */
 
 "use strict"
@@ -19,7 +19,7 @@ util.inspect.defaultOptions = { depth: 1 }
 const BITBOXJS = require("@chris.troutner/bitbox-js")
 const BITBOX = new BITBOXJS()
 
-//const BITCORE_URL = process.env.BITCORE_URL
+//const BLOCKBOOK_URL = process.env.BLOCKBOOK_URL
 
 // Connect the route endpoints to their handler functions.
 router.get("/", root)
@@ -33,22 +33,18 @@ function root(req, res, next) {
   return res.json({ status: "address" })
 }
 
-// Query the Bitcore Node API for a balance on a single BCH address.
+// Query the Blockbook Node API for a balance on a single BCH address.
 // Returns a Promise.
-async function balanceFromBitcore(thisAddress) {
+async function balanceFromBlockbook(thisAddress) {
   try {
-    //console.log(`BITCORE_URL: ${BITCORE_URL}`)
+    //console.log(`BLOCKBOOK_URL: ${BLOCKBOOK_URL}`)
 
     // Convert the address to a cashaddr without a prefix.
-    const addr = BITBOX.Address.toCashAddress(thisAddress, false)
+    const addr = BITBOX.Address.toCashAddress(thisAddress)
 
-    // Determine if we are working with the testnet or mainnet networks.
-    let network = "mainnet"
-    if (process.env.NETWORK === "testnet") network = "testnet"
+    const path = `${process.env.BLOCKBOOK_URL}api/v2/address/${addr}`
 
-    const path = `${process.env.BITCORE_URL}api/BCH/${network}/address/${addr}/balance`
-
-    // Query the Bitcore Node API.
+    // Query the Blockbook Node API.
     const axiosResponse = await axios.get(path)
     const retData = axiosResponse.data
     //console.log(`retData: ${util.inspect(retData)}`)
@@ -80,7 +76,7 @@ async function balanceSingle(req, res, next) {
     }
 
     wlogger.debug(
-      `Executing bitcore/balanceSingle with this address: `,
+      `Executing blockbook/balanceSingle with this address: `,
       address
     )
 
@@ -103,8 +99,8 @@ async function balanceSingle(req, res, next) {
       })
     }
 
-    // Query the Bitcore Node API.
-    const retData = await balanceFromBitcore(address)
+    // Query the Blockbook Node API.
+    const retData = await balanceFromBlockbook(address)
 
     // Return the retrieved address information.
     res.status(200)
@@ -118,7 +114,7 @@ async function balanceSingle(req, res, next) {
     }
 
     // Write out error to error log.
-    wlogger.error(`Error in bitcore.js/balanceSingle().`, err)
+    wlogger.error(`Error in blockbook.js/balanceSingle().`, err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })
@@ -126,8 +122,6 @@ async function balanceSingle(req, res, next) {
 }
 
 // POST handler for bulk queries on address details
-// curl -d '{"addresses": ["bchtest:qzjtnzcvzxx7s0na88yrg3zl28wwvfp97538sgrrmr", "bchtest:qp6hgvevf4gzz6l7pgcte3gaaud9km0l459fa23dul"]}' -H "Content-Type: application/json" http://localhost:3000/v2/address/details
-// curl -d '{"addresses": ["bchtest:qzjtnzcvzxx7s0na88yrg3zl28wwvfp97538sgrrmr", "bchtest:qp6hgvevf4gzz6l7pgcte3gaaud9km0l459fa23dul"], "from": 1, "to": 5}' -H "Content-Type: application/json" http://localhost:3000/v2/address/details
 async function balanceBulk(req, res, next) {
   try {
     let addresses = req.body.addresses
@@ -150,7 +144,7 @@ async function balanceBulk(req, res, next) {
     }
 
     wlogger.debug(
-      `Executing bitcore.js/balanceBulk with these addresses: `,
+      `Executing blockbook.js/balanceBulk with these addresses: `,
       addresses
     )
 
@@ -181,7 +175,7 @@ async function balanceBulk(req, res, next) {
     // Loops through each address and creates an array of Promises, querying
     // Insight API in parallel.
     addresses = addresses.map(async (address, index) =>
-      balanceFromBitcore(address)
+      balanceFromBlockbook(address)
     )
 
     // Wait for all parallel Insight requests to return.
@@ -198,29 +192,25 @@ async function balanceBulk(req, res, next) {
       return res.json({ error: msg })
     }
 
-    wlogger.error(`Error in bitcore.js/balanceBulk().`, err)
+    wlogger.error(`Error in blockbook.js/balanceBulk().`, err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })
   }
 }
 
-// Query the Bitcore Node API for utxos associated with a BCH address.
+// Query the Blockbook API for utxos associated with a BCH address.
 // Returns a Promise.
-async function utxosFromBitcore(thisAddress) {
+async function utxosFromBlockbook(thisAddress) {
   try {
-    //console.log(`BITCORE_URL: ${BITCORE_URL}`)
+    //console.log(`BLOCKBOOK_URL: ${BLOCKBOOK_URL}`)
 
     // Convert the address to a cashaddr without a prefix.
-    const addr = BITBOX.Address.toCashAddress(thisAddress, false)
+    const addr = BITBOX.Address.toCashAddress(thisAddress)
 
-    // Determine if we are working with the testnet or mainnet networks.
-    let network = "mainnet"
-    if (process.env.NETWORK === "testnet") network = "testnet"
+    const path = `${process.env.BLOCKBOOK_URL}api/v2/utxo/${addr}`
 
-    const path = `${process.env.BITCORE_URL}api/BCH/${network}/address/${addr}/?unspent=true`
-
-    // Query the Bitcore Node API.
+    // Query the Blockbook API.
     const axiosResponse = await axios.get(path)
     const retData = axiosResponse.data
     //console.log(`retData: ${util.inspect(retData)}`)
@@ -251,7 +241,10 @@ async function utxosSingle(req, res, next) {
       })
     }
 
-    wlogger.debug(`Executing bitcore/utxoSingle with this address: `, address)
+    wlogger.debug(
+      `Executing blockbook/utxosSingle with this address: `,
+      address
+    )
 
     // Ensure the input is a valid BCH address.
     try {
@@ -272,8 +265,8 @@ async function utxosSingle(req, res, next) {
       })
     }
 
-    // Query the Bitcore Node API.
-    const retData = await utxosFromBitcore(address)
+    // Query the Blockbook API.
+    const retData = await utxosFromBlockbook(address)
 
     // Return the retrieved address information.
     res.status(200)
@@ -287,7 +280,7 @@ async function utxosSingle(req, res, next) {
     }
 
     // Write out error to error log.
-    wlogger.error(`Error in bitcore.js/utxosSingle().`, err)
+    wlogger.error(`Error in blockbook.js/utxosSingle().`, err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })
@@ -317,7 +310,7 @@ async function utxosBulk(req, res, next) {
     }
 
     wlogger.debug(
-      `Executing bitcore.js/utxosBulk with these addresses: `,
+      `Executing blockbook.js/utxosBulk with these addresses: `,
       addresses
     )
 
@@ -348,7 +341,7 @@ async function utxosBulk(req, res, next) {
     // Loops through each address and creates an array of Promises, querying
     // Insight API in parallel.
     addresses = addresses.map(async (address, index) =>
-      utxosFromBitcore(address)
+      utxosFromBlockbook(address)
     )
 
     // Wait for all parallel Insight requests to return.
@@ -365,7 +358,7 @@ async function utxosBulk(req, res, next) {
       return res.json({ error: msg })
     }
 
-    wlogger.error(`Error in bitcore.js/utxosBulk().`, err)
+    wlogger.error(`Error in blockbook.js/utxosBulk().`, err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })
