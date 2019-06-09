@@ -127,7 +127,7 @@ describe("#Mining", () => {
         "currentblocktx",
         "difficulty",
         "blockprioritypercentage",
-        "errors",
+        "warnings",
         "networkhashps",
         "pooledtx",
         "chain"

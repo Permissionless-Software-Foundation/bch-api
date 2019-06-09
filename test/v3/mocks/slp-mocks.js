@@ -46,7 +46,8 @@ const mockSingleToken = {
         batonVout: null,
         containsBaton: false,
         genesisOrMintQuantity: "9999",
-        sendOutputs: null
+        sendOutputs: null,
+        timestamp_unix: "something"
       },
       tokenStats: {
         block_created: 1253802,

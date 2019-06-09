@@ -246,7 +246,8 @@ describe("#SLP", () => {
         "initialTokenQty",
         "totalBurned",
         "totalMinted",
-        "validAddresses"
+        "validAddresses",
+        "timestamp_unix"
       ])
     })
   })
@@ -377,7 +378,8 @@ describe("#SLP", () => {
         "id",
         "totalBurned",
         "totalMinted",
-        "validAddresses"
+        "validAddresses",
+        "timestamp_unix"
       ])
     })
 
@@ -420,7 +422,8 @@ describe("#SLP", () => {
         "id",
         "totalBurned",
         "totalMinted",
-        "validAddresses"
+        "validAddresses",
+        "timestamp_unix"
       ])
     })
   })
@@ -809,7 +812,7 @@ describe("#SLP", () => {
       const result = await tokenStatsSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, [
+      assert.hasAnyKeys(result, [
         "blockCreated",
         "blockLastActiveMint",
         "blockLastActiveSend",
