@@ -251,10 +251,7 @@ async function utxosSingle(req, res, next) {
       })
     }
 
-    wlogger.debug(
-      `Executing bitcore/balanceSingle with this address: `,
-      address
-    )
+    wlogger.debug(`Executing bitcore/utxoSingle with this address: `, address)
 
     // Ensure the input is a valid BCH address.
     try {

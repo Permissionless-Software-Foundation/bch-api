@@ -336,7 +336,7 @@ describe("#Blockbook Router", () => {
       assert.equal(result.length, 2, "2 outputs for 2 inputs")
     })
   })
-  /*
+
   describe("#UTXOs Single", () => {
     // details route handler.
     const utxosSingle = blockbookRoute.testableComponents.utxosSingle
@@ -422,18 +422,10 @@ describe("#Blockbook Router", () => {
 
       assert.isArray(result)
       assert.hasAnyKeys(result[0], [
-        "_id",
-        "chain",
-        "network",
-        "coinbase",
-        "mintIndex",
-        "spentTxid",
-        "mintTxid",
-        "mintHeight",
-        "spentHeight",
-        "address",
-        "script",
+        "txid",
+        "vout",
         "value",
+        "height",
         "confirmations"
       ])
     })
@@ -561,18 +553,10 @@ describe("#Blockbook Router", () => {
       assert.isArray(result)
       assert.isArray(result[0])
       assert.hasAnyKeys(result[0][0], [
-        "_id",
-        "chain",
-        "network",
-        "coinbase",
-        "mintIndex",
-        "spentTxid",
-        "mintTxid",
-        "mintHeight",
-        "spentHeight",
-        "address",
-        "script",
+        "txid",
+        "vout",
         "value",
+        "height",
         "confirmations"
       ])
     })
@@ -599,22 +583,7 @@ describe("#Blockbook Router", () => {
 
       assert.isArray(result)
       assert.isArray(result[0])
-      assert.hasAnyKeys(result[0][0], [
-        "_id",
-        "chain",
-        "network",
-        "coinbase",
-        "mintIndex",
-        "spentTxid",
-        "mintTxid",
-        "mintHeight",
-        "spentHeight",
-        "address",
-        "script",
-        "value",
-        "confirmations"
-      ])
+      assert.equal(result.length, 2, "2 outputs for 2 inputs")
     })
   })
-  */
 })
