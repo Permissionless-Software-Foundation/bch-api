@@ -10,7 +10,7 @@ const mockMiningInfo = {
   currentblocktx: 0,
   difficulty: 1,
   blockprioritypercentage: 5,
-  errors:
+  warnings:
     "Warning: Unknown block versions being mined! It's possible unknown rules are in effect",
   networkhashps: 517410290.9365583,
   pooledtx: 5,
