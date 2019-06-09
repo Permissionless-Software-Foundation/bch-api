@@ -24,6 +24,9 @@ const BITBOX = new BITBOXJS()
 // Connect the route endpoints to their handler functions.
 router.get("/", root)
 router.get("/balance/:address", balanceSingle)
+router.post("/balance", balanceBulk)
+router.get("/utxos/:address", utxosSingle)
+router.post("/utxos", utxosBulk)
 
 // Root API endpoint. Simply acknowledges that it exists.
 function root(req, res, next) {

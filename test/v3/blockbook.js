@@ -175,7 +175,7 @@ describe("#Blockbook Router", () => {
       assert.isArray(result.txids)
     })
   })
-  /*
+
   describe("#Balance Bulk", () => {
     // details route handler.
     const balanceBulk = blockbookRoute.testableComponents.balanceBulk
@@ -250,7 +250,7 @@ describe("#Blockbook Router", () => {
     })
 
     it("should throw 500 when network issues", async () => {
-      const savedUrl = process.env.BITCOINCOM_BASEURL
+      const savedUrl = process.env.BLOCKBOOK_URL
 
       try {
         req.body = {
@@ -258,13 +258,13 @@ describe("#Blockbook Router", () => {
         }
 
         // Switch the Insight URL to something that will error out.
-        process.env.BITCOINCOM_BASEURL = "http://fakeurl/api/"
+        process.env.BLOCKBOOK_URL = "http://fakeurl/api/"
 
         const result = await balanceBulk(req, res)
         //console.log(`network issue result: ${util.inspect(result)}`)
 
         // Restore the saved URL.
-        process.env.BITCOINCOM_BASEURL = savedUrl
+        process.env.BLOCKBOOK_URL = savedUrl
 
         assert.isAbove(res.statusCode, 499, "HTTP status code 500 expected.")
         //assert.include(result.error, "ENOTFOUND", "Error message expected")
@@ -275,7 +275,7 @@ describe("#Blockbook Router", () => {
         )
       } catch (err) {
         // Restore the saved URL.
-        process.env.BITCOINCOM_BASEURL = savedUrl
+        process.env.BLOCKBOOK_URL = savedUrl
       }
     })
 
@@ -296,10 +296,20 @@ describe("#Blockbook Router", () => {
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
-      assert.hasAllKeys(result[0], ["confirmed", "unconfirmed", "balance"])
-      assert.isNumber(result[0].confirmed)
-      assert.isNumber(result[0].unconfirmed)
-      assert.isNumber(result[0].balance)
+      assert.hasAnyKeys(result[0], [
+        "page",
+        "totalPages",
+        "itemsOnPage",
+        "address",
+        "balance",
+        "totalReceived",
+        "totalSent",
+        "unconfirmedBalance",
+        "unconfirmedTxs",
+        "txs",
+        "txids"
+      ])
+      assert.isArray(result[0].txids)
     })
 
     it("should get details for multiple addresses", async () => {
@@ -326,7 +336,7 @@ describe("#Blockbook Router", () => {
       assert.equal(result.length, 2, "2 outputs for 2 inputs")
     })
   })
-
+  /*
   describe("#UTXOs Single", () => {
     // details route handler.
     const utxosSingle = blockbookRoute.testableComponents.utxosSingle
@@ -503,7 +513,7 @@ describe("#Blockbook Router", () => {
     })
 
     it("should throw 500 when network issues", async () => {
-      const savedUrl = process.env.BITCOINCOM_BASEURL
+      const savedUrl = process.env.BLOCKBOOK_URL
 
       try {
         req.body = {
@@ -511,13 +521,13 @@ describe("#Blockbook Router", () => {
         }
 
         // Switch the Insight URL to something that will error out.
-        process.env.BITCOINCOM_BASEURL = "http://fakeurl/api/"
+        process.env.BLOCKBOOK_URL = "http://fakeurl/api/"
 
         const result = await utxosBulk(req, res)
         //console.log(`network issue result: ${util.inspect(result)}`)
 
         // Restore the saved URL.
-        process.env.BITCOINCOM_BASEURL = savedUrl
+        process.env.BLOCKBOOK_URL = savedUrl
 
         assert.isAbove(res.statusCode, 499, "HTTP status code 500 expected.")
         //assert.include(result.error, "ENOTFOUND", "Error message expected")
@@ -528,7 +538,7 @@ describe("#Blockbook Router", () => {
         )
       } catch (err) {
         // Restore the saved URL.
-        process.env.BITCOINCOM_BASEURL = savedUrl
+        process.env.BLOCKBOOK_URL = savedUrl
       }
     })
 
