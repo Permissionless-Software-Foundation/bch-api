@@ -43,9 +43,7 @@ async function balanceFromBitcore(thisAddress) {
     let network = "mainnet"
     if (process.env.NETWORK === "testnet") network = "testnet"
 
-    const path = `${
-      process.env.BITCORE_URL
-    }api/BCH/${network}/address/${addr}/balance`
+    const path = `${process.env.BITCORE_URL}api/BCH/${network}/address/${addr}/balance`
 
     // Query the Bitcore Node API.
     const axiosResponse = await axios.get(path)
@@ -204,11 +202,183 @@ async function balanceBulk(req, res, next) {
   }
 }
 
+// Query the Bitcore Node API for utxos associated with a BCH address.
+// Returns a Promise.
+async function utxosFromBitcore(thisAddress) {
+  try {
+    //console.log(`BITCORE_URL: ${BITCORE_URL}`)
+
+    // Convert the address to a cashaddr without a prefix.
+    const addr = BITBOX.Address.toCashAddress(thisAddress, false)
+
+    // Determine if we are working with the testnet or mainnet networks.
+    let network = "mainnet"
+    if (process.env.NETWORK === "testnet") network = "testnet"
+
+    const path = `${process.env.BITCORE_URL}api/BCH/${network}/address/${addr}/?unspent=true`
+
+    // Query the Bitcore Node API.
+    const axiosResponse = await axios.get(path)
+    const retData = axiosResponse.data
+    //console.log(`retData: ${util.inspect(retData)}`)
+
+    return retData
+  } catch (err) {
+    // Dev Note: Do not log error messages here. Throw them instead and let the
+    // parent function handle it.
+    throw err
+  }
+}
+
+// GET handler for single balance
+async function utxosSingle(req, res, next) {
+  try {
+    const address = req.params.address
+
+    if (!address || address === "") {
+      res.status(400)
+      return res.json({ error: "address can not be empty" })
+    }
+
+    // Reject if address is an array.
+    if (Array.isArray(address)) {
+      res.status(400)
+      return res.json({
+        error: "address can not be an array. Use POST for bulk upload."
+      })
+    }
+
+    wlogger.debug(
+      `Executing bitcore/balanceSingle with this address: `,
+      address
+    )
+
+    // Ensure the input is a valid BCH address.
+    try {
+      const legacyAddr = BITBOX.Address.toLegacyAddress(address)
+    } catch (err) {
+      res.status(400)
+      return res.json({
+        error: `Invalid BCH address. Double check your address is valid: ${address}`
+      })
+    }
+
+    // Prevent a common user error. Ensure they are using the correct network address.
+    const networkIsValid = routeUtils.validateNetwork(address)
+    if (!networkIsValid) {
+      res.status(400)
+      return res.json({
+        error: `Invalid network. Trying to use a testnet address on mainnet, or vice versa.`
+      })
+    }
+
+    // Query the Bitcore Node API.
+    const retData = await utxosFromBitcore(address)
+
+    // Return the retrieved address information.
+    res.status(200)
+    return res.json(retData)
+  } catch (err) {
+    // Attempt to decode the error message.
+    const { msg, status } = routeUtils.decodeError(err)
+    if (msg) {
+      res.status(status)
+      return res.json({ error: msg })
+    }
+
+    // Write out error to error log.
+    wlogger.error(`Error in bitcore.js/utxosSingle().`, err)
+
+    res.status(500)
+    return res.json({ error: util.inspect(err) })
+  }
+}
+
+// POST handler for bulk queries on address utxos
+async function utxosBulk(req, res, next) {
+  try {
+    let addresses = req.body.addresses
+    const currentPage = req.body.page ? parseInt(req.body.page, 10) : 0
+
+    // Reject if addresses is not an array.
+    if (!Array.isArray(addresses)) {
+      res.status(400)
+      return res.json({
+        error: "addresses needs to be an array. Use GET for single address."
+      })
+    }
+
+    // Enforce array size rate limits
+    if (!routeUtils.validateArraySize(req, addresses)) {
+      res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+      return res.json({
+        error: `Array too large.`
+      })
+    }
+
+    wlogger.debug(
+      `Executing bitcore.js/utxosBulk with these addresses: `,
+      addresses
+    )
+
+    // Validate each element in the address array.
+    for (let i = 0; i < addresses.length; i++) {
+      const thisAddress = addresses[i]
+
+      // Ensure the input is a valid BCH address.
+      try {
+        BITBOX.Address.toLegacyAddress(thisAddress)
+      } catch (err) {
+        res.status(400)
+        return res.json({
+          error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`
+        })
+      }
+
+      // Prevent a common user error. Ensure they are using the correct network address.
+      const networkIsValid = routeUtils.validateNetwork(thisAddress)
+      if (!networkIsValid) {
+        res.status(400)
+        return res.json({
+          error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`
+        })
+      }
+    }
+
+    // Loops through each address and creates an array of Promises, querying
+    // Insight API in parallel.
+    addresses = addresses.map(async (address, index) =>
+      utxosFromBitcore(address)
+    )
+
+    // Wait for all parallel Insight requests to return.
+    const result = await axios.all(addresses)
+
+    // Return the array of retrieved address information.
+    res.status(200)
+    return res.json(result)
+  } catch (err) {
+    // Attempt to decode the error message.
+    const { msg, status } = routeUtils.decodeError(err)
+    if (msg) {
+      res.status(status)
+      return res.json({ error: msg })
+    }
+
+    wlogger.error(`Error in bitcore.js/utxosBulk().`, err)
+
+    res.status(500)
+    return res.json({ error: util.inspect(err) })
+  }
+}
+
 module.exports = {
   router,
   testableComponents: {
     root,
     balanceSingle,
-    balanceBulk
+    balanceBulk,
+    utxosSingle,
+    utxosBulk
   }
 }
