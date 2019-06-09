@@ -26,16 +26,17 @@ const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
 describe("#Bitcore Router", () => {
-  let req, res
+  let req, res, mockServerUrl
 
   before(() => {
     originalUrl = process.env.BITCORE_URL
 
     // Set default environment variables for unit tests.
     if (!process.env.TEST) process.env.TEST = "unit"
-    if (process.env.TEST === "unit")
+    if (process.env.TEST === "unit") {
       process.env.BITCORE_URL = "http://fakeurl/api/"
-
+      mockServerUrl = `http://fakeurl`
+    }
     // console.log(`Testing type is: ${process.env.TEST}`)
   })
 
@@ -163,15 +164,16 @@ describe("#Bitcore Router", () => {
       assert.isNumber(result.unconfirmed)
       assert.isNumber(result.balance)
     })
-    /*
+  })
+
   describe("#Balance Bulk", () => {
     // details route handler.
-    const detailsBulk = bitcoreRoute.testableComponents.detailsBulk
+    const balanceBulk = bitcoreRoute.testableComponents.balanceBulk
 
     it("should throw an error for an empty body", async () => {
       req.body = {}
 
-      const result = await detailsBulk(req, res)
+      const result = await balanceBulk(req, res)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
@@ -187,7 +189,7 @@ describe("#Bitcore Router", () => {
         address: `qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c`
       }
 
-      const result = await detailsBulk(req, res)
+      const result = await balanceBulk(req, res)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -202,7 +204,7 @@ describe("#Bitcore Router", () => {
         addresses: [`02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c`]
       }
 
-      const result = await detailsBulk(req, res)
+      const result = await balanceBulk(req, res)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
       assert.include(
@@ -218,7 +220,7 @@ describe("#Bitcore Router", () => {
 
       req.body.addresses = testArray
 
-      const result = await detailsBulk(req, res)
+      const result = await balanceBulk(req, res)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
@@ -230,7 +232,7 @@ describe("#Bitcore Router", () => {
         addresses: [`bitcoincash:qqqvv56zepke5k0xeaehlmjtmkv9ly2uzgkxpajdx3`]
       }
 
-      const result = await detailsBulk(req, res)
+      const result = await balanceBulk(req, res)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
@@ -248,7 +250,7 @@ describe("#Bitcore Router", () => {
         // Switch the Insight URL to something that will error out.
         process.env.BITCOINCOM_BASEURL = "http://fakeurl/api/"
 
-        const result = await detailsBulk(req, res)
+        const result = await balanceBulk(req, res)
         //console.log(`network issue result: ${util.inspect(result)}`)
 
         // Restore the saved URL.
@@ -267,66 +269,6 @@ describe("#Bitcore Router", () => {
       }
     })
 
-    it("should default to page 0", async () => {
-      req.body = {
-        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
-      }
-
-      // Mock the Insight URL for unit tests.
-      if (process.env.TEST === "unit") {
-        nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
-          .reply(200, mockData.mockAddressDetails)
-      }
-
-      // Call the details API.
-      const result = await detailsBulk(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
-
-      // Assert current page defaults to 0
-      assert.equal(result[0].currentPage, 0)
-    })
-
-    it("should process the requested page", async () => {
-      req.body = {
-        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`],
-        page: 5
-      }
-
-      // Mock the Insight URL for unit tests.
-      if (process.env.TEST === "unit") {
-        nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=5000&to=6000`)
-          .reply(200, mockData.mockAddressDetails)
-      }
-
-      // Call the details API.
-      const result = await detailsBulk(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
-
-      // Assert current page is same as requested
-      assert.equal(result[0].currentPage, 5)
-    })
-
-    it("should calculate the total number of pages", async () => {
-      req.body = {
-        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
-      }
-
-      // Mock the Insight URL for unit tests.
-      if (process.env.TEST === "unit") {
-        nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
-          .reply(200, mockData.mockAddressDetails)
-      }
-
-      // Call the details API.
-      const result = await detailsBulk(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
-
-      assert.equal(result[0].pagesTotal, 1)
-    })
-
     it("should get details for a single address", async () => {
       req.body = {
         addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
@@ -334,34 +276,20 @@ describe("#Bitcore Router", () => {
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
-        nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
-          .reply(200, mockData.mockAddressDetails)
+        nock(mockServerUrl)
+          .get(uri => uri.includes("/"))
+          .reply(200, mockData.mockBalance)
       }
 
       // Call the details API.
-      const result = await detailsBulk(req, res)
+      const result = await balanceBulk(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      // Assert that required fields exist in the returned object.
-      assert.equal(result.length, 1, "Array with one entry")
-      assert.hasAllKeys(result[0], [
-        "balance",
-        "balanceSat",
-        "totalReceived",
-        "totalReceivedSat",
-        "totalSent",
-        "totalSentSat",
-        "unconfirmedBalance",
-        "unconfirmedBalanceSat",
-        "unconfirmedTxApperances",
-        "txApperances",
-        "transactions",
-        "legacyAddress",
-        "cashAddress",
-        "currentPage",
-        "pagesTotal"
-      ])
+      assert.isArray(result)
+      assert.hasAllKeys(result[0], ["confirmed", "unconfirmed", "balance"])
+      assert.isNumber(result[0].confirmed)
+      assert.isNumber(result[0].unconfirmed)
+      assert.isNumber(result[0].balance)
     })
 
     it("should get details for multiple addresses", async () => {
@@ -374,22 +302,18 @@ describe("#Bitcore Router", () => {
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
-        nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
-          .reply(200, mockData.mockAddressDetails)
-
-        nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mwJnEzXzKkveF2q5Af9jxi9j1zrtWAnPU8?from=0&to=1000`)
-          .reply(200, mockData.mockAddressDetails)
+        nock(mockServerUrl)
+          .get(uri => uri.includes("/"))
+          .times(2)
+          .reply(200, mockData.mockBalance)
       }
 
       // Call the details API.
-      const result = await detailsBulk(req, res)
-      // console.log(`result: ${util.inspect(result)}`)
+      const result = await balanceBulk(req, res)
+      //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
       assert.equal(result.length, 2, "2 outputs for 2 inputs")
     })
-    */
   })
 })
