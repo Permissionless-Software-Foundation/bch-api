@@ -37,7 +37,7 @@ async function balanceFromBlockbook(thisAddress) {
     //console.log(`BITCORE_URL: ${BITCORE_URL}`)
 
     // Convert the address to a cashaddr without a prefix.
-    const addr = BITBOX.Address.toCashAddress(thisAddress, false)
+    const addr = BITBOX.Address.toCashAddress(thisAddress)
 
     // Determine if we are working with the testnet or mainnet networks.
     let network = "mainnet"
@@ -107,6 +107,8 @@ async function balanceSingle(req, res, next) {
     res.status(200)
     return res.json(retData)
   } catch (err) {
+    console.log(`err: ${JSON.stringify(err, null, 2)}`)
+
     // Attempt to decode the error message.
     const { msg, status } = routeUtils.decodeError(err)
     if (msg) {

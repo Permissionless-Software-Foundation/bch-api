@@ -193,9 +193,7 @@ io.on("connection", socket => {
 
 if (process.env.ZEROMQ_URL && process.env.ZEROMQ_PORT) {
   console.log(
-    `Connecting to BCH ZMQ at ${process.env.ZEROMQ_URL}:${
-      process.env.ZEROMQ_PORT
-    }`
+    `Connecting to BCH ZMQ at ${process.env.ZEROMQ_URL}:${process.env.ZEROMQ_PORT}`
   )
   const bitcoincashZmqDecoder = new BitcoinCashZMQDecoder(process.env.NETWORK)
 

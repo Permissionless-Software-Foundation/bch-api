@@ -19,7 +19,7 @@ let originalUrl // Used during transition from integration to unit tests.
 
 // Mocking data.
 const { mockReq, mockRes } = require("./mocks/express-mocks")
-const mockData = require("./mocks/bitcore-mock")
+const mockData = require("./mocks/blockbook-mock")
 
 // Used for debugging.
 const util = require("util")
@@ -157,12 +157,22 @@ describe("#Blockbook Router", () => {
 
       // Call the details API.
       const result = await balanceSingle(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["confirmed", "unconfirmed", "balance"])
-      assert.isNumber(result.confirmed)
-      assert.isNumber(result.unconfirmed)
-      assert.isNumber(result.balance)
+      assert.hasAnyKeys(result, [
+        "page",
+        "totalPages",
+        "itemsOnPage",
+        "address",
+        "balance",
+        "totalReceived",
+        "totalSent",
+        "unconfirmedBalance",
+        "unconfirmedTxs",
+        "txs",
+        "txids"
+      ])
+      assert.isArray(result.txids)
     })
   })
   /*
