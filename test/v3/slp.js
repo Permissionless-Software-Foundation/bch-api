@@ -213,7 +213,7 @@ describe("#SLP", () => {
     it("should get token information", async () => {
       // testnet
       const tokenIdToTest =
-        "650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a"
+        "af8e10dd87e7092e5f0f3b9cf62e85e91f74395fbf22cd14f12bcdfbf1e8354f"
 
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
@@ -225,7 +225,7 @@ describe("#SLP", () => {
       req.params.tokenId = tokenIdToTest
 
       const result = await listSingleToken(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, [
         "id",
@@ -353,13 +353,14 @@ describe("#SLP", () => {
 
       req.body.tokenIds =
         // testnet
-        ["650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a"]
+        ["af8e10dd87e7092e5f0f3b9cf62e85e91f74395fbf22cd14f12bcdfbf1e8354f"]
 
       const result = await listBulkToken(req, res)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
       assert.hasAllKeys(result[0], [
+        "id",
         "blockCreated",
         "blockLastActiveMint",
         "blockLastActiveSend",
@@ -375,7 +376,6 @@ describe("#SLP", () => {
         "documentHash",
         "decimals",
         "initialTokenQty",
-        "id",
         "totalBurned",
         "totalMinted",
         "validAddresses",
@@ -395,8 +395,8 @@ describe("#SLP", () => {
       req.body.tokenIds =
         // testnet
         [
-          "650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a",
-          "c35a87afad11c8d086c1449ffd8b0a84324e72b15b1bcfdf166a493551b4eea6"
+          "af8e10dd87e7092e5f0f3b9cf62e85e91f74395fbf22cd14f12bcdfbf1e8354f",
+          "4902b6e8627f4c9a4fc5ebe1da19c8ae88526dbab877dfc9c74d23aaab2c7224"
         ]
 
       const result = await listBulkToken(req, res)

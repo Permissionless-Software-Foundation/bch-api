@@ -33,34 +33,34 @@ const mockSingleToken = {
   t: [
     {
       tokenDetails: {
-        decimals: 8,
+        decimals: 0,
         tokenIdHex:
-          "650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a",
-        timestamp: "2018-08-26 07:06",
+          "af8e10dd87e7092e5f0f3b9cf62e85e91f74395fbf22cd14f12bcdfbf1e8354f",
+        timestamp: "2019-06-14 06:31:37",
+        timestamp_unix: 1560493897,
         transactionType: "GENESIS",
         versionType: 1,
-        documentUri: "",
+        documentUri: "ot@ot.com",
         documentSha256Hex: null,
-        symbol: "",
-        name: "TESTYCOIN",
-        batonVout: null,
-        containsBaton: false,
-        genesisOrMintQuantity: "9999",
-        sendOutputs: null,
-        timestamp_unix: "something"
+        symbol: "OT",
+        name: "Test First SLP oasis Token",
+        batonVout: 2,
+        containsBaton: true,
+        genesisOrMintQuantity: "10000",
+        sendOutputs: null
       },
       tokenStats: {
-        block_created: 1253802,
-        block_last_active_send: 1253802,
-        block_last_active_mint: null,
-        qty_valid_txns_since_genesis: 2,
-        qty_valid_token_utxos: 0,
-        qty_valid_token_addresses: 0,
-        qty_token_minted: "9999",
-        qty_token_burned: "9999",
-        qty_token_circulating_supply: "0",
-        qty_satoshis_locked_up: 0,
-        minting_baton_status: "NEVER_CREATED"
+        block_created: 1308634,
+        block_last_active_send: 1308655,
+        block_last_active_mint: 1308636,
+        qty_valid_txns_since_genesis: 11,
+        qty_valid_token_utxos: 9,
+        qty_valid_token_addresses: 2,
+        qty_token_minted: "20000",
+        qty_token_burned: "0",
+        qty_token_circulating_supply: "20000",
+        qty_satoshis_locked_up: 4914,
+        minting_baton_status: "ALIVE"
       }
     }
   ]

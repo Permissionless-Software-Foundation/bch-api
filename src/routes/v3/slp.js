@@ -369,7 +369,9 @@ async function lookupToken(tokenId) {
 
     const tokenRes = await axios.get(url)
     //console.log(`tokenRes.data: ${util.inspect(tokenRes.data,null,2)}`)
-    //console.log(`tokenRes.data.t[0]: ${util.inspect(tokenRes.data.t[0],null,2)}`)
+    //console.log(
+    //  `tokenRes.data.t[0]: ${util.inspect(tokenRes.data.t[0], null, 2)}`
+    //)
 
     const formattedTokens = []
 
