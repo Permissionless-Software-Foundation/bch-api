@@ -10,3 +10,4 @@ test-v1
 nohup.out
 slp-tx-db/
 logs/
+docs/*
