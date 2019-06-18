@@ -49,7 +49,6 @@ const slpV2 = require("./routes/v2/slp")
 // v3
 const indexV3 = require("./routes/v3/index")
 const healthCheckV3 = require("./routes/v3/health-check")
-const addressV3 = require("./routes/v3/address")
 const blockV3 = require("./routes/v3/block")
 const blockchainV3 = require("./routes/v3/blockchain")
 const controlV3 = require("./routes/v3/control")
@@ -60,6 +59,7 @@ const rawtransactionsV3 = require("./routes/v3/rawtransactions")
 const transactionV3 = require("./routes/v3/transaction")
 const utilV3 = require("./routes/v3/util")
 const slpV3 = require("./routes/v3/slp")
+const xpubV3 = require("./routes/v3/xpub")
 
 require("dotenv").config()
 
@@ -129,7 +129,6 @@ app.use(`/${v2prefix}/` + `slp`, slpV2.router)
 // Rate limit on all v2 routes
 app.use(`/${v3prefix}/`, routeRateLimit)
 app.use(`/${v3prefix}/` + `health-check`, healthCheckV3)
-app.use(`/${v3prefix}/` + `address`, addressV3.router)
 app.use(`/${v3prefix}/` + `blockchain`, blockchainV3.router)
 app.use(`/${v3prefix}/` + `block`, blockV3.router)
 app.use(`/${v3prefix}/` + `control`, controlV3.router)
@@ -140,6 +139,7 @@ app.use(`/${v3prefix}/` + `rawtransactions`, rawtransactionsV3.router)
 app.use(`/${v3prefix}/` + `transaction`, transactionV3.router)
 app.use(`/${v3prefix}/` + `util`, utilV3.router)
 app.use(`/${v3prefix}/` + `slp`, slpV3.router)
+app.use(`/${v3prefix}/` + `xpub`, xpubV3.router)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
