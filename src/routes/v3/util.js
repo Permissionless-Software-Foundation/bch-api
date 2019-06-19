@@ -5,7 +5,6 @@ const router = express.Router()
 const axios = require("axios")
 
 const routeUtils = require("./route-utils")
-const logger = require("./logging.js")
 const wlogger = require("../../util/winston-logging")
 
 const BITBOXJS = require("@chris.troutner/bitbox-js")
@@ -122,7 +121,7 @@ async function validateAddressBulk(req, res, next) {
       }
     }
 
-    logger.debug(`Executing util/validate with these addresses: `, addresses)
+    wlogger.debug(`Executing util/validate with these addresses: `, addresses)
 
     const {
       BitboxHTTP,

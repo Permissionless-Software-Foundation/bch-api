@@ -4,7 +4,6 @@ const express = require("express")
 const router = express.Router()
 const axios = require("axios")
 
-const logger = require("./logging.js")
 const routeUtils = require("./route-utils")
 const wlogger = require("../../util/winston-logging")
 

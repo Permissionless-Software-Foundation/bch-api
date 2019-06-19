@@ -10,7 +10,6 @@ const router = express.Router()
 const axios = require("axios")
 
 const routeUtils = require("./route-utils")
-const logger = require("./logging.js")
 const wlogger = require("../../util/winston-logging")
 
 // Used to convert error messages to strings, to safely pass to users.
@@ -204,7 +203,7 @@ async function getBlockHeaderBulk(req, res, next) {
       })
     }
 
-    logger.debug(
+    wlogger.debug(
       `Executing blockchain/getBlockHeaderBulk with these hashes: `,
       hashes
     )
@@ -385,7 +384,7 @@ async function getMempoolEntryBulk(req, res, next) {
       })
     }
 
-    logger.debug(
+    wlogger.debug(
       `Executing blockchain/getMempoolEntry with these txids: `,
       txids
     )
@@ -641,7 +640,10 @@ async function getTxOutProofBulk(req, res, next) {
       }
     }
 
-    logger.debug(`Executing blockchain/getTxOutProof with these txids: `, txids)
+    wlogger.debug(
+      `Executing blockchain/getTxOutProof with these txids: `,
+      txids
+    )
 
     // Loop through each txid and creates an array of requests to call in parallel
     const promises = txids.map(async txid => {
@@ -826,7 +828,7 @@ async function verifyTxOutProofBulk(req, res, next) {
       }
     }
 
-    logger.debug(
+    wlogger.debug(
       `Executing blockchain/verifyTxOutProof with these proofs: `,
       proofs
     )

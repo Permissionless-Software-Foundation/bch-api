@@ -7,7 +7,6 @@
 const express = require("express")
 const requestUtils = require("./services/requestUtils")
 const axios = require("axios")
-const logger = require("./logging.js")
 const routeUtils = require("./route-utils")
 const wlogger = require("../../util/winston-logging")
 
@@ -48,7 +47,6 @@ async function fromXPubSingle(req, res, next) {
       })
     }
 
-    logger.debug(`Executing address/fromXPub with this xpub: `, xpub)
     wlogger.debug(`Executing address/fromXPub with this xpub: `, xpub)
 
     const cashAddr = BITBOX.Address.fromXPub(xpub, hdPath)
@@ -67,7 +65,6 @@ async function fromXPubSingle(req, res, next) {
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(`Error in address.ts/fromXPubSingle().`, err)
 
     res.status(500)
