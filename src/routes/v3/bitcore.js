@@ -61,6 +61,16 @@ async function balanceFromBitcore(thisAddress) {
   }
 }
 
+/**
+ * @api {get} /bitcore/balance/:address Get BCH balance for an address
+ * @apiName GetBalance
+ * @apiGroup Bitcore
+ *
+ * @apiParam {String} address Bitcoin Cash address.
+ *
+ * @apiSuccess {String} firstname Firstname of the User.
+ * @apiSuccess {String} lastname  Lastname of the User.
+ */
 // GET handler for single balance
 async function balanceSingle(req, res, next) {
   try {

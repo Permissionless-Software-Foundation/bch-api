@@ -76,7 +76,9 @@ app.enable("trust proxy")
 app.set("views", path.join(__dirname, "views"))
 app.set("view engine", "jade")
 
-app.use("/public", express.static(`${__dirname}/public`))
+// Mount the docs
+app.use("/docs", express.static(`${__dirname}/../docs`))
+
 app.use(logger("dev"))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))

@@ -16,7 +16,7 @@
     "test:integration": "mocha test/v3/integration",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coverage:report": "export NETWORK=testnet && nyc --reporter=html mocha test/v2/",
-    "docs": "./node_modules/.bin/apidoc -i src/ -o docs"
+    "docs": "./node_modules/.bin/apidoc -i src/routes/v3 -o docs"
   },
   "engines": {
     "node": ">=10.15.1"

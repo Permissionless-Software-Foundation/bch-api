@@ -13,13 +13,34 @@ const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
 router.get("/", root)
-router.get("/getInfo", getInfo)
+router.get("/getinfo", getInfo)
 
 function root(req, res, next) {
   return res.json({ status: "control" })
 }
 
-// Execute the RPC getinfo call.
+/**
+ * @api {get} /control/getinfo Get full node info
+ * @apiName GetInfo
+ * @apiGroup Control
+ * @apiDescription RPC call which gets basic full node information.
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:5000/v3/control/getinfo" -H "accept: application/json"
+ *
+ * @apiSuccess {Object}   object                  Object containing data
+ * @apiSuccess {Number}   object.version          Full node version
+ * @apiSuccess {Number}   object.protocolversion  Protocol version
+ * @apiSuccess {Number}   object.blocks           Current block
+ * @apiSuccess {Number}   object.timeoffset       ?
+ * @apiSuccess {Number}   object.connections      Number of connected peers
+ * @apiSuccess {String}   object.proxy            ?
+ * @apiSuccess {Number}   object.difficulty       Current difficulty setting
+ * @apiSuccess {Boolean}  object.testnet          testnet = true, mainnet = false
+ * @apiSuccess {Number}   object.paytxfee         ?
+ * @apiSuccess {Number}   object.relayfee         ?
+ * @apiSuccess {String}   object.errors           ?
+ */
 async function getInfo(req, res, next) {
   const {
     BitboxHTTP,
