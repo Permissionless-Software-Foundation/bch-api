@@ -364,6 +364,17 @@ async function getBlockHeaderBulk(req, res, next) {
   }
 }
 
+/**
+ * @api {get} /blockchain/getChainTips Get Chain Tips
+ * @apiName getChainTips
+ * @apiGroup Blockchain
+ * @apiDescription Return information about all known tips in the block tree,
+ * including the main chain as well as orphaned branches.
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/blockchain/getChainTips" -H "accept: application/json"
+ *
+ */
 async function getChainTips(req, res, next) {
   try {
     const {
@@ -396,7 +407,17 @@ async function getChainTips(req, res, next) {
   }
 }
 
-// Get the current difficulty value, used to regulate mining power on the network.
+/**
+ * @api {get} /blockchain/getDifficulty Get difficulty
+ * @apiName getDifficulty
+ * @apiGroup Blockchain
+ * @apiDescription Get the current difficulty value, used to regulate mining
+ * power on the network.
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/blockchain/getDifficulty" -H "accept: application/json"
+ *
+ */
 async function getDifficulty(req, res, next) {
   try {
     const {
@@ -430,7 +451,17 @@ async function getDifficulty(req, res, next) {
   }
 }
 
-// Returns mempool data for given transaction. TXID must be in mempool (unconfirmed)
+/**
+ * @api {get} /blockchain/getMempoolEntry/:txid Get single mempool entry
+ * @apiName getMempoolEntry
+ * @apiGroup Blockchain
+ * @apiDescription Returns mempool data for given transaction. TXID must be in
+ * mempool (unconfirmed)
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/blockchain/getMempoolEntry/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
+ *
+ */
 async function getMempoolEntrySingle(req, res, next) {
   try {
     // Validate input parameter
@@ -471,6 +502,15 @@ async function getMempoolEntrySingle(req, res, next) {
   }
 }
 
+/**
+ * @api {post} /blockchain/getMempoolEntry Get bulk mempool entry
+ * @apiName getMempoolEntryBulk
+ * @apiGroup Blockchain
+ * @apiDescription Returns mempool data for multiple transactions
+ *
+ * @apiExample Example usage:
+ * curl -X POST http://localhost:3000/v3/blockchain/getMempoolEntry -H "Content-Type: application/json" -d "{\"txids\":[\"a5f972572ee1753e2fd2457dd61ce5f40fa2f8a30173d417e49feef7542c96a1\",\"5165dc531aad05d1149bb0f0d9b7bda99c73e2f05e314bcfb5b4bb9ca5e1af5e\"]}"
+ */
 async function getMempoolEntryBulk(req, res, next) {
   try {
     const txids = req.body.txids
@@ -545,6 +585,16 @@ async function getMempoolEntryBulk(req, res, next) {
   }
 }
 
+/**
+ * @api {get} /blockchain/getMempoolInfo Get mempool info
+ * @apiName getMempoolInfo
+ * @apiGroup Blockchain
+ * @apiDescription Returns details on the active state of the TX memory pool.
+ *
+ * @apiExample Example usage:
+ * curl -X GET http://localhost:3000/v3/getMempoolInfo -H "accept: application/json"
+ *
+ */
 async function getMempoolInfo(req, res, next) {
   try {
     const {
@@ -577,6 +627,29 @@ async function getMempoolInfo(req, res, next) {
   }
 }
 
+/**
+ * @api {get} /blockchain/getRawMempool Get mempool info
+ * @apiName getMempoolInfo
+ * @apiGroup Blockchain
+ * @apiDescription Returns details on the active state of the TX memory pool.
+ *
+ * @apiExample Example usage:
+ * curl -X GET http://localhost:3000/v3/getMempoolInfo -H "accept: application/json"
+ *
+ */
+/**
+ * @api {get} /blockchain/getRawMempool/?verbose= Get raw mempool
+ * @apiName getRawMempool
+ * @apiGroup Blockchain
+ * @apiDescription Returns all transaction ids in memory pool as a json array
+ * of string transaction ids.
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/getRawMempool/?verbose=true" -H "accept: application/json"
+ *
+ * @apiParam {Boolean} verbose Return verbose data
+ *
+ */
 async function getRawMempool(req, res, next) {
   try {
     const {
@@ -613,6 +686,20 @@ async function getRawMempool(req, res, next) {
   }
 }
 
+/**
+ * @api {get} /blockchain/getTxOut/:txid/:n?mempool= Get Tx Out
+ * @apiName getTxOut
+ * @apiGroup Blockchain
+ * @apiDescription Returns details about an unspent transaction output.
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/blockchain/getTxOut/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33/0?mempool=false" -H "accept: application/json"
+ *
+ * @apiParam {String} txid Transaction id (required)
+ * @apiParam {Number} n Output number (required)
+ * @apiParam {Boolean} mempool Check mempool or not (optional)
+ *
+ */
 // Returns details about an unspent transaction output.
 async function getTxOut(req, res, next) {
   try {
@@ -665,7 +752,18 @@ async function getTxOut(req, res, next) {
   }
 }
 
-// Returns a hex-encoded proof that 'txid' was included in a block.
+/**
+ * @api {get} /blockchain/getTxOutProofSingle/:txid Get Tx Out Proof
+ * @apiName getTxOutProofSingle
+ * @apiGroup Blockchain
+ * @apiDescription Returns a hex-encoded proof that 'txid' was included in a block.
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/blockchain/getTxOutProofSingle/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
+ *
+ * @apiParam {String} txid Transaction id (required)
+ *
+ */
 async function getTxOutProofSingle(req, res, next) {
   try {
     // Validate input parameter
