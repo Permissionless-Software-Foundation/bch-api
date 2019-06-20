@@ -25,7 +25,6 @@ router.get("/getBlockchainInfo", getBlockchainInfo)
 router.get("/getBlockCount", getBlockCount)
 router.get("/getBlockHeader/:hash", getBlockHeaderSingle)
 router.post("/getBlockHeader", getBlockHeaderBulk)
-
 router.get("/getChainTips", getChainTips)
 router.get("/getDifficulty", getDifficulty)
 router.get("/getMempoolEntry/:txid", getMempoolEntrySingle)
@@ -42,7 +41,18 @@ function root(req, res, next) {
   return res.json({ status: "blockchain" })
 }
 
-// Returns the hash of the best (tip) block in the longest block chain.
+/**
+ * @api {get} /blockchain/getBestBlockHash Get best block hash
+ * @apiName GetBestBlockHash
+ * @apiGroup Blockchain
+ * @apiDescription Returns the hash of the best (tip) block in the longest
+ * block chain.
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/blockchain/getBestBlockHash" -H "accept: application/json"
+ *
+ * @apiSuccess {String}   bestBlockHash           000000000000000002bc884334336d99c9a9c616670a9244c6a8c1fc35aa91a1
+ */
 async function getBestBlockHash(req, res, next) {
   try {
     const {
@@ -75,6 +85,31 @@ async function getBestBlockHash(req, res, next) {
   }
 }
 
+/**
+ * @api {get} /blockchain/getBlockchainInfo Get blockchain info
+ * @apiName GetBlockchainInfo
+ * @apiGroup Blockchain
+ * @apiDescription Returns an object containing various state info regarding blockchain processing.
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/blockchain/getBlockchainInfo" -H "accept: application/json"
+ *
+ * @apiSuccess {Object}   object                      Object containing data
+ * @apiSuccess {String}   object.chain                "main"
+ * @apiSuccess {Number}   object.blocks               561838
+ * @apiSuccess {Number}   object.headers              561838
+ * @apiSuccess {String}   object.bestblockhash        "000000000000000002307dd38cd01c7308b8febfcdf5772cf087b5bb023d55bc"
+ * @apiSuccess {Number}   object.difficulty           246585566638.1496
+ * @apiSuccess {String}   object.mediantime           1545402693
+ * @apiSuccess {Number}   object.verificationprogress 0.999998831622689
+ * @apiSuccess {Boolean}  object.chainwork            "000000000000000000000000000000000000000000d8c09a8ab7262080266b3e"
+ * @apiSuccess {Number}   object.pruned               false
+ * @apiSuccess {Array}    object.softforks            Array of objects
+ * @apiSuccess {String}   object.softforks.id         "bip34"
+ * @apiSuccess {String}   object.softforks.version    2
+ * @apiSuccess {Object}   object.softforks.reject
+ * @apiSuccess {String}   object.softforks.reject.status true
+ */
 async function getBlockchainInfo(req, res, next) {
   try {
     const {
@@ -108,6 +143,17 @@ async function getBlockchainInfo(req, res, next) {
   }
 }
 
+/**
+ * @api {get} /blockchain/getBlockCount Get Block Count
+ * @apiName GetBlockCount
+ * @apiGroup Blockchain
+ * @apiDescription Returns the number of blocks in the longest blockchain.
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/blockchain/getBlockCount" -H "accept: application/json"
+ *
+ * @apiSuccess {Number} bestBlockCount  587665
+ */
 async function getBlockCount(req, res, next) {
   try {
     const {
@@ -140,6 +186,36 @@ async function getBlockCount(req, res, next) {
   }
 }
 
+/**
+ * @api {get} /blockchain/getBlockHeader/:hash Get single block header
+ * @apiName GetSingleBlockHeader
+ * @apiGroup Blockchain
+ * @apiDescription If verbose is false (default), returns a string that is
+ * serialized, hex-encoded data for blockheader 'hash'. If verbose is true,
+ * returns an Object with information about blockheader hash.
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/blockchain/getBlockHeader/000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201?verbose=true" -H "accept: application/json"
+ *
+ * @apiParam {String} hash block hash
+ * @apiParam {Boolean} verbose Return verbose data
+ *
+ * @apiSuccess {Object}   object                      Object containing data
+ * @apiSuccess {String}   object.hash                "000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201"
+ * @apiSuccess {Number}   object.confirmations       61839
+ * @apiSuccess {Number}   object.height              500000
+ * @apiSuccess {Number}   object.version             536870912
+ * @apiSuccess {String}   object.versionHex          "20000000"
+ * @apiSuccess {String}   object.merkleroot          "4af279645e1b337e655ae3286fc2ca09f58eb01efa6ab27adedd1e9e6ec19091"
+ * @apiSuccess {Number}   object.time                1509343584
+ * @apiSuccess {Number}   object.mediantime          1509336533
+ * @apiSuccess {Number}   object.nonce               3604508752
+ * @apiSuccess {String}   object.bits                "1809b91a"
+ * @apiSuccess {Number}   object.difficulty          113081236211.4533
+ * @apiSuccess {String}   object.chainwork           "0000000000000000000000000000000000000000007ae48aca46e3b449ad9714"
+ * @apiSuccess {String}   object.previousblockhash   "0000000000000000043831d6ebb013716f0580287ee5e5687e27d0ed72e6e523"
+ * @apiSuccess {String}   object.nextblockhash       "00000000000000000568f0a96bf4348847bc84e455cbfec389f27311037a20f3"
+ */
 async function getBlockHeaderSingle(req, res, next) {
   try {
     let verbose = false
@@ -183,6 +259,36 @@ async function getBlockHeaderSingle(req, res, next) {
   }
 }
 
+/**
+ * @api {post} /blockchain/getBlockHeader Get multiple block headers
+ * @apiName GetBulkBlockHeader
+ * @apiGroup Blockchain
+ * @apiDescription If verbose is false (default), returns a string that is
+ * serialized, hex-encoded data for blockheader 'hash'. If verbose is true,
+ * returns an Object with information about blockheader hash.
+ *
+ * @apiExample Example usage:
+ * curl -X POST "https://rest.bitcoin.com/v3/blockchain/getBlockHeader" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"hashes\":[\"000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201\",\"00000000000000000568f0a96bf4348847bc84e455cbfec389f27311037a20f3\"],\"verbose\":true}"
+ *
+ * @apiParam {String} hash block hash
+ * @apiParam {Boolean} verbose Return verbose data
+ *
+ * @apiSuccess {Array}    array                      array containing objects
+ * @apiSuccess {String}   object.hash                "000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201"
+ * @apiSuccess {Number}   object.confirmations       61839
+ * @apiSuccess {Number}   object.height              500000
+ * @apiSuccess {Number}   object.version             536870912
+ * @apiSuccess {String}   object.versionHex          "20000000"
+ * @apiSuccess {String}   object.merkleroot          "4af279645e1b337e655ae3286fc2ca09f58eb01efa6ab27adedd1e9e6ec19091"
+ * @apiSuccess {Number}   object.time                1509343584
+ * @apiSuccess {Number}   object.mediantime          1509336533
+ * @apiSuccess {Number}   object.nonce               3604508752
+ * @apiSuccess {String}   object.bits                "1809b91a"
+ * @apiSuccess {Number}   object.difficulty          113081236211.4533
+ * @apiSuccess {String}   object.chainwork           "0000000000000000000000000000000000000000007ae48aca46e3b449ad9714"
+ * @apiSuccess {String}   object.previousblockhash   "0000000000000000043831d6ebb013716f0580287ee5e5687e27d0ed72e6e523"
+ * @apiSuccess {String}   object.nextblockhash       "00000000000000000568f0a96bf4348847bc84e455cbfec389f27311037a20f3"
+ */
 async function getBlockHeaderBulk(req, res, next) {
   try {
     const hashes = req.body.hashes

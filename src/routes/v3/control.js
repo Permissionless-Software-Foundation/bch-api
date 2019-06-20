@@ -25,7 +25,7 @@ function root(req, res, next) {
  * @apiDescription RPC call which gets basic full node information.
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:5000/v3/control/getinfo" -H "accept: application/json"
+ * curl -X GET "http://localhost:3000/v3/control/getinfo" -H "accept: application/json"
  *
  * @apiSuccess {Object}   object                  Object containing data
  * @apiSuccess {Number}   object.version          Full node version
@@ -38,7 +38,7 @@ function root(req, res, next) {
  * @apiSuccess {Boolean}  object.testnet          testnet = true, mainnet = false
  * @apiSuccess {Number}   object.paytxfee         ?
  * @apiSuccess {Number}   object.relayfee         ?
- * @apiSuccess {String}   object.errors           ?
+ * @apiSuccess {String}   object.errors           Recent errors
  */
 async function getInfo(req, res, next) {
   const {

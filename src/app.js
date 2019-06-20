@@ -47,11 +47,9 @@ const utilV2 = require("./routes/v2/util")
 const slpV2 = require("./routes/v2/slp")
 
 // v3
-const indexV3 = require("./routes/v3/index")
 const healthCheckV3 = require("./routes/v3/health-check")
 const blockchainV3 = require("./routes/v3/blockchain")
 const controlV3 = require("./routes/v3/control")
-const generatingV3 = require("./routes/v3/generating")
 const miningV3 = require("./routes/v3/mining")
 const networkV3 = require("./routes/v3/network")
 const rawtransactionsV3 = require("./routes/v3/rawtransactions")
@@ -131,7 +129,6 @@ app.use(`/${v3prefix}/`, routeRateLimit)
 app.use(`/${v3prefix}/` + `health-check`, healthCheckV3)
 app.use(`/${v3prefix}/` + `blockchain`, blockchainV3.router)
 app.use(`/${v3prefix}/` + `control`, controlV3.router)
-app.use(`/${v3prefix}/` + `generating`, generatingV3)
 app.use(`/${v3prefix}/` + `mining`, miningV3.router)
 app.use(`/${v3prefix}/` + `network`, networkV3)
 app.use(`/${v3prefix}/` + `rawtransactions`, rawtransactionsV3.router)
@@ -170,7 +167,7 @@ app.use((err, req, res, next) => {
  */
 const port = normalizePort(process.env.PORT || "3000")
 app.set("port", port)
-console.log(`rest.bitcoin.com started on port ${port}`)
+console.log(`bch-api started on port ${port}`)
 
 /**
  * Create HTTP server.
