@@ -47,16 +47,12 @@ const utilV2 = require("./routes/v2/util")
 const slpV2 = require("./routes/v2/slp")
 
 // v3
-const indexV3 = require("./routes/v3/index")
 const healthCheckV3 = require("./routes/v3/health-check")
-const blockV3 = require("./routes/v3/block")
 const blockchainV3 = require("./routes/v3/blockchain")
 const controlV3 = require("./routes/v3/control")
-const generatingV3 = require("./routes/v3/generating")
 const miningV3 = require("./routes/v3/mining")
 const networkV3 = require("./routes/v3/network")
 const rawtransactionsV3 = require("./routes/v3/rawtransactions")
-const transactionV3 = require("./routes/v3/transaction")
 const utilV3 = require("./routes/v3/util")
 const slpV3 = require("./routes/v3/slp")
 const xpubV3 = require("./routes/v3/xpub")
@@ -78,7 +74,9 @@ app.enable("trust proxy")
 app.set("views", path.join(__dirname, "views"))
 app.set("view engine", "jade")
 
-app.use("/public", express.static(`${__dirname}/public`))
+// Mount the docs
+app.use("/docs", express.static(`${__dirname}/../docs`))
+
 app.use(logger("dev"))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -126,17 +124,14 @@ app.use(`/${v2prefix}/` + `transaction`, transactionV2.router)
 app.use(`/${v2prefix}/` + `util`, utilV2.router)
 app.use(`/${v2prefix}/` + `slp`, slpV2.router)
 
-// Rate limit on all v2 routes
+// Rate limit on all v3 routes
 app.use(`/${v3prefix}/`, routeRateLimit)
 app.use(`/${v3prefix}/` + `health-check`, healthCheckV3)
 app.use(`/${v3prefix}/` + `blockchain`, blockchainV3.router)
-app.use(`/${v3prefix}/` + `block`, blockV3.router)
 app.use(`/${v3prefix}/` + `control`, controlV3.router)
-app.use(`/${v3prefix}/` + `generating`, generatingV3)
 app.use(`/${v3prefix}/` + `mining`, miningV3.router)
 app.use(`/${v3prefix}/` + `network`, networkV3)
 app.use(`/${v3prefix}/` + `rawtransactions`, rawtransactionsV3.router)
-app.use(`/${v3prefix}/` + `transaction`, transactionV3.router)
 app.use(`/${v3prefix}/` + `util`, utilV3.router)
 app.use(`/${v3prefix}/` + `slp`, slpV3.router)
 app.use(`/${v3prefix}/` + `xpub`, xpubV3.router)
@@ -172,7 +167,7 @@ app.use((err, req, res, next) => {
  */
 const port = normalizePort(process.env.PORT || "3000")
 app.set("port", port)
-console.log(`rest.bitcoin.com started on port ${port}`)
+console.log(`bch-api started on port ${port}`)
 
 /**
  * Create HTTP server.

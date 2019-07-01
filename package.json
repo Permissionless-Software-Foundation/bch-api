@@ -15,13 +15,15 @@
     "test-v3": "export NETWORK=testnet && nyc --reporter=text mocha --timeout 25000 test/v3/",
     "test:integration": "mocha test/v3/integration",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "coverage:report": "export NETWORK=testnet && nyc --reporter=html mocha test/v2/"
+    "coverage:report": "export NETWORK=testnet && nyc --reporter=html mocha test/v2/",
+    "docs": "./node_modules/.bin/apidoc -i src/routes/v3 -o docs"
   },
   "engines": {
     "node": ">=10.15.1"
   },
   "dependencies": {
     "@chris.troutner/bitbox-js": "^7.0.2",
+    "apidoc": "^0.17.7",
     "axios": "^0.19.0",
     "bitcoincash-zmq-decoder": "0.1.5",
     "body-parser": "^1.18.3",
@@ -82,5 +84,9 @@
         "npmPublish": false
       }
     ]
+  },
+  "apidoc": {
+    "title": "bch-api",
+    "url": "localhost:3000"
   }
 }

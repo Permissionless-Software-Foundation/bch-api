@@ -5,7 +5,6 @@ const router = express.Router()
 const axios = require("axios")
 
 const routeUtils = require("./route-utils")
-const logger = require("./logging.js")
 const strftime = require("strftime")
 const wlogger = require("../../util/winston-logging")
 
@@ -812,7 +811,7 @@ async function validateBulk(req, res, next) {
       })
     }
 
-    logger.debug(`Executing slp/validate with these txids: `, txids)
+    wlogger.debug(`Executing slp/validate with these txids: `, txids)
 
     // Validate each txid
     const validatePromises = txids.map(async txid => {
@@ -865,7 +864,7 @@ async function validateSingle(req, res, next) {
       return res.json({ error: "txid can not be empty" })
     }
 
-    logger.debug(`Executing slp/validate/:txid with this txid: `, txid)
+    wlogger.debug(`Executing slp/validate/:txid with this txid: `, txid)
 
     // Validate txid
     // Dev note: must call module.exports to allow stubs in unit tests.
