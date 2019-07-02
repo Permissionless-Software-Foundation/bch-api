@@ -61,6 +61,7 @@ const blockbookV3 = require("./routes/v3/blockbook")
 const insightV3 = require("./routes/v3/insight")
 const insightBlockV3 = require("./routes/v3/insight/block")
 const insightTranactionV3 = require("./routes/v3/insight/transaction")
+const insightAddressV3 = require("./routes/v3/insight/address")
 
 require("dotenv").config()
 
@@ -145,6 +146,7 @@ app.use(`/${v3prefix}/` + `blockbook`, blockbookV3.router)
 app.use(`/${v3prefix}/` + `insight`, insightV3.router)
 app.use(`/${v3prefix}/` + `insight/block`, insightBlockV3.router)
 app.use(`/${v3prefix}/` + `insight/transaction`, insightTranactionV3.router)
+app.use(`/${v3prefix}/` + `insight/address`, insightAddressV3.router)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
