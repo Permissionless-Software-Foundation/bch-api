@@ -6,9 +6,6 @@ This is a fork and alternative implementation of
 the [rest.bitcoin.com](https://github.com/Bitcoin-com/rest.bitcoin.com) repository.
 The function of this code is to create a REST API server to provide a common
 interface for working with a BCH full node and various indexers.
-This repository is intended to be used for my own personal use, but it's licensed
-under the MIT license like the original rest repo was, so people are free to use
-it and modify it as they see fit.
 
 This repository is intended to be paired with my alternative implementation
 of [BITBOX SDK](https://github.com/Bitcoin-com/bitbox-sdk):
