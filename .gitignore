@@ -3,6 +3,8 @@ node_modules/
 .env
 start-local-server
 test-local-server
+start-decatur-main
+start-decatur-test
 coverage
 start-my-infra
 dist/routes/**

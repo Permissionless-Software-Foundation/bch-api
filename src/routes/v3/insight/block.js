@@ -70,6 +70,7 @@ async function detailsByHashSingle(req, res, next) {
 async function detailsByHashBulk(req, res, next) {
   try {
     const hashes = req.body.hashes
+    //console.log(`hashes: ${JSON.stringify(hashes, null, 2)}`)
 
     // Reject if hashes is not an array.
     if (!Array.isArray(hashes)) {
