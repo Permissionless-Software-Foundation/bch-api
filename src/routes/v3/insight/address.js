@@ -45,12 +45,16 @@ function root(req, res, next) {
 // Returns a Promise.
 async function detailsFromInsight(thisAddress, currentPage = 0) {
   try {
+    /*
     let addr
+
     if (
       process.env.BITCOINCOM_BASEURL === "https://bch-insight.bitpay.com/api/"
     )
       addr = BITBOX.Address.toCashAddress(thisAddress)
     else addr = BITBOX.Address.toLegacyAddress(thisAddress)
+    */
+    const addr = BITBOX.Address.toLegacyAddress(thisAddress)
 
     let path = `${process.env.BITCOINCOM_BASEURL}addr/${addr}`
 
@@ -59,6 +63,8 @@ async function detailsFromInsight(thisAddress, currentPage = 0) {
     const from = currentPage * PAGE_SIZE
     const to = from + PAGE_SIZE
     path = `${path}?from=${from}&to=${to}`
+
+    //console.log(`path: ${path}`)
 
     // Query the Insight server.
     const axiosResponse = await axios.get(path)
