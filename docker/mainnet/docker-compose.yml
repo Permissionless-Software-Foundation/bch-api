@@ -1,0 +1,10 @@
+bch-api:
+  build: .
+  dockerfile: Dockerfile
+  #image: bitcore
+  container_name: bch-api-main
+  #links:
+  #  - mongodb
+  ports:
+    - "12400:3000"
+  restart: always

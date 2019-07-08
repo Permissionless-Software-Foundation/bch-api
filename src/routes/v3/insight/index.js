@@ -17,8 +17,8 @@ const router = express.Router()
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
-const BITBOXJS = require("@chris.troutner/bitbox-js")
-const BITBOX = new BITBOXJS()
+//const BCHJS = require("@chris.troutner/bch-js")
+//const bchjs = new BCHJS()
 
 //const BITCORE_URL = process.env.BITCORE_URL
 

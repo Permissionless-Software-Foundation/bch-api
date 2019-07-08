@@ -7,14 +7,14 @@ const axios = require("axios")
 const routeUtils = require("./route-utils")
 const wlogger = require("../../util/winston-logging")
 
-const BITBOXJS = require("@chris.troutner/bitbox-js")
-const BITBOX = new BITBOXJS()
+const BCHJS = require("@chris.troutner/bch-js")
+const bchjs = new BCHJS()
 
 // Used to convert error messages to strings, to safely pass to users.
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
-const BitboxHTTP = axios.create({
+const bchjsHTTP = axios.create({
   baseURL: process.env.RPC_BASEURL
 })
 
@@ -103,7 +103,7 @@ async function validateAddressBulk(req, res, next) {
 
       // Ensure the input is a valid BCH address.
       try {
-        var legacyAddr = BITBOX.Address.toLegacyAddress(address)
+        var legacyAddr = bchjs.Address.toLegacyAddress(address)
       } catch (err) {
         res.status(400)
         return res.json({

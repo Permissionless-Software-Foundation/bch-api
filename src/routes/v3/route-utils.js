@@ -10,8 +10,8 @@ const wlogger = require("../../util/winston-logging")
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
-const BITBOXJS = require("@chris.troutner/bitbox-js")
-const BITBOX = new BITBOXJS()
+const BCHJS = require("@chris.troutner/bch-js")
+const bchjs = new BCHJS()
 
 module.exports = {
   validateNetwork, // Prevents a common user error
@@ -54,14 +54,14 @@ function validateNetwork(addr) {
 
     // Convert the user-provided address to a cashaddress, for easy detection
     // of the intended network.
-    const cashAddr = BITBOX.Address.toCashAddress(addr)
+    const cashAddr = bchjs.Address.toCashAddress(addr)
 
     // Return true if the network and address both match testnet
-    const addrIsTest = BITBOX.Address.isTestnetAddress(cashAddr)
+    const addrIsTest = bchjs.Address.isTestnetAddress(cashAddr)
     if (network === "testnet" && addrIsTest) return true
 
     // Return true if the network and address both match mainnet
-    const addrIsMain = BITBOX.Address.isMainnetAddress(cashAddr)
+    const addrIsMain = bchjs.Address.isMainnetAddress(cashAddr)
     if (network === "mainnet" && addrIsMain) return true
 
     return false

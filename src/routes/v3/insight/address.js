@@ -17,8 +17,8 @@ const router = express.Router()
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
-const BITBOXJS = require("@chris.troutner/bitbox-js")
-const BITBOX = new BITBOXJS()
+const BCHJS = require("@chris.troutner/bch-js")
+const bchjs = new BCHJS()
 
 // Use the default (and max) page size of 1000
 // https://github.com/bitpay/insight-api#notes-on-upgrading-from-v03
@@ -45,16 +45,8 @@ function root(req, res, next) {
 // Returns a Promise.
 async function detailsFromInsight(thisAddress, currentPage = 0) {
   try {
-    /*
-    let addr
-
-    if (
-      process.env.BITCOINCOM_BASEURL === "https://bch-insight.bitpay.com/api/"
-    )
-      addr = BITBOX.Address.toCashAddress(thisAddress)
-    else addr = BITBOX.Address.toLegacyAddress(thisAddress)
-    */
-    const addr = BITBOX.Address.toLegacyAddress(thisAddress)
+    //const addr = bchjs.Address.toLegacyAddress(thisAddress)
+    const addr = bchjs.Address.toCashAddress(thisAddress)
 
     let path = `${process.env.BITCOINCOM_BASEURL}addr/${addr}`
 
@@ -64,7 +56,7 @@ async function detailsFromInsight(thisAddress, currentPage = 0) {
     const to = from + PAGE_SIZE
     path = `${path}?from=${from}&to=${to}`
 
-    //console.log(`path: ${path}`)
+    //console.log(`insight path: ${path}`)
 
     // Query the Insight server.
     const axiosResponse = await axios.get(path)
@@ -75,8 +67,8 @@ async function detailsFromInsight(thisAddress, currentPage = 0) {
     const pagesTotal = Math.ceil(retData.txApperances / PAGE_SIZE)
 
     // Append different address formats to the return data.
-    retData.legacyAddress = BITBOX.Address.toLegacyAddress(retData.addrStr)
-    retData.cashAddress = BITBOX.Address.toCashAddress(retData.addrStr)
+    retData.legacyAddress = bchjs.Address.toLegacyAddress(retData.addrStr)
+    retData.cashAddress = bchjs.Address.toCashAddress(retData.addrStr)
     delete retData.addrStr
 
     // Append pagination information to the return data.
@@ -123,7 +115,7 @@ async function detailsBulk(req, res, next) {
 
       // Ensure the input is a valid BCH address.
       try {
-        BITBOX.Address.toLegacyAddress(thisAddress)
+        bchjs.Address.toLegacyAddress(thisAddress)
       } catch (err) {
         res.status(400)
         return res.json({
@@ -195,7 +187,7 @@ async function detailsSingle(req, res, next) {
 
     // Ensure the input is a valid BCH address.
     try {
-      var legacyAddr = BITBOX.Address.toLegacyAddress(address)
+      var legacyAddr = bchjs.Address.toLegacyAddress(address)
     } catch (err) {
       res.status(400)
       return res.json({
@@ -238,12 +230,7 @@ async function detailsSingle(req, res, next) {
 // Retrieve UTXO data from the Insight API
 async function utxoFromInsight(thisAddress) {
   try {
-    let addr
-    if (
-      process.env.BITCOINCOM_BASEURL === "https://bch-insight.bitpay.com/api/"
-    )
-      addr = BITBOX.Address.toCashAddress(thisAddress)
-    else addr = BITBOX.Address.toLegacyAddress(thisAddress)
+    const addr = bchjs.Address.toCashAddress(thisAddress)
 
     const path = `${process.env.BITCOINCOM_BASEURL}addr/${addr}/utxo`
 
@@ -261,8 +248,8 @@ async function utxoFromInsight(thisAddress) {
       const spk = response.data[0].scriptPubKey
       retData.scriptPubKey = spk
     }
-    retData.legacyAddress = BITBOX.Address.toLegacyAddress(thisAddress)
-    retData.cashAddress = BITBOX.Address.toCashAddress(thisAddress)
+    retData.legacyAddress = bchjs.Address.toLegacyAddress(thisAddress)
+    retData.cashAddress = bchjs.Address.toCashAddress(thisAddress)
     retData.utxos = response.data.map(utxo => {
       delete utxo.address
       delete utxo.scriptPubKey
@@ -303,7 +290,7 @@ async function utxoBulk(req, res, next) {
 
       // Ensure the input is a valid BCH address.
       try {
-        BITBOX.Address.toLegacyAddress(thisAddress)
+        bchjs.Address.toLegacyAddress(thisAddress)
       } catch (er) {
         //if (er.message.includes("Unsupported address format"))
         res.status(400)
@@ -376,7 +363,7 @@ async function utxoSingle(req, res, next) {
 
     // Ensure the input is a valid BCH address.
     try {
-      var legacyAddr = BITBOX.Address.toLegacyAddress(address)
+      var legacyAddr = bchjs.Address.toLegacyAddress(address)
     } catch (err) {
       res.status(400)
       return res.json({
@@ -443,7 +430,7 @@ async function unconfirmedBulk(req, res, next) {
 
       // Ensure the input is a valid BCH address.
       try {
-        BITBOX.Address.toLegacyAddress(thisAddress)
+        bchjs.Address.toLegacyAddress(thisAddress)
       } catch (err) {
         res.status(400)
         return res.json({
@@ -522,7 +509,7 @@ async function unconfirmedSingle(req, res, next) {
 
     // Ensure the input is a valid BCH address.
     try {
-      var legacyAddr = BITBOX.Address.toLegacyAddress(address)
+      var legacyAddr = bchjs.Address.toLegacyAddress(address)
     } catch (err) {
       res.status(400)
       return res.json({
@@ -584,8 +571,8 @@ async function transactionsFromInsight(thisAddress, currentPage = 0) {
 
     // Append different address formats to the return data.
     const retData = response.data
-    retData.legacyAddress = BITBOX.Address.toLegacyAddress(thisAddress)
-    retData.cashAddress = BITBOX.Address.toCashAddress(thisAddress)
+    retData.legacyAddress = bchjs.Address.toLegacyAddress(thisAddress)
+    retData.cashAddress = bchjs.Address.toCashAddress(thisAddress)
     retData.currentPage = currentPage
 
     return retData
@@ -624,7 +611,7 @@ async function transactionsBulk(req, res, next) {
 
       // Ensure the input is a valid BCH address.
       try {
-        BITBOX.Address.toLegacyAddress(thisAddress)
+        bchjs.Address.toLegacyAddress(thisAddress)
       } catch (err) {
         res.status(400)
         return res.json({
@@ -696,7 +683,7 @@ async function transactionsSingle(req, res, next) {
 
     // Ensure the input is a valid BCH address.
     try {
-      var legacyAddr = BITBOX.Address.toLegacyAddress(address)
+      var legacyAddr = bchjs.Address.toLegacyAddress(address)
     } catch (err) {
       res.status(400)
       return res.json({
@@ -757,8 +744,8 @@ async function fromXPubSingle(req, res, next) {
 
     wlogger.debug(`Executing address/fromXPub with this xpub: `, xpub)
 
-    const cashAddr = BITBOX.Address.fromXPub(xpub, hdPath)
-    const legacyAddr = BITBOX.Address.toLegacyAddress(cashAddr)
+    const cashAddr = bchjs.Address.fromXPub(xpub, hdPath)
+    const legacyAddr = bchjs.Address.toLegacyAddress(cashAddr)
     res.status(200)
     return res.json({
       cashAddress: cashAddr,

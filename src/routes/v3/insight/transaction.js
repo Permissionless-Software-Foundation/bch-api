@@ -7,8 +7,8 @@ const axios = require("axios")
 const routeUtils = require("../route-utils")
 const wlogger = require("../../../util/winston-logging")
 
-const BITBOXJS = require("@chris.troutner/bitbox-js")
-const BITBOX = new BITBOXJS()
+const BCHJS = require("@chris.troutner/bch-js")
+const bchjs = new BCHJS()
 
 // Used to convert error messages to strings, to safely pass to users.
 const util = require("util")
@@ -23,8 +23,8 @@ const processInputs = tx => {
         vin.value = vin.valueSat
         const address = vin.addr
         if (address) {
-          vin.legacyAddress = BITBOX.Address.toLegacyAddress(address)
-          vin.cashAddress = BITBOX.Address.toCashAddress(address)
+          vin.legacyAddress = bchjs.Address.toLegacyAddress(address)
+          vin.cashAddress = bchjs.Address.toCashAddress(address)
           delete vin.addr
         }
         delete vin.valueSat
@@ -43,7 +43,7 @@ const processInputs = tx => {
         if (vout.scriptPubKey.addresses) {
           const cashAddrs = []
           vout.scriptPubKey.addresses.forEach(addr => {
-            const cashAddr = BITBOX.Address.toCashAddress(addr)
+            const cashAddr = bchjs.Address.toCashAddress(addr)
             cashAddrs.push(cashAddr)
           })
           vout.scriptPubKey.cashAddrs = cashAddrs

@@ -16,8 +16,8 @@ const router = express.Router()
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
-const BITBOXJS = require("@chris.troutner/bitbox-js")
-const BITBOX = new BITBOXJS()
+const BCHJS = require("@chris.troutner/bch-js")
+const bchjs = new BCHJS()
 
 //const BLOCKBOOK_URL = process.env.BLOCKBOOK_URL
 
@@ -40,7 +40,7 @@ async function balanceFromBlockbook(thisAddress) {
     //console.log(`BLOCKBOOK_URL: ${BLOCKBOOK_URL}`)
 
     // Convert the address to a cashaddr without a prefix.
-    const addr = BITBOX.Address.toCashAddress(thisAddress)
+    const addr = bchjs.Address.toCashAddress(thisAddress)
 
     const path = `${process.env.BLOCKBOOK_URL}api/v2/address/${addr}`
 
@@ -82,7 +82,7 @@ async function balanceSingle(req, res, next) {
 
     // Ensure the input is a valid BCH address.
     try {
-      const legacyAddr = BITBOX.Address.toLegacyAddress(address)
+      const legacyAddr = bchjs.Address.toLegacyAddress(address)
     } catch (err) {
       res.status(400)
       return res.json({
@@ -154,7 +154,7 @@ async function balanceBulk(req, res, next) {
 
       // Ensure the input is a valid BCH address.
       try {
-        BITBOX.Address.toLegacyAddress(thisAddress)
+        bchjs.Address.toLegacyAddress(thisAddress)
       } catch (err) {
         res.status(400)
         return res.json({
@@ -207,7 +207,7 @@ async function utxosFromBlockbook(thisAddress) {
     //console.log(`BLOCKBOOK_URL: ${BLOCKBOOK_URL}`)
 
     // Convert the address to a cashaddr without a prefix.
-    const addr = BITBOX.Address.toCashAddress(thisAddress)
+    const addr = bchjs.Address.toCashAddress(thisAddress)
 
     const path = `${process.env.BLOCKBOOK_URL}api/v2/utxo/${addr}`
 
@@ -249,7 +249,7 @@ async function utxosSingle(req, res, next) {
 
     // Ensure the input is a valid BCH address.
     try {
-      const legacyAddr = BITBOX.Address.toLegacyAddress(address)
+      const legacyAddr = bchjs.Address.toLegacyAddress(address)
     } catch (err) {
       res.status(400)
       return res.json({
@@ -321,7 +321,7 @@ async function utxosBulk(req, res, next) {
 
       // Ensure the input is a valid BCH address.
       try {
-        BITBOX.Address.toLegacyAddress(thisAddress)
+        bchjs.Address.toLegacyAddress(thisAddress)
       } catch (err) {
         res.status(400)
         return res.json({
