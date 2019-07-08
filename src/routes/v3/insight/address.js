@@ -56,7 +56,7 @@ async function detailsFromInsight(thisAddress, currentPage = 0) {
     const to = from + PAGE_SIZE
     path = `${path}?from=${from}&to=${to}`
 
-    console.log(`insight path: ${path}`)
+    //console.log(`insight path: ${path}`)
 
     // Query the Insight server.
     const axiosResponse = await axios.get(path)

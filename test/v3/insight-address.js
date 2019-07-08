@@ -30,7 +30,7 @@ const mockData = require("./mocks/address-mock")
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
-describe("#AddressRouter", () => {
+describe("#Insight Address", () => {
   let req, res
 
   before(() => {
@@ -191,7 +191,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockAddressDetails)
       }
 
@@ -212,7 +212,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=5000&to=6000`)
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockAddressDetails)
       }
 
@@ -232,7 +232,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockAddressDetails)
       }
 
@@ -251,7 +251,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockAddressDetails)
       }
 
@@ -291,12 +291,13 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
+          .get(uri => uri.includes("/"))
+          .times(2)
           .reply(200, mockData.mockAddressDetails)
 
-        nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mwJnEzXzKkveF2q5Af9jxi9j1zrtWAnPU8?from=0&to=1000`)
-          .reply(200, mockData.mockAddressDetails)
+        //nock(`${process.env.BITCOINCOM_BASEURL}`)
+        //  .get(uri => uri.includes("/"))
+        //  .reply(200, mockData.mockAddressDetails)
       }
 
       // Call the details API.
@@ -383,7 +384,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockAddressDetails)
       }
 
@@ -402,7 +403,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=5000&to=6000`)
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockAddressDetails)
       }
 
@@ -419,7 +420,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockAddressDetails)
       }
 
@@ -435,7 +436,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz?from=0&to=1000`)
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockAddressDetails)
       }
 
@@ -554,7 +555,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz/utxo`)
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockUtxoDetails)
       }
 
@@ -594,12 +595,13 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz/utxo`)
+          .get(uri => uri.includes("/"))
+          .times(2)
           .reply(200, mockData.mockUtxoDetails)
 
-        nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mwJnEzXzKkveF2q5Af9jxi9j1zrtWAnPU8/utxo`)
-          .reply(200, mockData.mockUtxoDetails)
+        //nock(`${process.env.BITCOINCOM_BASEURL}`)
+        //  .get(`/addr/mwJnEzXzKkveF2q5Af9jxi9j1zrtWAnPU8/utxo`)
+        //  .reply(200, mockData.mockUtxoDetails)
       }
 
       // Call the details API.
@@ -699,7 +701,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz/utxo`)
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockUtxoDetails)
       }
 
@@ -830,7 +832,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz/utxo`)
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockUtxoDetails)
       }
 
@@ -857,11 +859,11 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz/utxo`)
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockUtxoDetails)
 
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mwJnEzXzKkveF2q5Af9jxi9j1zrtWAnPU8/utxo`)
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockUtxoDetails)
       }
 
@@ -947,7 +949,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(`/addr/mgps7qxk2Z5ma4mXsviznnet8wx4VvMPFz/utxo`)
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockUtxoDetails)
       }
 
@@ -1070,9 +1072,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(
-            `/txs/?address=bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4&pageNum=0`
-          )
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockTransactions)
       }
 
@@ -1092,9 +1092,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(
-            `/txs/?address=bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4&pageNum=5`
-          )
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockTransactions)
       }
 
@@ -1113,9 +1111,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(
-            `/txs/?address=bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4&pageNum=0`
-          )
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockTransactions)
       }
 
@@ -1143,16 +1139,15 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(
-            `/txs/?address=bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4&pageNum=0`
-          )
+          .get(uri => uri.includes("/"))
+          .times(2)
           .reply(200, mockData.mockTransactions)
 
-        nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(
-            `/txs/?address=bchtest:qzknfggae0av6yvxk77gmyq7syc67yux6sk80haqyr&pageNum=0`
-          )
-          .reply(200, mockData.mockTransactions)
+        //nock(`${process.env.BITCOINCOM_BASEURL}`)
+        //  .get(
+        //    `/txs/?address=bchtest:qzknfggae0av6yvxk77gmyq7syc67yux6sk80haqyr&pageNum=0`
+        //  )
+        //  .reply(200, mockData.mockTransactions)
       }
 
       // Call the details API.
@@ -1240,9 +1235,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(
-            `/txs/?address=bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4&pageNum=0`
-          )
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockTransactions)
       }
 
@@ -1260,9 +1253,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(
-            `/txs/?address=bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4&pageNum=5`
-          )
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockTransactions)
       }
 
@@ -1279,9 +1270,7 @@ describe("#AddressRouter", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.BITCOINCOM_BASEURL}`)
-          .get(
-            `/txs/?address=bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4&pageNum=0`
-          )
+          .get(uri => uri.includes("/"))
           .reply(200, mockData.mockTransactions)
       }
 
