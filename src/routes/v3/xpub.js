@@ -17,8 +17,8 @@ const router = express.Router()
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
-const BITBOXJS = require("@chris.troutner/bitbox-js")
-const BITBOX = new BITBOXJS()
+const BCHJS = require("@chris.troutner/bch-js")
+const bchjs = new BCHJS()
 
 // Connect the route endpoints to their handler functions.
 router.get("/", root)
@@ -49,8 +49,8 @@ async function fromXPubSingle(req, res, next) {
 
     wlogger.debug(`Executing address/fromXPub with this xpub: `, xpub)
 
-    const cashAddr = BITBOX.Address.fromXPub(xpub, hdPath)
-    const legacyAddr = BITBOX.Address.toLegacyAddress(cashAddr)
+    const cashAddr = bchjs.Address.fromXPub(xpub, hdPath)
+    const legacyAddr = bchjs.Address.toLegacyAddress(cashAddr)
     res.status(200)
     return res.json({
       cashAddress: cashAddr,
