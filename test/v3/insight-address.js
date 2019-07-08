@@ -294,10 +294,6 @@ describe("#Insight Address", () => {
           .get(uri => uri.includes("/"))
           .times(2)
           .reply(200, mockData.mockAddressDetails)
-
-        //nock(`${process.env.BITCOINCOM_BASEURL}`)
-        //  .get(uri => uri.includes("/"))
-        //  .reply(200, mockData.mockAddressDetails)
       }
 
       // Call the details API.
@@ -598,10 +594,6 @@ describe("#Insight Address", () => {
           .get(uri => uri.includes("/"))
           .times(2)
           .reply(200, mockData.mockUtxoDetails)
-
-        //nock(`${process.env.BITCOINCOM_BASEURL}`)
-        //  .get(`/addr/mwJnEzXzKkveF2q5Af9jxi9j1zrtWAnPU8/utxo`)
-        //  .reply(200, mockData.mockUtxoDetails)
       }
 
       // Call the details API.
@@ -1142,12 +1134,6 @@ describe("#Insight Address", () => {
           .get(uri => uri.includes("/"))
           .times(2)
           .reply(200, mockData.mockTransactions)
-
-        //nock(`${process.env.BITCOINCOM_BASEURL}`)
-        //  .get(
-        //    `/txs/?address=bchtest:qzknfggae0av6yvxk77gmyq7syc67yux6sk80haqyr&pageNum=0`
-        //  )
-        //  .reply(200, mockData.mockTransactions)
       }
 
       // Call the details API.
