@@ -73,7 +73,7 @@ function validateNetwork(addr) {
 
 // Dynamically set these based on env vars. Allows unit testing.
 function setEnvVars() {
-  const BITBOXHTTP = axios.create({
+  const BitboxHTTP = axios.create({
     baseURL: process.env.RPC_BASEURL
   })
   const username = process.env.RPC_USERNAME

@@ -48,7 +48,7 @@ async function balanceFromBitcore(thisAddress) {
 
     const path = `${process.env.BITCORE_URL}api/BCH/${network}/address/${addr}/balance`
 
-    console.log(`path: ${path}`)
+    //console.log(`path: ${path}`)
 
     // Query the Bitcore Node API.
     const axiosResponse = await axios.get(path)
