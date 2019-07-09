@@ -22,6 +22,24 @@ const mockGetInfo = {
   errors: "Warning: unknown new rules activated (versionbit 28)"
 }
 
+const mockGetNetworkInfo = {
+  version: 190700,
+  subversion: "/Bitcoin ABC:0.19.7(EB32.0)/",
+  protocolversion: 70015,
+  localservices: "0000000000000425",
+  localrelay: true,
+  timeoffset: 0,
+  networkactive: true,
+  connections: 23,
+  networks: [{}, {}, {}],
+  relayfee: 0.00001,
+  excessutxocharge: 0,
+  localaddresses: [],
+  warnings:
+    "Warning: Unknown block versions being mined! It's possible unknown rules are in effect"
+}
+
 module.exports = {
-  mockGetInfo
+  mockGetInfo,
+  mockGetNetworkInfo
 }

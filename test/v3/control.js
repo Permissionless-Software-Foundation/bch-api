@@ -137,4 +137,57 @@ describe("#ControlRouter", () => {
       ])
     })
   })
+
+  describe("#GetNetworkInfo", () => {
+    const getNetworkInfo = controlRoute.testableComponents.getNetworkInfo
+
+    it("should throw 500 when network issues", async () => {
+      // Save the existing RPC URL.
+      const savedUrl = process.env.RPC_BASEURL
+
+      // Manipulate the URL to cause a 500 network error.
+      process.env.RPC_BASEURL = "http://fakeurl/api/"
+
+      const result = await getNetworkInfo(req, res)
+      //console.log(`result: ${util.inspect(result)}`)
+
+      // Restore the saved URL.
+      process.env.RPC_BASEURL = savedUrl
+
+      assert.isAbove(
+        res.statusCode,
+        499,
+        "HTTP status code 500 or greater expected."
+      )
+      //assert.include(result.error, "ENOTFOUND", "Error message expected")
+    })
+
+    it("should get info on the full node", async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === "unit") {
+        nock(`${process.env.RPC_BASEURL}`)
+          .post(``)
+          .reply(200, { result: mockData.mockGetNetworkInfo })
+      }
+
+      const result = await getNetworkInfo(req, res)
+      //console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAnyKeys(result, [
+        "version",
+        "subversion",
+        "protocolversion",
+        "localservices",
+        "localrelay",
+        "timeoffset",
+        "networkactive",
+        "connections",
+        "networks",
+        "relayfee",
+        "excessutxocharge",
+        "localaddresses",
+        "warnings"
+      ])
+    })
+  })
 })

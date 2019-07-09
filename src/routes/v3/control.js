@@ -13,6 +13,7 @@ util.inspect.defaultOptions = { depth: 1 }
 
 router.get("/", root)
 router.get("/getinfo", getInfo)
+router.get("/getnetworkinfo", getNetworkInfo)
 
 function root(req, res, next) {
   return res.json({ status: "control" })
@@ -69,6 +70,45 @@ async function getInfo(req, res, next) {
   }
 }
 
+/**
+ * @api {get} /control/getnetworkinfo Get full node info
+ * @apiName GetNetworkInfo
+ * @apiGroup Control
+ * @apiDescription RPC call which gets basic full node information.
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/control/getnetworkinfo" -H "accept: application/json"
+ *
+ */
+async function getNetworkInfo(req, res, next) {
+  const {
+    BitboxHTTP,
+    username,
+    password,
+    requestConfig
+  } = routeUtils.setEnvVars()
+
+  requestConfig.data.id = "getnetworkinfo"
+  requestConfig.data.method = "getnetworkinfo"
+  requestConfig.data.params = []
+
+  try {
+    const response = await BitboxHTTP(requestConfig)
+
+    return res.json(response.data.result)
+  } catch (error) {
+    wlogger.error(`Error in control.ts/getNetworkInfo().`, error)
+
+    // Write out error to error log.
+    //logger.error(`Error in control/getInfo: `, error)
+
+    res.status(500)
+    if (error.response && error.response.data && error.response.data.error)
+      return res.json({ error: error.response.data.error })
+    return res.json({ error: util.inspect(error) })
+  }
+}
+
 // router.get('/getMemoryInfo', (req, res, next) => {
 //   BitboxHTTP({
 //     method: 'post',
@@ -110,6 +150,7 @@ module.exports = {
   router,
   testableComponents: {
     root,
-    getInfo
+    getInfo,
+    getNetworkInfo
   }
 }
