@@ -86,6 +86,18 @@ async function detailsFromInsight(thisAddress, currentPage = 0) {
 // POST handler for bulk queries on address details
 // curl -d '{"addresses": ["bchtest:qzjtnzcvzxx7s0na88yrg3zl28wwvfp97538sgrrmr", "bchtest:qp6hgvevf4gzz6l7pgcte3gaaud9km0l459fa23dul"]}' -H "Content-Type: application/json" http://localhost:3000/v2/address/details
 // curl -d '{"addresses": ["bchtest:qzjtnzcvzxx7s0na88yrg3zl28wwvfp97538sgrrmr", "bchtest:qp6hgvevf4gzz6l7pgcte3gaaud9km0l459fa23dul"], "from": 1, "to": 5}' -H "Content-Type: application/json" http://localhost:3000/v2/address/details
+/**
+ * @api {post} /address/details  Get Address details bulk.
+ * @apiName Address details bulk
+ * @apiGroup Address
+ * @apiDescription Returns the details of multiple addresses.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"]}' -H "Content-Type: application/json" http://localhost:3000/v3/insight/address/details
+ * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"], "from": 1, "to": 5}' -H "Content-Type: application/json" http://localhost:3000/v3/insight/address/details
+ *
+ */
 async function detailsBulk(req, res, next) {
   try {
     let addresses = req.body.addresses
@@ -162,6 +174,18 @@ async function detailsBulk(req, res, next) {
 }
 
 // GET handler for single address details
+/**
+ * @api {get} insight/address/details/{address}  Get Address details single.
+ * @apiName Address details single
+ * @apiGroup Address
+ * @apiDescription Returns the details of an address including balance.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/insight/address/details/bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c" -H "accept: application/json"
+ *
+ *
+ */
 async function detailsSingle(req, res, next) {
   try {
     const address = req.params.address
@@ -264,7 +288,18 @@ async function utxoFromInsight(thisAddress) {
     throw err
   }
 }
-
+/**
+ * @api {post} /address/utxo  Get Address utxos bulk.
+ * @apiName Address utxos bulk.
+ * @apiGroup Address
+ * @apiDescription Returns the utxo of multiple addresses.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"]}' -H "Content-Type: application/json" http://localhost:3000/v3/insight/address/utxo
+ * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"], "from": 1, "to": 5}' -H "Content-Type: application/json" http://localhost:3000/v3/insight/address/utxo
+ *
+ */
 // Retrieve UTXO information for an address.
 async function utxoBulk(req, res, next) {
   try {
@@ -343,6 +378,18 @@ async function utxoBulk(req, res, next) {
 }
 
 // GET handler for single address details
+/**
+ * @api {get} /insight/address/utxo/{address}  Get Address utxos  single.
+ * @apiName Address utxos  single.
+ * @apiGroup Address
+ * @apiDescription Returns the list of utxo for an address.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/insight/address/utxo/bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c" -H "accept: application/json"
+ *
+ *
+ */
 async function utxoSingle(req, res, next) {
   try {
     const address = req.params.address
@@ -402,7 +449,18 @@ async function utxoSingle(req, res, next) {
     return res.json({ error: util.inspect(err) })
   }
 }
-
+/**
+ * @api {post} /address/utxo  Get Unconfirmed transactions bulk.
+ * @apiName Unconfirmed transactions bulk
+ * @apiGroup Address
+ * @apiDescription Returns the list of unconfirmed transactions for an array of addresses.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"]}' -H "Content-Type: application/json" http://localhost:3000/v3/insight/address/unconfirmed
+ * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"], "from": 1, "to": 5}' -H "Content-Type: application/json" http://localhost:3000/v3/insight/address/unconfirmed
+ *
+ */
 // Retrieve any unconfirmed TX information for a given address.
 async function unconfirmedBulk(req, res, next) {
   try {
@@ -487,7 +545,18 @@ async function unconfirmedBulk(req, res, next) {
     return res.json({ error: util.inspect(err) })
   }
 }
-
+/**
+ * @api {get} /insight/address/utxo/{address}  Get Unconfirmed transactions single.
+ * @apiName Unconfirmed transactions single.
+ * @apiGroup Address
+ * @apiDescription Returns the list of unconfirmed transactions for an address.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/insight/address/unconfirmed/bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c" -H "accept: application/json"
+ *
+ *
+ */
 // GET handler. Retrieve any unconfirmed TX information for a given address.
 async function unconfirmedSingle(req, res, next) {
   try {
@@ -582,7 +651,18 @@ async function transactionsFromInsight(thisAddress, currentPage = 0) {
     throw err
   }
 }
-
+/**
+ * @api {post} /address/transactions  Get Transactions bulk.
+ * @apiName Transactions bulk.
+ * @apiGroup Address
+ * @apiDescription Returns the list of transactions for an array of addresses.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"]}' -H "Content-Type: application/json" http://localhost:3000/v3/insight/address/transactions
+ * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"], "from": 1, "to": 5}' -H "Content-Type: application/json" http://localhost:3000/v3/insight/address/transactions
+ *
+ */
 // Get an array of TX information for a given address.
 async function transactionsBulk(req, res, next) {
   try {
@@ -656,7 +736,18 @@ async function transactionsBulk(req, res, next) {
     return res.json({ error: util.inspect(err) })
   }
 }
-
+/**
+ * @api {get} /insight/address/transactions/{address}  Get Transactions single.
+ * @apiName Transactions single.
+ * @apiGroup Address
+ * @apiDescription Returns the list of transactions for an address.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/insight/address/transactions/bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c" -H "accept: application/json"
+ *
+ *
+ */
 // GET handler. Retrieve any unconfirmed TX information for a given address.
 async function transactionsSingle(req, res, next) {
   try {
@@ -723,7 +814,18 @@ async function transactionsSingle(req, res, next) {
     return res.json({ error: util.inspect(err) })
   }
 }
-
+/**
+ * @api {get} /insight/address/fromXPub/{xpub}  Get FromXPub
+ * @apiName FromXPub
+ * @apiGroup Address
+ * @apiDescription Returns an address for an extended public key and hdpath.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/insight/address/fromXPub/xpub661MyMwAqRbcG4CnhNYoK1r1TKLwQQ1UdC3LHoWFK61rsnzh7Hx35qQ9Z53ucYcE5WvA7GEDXhqqKjSY2e6Y8n7WNVLYHpXCuuX945VPuYn" -H "accept: application/json"
+ *
+ *
+ */
 async function fromXPubSingle(req, res, next) {
   try {
     const xpub = req.params.xpub
