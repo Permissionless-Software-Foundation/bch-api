@@ -71,7 +71,7 @@ async function getInfo(req, res, next) {
 }
 
 /**
- * @api {get} /control/getnetworkinfo Get full node info
+ * @api {get} /control/getnetworkinfo Get Network Info
  * @apiName GetNetworkInfo
  * @apiGroup Control
  * @apiDescription RPC call which gets basic full node information.
