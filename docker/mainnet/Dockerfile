@@ -22,5 +22,5 @@ RUN npm run docs
 
 EXPOSE 3000
 
-COPY start-local-mainnet start-local-mainnet
-CMD ["./start-local-mainnet"]
+COPY start-local-mainnet.sh start-local-mainnet.sh
+CMD ["./start-local-mainnet.sh"]

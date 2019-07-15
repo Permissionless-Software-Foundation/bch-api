@@ -12,8 +12,8 @@ export NETWORK=mainnet
 export BITCOINCOM_BASEURL=http://172.17.0.1:12100/api/
 
 # Testnet SLPDB
-export SLPDB_URL=https://slpdb.bchdata.cash/
-#export SLPDB_URL=http://172.17.0.1:4000/
+#export SLPDB_URL=https://slpdb.bchdata.cash/
+export SLPDB_URL=http://172.17.0.1:4000/
 
 # Testnet Bitcore Node API
 export BITCORE_URL=http://172.17.0.1:12200/
