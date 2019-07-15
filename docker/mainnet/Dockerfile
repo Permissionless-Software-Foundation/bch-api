@@ -11,12 +11,14 @@ USER safeuser
 # Prep 'sudo' commands.
 #RUN echo 'abcd8765' | sudo -S pwd
 
-# Clone the Bitcore repository
+# Clone the repository
 WORKDIR /home/safeuser
 RUN git clone https://github.com/christroutner/bch-api
 WORKDIR /home/safeuser/bch-api
 RUN npm install
 
+# Generate documentation
+RUN npm run docs
 
 EXPOSE 3000
 
