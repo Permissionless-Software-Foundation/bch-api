@@ -44,6 +44,18 @@ function root(req, res, next) {
 
 // Decode transaction hex into a JSON object.
 // GET
+/**
+ * @api {get} /rawtransactions/decodeRawTransaction/{hex} Decode Single Raw Transaction.
+ * @apiName Decode Single Raw Transaction
+ * @apiGroup Raw Transaction
+ * @apiDescription Return a JSON object representing the serialized, hex-encoded transaction.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/rawtransactions/decodeRawTransaction/02000000010e991f7ccec410f27d333f737f149b5d3be6728687da81072e638aed0063a176010000006b483045022100cd20443b0af090053450bc4ab00d563d4ac5955bb36e0135b00b8a96a19f233302205047f2c70a08c6ef4b76f2d198b33a31d17edfaa7e1e9e865894da0d396009354121024d4e7f522f67105b7bf5f9dbe557e7b2244613fdfcd6fe09304f93877328f6beffffffff02a0860100000000001976a9140ee020c07f39526ac5505c54fa1ab98490979b8388acb5f0f70b000000001976a9143a9b2b0c12fe722fcf653b6ef5dcc38732d6ff5188ac00000000" -H "accept: application/json"
+ *
+ *
+ */
 async function decodeRawTransactionSingle(req, res, next) {
   try {
     const hex = req.params.hex
@@ -86,6 +98,18 @@ async function decodeRawTransactionSingle(req, res, next) {
     return res.json({ error: util.inspect(err) })
   }
 }
+/**
+ * @api {post} /rawtransactions/decodeRawTransaction Decode Bulk Raw Transactions.
+ * @apiName  Decode Bulk Raw Transactions
+ * @apiGroup Raw Transaction
+ * @apiDescription Return bulk hex encoded transaction.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X POST "http://localhost:3000/v3/rawtransactions/decodeRawTransaction" -H "accept: application/json" -H "Content-Type: application/json" -d '{"hexes":["01000000013ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a000000006a4730440220540986d1c58d6e76f8f05501c520c38ce55393d0ed7ed3c3a82c69af04221232022058ea43ed6c05fec0eccce749a63332ed4525460105346f11108b9c26df93cd72012103083dfc5a0254613941ddc91af39ff90cd711cdcde03a87b144b883b524660c39ffffffff01807c814a000000001976a914d7e7c4e0b70eaa67ceff9d2823d1bbb9f6df9a5188ac00000000","01000000013ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a000000006a4730440220540986d1c58d6e76f8f05501c520c38ce55393d0ed7ed3c3a82c69af04221232022058ea43ed6c05fec0eccce749a63332ed4525460105346f11108b9c26df93cd72012103083dfc5a0254613941ddc91af39ff90cd711cdcde03a87b144b883b524660c39ffffffff01807c814a000000001976a914d7e7c4e0b70eaa67ceff9d2823d1bbb9f6df9a5188ac00000000"]}'
+ *
+ *
+ */
 
 async function decodeRawTransactionBulk(req, res, next) {
   try {
@@ -199,6 +223,18 @@ async function decodeRawTransactionBulk(req, res, next) {
 
 // Decode a raw transaction from hex to assembly.
 // GET single
+/**
+ * @api {get} /rawtransactions/decodeScript/{hex}  Decode Single Script.
+ * @apiName  Decode Single Script
+ * @apiGroup Raw Transaction
+ * @apiDescription Decode a hex-encoded script.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/rawtransactions/decodeScript/4830450221009a51e00ec3524a7389592bc27bea4af5104a59510f5f0cfafa64bbd5c164ca2e02206c2a8bbb47eabdeed52f17d7df668d521600286406930426e3a9415fe10ed592012102e6e1423f7abde8b70bca3e78a7d030e5efabd3eb35c19302542b5fe7879c1a16" -H "accept: application/json"
+ *
+ *
+ */
 async function decodeScriptSingle(req, res, next) {
   try {
     const hex = req.params.hex
@@ -241,6 +277,18 @@ async function decodeScriptSingle(req, res, next) {
 
 // Decode a raw transaction from hex to assembly.
 // POST bulk
+/**
+ * @api {post} /rawtransactions/decodeScript  Bulk Decode Script.
+ * @apiName Bulk Decode Script
+ * @apiGroup Raw Transaction
+ * @apiDescription Decode multiple hex-encoded scripts.
+ *
+ *
+ * @apiExample Example usage:
+ *curl -X POST "http://localhost:3000/v3/rawtransactions/decodeScript" -H "accept:" -H "Content-Type: application/json" -d '{"hexes":["01000000013ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a000000006a4730440220540986d1c58d6e76f8f05501c520c38ce55393d0ed7ed3c3a82c69af04221232022058ea43ed6c05fec0eccce749a63332ed4525460105346f11108b9c26df93cd72012103083dfc5a0254613941ddc91af39ff90cd711cdcde03a87b144b883b524660c39ffffffff01807c814a000000001976a914d7e7c4e0b70eaa67ceff9d2823d1bbb9f6df9a5188ac00000000","01000000013ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a000000006a4730440220540986d1c58d6e76f8f05501c520c38ce55393d0ed7ed3c3a82c69af04221232022058ea43ed6c05fec0eccce749a63332ed4525460105346f11108b9c26df93cd72012103083dfc5a0254613941ddc91af39ff90cd711cdcde03a87b144b883b524660c39ffffffff01807c814a000000001976a914d7e7c4e0b70eaa67ceff9d2823d1bbb9f6df9a5188ac00000000"]}'
+ *
+ *
+ */
 async function decodeScriptBulk(req, res, next) {
   try {
     const hexes = req.body.hexes
@@ -313,6 +361,7 @@ async function decodeScriptBulk(req, res, next) {
 }
 
 // Retrieve raw transactions details from the full node.
+
 async function getRawTransactionsFromNode(txid, verbose) {
   try {
     const {
@@ -337,6 +386,17 @@ async function getRawTransactionsFromNode(txid, verbose) {
 
 // Get a JSON object breakdown of transaction details.
 // POST
+ /**
+ * @api {post} /rawtransactions/getRawTransaction  Get Bulk Raw Transactions.
+ * @apiName Get Bulk Raw Transactions.
+ * @apiGroup Raw Transaction
+ * @apiDescription Return the raw transaction data for multiple transactions. If verbose is 'true', returns an Object with information about 'txid'. If verbose is 'false' or omitted, returns a string that is serialized, hex-encoded data for 'txid'.
+ * 
+ *
+ * @apiExample Example usage:
+ * curl -X POST "http://localhost:3000/v3/rawtransactions/getRawTransaction" -H "accept: application/json" -H "Content-Type: application/json" -d '{"txids":["a5f972572ee1753e2fd2457dd61ce5f40fa2f8a30173d417e49feef7542c96a1","5165dc531aad05d1149bb0f0d9b7bda99c73e2f05e314bcfb5b4bb9ca5e1af5e"],"verbose":true}'
+ * 
+ */
 async function getRawTransactionBulk(req, res, next) {
   try {
     let verbose = 0
@@ -410,6 +470,18 @@ async function getRawTransactionBulk(req, res, next) {
 
 // Get a JSON object breakdown of transaction details.
 // GET
+/**
+ * @api {get} /rawtransactions/getRawTransaction/{txid}  Return the raw transaction data.
+ * @apiName Get Raw Transaction
+ * @apiGroup Raw Transaction
+ * @apiDescription return the raw transaction data. If verbose is 'true', returns an Object with information about 'txid'. If verbose is 'false' or omitted, returns a string that is serialized, hex-encoded data for 'txid'.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/rawtransactions/getRawTransaction/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33?verbose=true" -H "accept: application/json"
+ *
+ *
+ */
 async function getRawTransactionSingle(req, res, next) {
   try {
     let verbose = 0
@@ -442,6 +514,18 @@ async function getRawTransactionSingle(req, res, next) {
 }
 
 // Transmit a raw transaction to the BCH network.
+/**
+ * @api {post} /rawtransactions/sendRawTransaction  Send Bulk Raw Transactions.
+ * @apiName Send Bulk Raw Transactions
+ * @apiGroup Raw Transaction
+ * @apiDescription Submits multiple raw transaction (serialized, hex-encoded) to local node and network.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X POST "http://localhost:3000/v3/rawtransactions/sendRawTransaction" -H "accept:application/json" -H "Content-Type: application/json" -d '{"hexes":["01000000013ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a000000006a4730440220540986d1c58d6e76f8f05501c520c38ce55393d0ed7ed3c3a82c69af04221232022058ea43ed6c05fec0eccce749a63332ed4525460105346f11108b9c26df93cd72012103083dfc5a0254613941ddc91af39ff90cd711cdcde03a87b144b883b524660c39ffffffff01807c814a000000001976a914d7e7c4e0b70eaa67ceff9d2823d1bbb9f6df9a5188ac00000000","01000000013ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a000000006a4730440220540986d1c58d6e76f8f05501c520c38ce55393d0ed7ed3c3a82c69af04221232022058ea43ed6c05fec0eccce749a63332ed4525460105346f11108b9c26df93cd72012103083dfc5a0254613941ddc91af39ff90cd711cdcde03a87b144b883b524660c39ffffffff01807c814a000000001976a914d7e7c4e0b70eaa67ceff9d2823d1bbb9f6df9a5188ac00000000"]}'
+ *
+ *
+ */
 async function sendRawTransactionBulk(req, res, next) {
   try {
     // Validation
@@ -537,6 +621,18 @@ async function sendRawTransactionBulk(req, res, next) {
 }
 
 // Transmit a raw transaction to the BCH network.
+/**
+ * @api {get} /rawtransactions/sendRawTransaction/{hex}  Send Single Raw Transaction.
+ * @apiName Send Single Raw Transaction
+ * @apiGroup Raw Transaction
+ * @apiDescription Submits single raw transaction (serialized, hex-encoded) to local node and network.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/rawtransactions/sendRawTransaction/01000000013ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a000000006a4730440220540986d1c58d6e76f8f05501c520c38ce55393d0ed7ed3c3a82c69af04221232022058ea43ed6c05fec0eccce749a63332ed4525460105346f11108b9c26df93cd72012103083dfc5a0254613941ddc91af39ff90cd711cdcde03a87b144b883b524660c39ffffffff01807c814a000000001976a914d7e7c4e0b70eaa67ceff9d2823d1bbb9f6df9a5188ac00000000" -H "accept: "
+ *
+ *
+ */
 async function sendRawTransactionSingle(req, res, next) {
   try {
     const hex = req.params.hex // URL parameter
