@@ -24,7 +24,18 @@ router.post("/detailsByHeight", detailsByHeightBulk)
 function root(req, res, next) {
   return res.json({ status: "block" })
 }
-
+/**
+ * @api {get} /block/detailsByHash/{hash}  Get Block details single.
+ * @apiName Block details single
+ * @apiGroup Block
+ * @apiDescription Returns details about a single block by hash.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/insight/block/detailsByHash/000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201" -H "accept: application/json"
+ *
+ *
+ */
 // Call the insight server to get block details based on the hash.
 async function detailsByHashSingle(req, res, next) {
   try {
@@ -66,7 +77,18 @@ async function detailsByHashSingle(req, res, next) {
     return res.json({ error: util.inspect(error) })
   }
 }
-
+/**
+ * @api {post} /block/detailsByHash  Get Block details bulk.
+ * @apiName Block details bulk
+ * @apiGroup Block
+ * @apiDescription Returns retails about multiple blocks by hashes.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -d '{"hashes":["0000000000000000040e83398a79a16390897f0d18c92bada6350a19a32ec984","000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201"]}' -H "Content-Type: application/json" "http://localhost:3000/v3/insight/block/detailsByHash"
+ * curl -d '{"hashes":["0000000000000000040e83398a79a16390897f0d18c92bada6350a19a32ec984","000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201"], "from": 1, "to": 5}' -H "Content-Type: application/json" "http://localhost:3000/v3/insight/block/detailsByHash"
+ *
+ */
 async function detailsByHashBulk(req, res, next) {
   try {
     const hashes = req.body.hashes
@@ -135,7 +157,18 @@ async function detailsByHashBulk(req, res, next) {
     return res.json({ error: util.inspect(error) })
   }
 }
-
+/**
+ * @api {get} /block/detailsByHeight/{hash}  Get Block details single by height.
+ * @apiName Block details single by height
+ * @apiGroup Block
+ * @apiDescription Returns Details about a single block by height.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/insight/block/block/detailsByHeight/500000" -H "accept: application/json"
+ *
+ *
+ */
 // Call the Full Node to get block hash based on height, then call the Insight
 // server to get details from that hash.
 async function detailsByHeightSingle(req, res, next) {
@@ -183,7 +216,18 @@ async function detailsByHeightSingle(req, res, next) {
     return res.json({ error: util.inspect(err) })
   }
 }
-
+/**
+ * @api {post} /block/detailsByHash  Get Block details bulk by height.
+ * @apiName Block details bulk by height
+ * @apiGroup Block
+ * @apiDescription Returns Bulk details about blocks by heights.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -d '{"heights":[499000,500000]}' -H "Content-Type: application/json" "http://localhost:3000/v3/insight/block/detailsByHeight"
+ * curl -d '{"heights":[499000,500000], "from": 1, "to": 5}' -H "Content-Type: application/json" "http://localhost:3000/v3/insight/block/detailsByHeight"
+ *
+ */
 async function detailsByHeightBulk(req, res, next) {
   try {
     const heights = req.body.heights

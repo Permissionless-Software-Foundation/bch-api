@@ -82,6 +82,17 @@ async function transactionsFromInsight(txid) {
     throw err
   }
 }
+/**
+ * @api {post} /transaction/details  Get Transaction details bulk.
+ * @apiName Transaction details bulk
+ * @apiGroup Transaction
+ * @apiDescription Returns Bulk Details about a transaction.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X POST "http://localhost:3000/v3/insight/transaction/details" -H "Content-Type: application/json" -d "{"txids":["a5f972572ee1753e2fd2457dd61ce5f40fa2f8a30173d417e49feef7542c96a1","5165dc531aad05d1149bb0f0d9b7bda99c73e2f05e314bcfb5b4bb9ca5e1af5e"]}"
+ *
+ */
 
 async function detailsBulk(req, res, next) {
   try {
@@ -131,6 +142,18 @@ async function detailsBulk(req, res, next) {
 }
 
 // GET handler. Retrieve any unconfirmed TX information for a given address.
+/**
+ * @api {get} insight/transaction/details/{txid}  Get Transaction details single.
+ * @apiName Transaction details single
+ * @apiGroup Transaction
+ * @apiDescription Returns the details about a single transaction.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/insight/transaction/details/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
+ *
+ *
+ */
 async function detailsSingle(req, res, next) {
   try {
     const txid = req.params.txid

@@ -39,7 +39,18 @@ router.post("/validateAddress", validateAddressBulk)
 function root(req, res, next) {
   return res.json({ status: "util" })
 }
-
+/**
+ * @api {get} /util/validateAddress/{address}  Get information about single bitcoin cash address.
+ * @apiName Information about single bitcoin cash address
+ * @apiGroup Util
+ * @apiDescription Returns information about single bitcoin cash address.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/util/validateAddress/bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c" -H "accept: application/json"
+ *
+ *
+ */
 async function validateAddressSingle(req, res, next) {
   try {
     const address = req.params.address
@@ -76,7 +87,19 @@ async function validateAddressSingle(req, res, next) {
     return res.json({ error: util.inspect(err) })
   }
 }
-
+/**
+ * @api {post} /util/validateAddress  Get information about bulk bitcoin cash addresses..
+ * @apiName Information about bulk bitcoin cash addresses.
+ * @apiGroup Util
+ * @apiDescription Returns information about bulk bitcoin cash addresses..
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X POST "http://localhost:3000/v3/util/validateAddress" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c","bitcoincash:qrehqueqhw629p6e57994436w730t4rzasnly00ht0"]}'
+ * curl -X POST "http://localhost:3000/v3/util/validateAddress" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c","bitcoincash:qrehqueqhw629p6e57994436w730t4rzasnly00ht0"],"from": 1, "to": 5}'
+ *
+ *
+ */
 async function validateAddressBulk(req, res, next) {
   try {
     const addresses = req.body.addresses

@@ -60,7 +60,18 @@ function root(req, res, next) {
 //     res.send(error.response.data.error.message);
 //   });
 // });
-
+/**
+ * @api {get} /mining/getMiningInfo  Get Mining Info.
+ * @apiName Mining info.
+ * @apiGroup Mining
+ * @apiDescription Returns a json object containing mining-related information.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/mining/getMiningInfo" -H "accept: application/json"
+ *
+ *
+ */
 async function getMiningInfo(req, res, next) {
   try {
     const {
@@ -91,7 +102,18 @@ async function getMiningInfo(req, res, next) {
     return res.json({ error: util.inspect(err) })
   }
 }
-
+/**
+ * @api {get} /mining/getNetworkHashps?nblocks=&height=  Get Estimated network hashes per second.
+ * @apiName Estimated network hashes per second.
+ * @apiGroup Mining
+ * @apiDescription Returns the estimated network hashes per second based on the last n blocks. Pass in [blocks] to override # of blocks, -1 specifies since last difficulty change. Pass in [height] to estimate the network speed at the time when a certain block was found.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/mining/getNetworkHashps?nblocks=120&height=-1" -H "accept: application/json"
+ *
+ *
+ */
 async function getNetworkHashPS(req, res, next) {
   try {
     let nblocks = 120 // Default
