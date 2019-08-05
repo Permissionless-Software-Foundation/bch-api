@@ -386,16 +386,16 @@ async function getRawTransactionsFromNode(txid, verbose) {
 
 // Get a JSON object breakdown of transaction details.
 // POST
- /**
+/**
  * @api {post} /rawtransactions/getRawTransaction  Get Bulk Raw Transactions.
  * @apiName Get Bulk Raw Transactions.
  * @apiGroup Raw Transaction
  * @apiDescription Return the raw transaction data for multiple transactions. If verbose is 'true', returns an Object with information about 'txid'. If verbose is 'false' or omitted, returns a string that is serialized, hex-encoded data for 'txid'.
- * 
+ *
  *
  * @apiExample Example usage:
  * curl -X POST "http://localhost:3000/v3/rawtransactions/getRawTransaction" -H "accept: application/json" -H "Content-Type: application/json" -d '{"txids":["a5f972572ee1753e2fd2457dd61ce5f40fa2f8a30173d417e49feef7542c96a1","5165dc531aad05d1149bb0f0d9b7bda99c73e2f05e314bcfb5b4bb9ca5e1af5e"],"verbose":true}'
- * 
+ *
  */
 async function getRawTransactionBulk(req, res, next) {
   try {

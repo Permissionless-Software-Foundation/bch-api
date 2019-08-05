@@ -197,7 +197,18 @@ function formatTokenOutput(token) {
 function root(req, res, next) {
   return res.json({ status: "slp" })
 }
-
+/**
+ * @api {get} /slp/list  List all SLP tokens.
+ * @apiName List all SLP tokens.
+ * @apiGroup SLP
+ * @apiDescription Returns list all SLP tokens.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/slp/list" -H "accept:application/json"
+ *
+ *
+ */
 async function list(req, res, next) {
   try {
     const query = {
@@ -243,7 +254,18 @@ async function list(req, res, next) {
     return res.json({ error: `Error in /list: ${err.message}` })
   }
 }
-
+/**
+ * @api {get} /slp/list/{tokenId}  List single SLP token by id.
+ * @apiName List single SLP token by id.
+ * @apiGroup SLP
+ * @apiDescription Returns the list single SLP token by id.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/slp/list/259908ae44f46ef585edef4bcc1e50dc06e4c391ac4be929fae27235b8158cf1" -H "accept:application/json"
+ *
+ *
+ */
 async function listSingleToken(req, res, next) {
   try {
     const tokenId = req.params.tokenId
@@ -269,7 +291,18 @@ async function listSingleToken(req, res, next) {
     return res.json({ error: `Error in /list/:tokenId: ${err.message}` })
   }
 }
-
+/**
+ * @api {post} /slp/list/  List Bulk SLP token .
+ * @apiName List Bulk SLP token.
+ * @apiGroup SLP
+ * @apiDescription Returns the list bulk SLP token by id.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X POST "http://localhost:3000/v3/slp/list" -H "accept:application/json" -H "Content-Type: application/json" -d '{"tokenIds":["7380843cd1089a1a01783f86af37734dc99667a1cdc577391b5f6ea42fc1bfb4","9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0"]}'
+ *
+ *
+ */
 async function listBulkToken(req, res, next) {
   try {
     const tokenIds = req.body.tokenIds
@@ -400,7 +433,18 @@ async function lookupToken(tokenId) {
     throw err
   }
 }
-
+/**
+ * @api {get} /slp/balancesForAddress/{address}  List  SLP  balance for address.
+ * @apiName List SLP  balance for address.
+ * @apiGroup SLP
+ * @apiDescription Returns List  SLP  balance for address.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/slp/balancesForAddress/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m" -H "accept:application/json"
+ *
+ *
+ */
 // Retrieve token balances for all tokens for a single address.
 async function balancesForAddress(req, res, next) {
   try {
@@ -523,7 +567,18 @@ async function balancesForAddress(req, res, next) {
     })
   }
 }
-
+/**
+ * @api {get} /slp/balancesForToken/{TokenId}  List SLP addresses and balances for tokenId.
+ * @apiName List SLP addresses and balances for tokenId.
+ * @apiGroup SLP
+ * @apiDescription Returns List SLP addresses and balances for tokenId.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/slp/balancesForToken/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0" -H "accept:application/json"
+ *
+ *
+ */
 // Retrieve token balances for all addresses by single tokenId.
 async function balancesForTokenSingle(req, res, next) {
   try {
@@ -578,7 +633,18 @@ async function balancesForTokenSingle(req, res, next) {
     })
   }
 }
-
+/**
+ * @api {get} /slp/balance/{address}/{TokenId}  List single slp token balance for address.
+ * @apiName List single slp token balance for address.
+ * @apiGroup SLP
+ * @apiDescription Returns List single slp token balance for address.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/slp/balance/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m/1cda254d0a995c713b7955298ed246822bee487458cd9747a91d9e81d9d28125" -H "accept:application/json"
+ *
+ *
+ */
 // Retrieve token balances for a single token class, for a single address.
 async function balancesForAddressByTokenID(req, res, next) {
   try {
@@ -706,7 +772,18 @@ async function balancesForAddressByTokenID(req, res, next) {
     })
   }
 }
-
+/**
+ * @api {get} /slp/convert/{address}  Convert address to slpAddr, cashAddr and legacy.
+ * @apiName Convert address to slpAddr, cashAddr and legacy.
+ * @apiGroup SLP
+ * @apiDescription Convert address to slpAddr, cashAddr and legacy.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/slp/convert/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m" -H "accept:application/json"
+ *
+ *
+ */
 async function convertAddressSingle(req, res, next) {
   try {
     const address = req.params.address
@@ -744,7 +821,18 @@ async function convertAddressSingle(req, res, next) {
     })
   }
 }
-
+/**
+ * @api {post} /slp/convert/  Convert multiple addresses to cash, legacy and simpleledger format.
+ * @apiName Convert multiple addresses to cash, legacy and simpleledger format.
+ * @apiGroup SLP
+ * @apiDescription Convert multiple addresses to cash, legacy and simpleledger format.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X POST "http://localhost:3000/v3/slp/convert" -H "accept:application/json" -H "Content-Type: application/json" -d '{"addresses":["simpleledger:qrxa0unrn67rtn85v7asfddhhth43ecnxua0antk2l"]}'
+ *
+ *
+ */
 async function convertAddressBulk(req, res, next) {
   const addresses = req.body.addresses
 
@@ -792,7 +880,18 @@ async function convertAddressBulk(req, res, next) {
   res.status(200)
   return res.json(convertedAddresses)
 }
-
+/**
+ * @api {post} /slp/validateTxid/  Validate multiple SLP transactions by txid.
+ * @apiName Validate multiple SLP transactions by txid.
+ * @apiGroup SLP
+ * @apiDescription Validate multiple SLP transactions by txid.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X POST "http://localhost:3000/v3/slp/validateTxid" -H "accept:application/json" -H "Content-Type: application/json" -d '{"txids":["f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a","fb0eeaa501a6e1acb721669c62a3f70741f48ae0fd7f4b8e1d72088785c51952"]}'
+ *
+ *
+ */
 async function validateBulk(req, res, next) {
   try {
     const txids = req.body.txids
@@ -853,7 +952,18 @@ async function validateBulk(req, res, next) {
     return res.json({ error: util.inspect(err) })
   }
 }
-
+/**
+ * @api {get} /slp/validateTxid/{txid}  Validate single SLP transaction by txid.
+ * @apiName Validate single SLP transaction by txid.
+ * @apiGroup SLP
+ * @apiDescription Validate single SLP transaction by txid.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/slp/validateTxid/f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a" -H "accept:application/json"
+ *
+ *
+ */
 async function validateSingle(req, res, next) {
   try {
     const txid = req.params.txid
@@ -1170,7 +1280,18 @@ async function burnAllTokenType1(req, res, next) {
   res.status(200)
   return res.json(burnAll)
 }
-
+/**
+ * @api {get} /slp/txDetails/{txid}  SLP transaction details.
+ * @apiName SLP transaction details.
+ * @apiGroup SLP
+ * @apiDescription Transaction details on a token transfer.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/slp/txDetails/8ab4ac5dea3f9024e3954ee5b61452955d659a34561f79ef62ac44e133d0980e" -H "accept:application/json"
+ *
+ *
+ */
 async function txDetails(req, res, next) {
   try {
     // Validate input parameter
@@ -1221,7 +1342,18 @@ async function txDetails(req, res, next) {
     return res.json({ error: util.inspect(err) })
   }
 }
-
+/**
+ * @api {get} /slp/tokenStats/{tokenId}  List stats for a single slp token.
+ * @apiName List stats for a single slp token.
+ * @apiGroup SLP
+ * @apiDescription Return list stats for a single slp token.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/slp/tokenStats/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0" -H "accept:application/json"
+ *
+ *
+ */
 async function tokenStats(req, res, next) {
   const tokenId = req.params.tokenId
   if (!tokenId || tokenId === "") {
@@ -1274,7 +1406,18 @@ async function tokenStats(req, res, next) {
     return res.json({ error: `Error in /tokenStats: ${err.message}` })
   }
 }
-
+/**
+ * @api {get} /slp/transactions/{tokenId}/{address}  SLP transactions by tokenId and address.
+ * @apiName SLP transactions by tokenId and address.
+ * @apiGroup SLP
+ * @apiDescription Transactions by tokenId and address.
+ *
+ *
+ * @apiExample Example usage:
+ * curl -X GET "http://localhost:3000/v3/slp/transactions/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0/simpleledger:qrxa0unrn67rtn85v7asfddhhth43ecnxua0antk2l" -H "accept:application/json"
+ *
+ *
+ */
 // Retrieve transactions by tokenId and address.
 async function txsTokenIdAddressSingle(req, res, next) {
   try {
