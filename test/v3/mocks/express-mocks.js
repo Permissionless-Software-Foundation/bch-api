@@ -79,6 +79,8 @@ const mockRes = {
   format: sinon.stub().returns({})
 }
 
+// Dev-Note on Rate Limits: Since next() is mocked, I can call the Sinon untility
+// functions on it, like called(), to see if this stub was called.
 const mockNext = sinon.stub().returns()
 
 module.exports = {

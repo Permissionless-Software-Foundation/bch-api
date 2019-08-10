@@ -15,7 +15,7 @@ const RateLimit = require("express-rate-limit")
 // Set max requests per minute
 const maxRequests = process.env.RATE_LIMIT_MAX_REQUESTS
   ? parseInt(process.env.RATE_LIMIT_MAX_REQUESTS)
-  : 60
+  : 6
 
 // Pro-tier rate limits are 10x the freemium limits.
 const PRO_RPM = 10 * maxRequests
@@ -33,6 +33,8 @@ const routeRateLimit = function(req, res, next) {
   // Current route
   const rateLimitTier = req.locals.proLimit ? "PRO" : "BASIC"
   const path = req.baseUrl + req.path
+
+  // Create a unique string as a route identifier.
   const route =
     rateLimitTier +
     req.method +
@@ -40,6 +42,7 @@ const routeRateLimit = function(req, res, next) {
       .split("/")
       .slice(0, 4)
       .join("/")
+  //console.log(`route identifier: ${JSON.stringify(route, null, 2)}`)
 
   // This boolean value is passed from the auth.js middleware.
   const proRateLimits = req.locals.proLimit
@@ -88,6 +91,8 @@ const routeRateLimit = function(req, res, next) {
       })
     }
   }
+
+  //console.log(`calling uniqueRateLimits() on this route: ${route}`)
 
   // Call rate limit for this route
   uniqueRateLimits[route](req, res, next)

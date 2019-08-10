@@ -11,7 +11,7 @@ const axios = require("axios")
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
-const SERVER = `https://rest.btctest.net/v2/`
+const SERVER = `http://192.168.0.36:12400/v3/`
 //const SERVER = `http://localhost:3000/v2/`
 
 describe("#rate limits", () => {
