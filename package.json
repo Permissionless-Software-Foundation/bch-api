@@ -48,11 +48,9 @@
     "pg-hstore": "^2.3.2",
     "slp-sdk": "^4.4.1",
     "slpjs": "0.21.1",
-    "socket.io": "^2.1.1",
     "strftime": "^0.10.0",
     "winston": "^3.2.1",
-    "winston-daily-rotate-file": "^3.8.0",
-    "zeromq": "^5.1.0"
+    "winston-daily-rotate-file": "^3.8.0"
   },
   "devDependencies": {
     "bignumber.js": "^9.0.0",

@@ -1,5 +1,4 @@
 "use strict"
-const { Socket } = require("net")
 
 const express = require("express")
 
@@ -17,19 +16,6 @@ const debug = require("debug")("rest-cloud:server")
 const http = require("http")
 const cors = require("cors")
 const AuthMW = require("./middleware/auth")
-
-const BitcoinCashZMQDecoder = require("bitcoincash-zmq-decoder")
-
-const zmq = require("zeromq")
-
-const sock = zmq.socket("sub")
-/*
-const swStats = require("swagger-stats")
-let apiSpec
-if (process.env.NETWORK === "mainnet")
-  apiSpec = require("./public/bitcoin-com-mainnet-rest-v2.json")
-else apiSpec = require("./public/bitcoin-com-testnet-rest-v2.json")
-*/
 
 // v2
 const indexV2 = require("./routes/v2/index")
