@@ -12,7 +12,7 @@ util.inspect.defaultOptions = { depth: 1 }
 const { mockReq, mockRes, mockNext } = require("./mocks/express-mocks")
 
 // Libraries under test
-const rateLimitMiddleware = require("../../src/middleware/route-ratelimit")
+let rateLimitMiddleware = require("../../src/middleware/route-ratelimit")
 const controlRoute = require("../../src/routes/v3/control")
 
 let req, res, next
@@ -43,26 +43,28 @@ describe("#route-ratelimits", () => {
   })
 
   describe("#routeRateLimit", () => {
-    const routeRateLimit = rateLimitMiddleware.routeRateLimit
+    let routeRateLimit = rateLimitMiddleware.routeRateLimit
     const getInfo = controlRoute.testableComponents.getInfo
-    /*
+
     it("should pass through rate-limit middleware", async () => {
-      req.baseUrl = "/v2"
-      req.path = "/control/getInfo"
+      req.baseUrl = "/v3"
+      req.path = "/control/getNetworkInfo"
       req.method = "GET"
 
+      // Call the route twice to trigger the rate handling.
+      await routeRateLimit(req, res, next)
       await routeRateLimit(req, res, next)
 
       // next() will be called if rate-limit is not triggered
       assert.equal(next.called, true)
     })
 
-    it("should trigger rate-limit handler if rate limits exceeds 60 request per minute", async () => {
-      req.baseUrl = "/v2"
-      req.path = "/control/getInfo"
+    it("should trigger rate-limit handler if rate limits exceeds 15 request per minute", async () => {
+      req.baseUrl = "/v3"
+      req.path = "/control/getNetworkInfo"
       req.method = "GET"
 
-      for (let i = 0; i < 65; i++) {
+      for (let i = 0; i < 15; i++) {
         next.reset() // reset the stubbed next() function.
 
         await routeRateLimit(req, res, next)
@@ -76,18 +78,17 @@ describe("#route-ratelimits", () => {
         `next should not be called if rate limit was triggered.`
       )
     })
-    */
-    /*
-    it("should NOT trigger rate-limit handler for pro-tier at 65 RPM", async () => {
+
+    it("should NOT trigger rate-limit handler for pro-tier at 20 RPM", async () => {
       // Clear the require cache before running this test.
       delete require.cache[
-        require.resolve("../../dist/middleware/route-ratelimit")
+        require.resolve("../../src/middleware/route-ratelimit")
       ]
-      rateLimitMiddleware = require("../../dist/middleware/route-ratelimit")
+      rateLimitMiddleware = require("../../src/middleware/route-ratelimit")
       routeRateLimit = rateLimitMiddleware.routeRateLimit
 
-      req.baseUrl = "/v2"
-      req.path = "/control/getInfo"
+      req.baseUrl = "/v3"
+      req.path = "/control/getNetworkInfo"
       req.method = "GET"
 
       req.locals.proLimit = true
@@ -97,7 +98,7 @@ describe("#route-ratelimits", () => {
       // Prepare the authorization header
       //req.headers.authorization = generateAuthHeader("BITBOX")
 
-      for (let i = 0; i < 65; i++) {
+      for (let i = 0; i < 20; i++) {
         next.reset() // reset the stubbed next() function.
 
         await routeRateLimit(req, res, next)
@@ -117,13 +118,13 @@ describe("#route-ratelimits", () => {
     it("rate-limiting should still kick in at a higher RPM for pro-tier", async () => {
       // Clear the require cache before running this test.
       delete require.cache[
-        require.resolve("../../dist/middleware/route-ratelimit")
+        require.resolve("../../src/middleware/route-ratelimit")
       ]
-      rateLimitMiddleware = require("../../dist/middleware/route-ratelimit")
+      rateLimitMiddleware = require("../../src/middleware/route-ratelimit")
       routeRateLimit = rateLimitMiddleware.routeRateLimit
 
-      req.baseUrl = "/v2"
-      req.path = "/control/getInfo"
+      req.baseUrl = "/v3"
+      req.path = "/control/getNetworkInfo"
       req.method = "GET"
 
       req.locals.proLimit = true
@@ -133,7 +134,7 @@ describe("#route-ratelimits", () => {
       // Prepare the authorization header
       //req.headers.authorization = generateAuthHeader("BITBOX")
 
-      for (let i = 0; i < 650; i++) {
+      for (let i = 0; i < 100; i++) {
         next.reset() // reset the stubbed next() function.
 
         await routeRateLimit(req, res, next)
@@ -149,7 +150,6 @@ describe("#route-ratelimits", () => {
         `next should NOT be called if rate limit was triggered.`
       )
     })
-    */
   })
 })
 

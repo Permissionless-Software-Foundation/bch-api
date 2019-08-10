@@ -1,5 +1,4 @@
 "use strict"
-const { Socket } = require("net")
 
 const express = require("express")
 
@@ -17,19 +16,6 @@ const debug = require("debug")("rest-cloud:server")
 const http = require("http")
 const cors = require("cors")
 const AuthMW = require("./middleware/auth")
-
-const BitcoinCashZMQDecoder = require("bitcoincash-zmq-decoder")
-
-const zmq = require("zeromq")
-
-const sock = zmq.socket("sub")
-/*
-const swStats = require("swagger-stats")
-let apiSpec
-if (process.env.NETWORK === "mainnet")
-  apiSpec = require("./public/bitcoin-com-mainnet-rest-v2.json")
-else apiSpec = require("./public/bitcoin-com-testnet-rest-v2.json")
-*/
 
 // v2
 const indexV2 = require("./routes/v2/index")
@@ -185,49 +171,6 @@ console.log(`bch-api started on port ${port}`)
  * Create HTTP server.
  */
 const server = http.createServer(app)
-const io = require("socket.io").listen(server)
-io.on("connection", socket => {
-  console.log("Socket Connected")
-
-  socket.on("disconnect", () => {
-    console.log("Socket Disconnected")
-  })
-})
-
-/**
- * Setup ZMQ connections if ZMQ URL and port provided
- */
-
-if (process.env.ZEROMQ_URL && process.env.ZEROMQ_PORT) {
-  console.log(
-    `Connecting to BCH ZMQ at ${process.env.ZEROMQ_URL}:${process.env.ZEROMQ_PORT}`
-  )
-  const bitcoincashZmqDecoder = new BitcoinCashZMQDecoder(process.env.NETWORK)
-
-  sock.connect(`tcp://${process.env.ZEROMQ_URL}:${process.env.ZEROMQ_PORT}`)
-  sock.subscribe("raw")
-
-  sock.on("message", (topic, message) => {
-    try {
-      const decoded = topic.toString("ascii")
-      if (decoded === "rawtx") {
-        const txd = bitcoincashZmqDecoder.decodeTransaction(message)
-        io.emit("transactions", JSON.stringify(txd, null, 2))
-      } else if (decoded === "rawblock") {
-        const blck = bitcoincashZmqDecoder.decodeBlock(message)
-        io.emit("blocks", JSON.stringify(blck, null, 2))
-      }
-    } catch (error) {
-      const errorMessage = "Error processing ZMQ message"
-      console.log(errorMessage, error)
-      wlogger.error(errorMessage, error)
-    }
-  })
-} else {
-  console.log(
-    "ZEROMQ_URL and ZEROMQ_PORT env vars missing. Skipping ZMQ connection."
-  )
-}
 
 /**
  * Listen on provided port, on all network interfaces.
