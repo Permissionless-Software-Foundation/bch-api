@@ -8,7 +8,7 @@ const routeUtils = require("./route-utils")
 const logger = require("./logging.js")
 const wlogger = require("../../util/winston-logging")
 
-const BITBOXJS = require("@chris.troutner/bitbox-js")
+const BITBOXJS = require("@chris.troutner/bch-js")
 const BITBOX = new BITBOXJS()
 
 // Used to convert error messages to strings, to safely pass to users.

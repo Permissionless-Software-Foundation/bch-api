@@ -18,7 +18,7 @@ const router = express.Router()
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
-const BITBOXJS = require("@chris.troutner/bitbox-js")
+const BITBOXJS = require("@chris.troutner/bch-js")
 const BITBOX = new BITBOXJS()
 
 // Use the default (and max) page size of 1000
@@ -578,9 +578,7 @@ async function unconfirmedSingle(req, res, next) {
 // Retrieve transaction data from the Insight API
 async function transactionsFromInsight(thisAddress, currentPage = 0) {
   try {
-    const path = `${
-      process.env.BITCOINCOM_BASEURL
-    }txs/?address=${thisAddress}&pageNum=${currentPage}`
+    const path = `${process.env.BITCOINCOM_BASEURL}txs/?address=${thisAddress}&pageNum=${currentPage}`
 
     // Query the Insight server.
     const response = await axios.get(path)
