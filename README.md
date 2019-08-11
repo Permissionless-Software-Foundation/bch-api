@@ -2,6 +2,8 @@
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/christroutner/bch-api.svg)](https://greenkeeper.io/)
 
+[![Build Status](https://travis-ci.org/christroutner/bch-api.svg?branch=master)](https://travis-ci.org/christroutner/bch-api)
+
 This is a fork and alternative implementation of
 the [rest.bitcoin.com](https://github.com/Bitcoin-com/rest.bitcoin.com) repository.
 The purpose of this code is to create a REST API server that provides a common
