@@ -85,13 +85,6 @@ app.use(express.static(path.join(__dirname, "public")))
 //   }
 // ));
 
-// Make io accessible to our router
-app.use((req, res, next) => {
-  req.io = io
-
-  next()
-})
-
 const v2prefix = "v2"
 const v3prefix = "v3"
 
