@@ -1,19 +1,21 @@
-# BCH API
+# bch-api
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/christroutner/bch-api.svg)](https://greenkeeper.io/)
 
 This is a fork and alternative implementation of
 the [rest.bitcoin.com](https://github.com/Bitcoin-com/rest.bitcoin.com) repository.
-The function of this code is to create a REST API server to provide a common
+The purpose of this code is to create a REST API server that provides a common
 interface for working with a BCH full node and various indexers.
 
 This repository is intended to be paired with my alternative implementation
 of [BITBOX SDK](https://github.com/Bitcoin-com/bitbox-sdk):
-[BITBOX JS](https://github.com/christroutner/bitbox-js).
+[bch-js](https://github.com/christroutner/bch-js).
 
-Here is a YouTube video explaining the use of BITBOX and this REST API:
+- [API Documentation](https://bchjs.cash/bch-api/index.html)
+- Video: [Basic Concepts](https://www.youtube.com/watch?v=o0FfW5rZPFs)
+- Video: [Application Stack](https://youtu.be/8w0CpQ8oydA)
+- [bchjs.cash](https://bchjs.cash): Buy a turn-key REST API microserver.
 
-https://www.youtube.com/watch?v=o0FfW5rZPFs
 
 Since this repo is being worked on by one person, as a hobby, updates will be
 slow. But the road map I have planned is as follows:
