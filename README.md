@@ -16,28 +16,14 @@ of [BITBOX SDK](https://github.com/Bitcoin-com/bitbox-sdk):
 - Video: [Application Stack](https://youtu.be/8w0CpQ8oydA)
 - [bchjs.cash](https://bchjs.cash): Buy a turn-key REST API microserver.
 
-
-Since this repo is being worked on by one person, as a hobby, updates will be
-slow. But the road map I have planned is as follows:
-
-- Replace the requirement for Insight API with Blockbook API for address and
-utxo based calls.
-
-- Remove rate limiting
-
-- Setup automated dependency management through Greenkeeper, and automated
-continuous-release with semantic versioning through Semantic Release.
-
-- Ensure all unit and integration tests are passing.
-
-- Update SLP token endpoints. Not totally sure of the scope here.
-
-- Add end-to-end tests.
+Have questions? Need help? Join our community support
+[Telegram channel](https://t.me/bch_js_toolkit)
 
 ## Features
 The following features set this repository apart from rest.bitcoin.com:
 
 - Address balance and UTXO queries for [Blockbook](https://github.com/trezor/blockbook) and [Bitcore](https://github.com/bitpay/bitcore/tree/master/packages/bitcore-node) added.
+- Rate limits are set to 10 RPM by default, and 60 RPM if Basic Authentiction header is used.
 - Typescript removed and ES8 JavaScript used instead.
 - npm audit run on all dependencies.
 - [Greenkeeper](https://greenkeeper.io/) implemented for automatic dependency management
