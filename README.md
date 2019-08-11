@@ -12,7 +12,7 @@ interface for working with a Bitcoin Cash full node and various indexers.
 This repository is intended to be paired with my alternative implementation
 of [BITBOX SDK](https://github.com/Bitcoin-com/bitbox-sdk):
 [bch-js](https://github.com/christroutner/bch-js), and is part of the product
-offering at [bchjs.cash](https://bchjs.cash)
+offering at [bchjs.cash](https://bchjs.cash).
 
 - [API Documentation](https://bchjs.cash/bch-api/index.html)
 - Video: [Basic Concepts](https://www.youtube.com/watch?v=o0FfW5rZPFs)
