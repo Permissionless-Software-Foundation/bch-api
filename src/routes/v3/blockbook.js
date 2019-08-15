@@ -341,10 +341,10 @@ async function utxosBulk(req, res, next) {
 
     // Loops through each address and creates an array of Promises, querying
     // Insight API in parallel.
-    addresses = addresses.map(async (address, index) => {
-      console.log(`address: ${address}`)
-      return utxosFromBlockbook(address)
-    })
+    addresses = addresses.map(async (address, index) =>
+      //console.log(`address: ${address}`)
+      utxosFromBlockbook(address)
+    )
 
     // Wait for all parallel Insight requests to return.
     const result = await axios.all(addresses)
