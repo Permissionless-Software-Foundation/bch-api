@@ -511,6 +511,92 @@ describe("#SLP", () => {
     })
   })
 
+  describe("balancesForAddressBulk()", () => {
+    const balancesForAddressBulk =
+      slpRoute.testableComponents.balancesForAddressBulk
+
+    it("should throw 400 if addresses is empty", async () => {
+      const result = await balancesForAddressBulk(req, res)
+      //console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ["error"])
+      assert.include(result.error, "addresses needs to be an array")
+    })
+
+    it("should throw 400 if address is invalid", async () => {
+      req.body.addresses = ["badAddress"]
+
+      const result = await balancesForAddressBulk(req, res)
+      //console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ["error"])
+      assert.include(result.error, "Invalid BCH address.")
+    })
+
+    it("should throw 400 if address network mismatch", async () => {
+      req.body.addresses = [
+        "simpleledger:qr5agtachyxvrwxu76vzszan5pnvuzy8duhv4lxrsk"
+      ]
+
+      const result = await balancesForAddressBulk(req, res)
+      //console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ["error"])
+      assert.include(result.error, "Invalid")
+    })
+
+    it("should throw 5XX error when network issues", async () => {
+      // Save the existing SLPDB_URL.
+      const savedUrl2 = process.env.SLPDB_URL
+
+      // Manipulate the URL to cause a 500 network error.
+      process.env.SLPDB_URL = "http://fakeurl/api/"
+
+      req.body.addresses = [
+        "slptest:qz35h5mfa8w2pqma2jq06lp7dnv5fxkp2shlcycvd5"
+      ]
+
+      const result = await balancesForAddressBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      // Restore the saved URL.
+      process.env.SLPDB_URL = savedUrl2
+
+      assert.isAbove(
+        res.statusCode,
+        499,
+        "HTTP status code 500 or greater expected."
+      )
+      assert.include(
+        result.error,
+        "Network error: Could not communicate",
+        "Error message expected"
+      )
+    })
+
+    // Only run as an integration test. Too complex to stub accurately.
+    if (process.env.TEST !== "unit") {
+      it("should get token balance for an address", async () => {
+        req.body.addresses = [
+          "slptest:pz0qcslrqn7hr44hsszwl4lw5r6udkg6zqv7sq3kk7"
+        ]
+
+        const result = await balancesForAddressBulk(req, res)
+        console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+        assert.isArray(result)
+        assert.isArray(result[0])
+        assert.hasAnyKeys(result[0][0], [
+          "tokenId",
+          "balance",
+          "balanceString",
+          "slpAddress",
+          "decimalCount"
+        ])
+      })
+    }
+  })
+
   describe("balancesForAddressByTokenID()", () => {
     const balancesForAddressByTokenID =
       slpRoute.testableComponents.balancesForAddressByTokenID
