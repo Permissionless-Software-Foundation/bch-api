@@ -450,7 +450,7 @@ async function txBulk(req, res, next) {
     if (!Array.isArray(txids)) {
       res.status(400)
       return res.json({
-        error: "txids needs to be an array. Use GET for single address."
+        error: "txids need to be an array. Use GET for single address."
       })
     }
 
