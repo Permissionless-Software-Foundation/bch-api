@@ -393,7 +393,7 @@ async function transactionsFromBlockbook(txid) {
 // GET handler for single transaction details.
 async function txSingle(req, res, next) {
   try {
-    const address = req.params.txid
+    const txid = req.params.txid
 
     if (!txid || txid === "") {
       res.status(400)
@@ -404,16 +404,22 @@ async function txSingle(req, res, next) {
     if (Array.isArray(txid)) {
       res.status(400)
       return res.json({
-        error: "address can not be an array. Use POST for bulk upload."
+        error: "txid can not be an array. Use POST for bulk upload."
+      })
+    }
+
+    // TODO: Add regex comparison of txid to ensure it's valid.
+    if (txid.length !== 64) {
+      res.status(400)
+      return res.json({
+        error: `txid must be of length 64 (not ${txid.length})`
       })
     }
 
     wlogger.debug(`Executing blockbook/txSingle with this txid: `, txid)
 
-    // TODO: Add regex comparison of txid to ensure it's valid.
-
     // Query the Blockbook Node API.
-    const retData = await transactionsFromBlockbook(address)
+    const retData = await transactionsFromBlockbook(txid)
 
     // Return the retrieved address information.
     res.status(200)
@@ -468,6 +474,12 @@ async function txBulk(req, res, next) {
       }
 
       // TODO: Add regex comparison of txid to ensure it's valid.
+      if (thisTxid.length !== 64) {
+        res.status(400)
+        return res.json({
+          error: `txid must be of length 64 (not ${thisTxid.length})`
+        })
+      }
     }
 
     // Loops through each address and creates an array of Promises, querying
