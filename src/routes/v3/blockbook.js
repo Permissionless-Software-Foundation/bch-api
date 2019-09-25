@@ -27,6 +27,8 @@ router.get("/balance/:address", balanceSingle)
 router.post("/balance", balanceBulk)
 router.get("/utxos/:address", utxosSingle)
 router.post("/utxos", utxosBulk)
+router.get("/tx/:txid", txSingle)
+router.post("/tx", txBulk)
 
 // Root API endpoint. Simply acknowledges that it exists.
 function root(req, res, next) {
@@ -367,6 +369,147 @@ async function utxosBulk(req, res, next) {
   }
 }
 
+// Query the Blockbook Node API for transactions on a single TXID.
+// Returns a Promise.
+async function transactionsFromBlockbook(txid) {
+  try {
+    //console.log(`BLOCKBOOK_URL: ${BLOCKBOOK_URL}`)
+
+    const path = `${process.env.BLOCKBOOK_URL}api/v2/tx/${txid}`
+
+    // Query the Blockbook Node API.
+    const axiosResponse = await axios.get(path)
+    const retPromise = axiosResponse.data
+    //console.log(`retData: ${util.inspect(retData)}`)
+
+    return retPromise
+  } catch (err) {
+    // Dev Note: Do not log error messages here. Throw them instead and let the
+    // parent function handle it.
+    throw err
+  }
+}
+
+// GET handler for single transaction details.
+async function txSingle(req, res, next) {
+  try {
+    const txid = req.params.txid
+
+    if (!txid || txid === "") {
+      res.status(400)
+      return res.json({ error: "txid can not be empty" })
+    }
+
+    // Reject if address is an array.
+    if (Array.isArray(txid)) {
+      res.status(400)
+      return res.json({
+        error: "txid can not be an array. Use POST for bulk upload."
+      })
+    }
+
+    // TODO: Add regex comparison of txid to ensure it's valid.
+    if (txid.length !== 64) {
+      res.status(400)
+      return res.json({
+        error: `txid must be of length 64 (not ${txid.length})`
+      })
+    }
+
+    wlogger.debug(`Executing blockbook/txSingle with this txid: `, txid)
+
+    // Query the Blockbook Node API.
+    const retData = await transactionsFromBlockbook(txid)
+
+    // Return the retrieved address information.
+    res.status(200)
+    return res.json(retData)
+  } catch (err) {
+    // Attempt to decode the error message.
+    const { msg, status } = routeUtils.decodeError(err)
+    if (msg) {
+      res.status(status)
+      return res.json({ error: msg })
+    }
+
+    // Write out error to error log.
+    wlogger.error(`Error in blockbook.js/txSingle().`, err)
+
+    res.status(500)
+    return res.json({ error: util.inspect(err) })
+  }
+}
+
+// POST handler for bulk queries on tx details
+async function txBulk(req, res, next) {
+  try {
+    let txids = req.body.txids
+    const currentPage = req.body.page ? parseInt(req.body.page, 10) : 0
+
+    // Reject if txids is not an array.
+    if (!Array.isArray(txids)) {
+      res.status(400)
+      return res.json({
+        error: "txids need to be an array. Use GET for single address."
+      })
+    }
+
+    // Enforce array size rate limits
+    if (!routeUtils.validateArraySize(req, txids)) {
+      res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+      return res.json({
+        error: `Array too large.`
+      })
+    }
+
+    wlogger.debug(`Executing blockbook.js/txBulk with these txids: `, txids)
+
+    // Validate each element in the txids array.
+    for (let i = 0; i < txids.length; i++) {
+      const thisTxid = txids[i]
+
+      if (!thisTxid || thisTxid === "") {
+        res.status(400)
+        return res.json({ error: "txid can not be empty" })
+      }
+
+      // TODO: Add regex comparison of txid to ensure it's valid.
+      if (thisTxid.length !== 64) {
+        res.status(400)
+        return res.json({
+          error: `txid must be of length 64 (not ${thisTxid.length})`
+        })
+      }
+    }
+
+    // Loops through each address and creates an array of Promises, querying
+    // Insight API in parallel.
+    txids = txids.map(async (txid, index) =>
+      //console.log(`address: ${address}`)
+      transactionsFromBlockbook(txid)
+    )
+
+    // Wait for all parallel Insight requests to return.
+    const result = await axios.all(txids)
+
+    // Return the array of retrieved address information.
+    res.status(200)
+    return res.json(result)
+  } catch (err) {
+    // Attempt to decode the error message.
+    const { msg, status } = routeUtils.decodeError(err)
+    if (msg) {
+      res.status(status)
+      return res.json({ error: msg })
+    }
+
+    wlogger.error(`Error in blockbook.js/txBulk().`, err)
+
+    res.status(500)
+    return res.json({ error: util.inspect(err) })
+  }
+}
+
 module.exports = {
   router,
   testableComponents: {
@@ -374,6 +517,8 @@ module.exports = {
     balanceSingle,
     balanceBulk,
     utxosSingle,
-    utxosBulk
+    utxosBulk,
+    txSingle,
+    txBulk
   }
 }

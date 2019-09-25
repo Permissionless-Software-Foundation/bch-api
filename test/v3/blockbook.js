@@ -38,6 +38,8 @@ describe("#Blockbook Router", () => {
       mockServerUrl = `http://fakeurl`
     }
     // console.log(`Testing type is: ${process.env.TEST}`)
+
+    if (!process.env.NETWORK) process.env.NETWORK = "testnet"
   })
 
   // Setup the mocks before each test.
@@ -583,6 +585,295 @@ describe("#Blockbook Router", () => {
 
       assert.isArray(result)
       assert.isArray(result[0])
+      assert.equal(result.length, 2, "2 outputs for 2 inputs")
+    })
+  })
+
+  describe("#txSingle", () => {
+    // route handler
+    const txSingle = blockbookRoute.testableComponents.txSingle
+
+    it("should throw 400 if txid is empty", async () => {
+      const result = await txSingle(req, res)
+      //console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ["error"])
+      assert.include(result.error, "txid can not be empty")
+    })
+
+    it("should error on an array", async () => {
+      req.params.txid = [
+        `5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392`
+      ]
+
+      const result = await txSingle(req, res)
+
+      assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
+      assert.include(
+        result.error,
+        "txid can not be an array",
+        "Proper error message"
+      )
+    })
+
+    it("should throw 400 if txid is not a valid txid", async () => {
+      req.params.txid = `abc`
+
+      const result = await txSingle(req, res)
+      //console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ["error"])
+      assert.include(result.error, "txid must be of length 64")
+    })
+
+    it("should throw 500 when network issues", async () => {
+      const savedUrl = process.env.BLOCKBOOK_URL
+
+      try {
+        req.params.txid = `5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392`
+
+        // Switch the Insight URL to something that will error out.
+        process.env.BLOCKBOOK_URL = "http://fakeurl/api/"
+
+        const result = await txSingle(req, res)
+
+        // Restore the saved URL.
+        process.env.BLOCKBOOK_URL = savedUrl
+
+        assert.equal(res.statusCode, 500, "HTTP status code 500 expected.")
+        assert.include(result.error, "ENOTFOUND", "Error message expected")
+      } catch (err) {
+        // Restore the saved URL.
+        process.env.BLOCKBOOK_URL = savedUrl
+      }
+    })
+
+    it("should get tx details for a single txid", async () => {
+      req.params.txid = `5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392`
+
+      // Mock the Insight URL for unit tests.
+      if (process.env.TEST === "unit") {
+        nock(`${process.env.BLOCKBOOK_URL}`)
+          .get(uri => uri.includes("/"))
+          .reply(200, mockData.mockTx)
+      }
+
+      // process.env.BLOCKBOOK_URL = `https://157.230.178.198:19131/`
+      // process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0
+
+      // Call the details API.
+      const result = await txSingle(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.hasAnyKeys(result, [
+        "txid",
+        "version",
+        "vin",
+        "vout",
+        "blockHash",
+        "blockHeight",
+        "confirmations",
+        "blockTime",
+        "value",
+        "valueIn",
+        "fees",
+        "hex"
+      ])
+
+      // Vin
+      assert.isArray(result.vin)
+      assert.hasAnyKeys(result.vin[0], [
+        "txid",
+        "sequence",
+        "n",
+        "addresses",
+        "value",
+        "hex"
+      ])
+
+      // Vout
+      assert.isArray(result.vout)
+      assert.hasAnyKeys(result.vout[0], [
+        "value",
+        "n",
+        "spent",
+        "hex",
+        "addresses"
+      ])
+    })
+  })
+
+  describe("#txBulk", () => {
+    // route handler
+    const txBulk = blockbookRoute.testableComponents.txBulk
+
+    it("should throw an error for an empty body", async () => {
+      req.body = {}
+
+      const result = await txBulk(req, res)
+      //console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
+      assert.include(
+        result.error,
+        "txids need to be an array",
+        "Proper error message"
+      )
+    })
+
+    it("should error on non-array single address", async () => {
+      req.body.txids = `5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392`
+
+      const result = await txBulk(req, res)
+
+      assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
+      assert.include(
+        result.error,
+        "txids need to be an array",
+        "Proper error message"
+      )
+    })
+
+    it("should throw 400 error if addresses array is too large", async () => {
+      const testArray = []
+      for (var i = 0; i < 25; i++) testArray.push("")
+
+      req.body.txids = testArray
+
+      const result = await txBulk(req, res)
+      //console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ["error"])
+      assert.include(result.error, "Array too large")
+    })
+
+    it("should throw an error for an invalid address", async () => {
+      req.body = {
+        txids: [
+          `5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392`,
+          `abc`
+        ]
+      }
+
+      const result = await txBulk(req, res)
+
+      assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
+      assert.include(
+        result.error,
+        "txid must be of length 64",
+        "Proper error message"
+      )
+    })
+
+    it("should throw 500 when network issues", async () => {
+      const savedUrl = process.env.BLOCKBOOK_URL
+
+      try {
+        req.body = {
+          txids: [
+            `5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392`
+          ]
+        }
+
+        // Switch the Insight URL to something that will error out.
+        process.env.BLOCKBOOK_URL = "http://fakeurl/api/"
+
+        const result = await txBulk(req, res)
+        //console.log(`network issue result: ${util.inspect(result)}`)
+
+        // Restore the saved URL.
+        process.env.BLOCKBOOK_URL = savedUrl
+
+        assert.isAbove(res.statusCode, 499, "HTTP status code 500 expected.")
+        //assert.include(result.error, "ENOTFOUND", "Error message expected")
+        assert.include(
+          result.error,
+          "Network error: Could not communicate",
+          "Error message expected"
+        )
+      } catch (err) {
+        // Restore the saved URL.
+        process.env.BLOCKBOOK_URL = savedUrl
+      }
+    })
+
+    it("should get details for a single address", async () => {
+      req.body = {
+        txids: [
+          `5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392`
+        ]
+      }
+
+      // Mock the Insight URL for unit tests.
+      if (process.env.TEST === "unit") {
+        nock(mockServerUrl)
+          .get(uri => uri.includes("/"))
+          .reply(200, mockData.mockTx)
+      }
+
+      // Call the details API.
+      const result = await txBulk(req, res)
+      //console.log(`result: ${util.inspect(result)}`)
+
+      assert.isArray(result)
+      assert.hasAnyKeys(result[0], [
+        "txid",
+        "version",
+        "vin",
+        "vout",
+        "blockHash",
+        "blockHeight",
+        "confirmations",
+        "blockTime",
+        "value",
+        "valueIn",
+        "fees",
+        "hex"
+      ])
+
+      // Vin
+      assert.isArray(result[0].vin)
+      assert.hasAnyKeys(result[0].vin[0], [
+        "txid",
+        "sequence",
+        "n",
+        "addresses",
+        "value",
+        "hex"
+      ])
+
+      // Vout
+      assert.isArray(result[0].vout)
+      assert.hasAnyKeys(result[0].vout[0], [
+        "value",
+        "n",
+        "spent",
+        "hex",
+        "addresses"
+      ])
+    })
+
+    it("should get details for multiple txid", async () => {
+      req.body = {
+        txids: [
+          `5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392`,
+          `5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392`
+        ]
+      }
+
+      // Mock the Insight URL for unit tests.
+      if (process.env.TEST === "unit") {
+        nock(mockServerUrl)
+          .get(uri => uri.includes("/"))
+          .times(2)
+          .reply(200, mockData.mockTx)
+      }
+
+      // Call the details API.
+      const result = await txBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.isArray(result)
       assert.equal(result.length, 2, "2 outputs for 2 inputs")
     })
   })

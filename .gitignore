@@ -5,6 +5,8 @@ start-local-server
 test-local-server
 start-decatur-main
 start-decatur-test
+start-bitcoincom.sh
+
 coverage
 start-my-infra
 dist/routes/**
