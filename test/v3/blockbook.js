@@ -37,6 +37,9 @@ describe("#Blockbook Router", () => {
       process.env.BLOCKBOOK_URL = "http://fakeurl/api/"
       mockServerUrl = `http://fakeurl`
     }
+
+    if (!process.env.NETWORK) process.env.NETWORK = "testnet"
+
     // console.log(`Testing type is: ${process.env.TEST}`)
   })
 
