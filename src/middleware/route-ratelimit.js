@@ -15,7 +15,7 @@ const RateLimit = require("express-rate-limit")
 // Set max requests per minute
 const maxRequests = process.env.RATE_LIMIT_MAX_REQUESTS
   ? parseInt(process.env.RATE_LIMIT_MAX_REQUESTS)
-  : 6
+  : 20
 
 // Pro-tier rate limits are 10x the freemium limits.
 const PRO_RPM = 10 * maxRequests
