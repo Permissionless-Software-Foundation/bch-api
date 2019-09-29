@@ -6,6 +6,7 @@ test-local-server
 start-decatur-main
 start-decatur-test
 start-bitcoincom.sh
+test-remote-server.sh
 
 coverage
 start-my-infra
