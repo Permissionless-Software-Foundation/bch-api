@@ -10,6 +10,12 @@ const axios = require("axios")
 const routeUtils = require("./route-utils")
 const wlogger = require("../../util/winston-logging")
 
+// Library for easily switching the API paths to use different instances of
+// Blockbook.
+const BlockbookPath = require("../../util/blockbook-path")
+const BLOCKBOOKPATH = new BlockbookPath()
+// BLOCKBOOKPATH.toOpenBazaar()
+
 const router = express.Router()
 
 // Used for processing error messages before sending them to the user.
@@ -44,7 +50,8 @@ async function balanceFromBlockbook(thisAddress) {
     // Convert the address to a cashaddr without a prefix.
     const addr = bchjs.Address.toCashAddress(thisAddress)
 
-    const path = `${process.env.BLOCKBOOK_URL}api/v2/address/${addr}`
+    const path = `${BLOCKBOOKPATH.addrPath}${addr}`
+    // console.log(`path: ${path}`)
 
     // Query the Blockbook Node API.
     const axiosResponse = await axios.get(path)
@@ -211,7 +218,8 @@ async function utxosFromBlockbook(thisAddress) {
     // Convert the address to a cashaddr without a prefix.
     const addr = bchjs.Address.toCashAddress(thisAddress)
 
-    const path = `${process.env.BLOCKBOOK_URL}api/v2/utxo/${addr}`
+    const path = `${BLOCKBOOKPATH.utxoPath}${addr}`
+    // console.log(`path: ${path}`)
 
     // Query the Blockbook API.
     const axiosResponse = await axios.get(path)
@@ -375,7 +383,8 @@ async function transactionsFromBlockbook(txid) {
   try {
     //console.log(`BLOCKBOOK_URL: ${BLOCKBOOK_URL}`)
 
-    const path = `${process.env.BLOCKBOOK_URL}api/v2/tx/${txid}`
+    const path = `${BLOCKBOOKPATH.txPath}${txid}`
+    // console.log(`path: ${path}`)
 
     // Query the Blockbook Node API.
     const axiosResponse = await axios.get(path)
