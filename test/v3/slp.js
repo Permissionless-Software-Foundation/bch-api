@@ -496,7 +496,7 @@ describe("#SLP", () => {
           .reply(200, mockData.mockSingleAddress)
       }
 
-      req.params.address = "slptest:pz0qcslrqn7hr44hsszwl4lw5r6udkg6zqv7sq3kk7"
+      req.params.address = "slptest:qz80hhc6eucgauzmcfjzglccspdqfpl0fqx7x3lshs"
 
       const result = await balancesForAddress(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -578,11 +578,11 @@ describe("#SLP", () => {
     if (process.env.TEST !== "unit") {
       it("should get token balance for an address", async () => {
         req.body.addresses = [
-          "slptest:pz0qcslrqn7hr44hsszwl4lw5r6udkg6zqv7sq3kk7"
+          "slptest:qz80hhc6eucgauzmcfjzglccspdqfpl0fqx7x3lshs"
         ]
 
         const result = await balancesForAddressBulk(req, res)
-        console.log(`result: ${JSON.stringify(result, null, 2)}`)
+        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
         assert.isArray(result)
         assert.isArray(result[0])

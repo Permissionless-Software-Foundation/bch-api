@@ -59,12 +59,12 @@ describe("#route-ratelimits", () => {
       assert.equal(next.called, true)
     })
 
-    it("should trigger rate-limit handler if rate limits exceeds 15 request per minute", async () => {
+    it("should trigger rate-limit handler if rate limits exceeds 25 request per minute", async () => {
       req.baseUrl = "/v3"
       req.path = "/control/getNetworkInfo"
       req.method = "GET"
 
-      for (let i = 0; i < 15; i++) {
+      for (let i = 0; i < 25; i++) {
         next.reset() // reset the stubbed next() function.
 
         await routeRateLimit(req, res, next)
@@ -79,7 +79,7 @@ describe("#route-ratelimits", () => {
       )
     })
 
-    it("should NOT trigger rate-limit handler for pro-tier at 20 RPM", async () => {
+    it("should NOT trigger rate-limit handler for pro-tier at 25 RPM", async () => {
       // Clear the require cache before running this test.
       delete require.cache[
         require.resolve("../../src/middleware/route-ratelimit")
@@ -98,7 +98,7 @@ describe("#route-ratelimits", () => {
       // Prepare the authorization header
       //req.headers.authorization = generateAuthHeader("BITBOX")
 
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 25; i++) {
         next.reset() // reset the stubbed next() function.
 
         await routeRateLimit(req, res, next)
@@ -134,7 +134,7 @@ describe("#route-ratelimits", () => {
       // Prepare the authorization header
       //req.headers.authorization = generateAuthHeader("BITBOX")
 
-      for (let i = 0; i < 100; i++) {
+      for (let i = 0; i < 300; i++) {
         next.reset() // reset the stubbed next() function.
 
         await routeRateLimit(req, res, next)
