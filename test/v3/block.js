@@ -128,7 +128,7 @@ describe("#Block", () => {
 
     it("should GET /detailsByHash/:hash", async () => {
       req.params.hash =
-        "00000000000000645dec6503d3f5eafb0d2537a7a28f181d721dec7c44154c79"
+        "0000000000000000009ff8b38118d540e33c262bf6f78fc6863cc444526dc086"
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
@@ -183,7 +183,7 @@ describe("#Block", () => {
     it("should error on non-array single address", async () => {
       req.body = {
         hashes:
-          "00000000000000645dec6503d3f5eafb0d2537a7a28f181d721dec7c44154c79"
+          "0000000000000000009ff8b38118d540e33c262bf6f78fc6863cc444526dc086"
       }
 
       const result = await detailsByHashBulk(req, res)
@@ -250,7 +250,7 @@ describe("#Block", () => {
     it("should get details for a single hash", async () => {
       req.body = {
         hashes: [
-          "00000000000000645dec6503d3f5eafb0d2537a7a28f181d721dec7c44154c79"
+          "0000000000000000009ff8b38118d540e33c262bf6f78fc6863cc444526dc086"
         ]
       }
 
@@ -291,8 +291,8 @@ describe("#Block", () => {
     it("should get details for multiple hashes", async () => {
       req.body = {
         hashes: [
-          `00000000000000645dec6503d3f5eafb0d2537a7a28f181d721dec7c44154c79`,
-          `00000000c2b2c19cf499f57d5b0f724c6df753330d7acc7d4a8ebe412d427bd0`
+          `0000000000000000009ff8b38118d540e33c262bf6f78fc6863cc444526dc086`,
+          `0000000000000000009ff8b38118d540e33c262bf6f78fc6863cc444526dc086`
         ]
       }
 

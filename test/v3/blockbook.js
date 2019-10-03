@@ -117,7 +117,7 @@ describe("#Blockbook Router", () => {
     })
 
     it("should detect a network mismatch", async () => {
-      req.params.address = `bitcoincash:qqqvv56zepke5k0xeaehlmjtmkv9ly2uzgkxpajdx3`
+      req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
 
       const result = await balanceSingle(req, res)
 
@@ -148,7 +148,7 @@ describe("#Blockbook Router", () => {
     })
 
     it("should get balance for a single address", async () => {
-      req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
+      req.params.address = `bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf`
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
@@ -241,7 +241,7 @@ describe("#Blockbook Router", () => {
 
     it("should detect a network mismatch", async () => {
       req.body = {
-        addresses: [`bitcoincash:qqqvv56zepke5k0xeaehlmjtmkv9ly2uzgkxpajdx3`]
+        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
       }
 
       const result = await balanceBulk(req, res)
@@ -256,7 +256,7 @@ describe("#Blockbook Router", () => {
 
       try {
         req.body = {
-          addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
+          addresses: [`bitcoincash:qqqvv56zepke5k0xeaehlmjtmkv9ly2uzgkxpajdx3`]
         }
 
         // Switch the Insight URL to something that will error out.
@@ -283,7 +283,7 @@ describe("#Blockbook Router", () => {
 
     it("should get details for a single address", async () => {
       req.body = {
-        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
+        addresses: ["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]
       }
 
       // Mock the Insight URL for unit tests.
@@ -317,8 +317,8 @@ describe("#Blockbook Router", () => {
     it("should get details for multiple addresses", async () => {
       req.body = {
         addresses: [
-          `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`,
-          `bchtest:qzknfggae0av6yvxk77gmyq7syc67yux6sk80haqyr`
+          "bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf",
+          "bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"
         ]
       }
 
@@ -378,7 +378,7 @@ describe("#Blockbook Router", () => {
     })
 
     it("should detect a network mismatch", async () => {
-      req.params.address = `bitcoincash:qqqvv56zepke5k0xeaehlmjtmkv9ly2uzgkxpajdx3`
+      req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
 
       const result = await utxosSingle(req, res)
 
@@ -409,7 +409,8 @@ describe("#Blockbook Router", () => {
     })
 
     it("should get utxos for a single address", async () => {
-      req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
+      req.params.address =
+        "bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7"
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
@@ -496,7 +497,7 @@ describe("#Blockbook Router", () => {
 
     it("should detect a network mismatch", async () => {
       req.body = {
-        addresses: [`bitcoincash:qqqvv56zepke5k0xeaehlmjtmkv9ly2uzgkxpajdx3`]
+        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
       }
 
       const result = await utxosBulk(req, res)
@@ -511,7 +512,7 @@ describe("#Blockbook Router", () => {
 
       try {
         req.body = {
-          addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
+          addresses: [`bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf`]
         }
 
         // Switch the Insight URL to something that will error out.
@@ -538,7 +539,7 @@ describe("#Blockbook Router", () => {
 
     it("should get details for a single address", async () => {
       req.body = {
-        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
+        addresses: [`bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`]
       }
 
       // Mock the Insight URL for unit tests.
@@ -566,8 +567,8 @@ describe("#Blockbook Router", () => {
     it("should get details for multiple addresses", async () => {
       req.body = {
         addresses: [
-          `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`,
-          `bchtest:qzknfggae0av6yvxk77gmyq7syc67yux6sk80haqyr`
+          `bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf`,
+          `bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf`
         ]
       }
 
@@ -603,7 +604,7 @@ describe("#Blockbook Router", () => {
 
     it("should error on an array", async () => {
       req.params.txid = [
-        `5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392`
+        `6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d`
       ]
 
       const result = await txSingle(req, res)
@@ -630,7 +631,7 @@ describe("#Blockbook Router", () => {
       const savedUrl = process.env.BLOCKBOOK_URL
 
       try {
-        req.params.txid = `5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392`
+        req.params.txid = `6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d`
 
         // Switch the Insight URL to something that will error out.
         process.env.BLOCKBOOK_URL = "http://fakeurl/api/"
@@ -649,7 +650,7 @@ describe("#Blockbook Router", () => {
     })
 
     it("should get tx details for a single txid", async () => {
-      req.params.txid = `5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392`
+      req.params.txid = `6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d`
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
@@ -722,7 +723,7 @@ describe("#Blockbook Router", () => {
     })
 
     it("should error on non-array single address", async () => {
-      req.body.txids = `5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392`
+      req.body.txids = `6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d`
 
       const result = await txBulk(req, res)
 
@@ -797,10 +798,10 @@ describe("#Blockbook Router", () => {
       }
     })
 
-    it("should get details for a single address", async () => {
+    it("should get details for a single txid", async () => {
       req.body = {
         txids: [
-          `5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392`
+          `6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d`
         ]
       }
 
@@ -856,8 +857,8 @@ describe("#Blockbook Router", () => {
     it("should get details for multiple txid", async () => {
       req.body = {
         txids: [
-          `5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392`,
-          `5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392`
+          `6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d`,
+          `6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d`
         ]
       }
 
