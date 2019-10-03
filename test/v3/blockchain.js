@@ -272,15 +272,15 @@ describe("#BlockchainRouter", () => {
       }
 
       req.params.hash =
-        "00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900"
+        "000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0"
 
       const result = await getBlockHeader(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.isString(result)
       assert.equal(
         result,
-        "0000ff7f7d217c9b7845ea8b50d620c59a1bf7c276566406e9b7bc7e463e0000000000006d70322c0b697c1c81d2744f87f09f1e9780ba5d30338952e2cdc64e60456f8423bb0a5ceafa091a3e843526"
+        "000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c"
       )
     })
 
@@ -294,7 +294,7 @@ describe("#BlockchainRouter", () => {
 
       req.query.verbose = true
       req.params.hash =
-        "00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900"
+        "000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0"
 
       const result = await getBlockHeader(req, res)
       //console.log(`result: ${util.inspect(result)}`)
@@ -398,7 +398,7 @@ describe("#BlockchainRouter", () => {
 
     it("should get concise block header for a single hash", async () => {
       req.body.hashes = [
-        "00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900"
+        "000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0"
       ]
 
       // Mock the RPC call for unit tests.
@@ -410,20 +410,20 @@ describe("#BlockchainRouter", () => {
 
       // Call the details API.
       const result = await getBlockHeaderBulk(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Assert that required fields exist in the returned object.
       assert.isArray(result)
       assert.equal(
         result[0],
-        "0000ff7f7d217c9b7845ea8b50d620c59a1bf7c276566406e9b7bc7e463e0000000000006d70322c0b697c1c81d2744f87f09f1e9780ba5d30338952e2cdc64e60456f8423bb0a5ceafa091a3e843526"
+        "000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c"
       )
     })
 
     it("should get verbose block header for a single hash", async () => {
       req.body = {
         hashes: [
-          "00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900"
+          "000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0"
         ],
         verbose: true
       }
@@ -461,8 +461,8 @@ describe("#BlockchainRouter", () => {
 
     it("should get details for multiple block heights", async () => {
       req.body.hashes = [
-        "00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900",
-        "00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900"
+        "000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0",
+        "000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0"
       ]
 
       // Mock the RPC call for unit tests.
@@ -840,7 +840,7 @@ describe("#BlockchainRouter", () => {
           .reply(200, { result: mockData.mockTxOut })
       }
 
-      req.params.txid = `5747e6462e2c452a5d583fd6a5f82866cd8e4a86826c86d9a1842b7d023e0c0c`
+      req.params.txid = `2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266`
       req.params.n = 1
 
       const result = await getTxOut(req, res)
@@ -906,10 +906,10 @@ describe("#BlockchainRouter", () => {
           .reply(200, { result: mockData.mockTxOutProof })
       }
 
-      req.params.txid = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+      req.params.txid = `2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266`
 
       const result = await getTxOutProof(req, res)
-      //console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isString(result)
     })
@@ -968,7 +968,7 @@ describe("#BlockchainRouter", () => {
       }
 
       req.body.txids = [
-        `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+        `2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266`
       ]
 
       const result = await getTxOutProofBulk(req, res)
@@ -988,8 +988,8 @@ describe("#BlockchainRouter", () => {
       }
 
       req.body.txids = [
-        `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`,
-        `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+        `2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266`,
+        `2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266`
       ]
 
       const result = await getTxOutProofBulk(req, res)
@@ -1037,7 +1037,7 @@ describe("#BlockchainRouter", () => {
 
     it("should GET /verifyTxOutProof", async () => {
       const expected =
-        "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
+        "2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266"
 
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
@@ -1046,7 +1046,8 @@ describe("#BlockchainRouter", () => {
           .reply(200, { result: [expected] })
       }
 
-      req.params.proof = mockData.mockTxOutProof
+      req.params.proof =
+        "000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c1e000000067139f230701a2819a76795564bd2f67ded7eeae68596f368eddb3dd5bc54e59320e896f71d61cfc3ae3d4a90fca08b1aa35ba91256d8939d2cad11e638c0081f66724abdef55cf7b8b9fed064bce0369171434f8b289c1330ccef765f8e97a2c0d794d81aafb535855f7daa6bb51e40f77c6b59d7af7f62d0eb726a4fc4df82353d56fcbda7c7ea6bd935d61af8fb3b295637e6f323b10231135b3f10a034cfb238f635830c0595e52c6c31247cf677b555f7a287076e20cd0e1d3cc9af7260f02b700"
 
       const result = await verifyTxOutProof(req, res)
       //console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -1103,7 +1104,7 @@ describe("#BlockchainRouter", () => {
 
     it("should get single proof", async () => {
       const expected =
-        "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
+        "2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266"
 
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
@@ -1112,7 +1113,9 @@ describe("#BlockchainRouter", () => {
           .reply(200, { result: [expected] })
       }
 
-      req.body.proofs = [mockData.mockTxOutProof]
+      req.body.proofs = [
+        "000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c1e000000067139f230701a2819a76795564bd2f67ded7eeae68596f368eddb3dd5bc54e59320e896f71d61cfc3ae3d4a90fca08b1aa35ba91256d8939d2cad11e638c0081f66724abdef55cf7b8b9fed064bce0369171434f8b289c1330ccef765f8e97a2c0d794d81aafb535855f7daa6bb51e40f77c6b59d7af7f62d0eb726a4fc4df82353d56fcbda7c7ea6bd935d61af8fb3b295637e6f323b10231135b3f10a034cfb238f635830c0595e52c6c31247cf677b555f7a287076e20cd0e1d3cc9af7260f02b700"
+      ]
 
       const result = await verifyTxOutProofBulk(req, res)
       //console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -1124,7 +1127,7 @@ describe("#BlockchainRouter", () => {
 
     it("should get multiple proofs", async () => {
       const expected =
-        "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
+        "2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266"
 
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
@@ -1134,7 +1137,10 @@ describe("#BlockchainRouter", () => {
           .reply(200, { result: [expected] })
       }
 
-      req.body.proofs = [mockData.mockTxOutProof, mockData.mockTxOutProof]
+      req.body.proofs = [
+        "000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c1e000000067139f230701a2819a76795564bd2f67ded7eeae68596f368eddb3dd5bc54e59320e896f71d61cfc3ae3d4a90fca08b1aa35ba91256d8939d2cad11e638c0081f66724abdef55cf7b8b9fed064bce0369171434f8b289c1330ccef765f8e97a2c0d794d81aafb535855f7daa6bb51e40f77c6b59d7af7f62d0eb726a4fc4df82353d56fcbda7c7ea6bd935d61af8fb3b295637e6f323b10231135b3f10a034cfb238f635830c0595e52c6c31247cf677b555f7a287076e20cd0e1d3cc9af7260f02b700",
+        "000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c1e000000067139f230701a2819a76795564bd2f67ded7eeae68596f368eddb3dd5bc54e59320e896f71d61cfc3ae3d4a90fca08b1aa35ba91256d8939d2cad11e638c0081f66724abdef55cf7b8b9fed064bce0369171434f8b289c1330ccef765f8e97a2c0d794d81aafb535855f7daa6bb51e40f77c6b59d7af7f62d0eb726a4fc4df82353d56fcbda7c7ea6bd935d61af8fb3b295637e6f323b10231135b3f10a034cfb238f635830c0595e52c6c31247cf677b555f7a287076e20cd0e1d3cc9af7260f02b700"
+      ]
 
       const result = await verifyTxOutProofBulk(req, res)
       //console.log(`result: ${JSON.stringify(result, null, 2)}`)
