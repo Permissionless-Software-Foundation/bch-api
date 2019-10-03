@@ -189,7 +189,7 @@ describe("#SLP", () => {
       //assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
     })
 
-    it("should return 'not found' for mainnet txid on testnet", async () => {
+    it("should return 'not found' for testnet txid on mainnet", async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(mockServerUrl)
@@ -199,9 +199,9 @@ describe("#SLP", () => {
 
       req.params.tokenId =
         // testnet
-        //"650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a"
-        // mainnet
-        "259908ae44f46ef585edef4bcc1e50dc06e4c391ac4be929fae27235b8158cf1"
+        "d284e71227ec89f713b964d8eda595be6392bebd2fac46082bc5a9ce6fb7b33e"
+      // mainnet
+      //"259908ae44f46ef585edef4bcc1e50dc06e4c391ac4be929fae27235b8158cf1"
 
       const result = await listSingleToken(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -213,7 +213,7 @@ describe("#SLP", () => {
     it("should get token information", async () => {
       // testnet
       const tokenIdToTest =
-        "af8e10dd87e7092e5f0f3b9cf62e85e91f74395fbf22cd14f12bcdfbf1e8354f"
+        "38e97c5d7d3585a2cbf3f9580c82ca33985f9cb0845d4dcce220cb709f9538b0"
 
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
@@ -321,7 +321,7 @@ describe("#SLP", () => {
       //assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
     })
 
-    it("should return 'not found' for mainnet txid on testnet", async () => {
+    it("should return 'not found' for testnet txid on mainnet", async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(mockServerUrl)
@@ -331,9 +331,9 @@ describe("#SLP", () => {
 
       req.body.tokenIds =
         // testnet
-        //"650dea14c77f4d749608e36e375450c9ac91deb8b1b53e50cb0de2059a52d19a"
-        // mainnet
-        ["0b314bc2b2905b8844222871c6b665ae3494117c83b11302824561bb904efb6b"]
+        ["d284e71227ec89f713b964d8eda595be6392bebd2fac46082bc5a9ce6fb7b33e"]
+      // mainnet
+      // ["0b314bc2b2905b8844222871c6b665ae3494117c83b11302824561bb904efb6b"]
 
       const result = await listBulkToken(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -351,9 +351,9 @@ describe("#SLP", () => {
           .reply(200, mockData.mockSingleToken)
       }
 
-      req.body.tokenIds =
-        // testnet
-        ["af8e10dd87e7092e5f0f3b9cf62e85e91f74395fbf22cd14f12bcdfbf1e8354f"]
+      req.body.tokenIds = [
+        "38e97c5d7d3585a2cbf3f9580c82ca33985f9cb0845d4dcce220cb709f9538b0"
+      ]
 
       const result = await listBulkToken(req, res)
       //console.log(`result: ${util.inspect(result)}`)
@@ -392,12 +392,10 @@ describe("#SLP", () => {
           .reply(200, mockData.mockSingleToken)
       }
 
-      req.body.tokenIds =
-        // testnet
-        [
-          "af8e10dd87e7092e5f0f3b9cf62e85e91f74395fbf22cd14f12bcdfbf1e8354f",
-          "4902b6e8627f4c9a4fc5ebe1da19c8ae88526dbab877dfc9c74d23aaab2c7224"
-        ]
+      req.body.tokenIds = [
+        "38e97c5d7d3585a2cbf3f9580c82ca33985f9cb0845d4dcce220cb709f9538b0",
+        "38e97c5d7d3585a2cbf3f9580c82ca33985f9cb0845d4dcce220cb709f9538b0"
+      ]
 
       const result = await listBulkToken(req, res)
       //console.log(`result: ${util.inspect(result)}`)
@@ -450,8 +448,7 @@ describe("#SLP", () => {
     })
 
     it("should throw 400 if address network mismatch", async () => {
-      req.params.address =
-        "simpleledger:qr5agtachyxvrwxu76vzszan5pnvuzy8duhv4lxrsk"
+      req.params.address = "slptest:qzcvpw3ah7r880d49wsqzrsl90pg0rqjjurmj3g4nk"
 
       const result = await balancesForAddress(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -467,7 +464,8 @@ describe("#SLP", () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.SLPDB_URL = "http://fakeurl/api/"
 
-      req.params.address = "slptest:qz35h5mfa8w2pqma2jq06lp7dnv5fxkp2shlcycvd5"
+      req.params.address =
+        "simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn"
 
       const result = await balancesForAddress(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -496,7 +494,8 @@ describe("#SLP", () => {
           .reply(200, mockData.mockSingleAddress)
       }
 
-      req.params.address = "slptest:qz80hhc6eucgauzmcfjzglccspdqfpl0fqx7x3lshs"
+      req.params.address =
+        "simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn"
 
       const result = await balancesForAddress(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -535,7 +534,7 @@ describe("#SLP", () => {
 
     it("should throw 400 if address network mismatch", async () => {
       req.body.addresses = [
-        "simpleledger:qr5agtachyxvrwxu76vzszan5pnvuzy8duhv4lxrsk"
+        "slptest:qzcvpw3ah7r880d49wsqzrsl90pg0rqjjurmj3g4nk"
       ]
 
       const result = await balancesForAddressBulk(req, res)
@@ -553,7 +552,7 @@ describe("#SLP", () => {
       process.env.SLPDB_URL = "http://fakeurl/api/"
 
       req.body.addresses = [
-        "slptest:qz35h5mfa8w2pqma2jq06lp7dnv5fxkp2shlcycvd5"
+        "simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn"
       ]
 
       const result = await balancesForAddressBulk(req, res)
@@ -578,7 +577,7 @@ describe("#SLP", () => {
     if (process.env.TEST !== "unit") {
       it("should get token balance for an address", async () => {
         req.body.addresses = [
-          "slptest:qz80hhc6eucgauzmcfjzglccspdqfpl0fqx7x3lshs"
+          "simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn"
         ]
 
         const result = await balancesForAddressBulk(req, res)
@@ -636,8 +635,7 @@ describe("#SLP", () => {
     })
 
     it("should throw 400 if address network mismatch", async () => {
-      req.params.address =
-        "simpleledger:qr5agtachyxvrwxu76vzszan5pnvuzy8duhv4lxrsk"
+      req.params.address = "slptest:qzcvpw3ah7r880d49wsqzrsl90pg0rqjjurmj3g4nk"
 
       const result = await balancesForAddressByTokenID(req, res)
       //console.log(`result: ${util.inspect(result)}`)
@@ -653,9 +651,10 @@ describe("#SLP", () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.SLPDB_URL = "http://fakeurl/api/"
 
-      req.params.address = "slptest:qz4qnxcxwvmacgye8wlakhz0835x0w3vtvxu67w0ac"
+      req.params.address =
+        "simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn"
       req.params.tokenId =
-        "7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796"
+        "497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7"
 
       const result = await balancesForAddressByTokenID(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -683,9 +682,10 @@ describe("#SLP", () => {
           .reply(200, mockData.mockSingleAddress)
       }
 
-      req.params.address = "slptest:pz0qcslrqn7hr44hsszwl4lw5r6udkg6zqv7sq3kk7"
+      req.params.address =
+        "simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn"
       req.params.tokenId =
-        "6b081fcd1f78b187be1464313dac8ff257251b727a42b613552a4040870aeb29"
+        "497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7"
 
       const result = await balancesForAddressByTokenID(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -717,7 +717,8 @@ describe("#SLP", () => {
           .reply(200, { result: mockData.mockConvert })
       }
 
-      req.params.address = "slptest:qz35h5mfa8w2pqma2jq06lp7dnv5fxkp2shlcycvd5"
+      req.params.address =
+        "simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn"
 
       const result = await convertAddressSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -836,7 +837,7 @@ describe("#SLP", () => {
       }
 
       req.body.txids = [
-        "78d57a82a0dd9930cc17843d9d06677f267777dd6b25055bad0ae43f1b884091"
+        "77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d"
       ]
 
       const result = await validateBulk(req, res)
@@ -855,8 +856,8 @@ describe("#SLP", () => {
       }
 
       req.body.txids = [
-        "78d57a82a0dd9930cc17843d9d06677f267777dd6b25055bad0ae43f1b884091",
-        "82d996847a861b08b1601284ef7d40a1777d019154a6c4ed11571609dd3555ac"
+        "77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d",
+        "77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d"
       ]
 
       const result = await validateBulk(req, res)
@@ -896,7 +897,7 @@ describe("#SLP", () => {
       }
 
       req.params.tokenId =
-        "37279c7dc81ceb34d12f03344b601c582e931e05d0e552c29c428bfa39d39af3"
+        "497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7"
 
       const result = await tokenStatsSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -937,7 +938,7 @@ describe("#SLP", () => {
       assert.hasAllKeys(result, ["error"])
       assert.include(result.error, "tokenId can not be empty")
     })
-    //
+
     it("should get balances for tokenId", async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
@@ -949,7 +950,7 @@ describe("#SLP", () => {
       }
 
       req.params.tokenId =
-        "37279c7dc81ceb34d12f03344b601c582e931e05d0e552c29c428bfa39d39af3"
+        "497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7"
 
       const result = await balancesForTokenSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -1002,7 +1003,7 @@ describe("#SLP", () => {
       }
 
       req.params.txid =
-        "57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b9457822d446"
+        "497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7"
 
       const result = await txDetails(req, res)
       //console.log(`result: ${JSON.stringify(result, null, 2)}`)
