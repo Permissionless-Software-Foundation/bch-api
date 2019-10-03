@@ -143,7 +143,7 @@ describe("#Insight Address", () => {
 
     it("should detect a network mismatch", async () => {
       req.body = {
-        addresses: [`bitcoincash:qqqvv56zepke5k0xeaehlmjtmkv9ly2uzgkxpajdx3`]
+        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
       }
 
       const result = await detailsBulk(req, res)
@@ -185,7 +185,7 @@ describe("#Insight Address", () => {
 
     it("should default to page 0", async () => {
       req.body = {
-        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
+        addresses: [`bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`]
       }
 
       // Mock the Insight URL for unit tests.
@@ -205,7 +205,7 @@ describe("#Insight Address", () => {
 
     it("should process the requested page", async () => {
       req.body = {
-        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`],
+        addresses: [`bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`],
         page: 5
       }
 
@@ -226,7 +226,7 @@ describe("#Insight Address", () => {
 
     it("should calculate the total number of pages", async () => {
       req.body = {
-        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
+        addresses: [`bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`]
       }
 
       // Mock the Insight URL for unit tests.
@@ -245,7 +245,7 @@ describe("#Insight Address", () => {
 
     it("should get details for a single address", async () => {
       req.body = {
-        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
+        addresses: [`bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`]
       }
 
       // Mock the Insight URL for unit tests.
@@ -283,8 +283,8 @@ describe("#Insight Address", () => {
     it("should get details for multiple addresses", async () => {
       req.body = {
         addresses: [
-          `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`,
-          `bchtest:qzknfggae0av6yvxk77gmyq7syc67yux6sk80haqyr`
+          `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`,
+          `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`
         ]
       }
 
@@ -344,7 +344,7 @@ describe("#Insight Address", () => {
     })
 
     it("should detect a network mismatch", async () => {
-      req.params.address = `bitcoincash:qqqvv56zepke5k0xeaehlmjtmkv9ly2uzgkxpajdx3`
+      req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
 
       const result = await detailsSingle(req, res)
 
@@ -375,7 +375,7 @@ describe("#Insight Address", () => {
     })
 
     it("should default to page 0", async () => {
-      req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
+      req.params.address = `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
@@ -393,7 +393,7 @@ describe("#Insight Address", () => {
     })
 
     it("should process the requested page", async () => {
-      req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
+      req.params.address = `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`
       req.query.page = 5
 
       // Mock the Insight URL for unit tests.
@@ -411,7 +411,7 @@ describe("#Insight Address", () => {
     })
 
     it("should calculate the total number of pages", async () => {
-      req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
+      req.params.address = `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
@@ -427,7 +427,7 @@ describe("#Insight Address", () => {
     })
 
     it("should get details for a single address", async () => {
-      req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
+      req.params.address = `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
@@ -510,7 +510,7 @@ describe("#Insight Address", () => {
 
     it("should detect a network mismatch", async () => {
       req.body = {
-        addresses: [`bitcoincash:qqqvv56zepke5k0xeaehlmjtmkv9ly2uzgkxpajdx3`]
+        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
       }
 
       const result = await utxoBulk(req, res)
@@ -545,7 +545,7 @@ describe("#Insight Address", () => {
 
     it("should get utxos for a single address", async () => {
       req.body = {
-        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
+        addresses: [`bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`]
       }
 
       // Mock the Insight URL for unit tests.
@@ -583,8 +583,8 @@ describe("#Insight Address", () => {
     it("should get utxos for mulitple addresses", async () => {
       req.body = {
         addresses: [
-          `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`,
-          `bchtest:qzknfggae0av6yvxk77gmyq7syc67yux6sk80haqyr`
+          `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`,
+          `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`
         ]
       }
 
@@ -657,7 +657,7 @@ describe("#Insight Address", () => {
     })
 
     it("should detect a network mismatch", async () => {
-      req.params.address = `bitcoincash:qqqvv56zepke5k0xeaehlmjtmkv9ly2uzgkxpajdx3`
+      req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
 
       const result = await utxoSingle(req, res)
 
@@ -669,7 +669,7 @@ describe("#Insight Address", () => {
       const savedUrl = process.env.BITCOINCOM_BASEURL
 
       try {
-        req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
+        req.params.address = `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`
 
         // Switch the Insight URL to something that will error out.
         process.env.BITCOINCOM_BASEURL = "http://fakeurl/api/"
@@ -688,7 +688,7 @@ describe("#Insight Address", () => {
     })
 
     it("should get details for a single address", async () => {
-      req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
+      req.params.address = `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
@@ -740,7 +740,7 @@ describe("#Insight Address", () => {
 
     it("should error on non-array single address", async () => {
       req.body = {
-        address: `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
+        address: `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`
       }
 
       const result = await unconfirmedBulk(req, res)
@@ -783,7 +783,7 @@ describe("#Insight Address", () => {
 
     it("should detect a network mismatch", async () => {
       req.body = {
-        addresses: [`bitcoincash:qqqvv56zepke5k0xeaehlmjtmkv9ly2uzgkxpajdx3`]
+        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
       }
 
       const result = await unconfirmedBulk(req, res)
@@ -818,7 +818,7 @@ describe("#Insight Address", () => {
 
     it("should get unconfirmed data for a single address", async () => {
       req.body = {
-        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
+        addresses: [`bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`]
       }
 
       // Mock the Insight URL for unit tests.
@@ -843,8 +843,8 @@ describe("#Insight Address", () => {
     it("should get unconfirmed data for an array of addresses", async () => {
       req.body = {
         addresses: [
-          `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`,
-          `bchtest:qzknfggae0av6yvxk77gmyq7syc67yux6sk80haqyr`
+          `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`,
+          `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`
         ]
       }
 
@@ -905,7 +905,7 @@ describe("#Insight Address", () => {
     })
 
     it("should detect a network mismatch", async () => {
-      req.params.address = `bitcoincash:qqqvv56zepke5k0xeaehlmjtmkv9ly2uzgkxpajdx3`
+      req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
 
       const result = await unconfirmedSingle(req, res)
 
@@ -936,7 +936,7 @@ describe("#Insight Address", () => {
     })
 
     it("should get details for a single address", async () => {
-      req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
+      req.params.address = `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
@@ -1023,7 +1023,7 @@ describe("#Insight Address", () => {
 
     it("should detect a network mismatch", async () => {
       req.body = {
-        addresses: [`bitcoincash:qqqvv56zepke5k0xeaehlmjtmkv9ly2uzgkxpajdx3`]
+        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
       }
 
       const result = await transactionsBulk(req, res)
@@ -1058,7 +1058,7 @@ describe("#Insight Address", () => {
 
     it("should default to page 0", async () => {
       req.body = {
-        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
+        addresses: [`bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`]
       }
 
       // Mock the Insight URL for unit tests.
@@ -1077,7 +1077,7 @@ describe("#Insight Address", () => {
 
     it("should process the requested page", async () => {
       req.body = {
-        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`],
+        addresses: [`bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`],
         page: 5
       }
 
@@ -1097,7 +1097,7 @@ describe("#Insight Address", () => {
 
     it("should get transactions for a single address", async () => {
       req.body = {
-        addresses: [`bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`]
+        addresses: [`bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`]
       }
 
       // Mock the Insight URL for unit tests.
@@ -1123,8 +1123,8 @@ describe("#Insight Address", () => {
     it("should get transactions for an array of addresses", async () => {
       req.body = {
         addresses: [
-          `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`,
-          `bchtest:qzknfggae0av6yvxk77gmyq7syc67yux6sk80haqyr`
+          `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`,
+          `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`
         ]
       }
 
@@ -1185,7 +1185,7 @@ describe("#Insight Address", () => {
     })
 
     it("should detect a network mismatch", async () => {
-      req.params.address = `bitcoincash:qqqvv56zepke5k0xeaehlmjtmkv9ly2uzgkxpajdx3`
+      req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
 
       const result = await transactionsSingle(req, res)
 
@@ -1216,7 +1216,7 @@ describe("#Insight Address", () => {
     })
 
     it("should default to page 0", async () => {
-      req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
+      req.params.address = `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
@@ -1233,7 +1233,7 @@ describe("#Insight Address", () => {
     })
 
     it("should process the requested page", async () => {
-      req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
+      req.params.address = `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`
       req.query.page = 5
 
       // Mock the Insight URL for unit tests.
@@ -1251,7 +1251,7 @@ describe("#Insight Address", () => {
     })
 
     it("should get details for a single address", async () => {
-      req.params.address = `bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4`
+      req.params.address = `bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7`
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
