@@ -16,13 +16,32 @@ const assert = chai.assert
 const nock = require("nock") // HTTP mocking
 const sinon = require("sinon")
 const proxyquire = require("proxyquire").noPreserveCache()
+const axios = require("axios")
+
+// Save existing environment variables.
+// Used during transition from integration to unit tests.
+let originalEnvVars, mockServerUrl
+originalEnvVars = {
+  BITDB_URL: process.env.BITDB_URL,
+  BITCOINCOM_BASEURL: process.env.BITCOINCOM_BASEURL,
+  SLPDB_URL: process.env.SLPDB_URL
+}
+
+// Set default environment variables for unit tests.
+if (!process.env.TEST) process.env.TEST = "unit"
+
+// Block network connections for unit tests.
+if (process.env.TEST === "unit") {
+  process.env.BITDB_URL = "http://fakeurl/"
+  process.env.BITCOINCOM_BASEURL = "http://fakeurl/"
+  process.env.SLPDB_URL = "http://fakeurl/"
+  mockServerUrl = `http://fakeurl`
+}
 
 // Prepare the slpRoute for stubbing dependcies on slpjs.
 const slpRoute = require("../../src/routes/v3/slp")
 const pathStub = {} // Used to stub methods within slpjs.
 const slpRouteStub = proxyquire("../../src/routes/v3/slp", { slpjs: pathStub })
-
-let originalEnvVars // Used during transition from integration to unit tests.
 
 // Mocking data.
 const { mockReq, mockRes } = require("./mocks/express-mocks")
@@ -34,28 +53,10 @@ const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
 describe("#SLP", () => {
-  let req, res, mockServerUrl
+  let req, res
   let sandbox
 
-  before(() => {
-    // Save existing environment variables.
-    originalEnvVars = {
-      BITDB_URL: process.env.BITDB_URL,
-      BITCOINCOM_BASEURL: process.env.BITCOINCOM_BASEURL,
-      SLPDB_URL: process.env.SLPDB_URL
-    }
-
-    // Set default environment variables for unit tests.
-    if (!process.env.TEST) process.env.TEST = "unit"
-
-    // Block network connections for unit tests.
-    if (process.env.TEST === "unit") {
-      process.env.BITDB_URL = "http://fakeurl/"
-      process.env.BITCOINCOM_BASEURL = "http://fakeurl/"
-      process.env.SLPDB_URL = "http://fakeurl/"
-      mockServerUrl = `http://fakeurl`
-    }
-  })
+  before(() => {})
 
   // Setup the mocks before each test.
   beforeEach(() => {
@@ -215,11 +216,14 @@ describe("#SLP", () => {
       const tokenIdToTest =
         "38e97c5d7d3585a2cbf3f9580c82ca33985f9cb0845d4dcce220cb709f9538b0"
 
+      // console.log(`mockServerUrl: ${mockServerUrl}`)
+
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(mockServerUrl)
           .get(uri => uri.includes("/"))
           .reply(200, mockData.mockSingleToken)
+        // sandbox.stub(axios, "get").resolves(mockData.mockSingleToken)
       }
 
       req.params.tokenId = tokenIdToTest

@@ -12,10 +12,20 @@
 
 const chai = require("chai")
 const assert = chai.assert
-const blockbookRoute = require("../../src/routes/v3/blockbook")
 const nock = require("nock") // HTTP mocking
 
-let originalUrl // Used during transition from integration to unit tests.
+let originalUrl, mockServerUrl // Used during transition from integration to unit tests.
+originalUrl = process.env.BLOCKBOOK_URL
+
+// Set default environment variables for unit tests.
+if (!process.env.TEST) process.env.TEST = "unit"
+if (process.env.TEST === "unit") {
+  process.env.BLOCKBOOK_URL = "http://fakeurl/api/"
+  mockServerUrl = `http://fakeurl`
+}
+
+// Only load blockbook library after setting BLOCKBOOK_URL env var.
+const blockbookRoute = require("../../src/routes/v3/blockbook")
 
 // Mocking data.
 const { mockReq, mockRes } = require("./mocks/express-mocks")
@@ -26,17 +36,9 @@ const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
 describe("#Blockbook Router", () => {
-  let req, res, mockServerUrl
+  let req, res
 
   before(() => {
-    originalUrl = process.env.BLOCKBOOK_URL
-
-    // Set default environment variables for unit tests.
-    if (!process.env.TEST) process.env.TEST = "unit"
-    if (process.env.TEST === "unit") {
-      process.env.BLOCKBOOK_URL = "http://fakeurl/api/"
-      mockServerUrl = `http://fakeurl`
-    }
     // console.log(`Testing type is: ${process.env.TEST}`)
 
     if (!process.env.NETWORK) process.env.NETWORK = "testnet"
@@ -149,6 +151,8 @@ describe("#Blockbook Router", () => {
 
     it("should get balance for a single address", async () => {
       req.params.address = `bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf`
+
+      // console.log(`process.env.BLOCKBOOK_URL: ${process.env.BLOCKBOOK_URL}`)
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {

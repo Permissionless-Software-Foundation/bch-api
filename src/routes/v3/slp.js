@@ -400,6 +400,8 @@ async function lookupToken(tokenId) {
     const b64 = Buffer.from(s).toString("base64")
     const url = `${process.env.SLPDB_URL}q/${b64}`
 
+    // console.log(`url: ${url}`)
+
     const tokenRes = await axios.get(url)
     //console.log(`tokenRes.data: ${util.inspect(tokenRes.data,null,2)}`)
     //console.log(
