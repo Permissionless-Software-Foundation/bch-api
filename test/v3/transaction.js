@@ -145,7 +145,7 @@ describe("#Transactions", () => {
     })
 
     it("should process a single txid", async () => {
-      const txid = `6f235bd3a689f03c11969cd649ccad592462ca958bc519a30194e7a67b349a40`
+      const txid = `2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266`
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
@@ -181,8 +181,8 @@ describe("#Transactions", () => {
     })
 
     it("should process a multiple txids", async () => {
-      const txid1 = `6f235bd3a689f03c11969cd649ccad592462ca958bc519a30194e7a67b349a40`
-      const txid2 = `8d4fd4dcaa9d8051dc7d862dc23d8aa23e20b77b9c928c49380685459caa7043`
+      const txid1 = `2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266`
+      const txid2 = `2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266`
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
@@ -294,8 +294,8 @@ describe("#Transactions", () => {
       }
     })
 
-    it("should get details for a single address", async () => {
-      const txid = `6f235bd3a689f03c11969cd649ccad592462ca958bc519a30194e7a67b349a40`
+    it("should get details for a single txid", async () => {
+      const txid = `2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266`
       req.params.txid = txid
 
       // Mock the Insight URL for unit tests.

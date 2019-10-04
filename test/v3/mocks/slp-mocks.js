@@ -35,7 +35,7 @@ const mockSingleToken = {
       tokenDetails: {
         decimals: 0,
         tokenIdHex:
-          "af8e10dd87e7092e5f0f3b9cf62e85e91f74395fbf22cd14f12bcdfbf1e8354f",
+          "38e97c5d7d3585a2cbf3f9580c82ca33985f9cb0845d4dcce220cb709f9538b0",
         timestamp: "2019-06-14 06:31:37",
         timestamp_unix: 1560493897,
         transactionType: "GENESIS",

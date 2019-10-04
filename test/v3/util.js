@@ -131,12 +131,12 @@ describe("#Util", () => {
           .reply(200, { result: mockData.mockAddress })
       }
 
-      req.params.address = `bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y`
+      req.params.address = `bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd`
 
       const result = await validateAddress(req, res)
       //console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, [
+      assert.hasAnyKeys(result, [
         "isvalid",
         "address",
         "scriptPubKey",
@@ -206,7 +206,7 @@ describe("#Util", () => {
 
     it("should error on mainnet address when using testnet", async () => {
       req.body = {
-        addresses: [`bitcoincash:qrcc3jsqpgwqcdru70sk54sd0g3l04q7c53ycm6ucj`]
+        addresses: [`bchtest:qrls6vzjkkxlds7aqv9075u0fttwc7u9jvczn5fdt9`]
       }
 
       const result = await validateAddressBulk(req, res)
@@ -227,7 +227,7 @@ describe("#Util", () => {
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
       req.body.addresses = [
-        `bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y`
+        `bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd`
       ]
 
       const result = await validateAddressBulk(req, res)
@@ -252,14 +252,14 @@ describe("#Util", () => {
       }
 
       req.body.addresses = [
-        `bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y`
+        `bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd`
       ]
 
       const result = await validateAddressBulk(req, res)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
-      assert.hasAllKeys(result[0], [
+      assert.hasAnyKeys(result[0], [
         "isvalid",
         "address",
         "scriptPubKey",
@@ -279,15 +279,15 @@ describe("#Util", () => {
       }
 
       req.body.addresses = [
-        `bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y`,
-        `bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y`
+        `bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd`,
+        `bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd`
       ]
 
       const result = await validateAddressBulk(req, res)
       //console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
-      assert.hasAllKeys(result[0], [
+      assert.hasAnyKeys(result[0], [
         "isvalid",
         "address",
         "scriptPubKey",

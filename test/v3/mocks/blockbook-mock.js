@@ -8,7 +8,7 @@ const mockBalance = {
   page: 1,
   totalPages: 1,
   itemsOnPage: 1000,
-  address: "bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4",
+  address: "bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf",
   balance: "10000000",
   totalReceived: "10000000",
   totalSent: "0",
