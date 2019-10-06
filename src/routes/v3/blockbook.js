@@ -247,10 +247,11 @@ async function utxosFromBlockbook(thisAddress) {
     // Query the Blockbook API.
     const axiosResponse = await axios.get(path)
     const retData = axiosResponse.data
-    //console.log(`retData: ${util.inspect(retData)}`)
+    // console.log(`retData: ${util.inspect(retData)}`)
 
-    // Add the satoshis property.
-    retData.satoshis = Number(retData.value)
+    // Add the satoshis property to each UTXO.
+    for (let i = 0; i < retData.length; i++)
+      retData[i].satoshis = Number(retData[i].value)
 
     return retData
   } catch (err) {
@@ -261,14 +262,14 @@ async function utxosFromBlockbook(thisAddress) {
 }
 
 /**
- * @api {get} /blockbook/utxo/{addr} Get utxos for a single address.
+ * @api {get} /blockbook/utxos/{addr} Get utxos for a single address.
  * @apiName UTXOs for a single address
  * @apiGroup Blockbook
  * @apiDescription Returns an object with UTXOs associated with an address.
  *
  *
  * @apiExample Example usage:
- * curl -X GET "https://mainnet.bchjs.cash/v3/blockbook/utxo/bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/blockbook/utxos/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
  *
  */
 // GET handler for single balance
@@ -336,14 +337,14 @@ async function utxosSingle(req, res, next) {
 }
 
 /**
- * @api {post} /blockbook/utxo Get UTXOs for an array of addresses.
+ * @api {post} /blockbook/utxos Get UTXOs for an array of addresses.
  * @apiName  UTXOs for an array of addresses
  * @apiGroup Blockbook
  * @apiDescription Return UTXOs associate with an array of addresses.
  * Limited to 20 items per request.
  *
  * @apiExample Example usage:
- * curl -X POST "https://mainnet.bchjs.cash/v3/blockbook/balance" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
+ * curl -X POST "https://mainnet.bchjs.cash/v3/blockbook/utxos" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3","bitcoincash:qzy8wnj0dz927eu6kvh8v2pqsr5w8jh33ys757tdtq"]}'
  *
  *
  */
