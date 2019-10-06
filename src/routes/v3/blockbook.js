@@ -226,6 +226,9 @@ async function utxosFromBlockbook(thisAddress) {
     const retData = axiosResponse.data
     //console.log(`retData: ${util.inspect(retData)}`)
 
+    // Add the satoshis property.
+    retData.satoshis = Number(retData.value)
+
     return retData
   } catch (err) {
     // Dev Note: Do not log error messages here. Throw them instead and let the
