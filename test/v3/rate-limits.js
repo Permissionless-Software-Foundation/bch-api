@@ -64,7 +64,7 @@ describe("#route-ratelimits", () => {
       req.path = "/control/getNetworkInfo"
       req.method = "GET"
 
-      for (let i = 0; i < 25; i++) {
+      for (let i = 0; i < 35; i++) {
         next.reset() // reset the stubbed next() function.
 
         await routeRateLimit(req, res, next)
@@ -134,7 +134,7 @@ describe("#route-ratelimits", () => {
       // Prepare the authorization header
       //req.headers.authorization = generateAuthHeader("BITBOX")
 
-      for (let i = 0; i < 300; i++) {
+      for (let i = 0; i < 400; i++) {
         next.reset() // reset the stubbed next() function.
 
         await routeRateLimit(req, res, next)
