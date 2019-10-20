@@ -21,7 +21,6 @@
 const passport = require("passport")
 const BasicStrategy = require("passport-http").BasicStrategy
 const AnonymousStrategy = require("passport-anonymous")
-const LocalStrategy = require("passport-local")
 const wlogger = require("../util/winston-logging")
 const axios = require("axios")
 
@@ -96,40 +95,6 @@ class AuthMW {
 
         return done(null, true)
       })
-    )
-
-    // JWT token based authentication.
-    passport.use(
-      new LocalStrategy(
-        {
-          usernameField: "user[email]",
-          passwordField: "user[password]",
-          passReqToCallback: true,
-          session: false
-        },
-        async (req, email, password, done) => {
-          console.log(`Checking against local strategy.`)
-
-          const userData = {}
-          const isValid = true
-
-          // Lookup the user from the database.
-          // const userData = await userDB.findByEmail(email)
-          //console.log(`userData: ${util.inspect(userDataRaw)}`)
-
-          // Hash the password and see if it matches the saved hash.
-          // const isValid = jwt.validatePassword(userData, password)
-
-          if (isValid) {
-            //console.log(`Passwords match!`)
-            return done(null, userData)
-          }
-
-          return done(null, false, {
-            errors: { "email or password": "is invalid" }
-          })
-        }
-      )
     )
   }
 

@@ -42,7 +42,6 @@
     "passport": "^0.4.0",
     "passport-anonymous": "^1.0.1",
     "passport-http": "^0.3.0",
-    "passport-local": "^1.0.0",
     "pg": "^7.11.0",
     "pg-hstore": "^2.3.2",
     "slp-sdk": "^4.4.1",
