@@ -11,11 +11,12 @@
 
 const express = require("express")
 const RateLimit = require("express-rate-limit")
+const axios = require("axios")
 
 // Set max requests per minute
 const maxRequests = process.env.RATE_LIMIT_MAX_REQUESTS
   ? parseInt(process.env.RATE_LIMIT_MAX_REQUESTS)
-  : 30
+  : 10
 
 // Pro-tier rate limits are 10x the freemium limits.
 const PRO_RPM = 10 * maxRequests
@@ -23,29 +24,38 @@ const PRO_RPM = 10 * maxRequests
 // Unique route mapped to its rate limit
 const uniqueRateLimits = {}
 
-const routeRateLimit = function(req, res, next) {
+const routeRateLimit = async function(req, res, next) {
   // Disable rate limiting if 0 passed from RATE_LIMIT_MAX_REQUESTS
   if (maxRequests === 0) return next()
 
   // Create a res.locals object if not passed in.
   if (!req.locals) req.locals = {}
 
-  if (req.locals.jwtToken)
-    console.log(`req.locals.jwtToken: ${req.locals.jwtToken}`)
+  // Warn if JWT_AUTH_SERVER env var is not set.
+  const authServer = process.env.JWT_AUTH_SERVER
+  if (!authServer || authServer === "") {
+    console.warn(
+      "JWT_AUTH_SERVER env var is not set. JWT tokens not being evaluated."
+    )
+  } else {
+    // If a JWT token is passed in, validate it and enable pro-tier rate limits
+    // if it's valid.
+    if (req.locals.jwtToken) {
+      // console.log(`req.locals.jwtToken: ${req.locals.jwtToken}`)
 
-  // If no JWT token was provided, skip
-  if (req.payload)
-    console.log(`req.payload: ${JSON.stringify(req.payload, null, 2)}`)
-  // // Unlock the pro-tier rate limits if the user passed in a valid JWT token.
-  // if (!proRateLimits) {
-  //   const user = await getUserFromJWT(req)
-  //
-  //   // Enable pro-tier rate limits for this user.
-  //   if(user) {
-  //     console.log(`${user.email} (${user.id}) passed in valid JWT`)
-  //     proRateLimits = true
-  //   }
-  // }
+      const path = `${authServer}apitoken/isvalid/${req.locals.jwtToken}`
+
+      let isValidJwt = await axios.get(path)
+      isValidJwt = isValidJwt.data
+      // console.log(`isValidJwt: ${JSON.stringify(isValidJwt, null, 2)}`)
+
+      // Enable pro-tier rate limits if JWT if valid.
+      if (isValidJwt) {
+        // console.log(`JWT is valid. Enabling pro-tier rate limits.`)
+        req.locals.proLimit = true
+      }
+    }
+  }
 
   // Current route
   const rateLimitTier = req.locals.proLimit ? "PRO" : "BASIC"
