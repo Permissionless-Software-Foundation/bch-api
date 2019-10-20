@@ -15,7 +15,10 @@ const helmet = require("helmet")
 const debug = require("debug")("rest-cloud:server")
 const http = require("http")
 const cors = require("cors")
+
+// Auth and rate limiting middleware libraries.
 const AuthMW = require("./middleware/auth")
+const jwtAuth = require("./middleware/jwt-auth")
 
 // v2
 const indexV2 = require("./routes/v2/index")
@@ -87,6 +90,9 @@ app.use(express.static(path.join(__dirname, "public")))
 
 const v2prefix = "v2"
 const v3prefix = "v3"
+
+// Inspect the header for a JWT token.
+app.use(`/${v3prefix}/`, jwtAuth.getTokenFromHeaders)
 
 // Instantiate the authorization middleware, used to implement pro-tier rate limiting.
 const auth = new AuthMW()

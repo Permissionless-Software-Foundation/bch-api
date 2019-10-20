@@ -24,11 +24,28 @@ const PRO_RPM = 10 * maxRequests
 const uniqueRateLimits = {}
 
 const routeRateLimit = function(req, res, next) {
+  // Disable rate limiting if 0 passed from RATE_LIMIT_MAX_REQUESTS
+  if (maxRequests === 0) return next()
+
   // Create a res.locals object if not passed in.
   if (!req.locals) req.locals = {}
 
-  // Disable rate limiting if 0 passed from RATE_LIMIT_MAX_REQUESTS
-  if (maxRequests === 0) return next()
+  if (req.locals.jwtToken)
+    console.log(`req.locals.jwtToken: ${req.locals.jwtToken}`)
+
+  // If no JWT token was provided, skip
+  if (req.payload)
+    console.log(`req.payload: ${JSON.stringify(req.payload, null, 2)}`)
+  // // Unlock the pro-tier rate limits if the user passed in a valid JWT token.
+  // if (!proRateLimits) {
+  //   const user = await getUserFromJWT(req)
+  //
+  //   // Enable pro-tier rate limits for this user.
+  //   if(user) {
+  //     console.log(`${user.email} (${user.id}) passed in valid JWT`)
+  //     proRateLimits = true
+  //   }
+  // }
 
   // Current route
   const rateLimitTier = req.locals.proLimit ? "PRO" : "BASIC"

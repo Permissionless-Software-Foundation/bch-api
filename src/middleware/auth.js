@@ -1,6 +1,13 @@
 /*
   Handle authorization for bypassing rate limits.
 
+  1) Default is 'Anonymous Authentication', which unlocks the freemimum tier by
+  default.
+  2) Hard-coded 'Basic Authentication' is a token that does not expire and is
+  provided to buisiness partners.
+  3) JWT-based 'Local Authentication' is used for normal users that pay to
+  access the premium pro-tier services.
+
   This file uses the passport npm library to check the header of each REST API
   call for the prescence of a Basic authorization header:
   https://en.wikipedia.org/wiki/Basic_access_authentication
@@ -14,7 +21,9 @@
 const passport = require("passport")
 const BasicStrategy = require("passport-http").BasicStrategy
 const AnonymousStrategy = require("passport-anonymous")
+const LocalStrategy = require("passport-local")
 const wlogger = require("../util/winston-logging")
+const axios = require("axios")
 
 // Used for debugging and iterrogating JS objects.
 const util = require("util")
@@ -87,6 +96,40 @@ class AuthMW {
 
         return done(null, true)
       })
+    )
+
+    // JWT token based authentication.
+    passport.use(
+      new LocalStrategy(
+        {
+          usernameField: "user[email]",
+          passwordField: "user[password]",
+          passReqToCallback: true,
+          session: false
+        },
+        async (req, email, password, done) => {
+          console.log(`Checking against local strategy.`)
+
+          const userData = {}
+          const isValid = true
+
+          // Lookup the user from the database.
+          // const userData = await userDB.findByEmail(email)
+          //console.log(`userData: ${util.inspect(userDataRaw)}`)
+
+          // Hash the password and see if it matches the saved hash.
+          // const isValid = jwt.validatePassword(userData, password)
+
+          if (isValid) {
+            //console.log(`Passwords match!`)
+            return done(null, userData)
+          }
+
+          return done(null, false, {
+            errors: { "email or password": "is invalid" }
+          })
+        }
+      )
     )
   }
 
