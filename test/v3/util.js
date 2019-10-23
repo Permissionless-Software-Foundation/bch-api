@@ -19,9 +19,8 @@ let originalEnvVars // Used during transition from integration to unit tests.
 const { mockReq, mockRes } = require("./mocks/express-mocks")
 const mockData = require("./mocks/util-mocks")
 
-// Used for debugging.
-const util = require("util")
-util.inspect.defaultOptions = { depth: 1 }
+const UtilRoute = utilRoute.UtilRoute
+const utilRouteInst = new utilRoute.UtilRoute()
 
 describe("#Util", () => {
   let req, res
@@ -76,7 +75,7 @@ describe("#Util", () => {
 
   describe("#root", async () => {
     // root route handler.
-    const root = utilRoute.testableComponents.root
+    const root = utilRouteInst.root
 
     it("should respond to GET for base route", async () => {
       const result = root(req, res)
@@ -87,7 +86,7 @@ describe("#Util", () => {
   })
 
   describe("#validateAddressSingle", async () => {
-    const validateAddress = utilRoute.testableComponents.validateAddressSingle
+    const validateAddress = utilRouteInst.validateAddressSingle
 
     it("should throw an error for an empty address", async () => {
       const result = await validateAddress(req, res)
@@ -148,7 +147,7 @@ describe("#Util", () => {
   })
 
   describe("#validateAddressBulk", async () => {
-    const validateAddressBulk = utilRoute.testableComponents.validateAddressBulk
+    const validateAddressBulk = utilRouteInst.validateAddressBulk
 
     it("should throw an error for an empty body", async () => {
       const result = await validateAddressBulk(req, res)
@@ -295,6 +294,18 @@ describe("#Util", () => {
         "iswatchonly",
         "isscript"
       ])
+    })
+  })
+
+  describe("#sweepWif", () => {
+    // const sweepWif = utilRoute.testableComponents.sweepWif
+
+    it("should do something", async () => {
+      req.body.wif = "L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt"
+      req.body.toAddr = "bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p"
+
+      const result = await utilRouteInst.sweepWif(req, res)
+      console.log(`result: ${JSON.stringify(result, null, 2)}`)
     })
   })
 })
