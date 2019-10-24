@@ -10,6 +10,7 @@ const blockbook = require("./blockbook")
 
 const BCHJS = require("@chris.troutner/bch-js")
 const bchjs = new BCHJS()
+const BCHJS_TESTNET = `https://testnet.bchjs.cash/v3/`
 
 const bchjsHTTP = axios.create({
   baseURL: process.env.RPC_BASEURL
@@ -239,7 +240,10 @@ class UtilRoute {
       const bchUtxos = []
 
       // Exit if there are no UTXOs.
-      if (utxos.length === 0) return { bchUtxos, tokenUtxos }
+      if (utxos.length === 0) {
+        res.status(422)
+        return res.json({ error: "No utxos found." })
+      }
 
       // Figure out which UTXOs are associated with SLP tokens.
       const isTokenUtxo = await _this.bchjs.SLP.Utils.tokenUtxoDetails(utxos)
@@ -260,9 +264,21 @@ class UtilRoute {
         })
       }
 
+      const options = {
+        ecPair,
+        utxos,
+        fromAddr,
+        toAddr,
+        bchUtxos,
+        tokenUtxos
+      }
+
+      let hex
+
       // Choose the sweeping algorithm based if there are tokens or not.
-      // if (tokenUtxos.length === 0) hex = await _this._sweepBCH(flags)
-      // else hex = await _this._sweepTokens(flags, bchUtxos, tokenUtxos)
+      if (tokenUtxos.length === 0) hex = await _this._sweepBCH(options)
+      else hex = await _this._sweepTokens(options, bchUtxos, tokenUtxos)
+      console.log(`hex: ${hex}`)
 
       // Throw error if there is more than one token class.
 
@@ -280,29 +296,28 @@ class UtilRoute {
         return res.json({ error: msg })
       }
 
-      wlogger.error(`Error in util.js/sweepWif().`, err)
+      console.error(`Error in util.js/sweepWif().`, err)
 
       res.status(500)
-      return res.json({ error: util.inspect(err) })
+      return res.json({ error: err.message })
     }
   }
 
   // Sweep BCH only from a private WIF.
   async _sweepBCH(options) {
     try {
-      if (options.testnet)
-        this.BITBOX = new config.BCHLIB({ restURL: config.TESTNET_REST })
+      // const wif = flags.wif
+      // const toAddr = flags.address
 
-      const wif = flags.wif
-      const toAddr = flags.address
+      const ecPair = options.ecPair
 
-      const ecPair = this.BITBOX.ECPair.fromWIF(wif)
-
-      const fromAddr = this.BITBOX.ECPair.toCashAddress(ecPair)
-
-      // Get the UTXOs for that address.
-      let utxos = await this.BITBOX.Blockbook.utxo(fromAddr)
+      // const fromAddr = this.BITBOX.ECPair.toCashAddress(ecPair)
+      //
+      // // Get the UTXOs for that address.
+      // let utxos = await this.BITBOX.Blockbook.utxo(fromAddr)
       // console.log(`utxos: ${JSON.stringify(utxos, null, 2)}`)
+
+      let utxos = options.utxos
 
       // Ensure all utxos have the satoshis property.
       utxos = utxos.map(x => {
@@ -313,7 +328,7 @@ class UtilRoute {
 
       // instance of transaction builder
       let transactionBuilder
-      if (flags.testnet)
+      if (options.testnet)
         transactionBuilder = new this.BITBOX.TransactionBuilder("testnet")
       else transactionBuilder = new this.BITBOX.TransactionBuilder()
 
@@ -379,6 +394,135 @@ class UtilRoute {
   // Sweep BCH and tokens from a WIF.
   async _sweepTokens(options) {
     try {
+      const { ecPair, utxos, fromAddr, toAddr, bchUtxos, tokenUtxos } = options
+
+      // Input validation
+      if (!Array.isArray(bchUtxos) || bchUtxos.length === 0)
+        throw new Error(`bchUtxos need to be an array with one UTXO.`)
+      if (!Array.isArray(tokenUtxos) || tokenUtxos.length === 0)
+        throw new Error(`tokenUtxos need to be an array with one UTXO.`)
+
+      // if (flags.testnet)
+      //   this.BITBOX = new config.BCHLIB({ restURL: config.TESTNET_REST })
+
+      // Ensure there is only one class of token in the wallet. Throw an error if
+      // there is more than one.
+      const tokenId = tokenUtxos[0].tokenId
+      const otherTokens = tokenUtxos.filter(x => x.tokenId !== tokenId)
+      if (otherTokens.length > 0) {
+        throw new Error(
+          `Multiple token classes detected. This function only supports a single class of token.`
+        )
+      }
+
+      // instance of transaction builder
+      let transactionBuilder
+      if (options.testnet)
+        transactionBuilder = new _this.bchjs.TransactionBuilder("testnet")
+      else transactionBuilder = new _this.bchjs.TransactionBuilder()
+
+      // Combine all the UTXOs into a single array.
+      const allUtxos = utxos
+      // console.log(`allUtxos: ${JSON.stringify(allUtxos, null, 2)}`)
+
+      // Loop through all UTXOs.
+      let originalAmount = 0
+      for (let i = 0; i < allUtxos.length; i++) {
+        const utxo = allUtxos[i]
+
+        originalAmount = originalAmount + utxo.satoshis
+
+        transactionBuilder.addInput(utxo.txid, utxo.vout)
+      }
+
+      if (originalAmount < 300) {
+        throw new Error(
+          `Not enough BCH to send. Send more BCH to the wallet to pay miner fees.`
+        )
+      }
+
+      // get byte count to calculate fee. paying 1 sat
+      // Note: This may not be totally accurate. Just guessing on the byteCount size.
+      // const byteCount = this.BITBOX.BitcoinCash.getByteCount(
+      //   { P2PKH: 3 },
+      //   { P2PKH: 5 }
+      // )
+      // //console.log(`byteCount: ${byteCount}`)
+      // const satoshisPerByte = 1.1
+      // const txFee = Math.floor(satoshisPerByte * byteCount)
+      // console.log(`txFee: ${txFee} satoshis\n`)
+      const txFee = 500
+
+      // amount to send back to the sending address. It's the original amount - 1 sat/byte for tx size
+      const remainder = originalAmount - txFee - 546
+      if (remainder < 1)
+        throw new Error(`Selected UTXO does not have enough satoshis`)
+      //console.log(`remainder: ${remainder}`)
+
+      // Tally up the quantity of tokens
+      let tokenQty = 0
+      for (let i = 0; i < tokenUtxos.length; i++)
+        tokenQty += tokenUtxos[i].tokenQty
+      // console.log(`tokenQty: ${tokenQty}`)
+
+      // Generate the OP_RETURN entry for an SLP SEND transaction.
+      //console.log(`Generating op-return.`)
+      const {
+        script,
+        outputs
+      } = _this.bchjs.SLP.TokenType1.generateSendOpReturn(tokenUtxos, tokenQty)
+      // console.log(`token outputs: ${outputs}`)
+
+      // Since we are sweeping all tokens from the WIF, there generateOpReturn()
+      // function should only compute 1 token output. If it returns 2, then there
+      // is something unexpected happening.
+      if (outputs > 1) {
+        throw new Error(
+          `More than one class of token detected. Sweep feature not supported.`
+        )
+      }
+
+      // Add OP_RETURN as first output.
+      const data = _this.bchjs.Script.encode(script)
+      transactionBuilder.addOutput(data, 0)
+
+      // Send dust transaction representing tokens being sent.
+      transactionBuilder.addOutput(
+        _this.bchjs.Address.toLegacyAddress(toAddr),
+        546
+      )
+
+      // Last output: send remaining BCH
+      transactionBuilder.addOutput(
+        _this.bchjs.Address.toLegacyAddress(toAddr),
+        remainder
+      )
+      // console.log(`utxo: ${JSON.stringify(utxo, null, 2)}`)
+
+      // Sign each UTXO being consumed.
+      let redeemScript
+      for (let i = 0; i < allUtxos.length; i++) {
+        const thisUtxo = allUtxos[i]
+        // console.log(`thisUtxo: ${JSON.stringify(thisUtxo, null, 2)}`)
+
+        transactionBuilder.sign(
+          i,
+          ecPair,
+          redeemScript,
+          transactionBuilder.hashTypes.SIGHASH_ALL,
+          thisUtxo.satoshis
+        )
+      }
+
+      // build tx
+      const tx = transactionBuilder.build()
+
+      // output rawhex
+      const hex = tx.toHex()
+      // console.log(`Transaction raw hex: `)
+      // console.log(hex)
+
+      return hex
     } catch (err) {
       wlogger.error(`Error in util.js/sweepBCH().`)
       throw err
