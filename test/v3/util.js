@@ -389,6 +389,34 @@ describe("#Util", () => {
       assert.equal(result, "test-txid")
     })
 
+    it("should return balance if balance-only is true", async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === "unit") {
+        sandbox
+          .stub(
+            utilRouteInst.blockbook.testableComponents,
+            "balanceFromBlockbook"
+          )
+          .resolves(mockData.mockBalance)
+      }
+
+      // Mock sendRawTransaction() so that the hex does not actually get broadcast
+      // to the network.
+      sandbox
+        .stub(utilRouteInst.bchjs.RawTransactions, "sendRawTransaction")
+        .resolves("test-txid")
+
+      req.body = {
+        wif: "L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt",
+        balanceOnly: true
+      }
+
+      const result = await utilRouteInst.sweepWif(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isNumber(result)
+    })
+
     // Unit tests only
     if (process.env.TEST === "unit") {
       it("should generate transaction for valid BCH-only sweep", async () => {

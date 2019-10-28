@@ -199,6 +199,7 @@ class UtilRoute {
       // Validate input
       const wif = req.body.wif
       const toAddr = req.body.toAddr
+      const balanceOnly = req.body.balanceOnly
 
       if (typeof wif !== "string" || wif.length !== 52) {
         res.status(400)
@@ -207,9 +208,12 @@ class UtilRoute {
         })
       }
 
-      if (!toAddr || toAddr === "") {
-        res.status(400)
-        return res.json({ error: "address can not be empty" })
+      if (!balanceOnly) {
+        // Only throw error if balanceOnly is false or undefined.
+        if (!toAddr || toAddr === "") {
+          res.status(400)
+          return res.json({ error: "address can not be empty" })
+        }
       }
 
       wlogger.debug(`Executing util/sweepWif with this address: `, toAddr)
@@ -232,6 +236,12 @@ class UtilRoute {
       if (isNaN(totalBalance) || totalBalance === 0) {
         res.status(422)
         return res.json({ error: "No balance found at BCH address." })
+      }
+
+      // Exit if this is a balance-only call.
+      if (balanceOnly) {
+        res.status(200)
+        return res.json(totalBalance)
       }
 
       // Get all UTXOs help by the address.
