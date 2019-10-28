@@ -12,6 +12,7 @@ const chai = require("chai")
 const assert = chai.assert
 const utilRoute = require("../../src/routes/v3/util")
 const nock = require("nock") // HTTP mocking
+const sinon = require("sinon")
 
 let originalEnvVars // Used during transition from integration to unit tests.
 
@@ -19,11 +20,15 @@ let originalEnvVars // Used during transition from integration to unit tests.
 const { mockReq, mockRes } = require("./mocks/express-mocks")
 const mockData = require("./mocks/util-mocks")
 
+const util = require("util")
+util.inspect.defaultOptions = { depth: 1 }
+
 const UtilRoute = utilRoute.UtilRoute
 const utilRouteInst = new utilRoute.UtilRoute()
 
 describe("#Util", () => {
   let req, res
+  let sandbox
 
   before(() => {
     // Save existing environment variables.
@@ -57,12 +62,16 @@ describe("#Util", () => {
 
     // Activate nock if it's inactive.
     if (!nock.isActive()) nock.activate()
+
+    sandbox = sinon.createSandbox()
   })
 
   afterEach(() => {
     // Clean up HTTP mocks.
     nock.cleanAll() // clear interceptor list.
     nock.restore()
+
+    sandbox.restore()
   })
 
   after(() => {
@@ -133,7 +142,7 @@ describe("#Util", () => {
       req.params.address = `bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd`
 
       const result = await validateAddress(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAnyKeys(result, [
         "isvalid",
@@ -298,14 +307,210 @@ describe("#Util", () => {
   })
 
   describe("#sweepWif", () => {
-    // const sweepWif = utilRoute.testableComponents.sweepWif
-
-    it("should do something", async () => {
-      req.body.wif = "L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt"
-      req.body.toAddr = "bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p"
+    it("should throw 400 if WIF is not included", async () => {
+      req.body = {}
 
       const result = await utilRouteInst.sweepWif(req, res)
-      console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
+      assert.include(
+        result.error,
+        "WIF needs to a proper compressed WIF starting with K or L",
+        "Proper error message"
+      )
     })
+
+    it("should throw 400 if WIF is malformed", async () => {
+      req.body = {
+        wif: `abc123`
+      }
+
+      const result = await utilRouteInst.sweepWif(req, res)
+
+      assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
+      assert.include(
+        result.error,
+        "WIF needs to a proper compressed WIF starting with K or L",
+        "Proper error message"
+      )
+    })
+
+    it("should throw 400 if destination address is not included", async () => {
+      req.body = {
+        wif: "L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt"
+      }
+
+      const result = await utilRouteInst.sweepWif(req, res)
+
+      assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
+      assert.include(
+        result.error,
+        "address can not be empty",
+        "Proper error message"
+      )
+    })
+
+    it("should generate transaction for valid token sweep", async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === "unit") {
+        sandbox
+          .stub(
+            utilRouteInst.blockbook.testableComponents,
+            "balanceFromBlockbook"
+          )
+          .resolves(mockData.mockBalance)
+
+        sandbox
+          .stub(
+            utilRouteInst.blockbook.testableComponents,
+            "utxosFromBlockbook"
+          )
+          .resolves(mockData.mockUtxos)
+
+        sandbox
+          .stub(utilRouteInst.bchjs.SLP.Utils, "tokenUtxoDetails")
+          .resolves(mockData.mockIsTokenUtxos)
+      }
+
+      // Mock sendRawTransaction() so that the hex does not actually get broadcast
+      // to the network.
+      sandbox
+        .stub(utilRouteInst.bchjs.RawTransactions, "sendRawTransaction")
+        .resolves("test-txid")
+
+      req.body = {
+        wif: "L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt",
+        toAddr: "bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p"
+      }
+
+      const result = await utilRouteInst.sweepWif(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.equal(result, "test-txid")
+    })
+
+    // Unit tests only
+    if (process.env.TEST === "unit") {
+      it("should generate transaction for valid BCH-only sweep", async () => {
+        sandbox
+          .stub(
+            utilRouteInst.blockbook.testableComponents,
+            "balanceFromBlockbook"
+          )
+          .resolves(mockData.mockBalance)
+
+        sandbox
+          .stub(
+            utilRouteInst.blockbook.testableComponents,
+            "utxosFromBlockbook"
+          )
+          .resolves(mockData.mockUtxos)
+
+        // Force token utxo to appear as regular BCH utxo.
+        sandbox
+          .stub(utilRouteInst.bchjs.SLP.Utils, "tokenUtxoDetails")
+          .resolves([false, false])
+
+        // Mock sendRawTransaction() so that the hex does not actually get broadcast
+        // to the network.
+        sandbox
+          .stub(utilRouteInst.bchjs.RawTransactions, "sendRawTransaction")
+          .resolves("test-txid")
+
+        req.body = {
+          wif: "L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt",
+          toAddr: "bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p"
+        }
+
+        const result = await utilRouteInst.sweepWif(req, res)
+        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+        assert.equal(result, "test-txid")
+      })
+
+      it("should throw 422 error if no non-token UTXOs", async () => {
+        sandbox
+          .stub(
+            utilRouteInst.blockbook.testableComponents,
+            "balanceFromBlockbook"
+          )
+          .resolves(mockData.mockBalance)
+
+        sandbox
+          .stub(
+            utilRouteInst.blockbook.testableComponents,
+            "utxosFromBlockbook"
+          )
+          .resolves(mockData.mockUtxos)
+
+        // Force token utxo to appear as regular BCH utxo.
+        sandbox
+          .stub(utilRouteInst.bchjs.SLP.Utils, "tokenUtxoDetails")
+          .resolves(mockData.tokensOnly)
+
+        // Mock sendRawTransaction() so that the hex does not actually get broadcast
+        // to the network.
+        sandbox
+          .stub(utilRouteInst.bchjs.RawTransactions, "sendRawTransaction")
+          .resolves("test-txid")
+
+        req.body = {
+          wif: "L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt",
+          toAddr: "bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p"
+        }
+
+        const result = await utilRouteInst.sweepWif(req, res)
+        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+        assert.equal(res.statusCode, 422)
+        assert.property(result, "error")
+        assert.include(
+          result.error,
+          "Tokens found, but no BCH UTXOs found. Add BCH to wallet to move tokens"
+        )
+      })
+
+      it("should detect and throw error for multiple token classes", async () => {
+        sandbox
+          .stub(
+            utilRouteInst.blockbook.testableComponents,
+            "balanceFromBlockbook"
+          )
+          .resolves(mockData.mockBalance)
+
+        sandbox
+          .stub(
+            utilRouteInst.blockbook.testableComponents,
+            "utxosFromBlockbook"
+          )
+          .resolves(mockData.mockThreeUtxos)
+
+        // Force token utxo to appear as regular BCH utxo.
+        sandbox
+          .stub(utilRouteInst.bchjs.SLP.Utils, "tokenUtxoDetails")
+          .resolves(mockData.multipleTokens)
+
+        // Mock sendRawTransaction() so that the hex does not actually get broadcast
+        // to the network.
+        sandbox
+          .stub(utilRouteInst.bchjs.RawTransactions, "sendRawTransaction")
+          .resolves("test-txid")
+
+        req.body = {
+          wif: "L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt",
+          toAddr: "bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p"
+        }
+
+        const result = await utilRouteInst.sweepWif(req, res)
+        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+        assert.equal(res.statusCode, 422)
+        assert.property(result, "error")
+        assert.include(
+          result.error,
+          "Multiple token classes detected. This function only supports a single class of token"
+        )
+      })
+    }
   })
 })

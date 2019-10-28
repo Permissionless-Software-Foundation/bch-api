@@ -8,6 +8,9 @@ const routeUtils = require("./route-utils")
 const wlogger = require("../../util/winston-logging")
 const blockbook = require("./blockbook")
 
+const util = require("util")
+util.inspect.defaultOptions = { depth: 1 }
+
 const BCHJS = require("@chris.troutner/bch-js")
 const bchjs = new BCHJS()
 const BCHJS_TESTNET = `https://testnet.bchjs.cash/v3/`
@@ -219,7 +222,7 @@ class UtilRoute {
       const balances = await _this.blockbook.testableComponents.balanceFromBlockbook(
         fromAddr
       )
-      console.log(`balances: ${JSON.stringify(balances, null, 2)}`)
+      // console.log(`balances: ${JSON.stringify(balances, null, 2)}`)
 
       // Total balance is the sum of the confirmed and unconfirmed balance.
       const totalBalance =
@@ -235,6 +238,7 @@ class UtilRoute {
       const utxos = await _this.blockbook.testableComponents.utxosFromBlockbook(
         fromAddr
       )
+      // console.log(`utxos: ${JSON.stringify(utxos, null, 2)}`)
 
       const tokenUtxos = []
       const bchUtxos = []
@@ -247,7 +251,7 @@ class UtilRoute {
 
       // Figure out which UTXOs are associated with SLP tokens.
       const isTokenUtxo = await _this.bchjs.SLP.Utils.tokenUtxoDetails(utxos)
-      console.log(`isTokenUtxo: ${JSON.stringify(isTokenUtxo, null, 2)}`)
+      // console.log(`isTokenUtxo: ${JSON.stringify(isTokenUtxo, null, 2)}`)
 
       // Separate the bch and token UTXOs.
       for (let i = 0; i < utxos.length; i++) {
@@ -255,6 +259,9 @@ class UtilRoute {
         if (!isTokenUtxo[i]) bchUtxos.push(utxos[i])
         else tokenUtxos.push(isTokenUtxo[i])
       }
+      // console.log(
+      //   `bchUtxos.length: ${bchUtxos.length}, tokenUtxos.length: ${tokenUtxos.length}`
+      // )
 
       // Throw error if no BCH to move tokens.
       if (bchUtxos.length === 0 && tokenUtxos.length > 0) {
@@ -263,6 +270,8 @@ class UtilRoute {
           error: `Tokens found, but no BCH UTXOs found. Add BCH to wallet to move tokens.`
         })
       }
+
+      // console.log(`tokenUtxos: ${JSON.stringify(tokenUtxos, null, 2)}`)
 
       const options = {
         ecPair,
@@ -275,19 +284,20 @@ class UtilRoute {
 
       let hex
 
-      // Choose the sweeping algorithm based if there are tokens or not.
+      // Choose the sweeping algorithm, based on if there are tokens or not.
       if (tokenUtxos.length === 0) hex = await _this._sweepBCH(options)
       else hex = await _this._sweepTokens(options, bchUtxos, tokenUtxos)
-      console.log(`hex: ${hex}`)
+      // console.log(`hex: ${hex}`)
 
       // Throw error if there is more than one token class.
 
       // Generate a transaction to move tokens and BCH.
 
       // Broadcast the transaction.
+      const txid = _this.bchjs.RawTransactions.sendRawTransaction([hex])
 
       res.status(200)
-      return res.json(true)
+      return res.json(txid)
     } catch (err) {
       // Attempt to decode the error message.
       const { msg, status } = routeUtils.decodeError(err)
@@ -296,6 +306,16 @@ class UtilRoute {
         return res.json({ error: msg })
       }
 
+      // Catch the specific case of multiple tokens.
+      if (
+        err.message &&
+        err.message.indexOf("Multiple token classes detected") > -1
+      ) {
+        res.status(422)
+        return res.json({ error: err.message })
+      }
+
+      wlogger.error(`Error in util.js/sweepWif().`, err)
       console.error(`Error in util.js/sweepWif().`, err)
 
       res.status(500)
@@ -310,6 +330,7 @@ class UtilRoute {
       // const toAddr = flags.address
 
       const ecPair = options.ecPair
+      const toAddr = options.toAddr
 
       // const fromAddr = this.BITBOX.ECPair.toCashAddress(ecPair)
       //
@@ -329,8 +350,8 @@ class UtilRoute {
       // instance of transaction builder
       let transactionBuilder
       if (options.testnet)
-        transactionBuilder = new this.BITBOX.TransactionBuilder("testnet")
-      else transactionBuilder = new this.BITBOX.TransactionBuilder()
+        transactionBuilder = new _this.bchjs.TransactionBuilder("testnet")
+      else transactionBuilder = new _this.bchjs.TransactionBuilder()
 
       let originalAmount = 0
 
@@ -350,7 +371,7 @@ class UtilRoute {
       }
 
       // get byte count to calculate fee. paying 1 sat/byte
-      const byteCount = this.BITBOX.BitcoinCash.getByteCount(
+      const byteCount = _this.bchjs.BitcoinCash.getByteCount(
         { P2PKH: utxos.length },
         { P2PKH: 1 }
       )
@@ -361,7 +382,7 @@ class UtilRoute {
 
       // add output w/ address and amount to send
       transactionBuilder.addOutput(
-        this.BITBOX.Address.toLegacyAddress(toAddr),
+        _this.bchjs.Address.toLegacyAddress(toAddr),
         sendAmount
       )
 
@@ -404,6 +425,8 @@ class UtilRoute {
 
       // if (flags.testnet)
       //   this.BITBOX = new config.BCHLIB({ restURL: config.TESTNET_REST })
+
+      // console.log(`tokenUtxos: ${JSON.stringify(tokenUtxos, null, 2)}`)
 
       // Ensure there is only one class of token in the wallet. Throw an error if
       // there is more than one.
