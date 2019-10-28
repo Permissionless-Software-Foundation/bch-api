@@ -26,7 +26,7 @@ function root(req, res, next) {
  * @apiDescription RPC call which gets basic full node information.
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/control/getinfo" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/control/getinfo" -H "accept: application/json"
  *
  * @apiSuccess {Object}   object                  Object containing data
  * @apiSuccess {Number}   object.version          Full node version
@@ -77,7 +77,7 @@ async function getInfo(req, res, next) {
  * @apiDescription RPC call which gets basic full node information.
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/control/getnetworkinfo" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/control/getnetworkinfo" -H "accept: application/json"
  *
  */
 async function getNetworkInfo(req, res, next) {

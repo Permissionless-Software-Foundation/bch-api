@@ -601,6 +601,8 @@ module.exports = {
     utxosSingle,
     utxosBulk,
     txSingle,
-    txBulk
+    txBulk,
+    balanceFromBlockbook,
+    utxosFromBlockbook
   }
 }

@@ -84,8 +84,8 @@ async function detailsFromInsight(thisAddress, currentPage = 0) {
 }
 
 // POST handler for bulk queries on address details
-// curl -d '{"addresses": ["bchtest:qzjtnzcvzxx7s0na88yrg3zl28wwvfp97538sgrrmr", "bchtest:qp6hgvevf4gzz6l7pgcte3gaaud9km0l459fa23dul"]}' -H "Content-Type: application/json" http://localhost:3000/v2/address/details
-// curl -d '{"addresses": ["bchtest:qzjtnzcvzxx7s0na88yrg3zl28wwvfp97538sgrrmr", "bchtest:qp6hgvevf4gzz6l7pgcte3gaaud9km0l459fa23dul"], "from": 1, "to": 5}' -H "Content-Type: application/json" http://localhost:3000/v2/address/details
+// curl -d '{"addresses": ["bchtest:qzjtnzcvzxx7s0na88yrg3zl28wwvfp97538sgrrmr", "bchtest:qp6hgvevf4gzz6l7pgcte3gaaud9km0l459fa23dul"]}' -H "Content-Type: application/json" https://mainnet.bchjs.cash/v2/address/details
+// curl -d '{"addresses": ["bchtest:qzjtnzcvzxx7s0na88yrg3zl28wwvfp97538sgrrmr", "bchtest:qp6hgvevf4gzz6l7pgcte3gaaud9km0l459fa23dul"], "from": 1, "to": 5}' -H "Content-Type: application/json" https://mainnet.bchjs.cash/v2/address/details
 /**
  * @api {post} /address/details  Get Address details bulk.
  * @apiName Address details bulk
@@ -94,8 +94,8 @@ async function detailsFromInsight(thisAddress, currentPage = 0) {
  *
  *
  * @apiExample Example usage:
- * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"]}' -H "Content-Type: application/json" http://localhost:3000/v3/insight/address/details
- * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"], "from": 1, "to": 5}' -H "Content-Type: application/json" http://localhost:3000/v3/insight/address/details
+ * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"]}' -H "Content-Type: application/json" https://mainnet.bchjs.cash/v3/insight/address/details
+ * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"], "from": 1, "to": 5}' -H "Content-Type: application/json" https://mainnet.bchjs.cash/v3/insight/address/details
  *
  */
 async function detailsBulk(req, res, next) {
@@ -182,7 +182,7 @@ async function detailsBulk(req, res, next) {
  *
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/insight/address/details/bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/insight/address/details/bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c" -H "accept: application/json"
  *
  *
  */
@@ -296,8 +296,8 @@ async function utxoFromInsight(thisAddress) {
  *
  *
  * @apiExample Example usage:
- * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"]}' -H "Content-Type: application/json" http://localhost:3000/v3/insight/address/utxo
- * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"], "from": 1, "to": 5}' -H "Content-Type: application/json" http://localhost:3000/v3/insight/address/utxo
+ * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"]}' -H "Content-Type: application/json" https://mainnet.bchjs.cash/v3/insight/address/utxo
+ * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"], "from": 1, "to": 5}' -H "Content-Type: application/json" https://mainnet.bchjs.cash/v3/insight/address/utxo
  *
  */
 // Retrieve UTXO information for an address.
@@ -386,7 +386,7 @@ async function utxoBulk(req, res, next) {
  *
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/insight/address/utxo/bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/insight/address/utxo/bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c" -H "accept: application/json"
  *
  *
  */
@@ -457,8 +457,8 @@ async function utxoSingle(req, res, next) {
  *
  *
  * @apiExample Example usage:
- * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"]}' -H "Content-Type: application/json" http://localhost:3000/v3/insight/address/unconfirmed
- * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"], "from": 1, "to": 5}' -H "Content-Type: application/json" http://localhost:3000/v3/insight/address/unconfirmed
+ * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"]}' -H "Content-Type: application/json" https://mainnet.bchjs.cash/v3/insight/address/unconfirmed
+ * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"], "from": 1, "to": 5}' -H "Content-Type: application/json" https://mainnet.bchjs.cash/v3/insight/address/unconfirmed
  *
  */
 // Retrieve any unconfirmed TX information for a given address.
@@ -553,7 +553,7 @@ async function unconfirmedBulk(req, res, next) {
  *
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/insight/address/unconfirmed/bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/insight/address/unconfirmed/bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c" -H "accept: application/json"
  *
  *
  */
@@ -659,8 +659,8 @@ async function transactionsFromInsight(thisAddress, currentPage = 0) {
  *
  *
  * @apiExample Example usage:
- * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"]}' -H "Content-Type: application/json" http://localhost:3000/v3/insight/address/transactions
- * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"], "from": 1, "to": 5}' -H "Content-Type: application/json" http://localhost:3000/v3/insight/address/transactions
+ * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"]}' -H "Content-Type: application/json" https://mainnet.bchjs.cash/v3/insight/address/transactions
+ * curl -d '{"addresses": ["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c", "bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c"], "from": 1, "to": 5}' -H "Content-Type: application/json" https://mainnet.bchjs.cash/v3/insight/address/transactions
  *
  */
 // Get an array of TX information for a given address.
@@ -744,7 +744,7 @@ async function transactionsBulk(req, res, next) {
  *
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/insight/address/transactions/bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/insight/address/transactions/bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c" -H "accept: application/json"
  *
  *
  */
@@ -822,7 +822,7 @@ async function transactionsSingle(req, res, next) {
  *
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/insight/address/fromXPub/xpub661MyMwAqRbcG4CnhNYoK1r1TKLwQQ1UdC3LHoWFK61rsnzh7Hx35qQ9Z53ucYcE5WvA7GEDXhqqKjSY2e6Y8n7WNVLYHpXCuuX945VPuYn" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/insight/address/fromXPub/xpub661MyMwAqRbcG4CnhNYoK1r1TKLwQQ1UdC3LHoWFK61rsnzh7Hx35qQ9Z53ucYcE5WvA7GEDXhqqKjSY2e6Y8n7WNVLYHpXCuuX945VPuYn" -H "accept: application/json"
  *
  *
  */

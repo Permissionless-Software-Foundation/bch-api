@@ -119,7 +119,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockBlockHash })
       }
 
@@ -161,7 +161,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockBlockchainInfo })
       }
 
@@ -213,7 +213,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: 126769 })
       }
 
@@ -264,7 +264,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, {
             result:
               "000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c"
@@ -288,7 +288,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockBlockHeader })
       }
 
@@ -404,7 +404,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockBlockHeaderConcise })
       }
 
@@ -431,7 +431,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockBlockHeader })
       }
 
@@ -468,7 +468,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .times(2)
           .reply(200, { result: mockData.mockBlockHeaderConcise })
       }
@@ -511,7 +511,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockChainTips })
       }
 
@@ -552,7 +552,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: 4049809.205246544 })
       }
 
@@ -592,7 +592,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockMempoolInfo })
       }
 
@@ -638,7 +638,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockRawMempool })
       }
 
@@ -690,7 +690,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: { error: "Transaction not in mempool" } })
       }
 
@@ -836,7 +836,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockTxOut })
       }
 
@@ -902,7 +902,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockTxOutProof })
       }
 
@@ -963,7 +963,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockTxOutProof })
       }
 
@@ -982,7 +982,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .times(2)
           .reply(200, { result: mockData.mockTxOutProof })
       }
@@ -1042,7 +1042,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: [expected] })
       }
 
@@ -1109,7 +1109,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: [expected] })
       }
 
@@ -1132,7 +1132,7 @@ describe("#BlockchainRouter", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .times(2)
           .reply(200, { result: [expected] })
       }
