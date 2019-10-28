@@ -862,7 +862,7 @@ describe("#SLP", () => {
 
         req.body.txids = [
           "77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d",
-          "77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d"
+          "552112f9e458dc7d1d8b328b0a6685e8af74a64b60b6846e7c86407f27f47e42"
         ]
 
         const result = await validateBulk(req, res)
@@ -1016,7 +1016,7 @@ describe("#SLP", () => {
           "497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7"
 
         const result = await txDetails(req, res)
-        console.log(`result: ${JSON.stringify(result, null, 2)}`)
+        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
         assert.hasAnyKeys(result, ["tokenIsValid", "tokenInfo"])
       })

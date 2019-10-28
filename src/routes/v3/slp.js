@@ -3,6 +3,7 @@
 const express = require("express")
 const router = express.Router()
 const axios = require("axios")
+const BigNumber = require("bignumber.js")
 
 const routeUtils = require("./route-utils")
 const strftime = require("strftime")
@@ -35,6 +36,8 @@ const password = process.env.RPC_PASSWORD
 // https://gist.github.com/christroutner/fc717ca704dec3dded8b52fae387eab2
 const SLPDB_PASS = process.env.SLPDB_PASS ? process.env.SLPDB_PASS : "BITBOX"
 
+const transactions = require("./insight/transaction")
+
 // Setup REST and TREST URLs used by slpjs
 // Dev note: this allows for unit tests to mock the URL.
 if (!process.env.REST_URL) process.env.REST_URL = `https://rest.bitcoin.com/v2/`
@@ -56,102 +59,6 @@ router.get("/validateTxid/:txid", validateSingle)
 router.get("/txDetails/:txid", txDetails)
 router.get("/tokenStats/:tokenId", tokenStats)
 router.get("/transactions/:tokenId/:address", txsTokenIdAddressSingle)
-
-// if (process.env.NON_JS_FRAMEWORK && process.env.NON_JS_FRAMEWORK === "true") {
-//   router.get(
-//     "/createTokenType1/:fundingAddress/:fundingWif/:tokenReceiverAddress/:batonReceiverAddress/:bchChangeReceiverAddress/:decimals/:name/:symbol/:documentUri/:documentHash/:initialTokenQty",
-//     createTokenType1
-//   )
-//   router.get(
-//     "/mintTokenType1/:fundingAddress/:fundingWif/:tokenReceiverAddress/:batonReceiverAddress/:bchChangeReceiverAddress/:tokenId/:additionalTokenQty",
-//     mintTokenType1
-//   )
-//   router.get(
-//     "/sendTokenType1/:fundingAddress/:fundingWif/:tokenReceiverAddress/:bchChangeReceiverAddress/:tokenId/:amount",
-//     sendTokenType1
-//   )
-//   router.get(
-//     "/burnTokenType1/:fundingAddress/:fundingWif/:bchChangeReceiverAddress/:tokenId/:amount",
-//     burnTokenType1
-//   )
-//   router.get(
-//     "/burnAllTokenType1/:fundingAddress/:fundingWif/:bchChangeReceiverAddress/:tokenId",
-//     burnAllTokenType1
-//   )
-// }
-
-// Retrieve raw transactions details from the full node.
-// TODO: move this function to a separate support library.
-// TODO: Add unit tests for this function.
-// async function getRawTransactionsFromNode(txids) {
-//   try {
-//     const {
-//       BitboxHTTP,
-//       username,
-//       password,
-//       requestConfig
-//     } = routeUtils.setEnvVars()
-//
-//     const txPromises = txids.map(async txid => {
-//       // Check slpTxDb
-//       try {
-//         if (slpTxDb.isOpen()) {
-//           const rawTx = await slpTxDb.get(txid)
-//           return rawTx
-//         }
-//       } catch (err) {}
-//
-//       requestConfig.data.id = "getrawtransaction"
-//       requestConfig.data.method = "getrawtransaction"
-//       requestConfig.data.params = [txid, 0]
-//
-//       const response = await BitboxHTTP(requestConfig)
-//       const result = response.data.result
-//
-//       // Insert to slpTxDb
-//       try {
-//         if (slpTxDb.isOpen()) await slpTxDb.put(txid, result)
-//       } catch (err) {
-//         // console.log("Error inserting to slpTxDb", err)
-//       }
-//
-//       return result
-//     })
-//
-//     const results = await axios.all(txPromises)
-//     return results
-//   } catch (err) {
-//     wlogger.error(`Error in slp.ts/getRawTransactionsFromNode().`, err)
-//     throw err
-//   }
-// }
-
-// Create a validator for validating SLP transactions.
-// function createValidator(network, getRawTransactions = null) {
-//   let tmpSLP
-//
-//   if (network === "mainnet")
-//     tmpSLP = new SLPSDK({ restURL: process.env.REST_URL })
-//   else tmpSLP = new SLPSDK({ restURL: process.env.TREST_URL })
-//
-//   const slpValidator = new slp.LocalValidator(
-//     tmpSLP,
-//     getRawTransactions
-//       ? getRawTransactions
-//       : tmpSLP.RawTransactions.getRawTransaction.bind(this)
-//   )
-//
-//   return slpValidator
-// }
-
-// Instantiate the local SLP validator.
-// const slpValidator = createValidator(
-//   process.env.NETWORK,
-//   getRawTransactionsFromNode
-// )
-
-// Instantiate the bitboxproxy class in SLPJS.
-// const bitboxproxy = new slp.BitboxNetwork(SLP, slpValidator)
 
 const requestConfig = {
   method: "post",
@@ -900,37 +807,6 @@ async function balancesForAddressByTokenID(req, res, next) {
             tokenId: tokenRes.data.a[0].tokenDetails.tokenIdHex,
             balance: parseFloat(tokenRes.data.a[0].token_balance)
           }
-          //       const query2 = {
-          //         v: 3,
-          //         q: {
-          //           db: ["t"],
-          //           find: {
-          //             $query: {
-          //               "tokenDetails.tokenIdHex": tokenId
-          //             }
-          //           },
-          //           project: {
-          //             "tokenDetails.decimals": 1,
-          //             "tokenDetails.tokenIdHex": 1,
-          //             _id: 0
-          //           },
-          //           limit: 1000
-          //         }
-          //       }
-          //
-          //       const s2 = JSON.stringify(query2)
-          //       const b642 = Buffer.from(s2).toString("base64")
-          //       const url2 = `${process.env.SLPDB_URL}q/${b642}`
-          //
-          //       const tokenRes2 = await axios.get(url2)
-          //       console.log("hello world", tokenRes2.data.t)
-          //       resVal = {
-          //         tokenId: token.tokenDetails.tokenIdHex,
-          //         balance: parseFloat(token.token_balance),
-          //         decimalCount: tokenRes2.data.t[0].tokenDetails.decimals
-          //       }
-          //       console.log("resVal", resVal)
-          // return res.json(resVal)
         } else {
           resVal = {
             tokenId: tokenId,
@@ -1299,6 +1175,11 @@ async function txDetails(req, res, next) {
     const tokenRes = await axios.get(url, options)
     // console.log(`tokenRes: ${util.inspect(tokenRes)}`)
 
+    if (tokenRes.data.c.length === 0) {
+      res.status(404)
+      return res.json({ error: "TXID not found" })
+    }
+
     // Format the returned data to an object.
     const formatted = await formatToRestObject(tokenRes)
     // console.log(`formatted: ${JSON.stringify(formatted,null,2)}`)
@@ -1500,6 +1381,40 @@ function generateCredentials() {
   return options
 }
 
+// Format the response from SLPDB into an object.
+async function formatToRestObject(slpDBFormat) {
+  BigNumber.set({ DECIMAL_PLACES: 8 })
+
+  // console.log(`slpDBFormat.data: ${JSON.stringify(slpDBFormat.data, null, 2)}`)
+
+  const transaction = slpDBFormat.data.u.length
+    ? slpDBFormat.data.u[0]
+    : slpDBFormat.data.c[0]
+
+  const inputs = transaction.in
+
+  const outputs = transaction.out
+  const tokenOutputs = transaction.slp.detail.outputs
+
+  const sendOutputs = ["0"]
+  tokenOutputs.map(x => {
+    const string = parseFloat(x.amount) * 100000000
+    sendOutputs.push(string.toString())
+  })
+
+  const obj = {
+    tokenInfo: {
+      versionType: transaction.slp.detail.versionType,
+      transactionType: transaction.slp.detail.transactionType,
+      tokenIdHex: transaction.slp.detail.tokenIdHex,
+      sendOutputs: sendOutputs
+    },
+    tokenIsValid: transaction.slp.valid
+  }
+
+  return obj
+}
+
 module.exports = {
   router,
   testableComponents: {
@@ -1514,11 +1429,6 @@ module.exports = {
     convertAddressBulk,
     validateBulk,
     isValidSlpTxid,
-    // createTokenType1,
-    // mintTokenType1,
-    // sendTokenType1,
-    // burnTokenType1,
-    // burnAllTokenType1,
     txDetails,
     tokenStats,
     balancesForTokenSingle,
