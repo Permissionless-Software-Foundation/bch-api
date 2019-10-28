@@ -49,7 +49,7 @@ function root(req, res, next) {
  * block chain.
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/blockchain/getBestBlockHash" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/blockchain/getBestBlockHash" -H "accept: application/json"
  *
  * @apiSuccess {String}   bestBlockHash           000000000000000002bc884334336d99c9a9c616670a9244c6a8c1fc35aa91a1
  */
@@ -92,7 +92,7 @@ async function getBestBlockHash(req, res, next) {
  * @apiDescription Returns an object containing various state info regarding blockchain processing.
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/blockchain/getBlockchainInfo" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/blockchain/getBlockchainInfo" -H "accept: application/json"
  *
  * @apiSuccess {Object}   object                      Object containing data
  * @apiSuccess {String}   object.chain                "main"
@@ -150,7 +150,7 @@ async function getBlockchainInfo(req, res, next) {
  * @apiDescription Returns the number of blocks in the longest blockchain.
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/blockchain/getBlockCount" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/blockchain/getBlockCount" -H "accept: application/json"
  *
  * @apiSuccess {Number} bestBlockCount  587665
  */
@@ -195,7 +195,7 @@ async function getBlockCount(req, res, next) {
  * returns an Object with information about blockheader hash.
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/blockchain/getBlockHeader/000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201?verbose=true" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/blockchain/getBlockHeader/000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201?verbose=true" -H "accept: application/json"
  *
  * @apiParam {String} hash block hash
  * @apiParam {Boolean} verbose Return verbose data
@@ -372,7 +372,7 @@ async function getBlockHeaderBulk(req, res, next) {
  * including the main chain as well as orphaned branches.
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/blockchain/getChainTips" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/blockchain/getChainTips" -H "accept: application/json"
  *
  */
 async function getChainTips(req, res, next) {
@@ -415,7 +415,7 @@ async function getChainTips(req, res, next) {
  * power on the network.
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/blockchain/getDifficulty" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/blockchain/getDifficulty" -H "accept: application/json"
  *
  */
 async function getDifficulty(req, res, next) {
@@ -459,7 +459,7 @@ async function getDifficulty(req, res, next) {
  * mempool (unconfirmed)
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/blockchain/getMempoolEntry/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/blockchain/getMempoolEntry/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
  *
  */
 async function getMempoolEntrySingle(req, res, next) {
@@ -509,7 +509,7 @@ async function getMempoolEntrySingle(req, res, next) {
  * @apiDescription Returns mempool data for multiple transactions
  *
  * @apiExample Example usage:
- * curl -X POST http://localhost:3000/v3/blockchain/getMempoolEntry -H "Content-Type: application/json" -d "{\"txids\":[\"a5f972572ee1753e2fd2457dd61ce5f40fa2f8a30173d417e49feef7542c96a1\",\"5165dc531aad05d1149bb0f0d9b7bda99c73e2f05e314bcfb5b4bb9ca5e1af5e\"]}"
+ * curl -X POST https://mainnet.bchjs.cash/v3/blockchain/getMempoolEntry -H "Content-Type: application/json" -d "{\"txids\":[\"a5f972572ee1753e2fd2457dd61ce5f40fa2f8a30173d417e49feef7542c96a1\",\"5165dc531aad05d1149bb0f0d9b7bda99c73e2f05e314bcfb5b4bb9ca5e1af5e\"]}"
  */
 async function getMempoolEntryBulk(req, res, next) {
   try {
@@ -592,7 +592,7 @@ async function getMempoolEntryBulk(req, res, next) {
  * @apiDescription Returns details on the active state of the TX memory pool.
  *
  * @apiExample Example usage:
- * curl -X GET http://localhost:3000/v3/getMempoolInfo -H "accept: application/json"
+ * curl -X GET https://mainnet.bchjs.cash/v3/getMempoolInfo -H "accept: application/json"
  *
  */
 async function getMempoolInfo(req, res, next) {
@@ -634,7 +634,7 @@ async function getMempoolInfo(req, res, next) {
  * @apiDescription Returns details on the active state of the TX memory pool.
  *
  * @apiExample Example usage:
- * curl -X GET http://localhost:3000/v3/getMempoolInfo -H "accept: application/json"
+ * curl -X GET https://mainnet.bchjs.cash/v3/getMempoolInfo -H "accept: application/json"
  *
  */
 /**
@@ -645,7 +645,7 @@ async function getMempoolInfo(req, res, next) {
  * of string transaction ids.
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/getRawMempool/?verbose=true" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/getRawMempool/?verbose=true" -H "accept: application/json"
  *
  * @apiParam {Boolean} verbose Return verbose data
  *
@@ -693,7 +693,7 @@ async function getRawMempool(req, res, next) {
  * @apiDescription Returns details about an unspent transaction output.
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/blockchain/getTxOut/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33/0?mempool=false" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/blockchain/getTxOut/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33/0?mempool=false" -H "accept: application/json"
  *
  * @apiParam {String} txid Transaction id (required)
  * @apiParam {Number} n Output number (required)
@@ -759,7 +759,7 @@ async function getTxOut(req, res, next) {
  * @apiDescription Returns a hex-encoded proof that 'txid' was included in a block.
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/blockchain/getTxOutProofSingle/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/blockchain/getTxOutProofSingle/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
  *
  * @apiParam {String} txid Transaction id (required)
  *

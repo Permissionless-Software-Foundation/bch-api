@@ -32,7 +32,7 @@ function root(req, res, next) {
  *
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/insight/block/detailsByHash/000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/insight/block/detailsByHash/000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201" -H "accept: application/json"
  *
  *
  */
@@ -85,8 +85,8 @@ async function detailsByHashSingle(req, res, next) {
  *
  *
  * @apiExample Example usage:
- * curl -d '{"hashes":["0000000000000000040e83398a79a16390897f0d18c92bada6350a19a32ec984","000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201"]}' -H "Content-Type: application/json" "http://localhost:3000/v3/insight/block/detailsByHash"
- * curl -d '{"hashes":["0000000000000000040e83398a79a16390897f0d18c92bada6350a19a32ec984","000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201"], "from": 1, "to": 5}' -H "Content-Type: application/json" "http://localhost:3000/v3/insight/block/detailsByHash"
+ * curl -d '{"hashes":["0000000000000000040e83398a79a16390897f0d18c92bada6350a19a32ec984","000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201"]}' -H "Content-Type: application/json" "https://mainnet.bchjs.cash/v3/insight/block/detailsByHash"
+ * curl -d '{"hashes":["0000000000000000040e83398a79a16390897f0d18c92bada6350a19a32ec984","000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201"], "from": 1, "to": 5}' -H "Content-Type: application/json" "https://mainnet.bchjs.cash/v3/insight/block/detailsByHash"
  *
  */
 async function detailsByHashBulk(req, res, next) {
@@ -165,7 +165,7 @@ async function detailsByHashBulk(req, res, next) {
  *
  *
  * @apiExample Example usage:
- * curl -X GET "http://localhost:3000/v3/insight/block/block/detailsByHeight/500000" -H "accept: application/json"
+ * curl -X GET "https://mainnet.bchjs.cash/v3/insight/block/block/detailsByHeight/500000" -H "accept: application/json"
  *
  *
  */
@@ -224,8 +224,8 @@ async function detailsByHeightSingle(req, res, next) {
  *
  *
  * @apiExample Example usage:
- * curl -d '{"heights":[499000,500000]}' -H "Content-Type: application/json" "http://localhost:3000/v3/insight/block/detailsByHeight"
- * curl -d '{"heights":[499000,500000], "from": 1, "to": 5}' -H "Content-Type: application/json" "http://localhost:3000/v3/insight/block/detailsByHeight"
+ * curl -d '{"heights":[499000,500000]}' -H "Content-Type: application/json" "https://mainnet.bchjs.cash/v3/insight/block/detailsByHeight"
+ * curl -d '{"heights":[499000,500000], "from": 1, "to": 5}' -H "Content-Type: application/json" "https://mainnet.bchjs.cash/v3/insight/block/detailsByHeight"
  *
  */
 async function detailsByHeightBulk(req, res, next) {

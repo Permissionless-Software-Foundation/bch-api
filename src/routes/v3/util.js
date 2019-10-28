@@ -55,7 +55,7 @@ class UtilRoute {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "http://localhost:3000/v3/util/validateAddress/bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c" -H "accept: application/json"
+   * curl -X GET "https://mainnet.bchjs.cash/v3/util/validateAddress/bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c" -H "accept: application/json"
    *
    *
    */
@@ -104,8 +104,8 @@ class UtilRoute {
    *
    *
    * @apiExample Example usage:
-   * curl -X POST "http://localhost:3000/v3/util/validateAddress" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c","bitcoincash:qrehqueqhw629p6e57994436w730t4rzasnly00ht0"]}'
-   * curl -X POST "http://localhost:3000/v3/util/validateAddress" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c","bitcoincash:qrehqueqhw629p6e57994436w730t4rzasnly00ht0"],"from": 1, "to": 5}'
+   * curl -X POST "https://mainnet.bchjs.cash/v3/util/validateAddress" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c","bitcoincash:qrehqueqhw629p6e57994436w730t4rzasnly00ht0"]}'
+   * curl -X POST "https://mainnet.bchjs.cash/v3/util/validateAddress" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c","bitcoincash:qrehqueqhw629p6e57994436w730t4rzasnly00ht0"],"from": 1, "to": 5}'
    *
    *
    */
@@ -193,6 +193,24 @@ class UtilRoute {
       return res.json({ error: util.inspect(err) })
     }
   }
+
+  /**
+   * @api {post} /util/sweep  Sweep BCH and tokens
+   * @apiName Sweep BCH and tokens from a paper wallet
+   * @apiGroup Util
+   * @apiDescription This function can be used to check the BCH balance of a
+   * paper wallet. It can also be used to sweep BCH and tokens from a paper
+   * wallet and send them to a destination address.
+   *
+   * Note: It does not yet support multiple token classes on the same paper wallet.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X POST "https://mainnet.bchjs.cash/v3/util/sweep" -H "accept: application/json" -H "Content-Type: application/json" -d '{"wif":"Kz52sdXLAiKtH82iAFRi6aTZanWtW5Eyv37KWdpY6tTv7pjoHste", "balanceOnly": true}'
+   * curl -X POST "https://mainnet.bchjs.cash/v3/util/sweep" -H "accept: application/json" -H "Content-Type: application/json" -d '{"wif":"Kz52sdXLAiKtH82iAFRi6aTZanWtW5Eyv37KWdpY6tTv7pjoHste", "toAddr": "bitcoincash:qpt8m4kqu963geedyrur6pdggqmv5kxwnq0rn322qu"}'
+   *
+   *
+   */
 
   async sweepWif(req, res, next) {
     try {
