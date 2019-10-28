@@ -31,6 +31,10 @@ const BitboxHTTP = axios.create({
 const username = process.env.RPC_USERNAME
 const password = process.env.RPC_PASSWORD
 
+// Determine the Access password for a private instance of SLPDB.
+// https://gist.github.com/christroutner/fc717ca704dec3dded8b52fae387eab2
+const SLPDB_PASS = process.env.SLPDB_PASS ? process.env.SLPDB_PASS : "BITBOX"
+
 // Setup REST and TREST URLs used by slpjs
 // Dev note: this allows for unit tests to mock the URL.
 if (!process.env.REST_URL) process.env.REST_URL = `https://rest.bitcoin.com/v2/`
@@ -160,40 +164,40 @@ const requestConfig = {
   }
 }
 
-// function formatTokenOutput(token) {
-//   token.tokenDetails.id = token.tokenDetails.tokenIdHex
-//   delete token.tokenDetails.tokenIdHex
-//   token.tokenDetails.documentHash = token.tokenDetails.documentSha256Hex
-//   delete token.tokenDetails.documentSha256Hex
-//   token.tokenDetails.initialTokenQty = parseFloat(
-//     token.tokenDetails.genesisOrMintQuantity
-//   )
-//   delete token.tokenDetails.genesisOrMintQuantity
-//   delete token.tokenDetails.transactionType
-//   delete token.tokenDetails.batonVout
-//   delete token.tokenDetails.sendOutputs
-//
-//   token.tokenDetails.blockCreated = token.tokenStats.block_created
-//   token.tokenDetails.blockLastActiveSend =
-//     token.tokenStats.block_last_active_send
-//   token.tokenDetails.blockLastActiveMint =
-//     token.tokenStats.block_last_active_mint
-//   token.tokenDetails.txnsSinceGenesis =
-//     token.tokenStats.qty_valid_txns_since_genesis
-//   token.tokenDetails.validAddresses = token.tokenStats.qty_valid_token_addresses
-//   token.tokenDetails.totalMinted = parseFloat(token.tokenStats.qty_token_minted)
-//   token.tokenDetails.totalBurned = parseFloat(token.tokenStats.qty_token_burned)
-//   token.tokenDetails.circulatingSupply = parseFloat(
-//     token.tokenStats.qty_token_circulating_supply
-//   )
-//   token.tokenDetails.mintingBatonStatus = token.tokenStats.minting_baton_status
-//
-//   delete token.tokenStats.block_last_active_send
-//   delete token.tokenStats.block_last_active_mint
-//   delete token.tokenStats.qty_valid_txns_since_genesis
-//   delete token.tokenStats.qty_valid_token_addresses
-//   return token
-// }
+function formatTokenOutput(token) {
+  token.tokenDetails.id = token.tokenDetails.tokenIdHex
+  delete token.tokenDetails.tokenIdHex
+  token.tokenDetails.documentHash = token.tokenDetails.documentSha256Hex
+  delete token.tokenDetails.documentSha256Hex
+  token.tokenDetails.initialTokenQty = parseFloat(
+    token.tokenDetails.genesisOrMintQuantity
+  )
+  delete token.tokenDetails.genesisOrMintQuantity
+  delete token.tokenDetails.transactionType
+  delete token.tokenDetails.batonVout
+  delete token.tokenDetails.sendOutputs
+
+  token.tokenDetails.blockCreated = token.tokenStats.block_created
+  token.tokenDetails.blockLastActiveSend =
+    token.tokenStats.block_last_active_send
+  token.tokenDetails.blockLastActiveMint =
+    token.tokenStats.block_last_active_mint
+  token.tokenDetails.txnsSinceGenesis =
+    token.tokenStats.qty_valid_txns_since_genesis
+  token.tokenDetails.validAddresses = token.tokenStats.qty_valid_token_addresses
+  token.tokenDetails.totalMinted = parseFloat(token.tokenStats.qty_token_minted)
+  token.tokenDetails.totalBurned = parseFloat(token.tokenStats.qty_token_burned)
+  token.tokenDetails.circulatingSupply = parseFloat(
+    token.tokenStats.qty_token_circulating_supply
+  )
+  token.tokenDetails.mintingBatonStatus = token.tokenStats.minting_baton_status
+
+  delete token.tokenStats.block_last_active_send
+  delete token.tokenStats.block_last_active_mint
+  delete token.tokenStats.qty_valid_txns_since_genesis
+  delete token.tokenStats.qty_valid_token_addresses
+  return token
+}
 
 function root(req, res, next) {
   return res.json({ status: "slp" })
@@ -1322,7 +1326,7 @@ async function txDetails(req, res, next) {
     }
 
     // Handle corner case of mis-typted txid
-    if (err.error.indexOf("Not found") > -1) {
+    if (err.error && err.error.indexOf("Not found") > -1) {
       res.status(400)
       return res.json({ error: "TXID not found" })
     }
