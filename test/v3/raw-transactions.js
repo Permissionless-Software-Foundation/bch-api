@@ -134,7 +134,7 @@ describe("#Raw-Transactions", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockDecodeRawTransaction })
       }
 
@@ -211,7 +211,7 @@ describe("#Raw-Transactions", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockDecodeRawTransaction })
       }
 
@@ -240,7 +240,7 @@ describe("#Raw-Transactions", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .times(2)
           .reply(200, { result: mockData.mockDecodeRawTransaction })
       }
@@ -309,7 +309,7 @@ describe("#Raw-Transactions", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockDecodeScript })
       }
 
@@ -375,7 +375,7 @@ describe("#Raw-Transactions", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockDecodeScript })
       }
 
@@ -394,7 +394,7 @@ describe("#Raw-Transactions", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .times(2)
           .reply(200, { result: mockData.mockDecodeScript })
       }
@@ -453,7 +453,7 @@ describe("#Raw-Transactions", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(500, {
             error: { message: "parameter 1 must be of length 64 (not 6)" }
           })
@@ -473,7 +473,7 @@ describe("#Raw-Transactions", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockRawTransactionConcise })
       }
 
@@ -492,7 +492,7 @@ describe("#Raw-Transactions", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockRawTransactionVerbose })
       }
 
@@ -541,7 +541,7 @@ describe("#Raw-Transactions", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(500, {
             error: { message: "parameter 1 must be of length 64 (not 6)" }
           })
@@ -561,7 +561,7 @@ describe("#Raw-Transactions", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockRawTransactionConcise })
       }
 
@@ -578,7 +578,7 @@ describe("#Raw-Transactions", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockRawTransactionVerbose })
       }
 
@@ -647,7 +647,7 @@ describe("#Raw-Transactions", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(500, {
             error: { message: "TX decode failed" }
           })
@@ -671,7 +671,7 @@ describe("#Raw-Transactions", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, {
             result:
               "aef8848396e67532b42008b9d75b5a5a3459a6717740f31f0553b74102b4b118"
@@ -759,7 +759,7 @@ describe("#Raw-Transactions", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(500, {
             error: { message: "TX decode failed" }
           })
@@ -781,7 +781,7 @@ describe("#Raw-Transactions", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, {
             result:
               "aef8848396e67532b42008b9d75b5a5a3459a6717740f31f0553b74102b4b118"

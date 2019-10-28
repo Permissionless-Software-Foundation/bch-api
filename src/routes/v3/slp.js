@@ -21,8 +21,8 @@ const slpjs = new slp.Slp(SLP)
 const utils = slp.Utils
 
 // SLP tx db (LevelDB for caching)
-const level = require("level")
-const slpTxDb = level("./slp-tx-db")
+// const level = require("level")
+// const slpTxDb = level("./slp-tx-db")
 
 // Setup JSON RPC
 const BitboxHTTP = axios.create({
@@ -53,101 +53,101 @@ router.get("/txDetails/:txid", txDetails)
 router.get("/tokenStats/:tokenId", tokenStats)
 router.get("/transactions/:tokenId/:address", txsTokenIdAddressSingle)
 
-if (process.env.NON_JS_FRAMEWORK && process.env.NON_JS_FRAMEWORK === "true") {
-  router.get(
-    "/createTokenType1/:fundingAddress/:fundingWif/:tokenReceiverAddress/:batonReceiverAddress/:bchChangeReceiverAddress/:decimals/:name/:symbol/:documentUri/:documentHash/:initialTokenQty",
-    createTokenType1
-  )
-  router.get(
-    "/mintTokenType1/:fundingAddress/:fundingWif/:tokenReceiverAddress/:batonReceiverAddress/:bchChangeReceiverAddress/:tokenId/:additionalTokenQty",
-    mintTokenType1
-  )
-  router.get(
-    "/sendTokenType1/:fundingAddress/:fundingWif/:tokenReceiverAddress/:bchChangeReceiverAddress/:tokenId/:amount",
-    sendTokenType1
-  )
-  router.get(
-    "/burnTokenType1/:fundingAddress/:fundingWif/:bchChangeReceiverAddress/:tokenId/:amount",
-    burnTokenType1
-  )
-  router.get(
-    "/burnAllTokenType1/:fundingAddress/:fundingWif/:bchChangeReceiverAddress/:tokenId",
-    burnAllTokenType1
-  )
-}
+// if (process.env.NON_JS_FRAMEWORK && process.env.NON_JS_FRAMEWORK === "true") {
+//   router.get(
+//     "/createTokenType1/:fundingAddress/:fundingWif/:tokenReceiverAddress/:batonReceiverAddress/:bchChangeReceiverAddress/:decimals/:name/:symbol/:documentUri/:documentHash/:initialTokenQty",
+//     createTokenType1
+//   )
+//   router.get(
+//     "/mintTokenType1/:fundingAddress/:fundingWif/:tokenReceiverAddress/:batonReceiverAddress/:bchChangeReceiverAddress/:tokenId/:additionalTokenQty",
+//     mintTokenType1
+//   )
+//   router.get(
+//     "/sendTokenType1/:fundingAddress/:fundingWif/:tokenReceiverAddress/:bchChangeReceiverAddress/:tokenId/:amount",
+//     sendTokenType1
+//   )
+//   router.get(
+//     "/burnTokenType1/:fundingAddress/:fundingWif/:bchChangeReceiverAddress/:tokenId/:amount",
+//     burnTokenType1
+//   )
+//   router.get(
+//     "/burnAllTokenType1/:fundingAddress/:fundingWif/:bchChangeReceiverAddress/:tokenId",
+//     burnAllTokenType1
+//   )
+// }
 
 // Retrieve raw transactions details from the full node.
 // TODO: move this function to a separate support library.
 // TODO: Add unit tests for this function.
-async function getRawTransactionsFromNode(txids) {
-  try {
-    const {
-      BitboxHTTP,
-      username,
-      password,
-      requestConfig
-    } = routeUtils.setEnvVars()
-
-    const txPromises = txids.map(async txid => {
-      // Check slpTxDb
-      try {
-        if (slpTxDb.isOpen()) {
-          const rawTx = await slpTxDb.get(txid)
-          return rawTx
-        }
-      } catch (err) {}
-
-      requestConfig.data.id = "getrawtransaction"
-      requestConfig.data.method = "getrawtransaction"
-      requestConfig.data.params = [txid, 0]
-
-      const response = await BitboxHTTP(requestConfig)
-      const result = response.data.result
-
-      // Insert to slpTxDb
-      try {
-        if (slpTxDb.isOpen()) await slpTxDb.put(txid, result)
-      } catch (err) {
-        // console.log("Error inserting to slpTxDb", err)
-      }
-
-      return result
-    })
-
-    const results = await axios.all(txPromises)
-    return results
-  } catch (err) {
-    wlogger.error(`Error in slp.ts/getRawTransactionsFromNode().`, err)
-    throw err
-  }
-}
+// async function getRawTransactionsFromNode(txids) {
+//   try {
+//     const {
+//       BitboxHTTP,
+//       username,
+//       password,
+//       requestConfig
+//     } = routeUtils.setEnvVars()
+//
+//     const txPromises = txids.map(async txid => {
+//       // Check slpTxDb
+//       try {
+//         if (slpTxDb.isOpen()) {
+//           const rawTx = await slpTxDb.get(txid)
+//           return rawTx
+//         }
+//       } catch (err) {}
+//
+//       requestConfig.data.id = "getrawtransaction"
+//       requestConfig.data.method = "getrawtransaction"
+//       requestConfig.data.params = [txid, 0]
+//
+//       const response = await BitboxHTTP(requestConfig)
+//       const result = response.data.result
+//
+//       // Insert to slpTxDb
+//       try {
+//         if (slpTxDb.isOpen()) await slpTxDb.put(txid, result)
+//       } catch (err) {
+//         // console.log("Error inserting to slpTxDb", err)
+//       }
+//
+//       return result
+//     })
+//
+//     const results = await axios.all(txPromises)
+//     return results
+//   } catch (err) {
+//     wlogger.error(`Error in slp.ts/getRawTransactionsFromNode().`, err)
+//     throw err
+//   }
+// }
 
 // Create a validator for validating SLP transactions.
-function createValidator(network, getRawTransactions = null) {
-  let tmpSLP
-
-  if (network === "mainnet")
-    tmpSLP = new SLPSDK({ restURL: process.env.REST_URL })
-  else tmpSLP = new SLPSDK({ restURL: process.env.TREST_URL })
-
-  const slpValidator = new slp.LocalValidator(
-    tmpSLP,
-    getRawTransactions
-      ? getRawTransactions
-      : tmpSLP.RawTransactions.getRawTransaction.bind(this)
-  )
-
-  return slpValidator
-}
+// function createValidator(network, getRawTransactions = null) {
+//   let tmpSLP
+//
+//   if (network === "mainnet")
+//     tmpSLP = new SLPSDK({ restURL: process.env.REST_URL })
+//   else tmpSLP = new SLPSDK({ restURL: process.env.TREST_URL })
+//
+//   const slpValidator = new slp.LocalValidator(
+//     tmpSLP,
+//     getRawTransactions
+//       ? getRawTransactions
+//       : tmpSLP.RawTransactions.getRawTransaction.bind(this)
+//   )
+//
+//   return slpValidator
+// }
 
 // Instantiate the local SLP validator.
-const slpValidator = createValidator(
-  process.env.NETWORK,
-  getRawTransactionsFromNode
-)
+// const slpValidator = createValidator(
+//   process.env.NETWORK,
+//   getRawTransactionsFromNode
+// )
 
 // Instantiate the bitboxproxy class in SLPJS.
-const bitboxproxy = new slp.BitboxNetwork(SLP, slpValidator)
+// const bitboxproxy = new slp.BitboxNetwork(SLP, slpValidator)
 
 const requestConfig = {
   method: "post",
@@ -160,44 +160,45 @@ const requestConfig = {
   }
 }
 
-function formatTokenOutput(token) {
-  token.tokenDetails.id = token.tokenDetails.tokenIdHex
-  delete token.tokenDetails.tokenIdHex
-  token.tokenDetails.documentHash = token.tokenDetails.documentSha256Hex
-  delete token.tokenDetails.documentSha256Hex
-  token.tokenDetails.initialTokenQty = parseFloat(
-    token.tokenDetails.genesisOrMintQuantity
-  )
-  delete token.tokenDetails.genesisOrMintQuantity
-  delete token.tokenDetails.transactionType
-  delete token.tokenDetails.batonVout
-  delete token.tokenDetails.sendOutputs
-
-  token.tokenDetails.blockCreated = token.tokenStats.block_created
-  token.tokenDetails.blockLastActiveSend =
-    token.tokenStats.block_last_active_send
-  token.tokenDetails.blockLastActiveMint =
-    token.tokenStats.block_last_active_mint
-  token.tokenDetails.txnsSinceGenesis =
-    token.tokenStats.qty_valid_txns_since_genesis
-  token.tokenDetails.validAddresses = token.tokenStats.qty_valid_token_addresses
-  token.tokenDetails.totalMinted = parseFloat(token.tokenStats.qty_token_minted)
-  token.tokenDetails.totalBurned = parseFloat(token.tokenStats.qty_token_burned)
-  token.tokenDetails.circulatingSupply = parseFloat(
-    token.tokenStats.qty_token_circulating_supply
-  )
-  token.tokenDetails.mintingBatonStatus = token.tokenStats.minting_baton_status
-
-  delete token.tokenStats.block_last_active_send
-  delete token.tokenStats.block_last_active_mint
-  delete token.tokenStats.qty_valid_txns_since_genesis
-  delete token.tokenStats.qty_valid_token_addresses
-  return token
-}
+// function formatTokenOutput(token) {
+//   token.tokenDetails.id = token.tokenDetails.tokenIdHex
+//   delete token.tokenDetails.tokenIdHex
+//   token.tokenDetails.documentHash = token.tokenDetails.documentSha256Hex
+//   delete token.tokenDetails.documentSha256Hex
+//   token.tokenDetails.initialTokenQty = parseFloat(
+//     token.tokenDetails.genesisOrMintQuantity
+//   )
+//   delete token.tokenDetails.genesisOrMintQuantity
+//   delete token.tokenDetails.transactionType
+//   delete token.tokenDetails.batonVout
+//   delete token.tokenDetails.sendOutputs
+//
+//   token.tokenDetails.blockCreated = token.tokenStats.block_created
+//   token.tokenDetails.blockLastActiveSend =
+//     token.tokenStats.block_last_active_send
+//   token.tokenDetails.blockLastActiveMint =
+//     token.tokenStats.block_last_active_mint
+//   token.tokenDetails.txnsSinceGenesis =
+//     token.tokenStats.qty_valid_txns_since_genesis
+//   token.tokenDetails.validAddresses = token.tokenStats.qty_valid_token_addresses
+//   token.tokenDetails.totalMinted = parseFloat(token.tokenStats.qty_token_minted)
+//   token.tokenDetails.totalBurned = parseFloat(token.tokenStats.qty_token_burned)
+//   token.tokenDetails.circulatingSupply = parseFloat(
+//     token.tokenStats.qty_token_circulating_supply
+//   )
+//   token.tokenDetails.mintingBatonStatus = token.tokenStats.minting_baton_status
+//
+//   delete token.tokenStats.block_last_active_send
+//   delete token.tokenStats.block_last_active_mint
+//   delete token.tokenStats.qty_valid_txns_since_genesis
+//   delete token.tokenStats.qty_valid_token_addresses
+//   return token
+// }
 
 function root(req, res, next) {
   return res.json({ status: "slp" })
 }
+
 /**
  * @api {get} /slp/list  List all SLP tokens.
  * @apiName List all SLP tokens.
@@ -255,6 +256,7 @@ async function list(req, res, next) {
     return res.json({ error: `Error in /list: ${err.message}` })
   }
 }
+
 /**
  * @api {get} /slp/list/{tokenId}  List single SLP token by id.
  * @apiName List single SLP token by id.
@@ -292,6 +294,7 @@ async function listSingleToken(req, res, next) {
     return res.json({ error: `Error in /list/:tokenId: ${err.message}` })
   }
 }
+
 /**
  * @api {post} /slp/list/  List Bulk SLP token .
  * @apiName List Bulk SLP token.
@@ -814,6 +817,7 @@ async function balancesForTokenSingle(req, res, next) {
     })
   }
 }
+
 /**
  * @api {get} /slp/balance/{address}/{TokenId}  List single slp token balance for address.
  * @apiName List single slp token balance for address.
@@ -953,6 +957,7 @@ async function balancesForAddressByTokenID(req, res, next) {
     })
   }
 }
+
 /**
  * @api {get} /slp/convert/{address}  Convert address to slpAddr, cashAddr and legacy.
  * @apiName Convert address to slpAddr, cashAddr and legacy.
@@ -1002,6 +1007,7 @@ async function convertAddressSingle(req, res, next) {
     })
   }
 }
+
 /**
  * @api {post} /slp/convert/  Convert multiple addresses to cash, legacy and simpleledger format.
  * @apiName Convert multiple addresses to cash, legacy and simpleledger format.
@@ -1061,6 +1067,7 @@ async function convertAddressBulk(req, res, next) {
   res.status(200)
   return res.json(convertedAddresses)
 }
+
 /**
  * @api {post} /slp/validateTxid/  Validate multiple SLP transactions by txid.
  * @apiName Validate multiple SLP transactions by txid.
@@ -1093,32 +1100,55 @@ async function validateBulk(req, res, next) {
 
     wlogger.debug(`Executing slp/validate with these txids: `, txids)
 
-    // Validate each txid
-    const validatePromises = txids.map(async txid => {
-      try {
-        // Dev note: must call module.exports to allow stubs in unit tests.
-        const isValid = await module.exports.testableComponents.isValidSlpTxid(
-          txid
-        )
-
-        const tmp = {
-          txid: txid,
-          valid: isValid ? true : false
-        }
-        return tmp
-      } catch (err) {
-        //console.log(`err obj: ${util.inspect(err)}`)
-        //console.log(`err.response.data: ${util.inspect(err.response.data)}`)
-        throw err
+    const query = {
+      v: 3,
+      q: {
+        db: ["c", "u"],
+        find: {
+          "tx.h": { $in: txids }
+        },
+        limit: 300,
+        project: { "slp.valid": 1, "tx.h": 1, "slp.invalidReason": 1 }
       }
-    })
+    }
+    const s = JSON.stringify(query)
+    const b64 = Buffer.from(s).toString("base64")
+    const url = `${process.env.SLPDB_URL}q/${b64}`
 
-    // Filter array to only valid txid results
-    const validateResults = await axios.all(validatePromises)
-    const validTxids = validateResults.filter(result => result)
+    const options = generateCredentials()
+
+    // Get data from SLPDB.
+    const tokenRes = await axios.get(url, options)
+
+    const formattedTokens = []
+
+    const concatArray = tokenRes.data.c.concat(tokenRes.data.u)
+    const tokenIds = []
+    if (concatArray.length > 0) {
+      concatArray.forEach(token => {
+        tokenIds.push(token.tx.h)
+        const validationResult = {
+          txid: token.tx.h,
+          valid: token.slp.valid
+        }
+        if (!validationResult.valid)
+          validationResult.invalidReason = token.slp.invalidReason
+
+        formattedTokens.push(validationResult)
+      })
+
+      txids.forEach(tokenId => {
+        if (!tokenIds.includes(tokenId)) {
+          formattedTokens.push({
+            txid: tokenId,
+            valid: false
+          })
+        }
+      })
+    }
 
     res.status(200)
-    return res.json(validTxids)
+    return res.json(formattedTokens)
   } catch (err) {
     wlogger.error(`Error in slp.ts/validateBulk().`, err)
 
@@ -1133,6 +1163,7 @@ async function validateBulk(req, res, next) {
     return res.json({ error: util.inspect(err) })
   }
 }
+
 /**
  * @api {get} /slp/validateTxid/{txid}  Validate single SLP transaction by txid.
  * @apiName Validate single SLP transaction by txid.
@@ -1157,13 +1188,41 @@ async function validateSingle(req, res, next) {
 
     wlogger.debug(`Executing slp/validate/:txid with this txid: `, txid)
 
-    // Validate txid
-    // Dev note: must call module.exports to allow stubs in unit tests.
-    const isValid = await module.exports.testableComponents.isValidSlpTxid(txid)
+    const query = {
+      v: 3,
+      q: {
+        db: ["c", "u"],
+        find: {
+          "tx.h": txid
+        },
+        limit: 300,
+        project: { "slp.valid": 1, "tx.h": 1, "slp.invalidReason": 1 }
+      }
+    }
 
-    const tmp = {
+    const options = generateCredentials()
+
+    const s = JSON.stringify(query)
+    const b64 = Buffer.from(s).toString("base64")
+    const url = `${process.env.SLPDB_URL}q/${b64}`
+
+    // Get data from SLPDB.
+    const tokenRes = await axios.get(url, options)
+
+    // Default return value.
+    let result = {
       txid: txid,
-      valid: isValid ? true : false
+      valid: false
+    }
+
+    // Build result.
+    const concatArray = tokenRes.data.c.concat(tokenRes.data.u)
+    if (concatArray.length > 0) {
+      result = {
+        txid: concatArray[0].tx.h,
+        valid: concatArray[0].slp.valid
+      }
+      if (!result.valid) result.invalidReason = concatArray[0].slp.invalidReason
     }
 
     res.status(200)
@@ -1189,278 +1248,6 @@ async function isValidSlpTxid(txid) {
   return isValid
 }
 
-// Below are functions which are enabled for teams not using our javascript SDKs which still need to create txs
-// These should never be enabled on our public REST API
-
-async function createTokenType1(req, res, next) {
-  const fundingAddress = req.params.fundingAddress
-  if (!fundingAddress || fundingAddress === "") {
-    res.status(400)
-    return res.json({ error: "fundingAddress can not be empty" })
-  }
-
-  const fundingWif = req.params.fundingWif
-  if (!fundingWif || fundingWif === "") {
-    res.status(400)
-    return res.json({ error: "fundingWif can not be empty" })
-  }
-
-  const tokenReceiverAddress = req.params.tokenReceiverAddress
-  if (!tokenReceiverAddress || tokenReceiverAddress === "") {
-    res.status(400)
-    return res.json({ error: "tokenReceiverAddress can not be empty" })
-  }
-
-  const batonReceiverAddress = req.params.batonReceiverAddress
-  if (!batonReceiverAddress || batonReceiverAddress === "") {
-    res.status(400)
-    return res.json({ error: "batonReceiverAddress can not be empty" })
-  }
-
-  const bchChangeReceiverAddress = req.params.bchChangeReceiverAddress
-  if (!bchChangeReceiverAddress || bchChangeReceiverAddress === "") {
-    res.status(400)
-    return res.json({ error: "bchChangeReceiverAddress can not be empty" })
-  }
-
-  const decimals = req.params.decimals
-  if (!decimals || decimals === "") {
-    res.status(400)
-    return res.json({ error: "decimals can not be empty" })
-  }
-
-  const name = req.params.name
-  if (!name || name === "") {
-    res.status(400)
-    return res.json({ error: "name can not be empty" })
-  }
-
-  const symbol = req.params.symbol
-  if (!symbol || symbol === "") {
-    res.status(400)
-    return res.json({ error: "symbol can not be empty" })
-  }
-
-  const documentUri = req.params.documentUri
-  if (!documentUri || documentUri === "") {
-    res.status(400)
-    return res.json({ error: "documentUri can not be empty" })
-  }
-
-  const documentHash = req.params.documentHash
-  if (!documentHash || documentHash === "") {
-    res.status(400)
-    return res.json({ error: "documentHash can not be empty" })
-  }
-
-  const initialTokenQty = req.params.initialTokenQty
-  if (!initialTokenQty || initialTokenQty === "") {
-    res.status(400)
-    return res.json({ error: "initialTokenQty can not be empty" })
-  }
-
-  const token = await SLP.TokenType1.create({
-    fundingAddress: fundingAddress,
-    fundingWif: fundingWif,
-    tokenReceiverAddress: tokenReceiverAddress,
-    batonReceiverAddress: batonReceiverAddress,
-    bchChangeReceiverAddress: bchChangeReceiverAddress,
-    decimals: decimals,
-    name: name,
-    symbol: symbol,
-    documentUri: documentUri,
-    documentHash: documentHash,
-    initialTokenQty: initialTokenQty
-  })
-
-  res.status(200)
-  return res.json(token)
-}
-
-async function mintTokenType1(req, res, next) {
-  const fundingAddress = req.params.fundingAddress
-  if (!fundingAddress || fundingAddress === "") {
-    res.status(400)
-    return res.json({ error: "fundingAddress can not be empty" })
-  }
-
-  const fundingWif = req.params.fundingWif
-  if (!fundingWif || fundingWif === "") {
-    res.status(400)
-    return res.json({ error: "fundingWif can not be empty" })
-  }
-
-  const tokenReceiverAddress = req.params.tokenReceiverAddress
-  if (!tokenReceiverAddress || tokenReceiverAddress === "") {
-    res.status(400)
-    return res.json({ error: "tokenReceiverAddress can not be empty" })
-  }
-
-  const batonReceiverAddress = req.params.batonReceiverAddress
-  if (!batonReceiverAddress || batonReceiverAddress === "") {
-    res.status(400)
-    return res.json({ error: "batonReceiverAddress can not be empty" })
-  }
-
-  const bchChangeReceiverAddress = req.params.bchChangeReceiverAddress
-  if (!bchChangeReceiverAddress || bchChangeReceiverAddress === "") {
-    res.status(400)
-    return res.json({ error: "bchChangeReceiverAddress can not be empty" })
-  }
-
-  const tokenId = req.params.tokenId
-  if (!tokenId || tokenId === "") {
-    res.status(400)
-    return res.json({ error: "tokenId can not be empty" })
-  }
-
-  const additionalTokenQty = req.params.additionalTokenQty
-  if (!additionalTokenQty || additionalTokenQty === "") {
-    res.status(400)
-    return res.json({ error: "additionalTokenQty can not be empty" })
-  }
-
-  const mint = await SLP.TokenType1.mint({
-    fundingAddress: fundingAddress,
-    fundingWif: fundingWif,
-    tokenReceiverAddress: tokenReceiverAddress,
-    batonReceiverAddress: batonReceiverAddress,
-    bchChangeReceiverAddress: bchChangeReceiverAddress,
-    tokenId: tokenId,
-    additionalTokenQty: additionalTokenQty
-  })
-
-  res.status(200)
-  return res.json(mint)
-}
-
-async function sendTokenType1(req, res, next) {
-  const fundingAddress = req.params.fundingAddress
-  if (!fundingAddress || fundingAddress === "") {
-    res.status(400)
-    return res.json({ error: "fundingAddress can not be empty" })
-  }
-
-  const fundingWif = req.params.fundingWif
-  if (!fundingWif || fundingWif === "") {
-    res.status(400)
-    return res.json({ error: "fundingWif can not be empty" })
-  }
-
-  const tokenReceiverAddress = req.params.tokenReceiverAddress
-  if (!tokenReceiverAddress || tokenReceiverAddress === "") {
-    res.status(400)
-    return res.json({ error: "tokenReceiverAddress can not be empty" })
-  }
-
-  const bchChangeReceiverAddress = req.params.bchChangeReceiverAddress
-  if (!bchChangeReceiverAddress || bchChangeReceiverAddress === "") {
-    res.status(400)
-    return res.json({ error: "bchChangeReceiverAddress can not be empty" })
-  }
-
-  const tokenId = req.params.tokenId
-  if (!tokenId || tokenId === "") {
-    res.status(400)
-    return res.json({ error: "tokenId can not be empty" })
-  }
-
-  const amount = req.params.amount
-  if (!amount || amount === "") {
-    res.status(400)
-    return res.json({ error: "amount can not be empty" })
-  }
-  const send = await SLP.TokenType1.send({
-    fundingAddress: fundingAddress,
-    fundingWif: fundingWif,
-    tokenReceiverAddress: tokenReceiverAddress,
-    bchChangeReceiverAddress: bchChangeReceiverAddress,
-    tokenId: tokenId,
-    amount: amount
-  })
-
-  res.status(200)
-  return res.json(send)
-}
-
-async function burnTokenType1(req, res, next) {
-  const fundingAddress = req.params.fundingAddress
-  if (!fundingAddress || fundingAddress === "") {
-    res.status(400)
-    return res.json({ error: "fundingAddress can not be empty" })
-  }
-
-  const fundingWif = req.params.fundingWif
-  if (!fundingWif || fundingWif === "") {
-    res.status(400)
-    return res.json({ error: "fundingWif can not be empty" })
-  }
-
-  const bchChangeReceiverAddress = req.params.bchChangeReceiverAddress
-  if (!bchChangeReceiverAddress || bchChangeReceiverAddress === "") {
-    res.status(400)
-    return res.json({ error: "bchChangeReceiverAddress can not be empty" })
-  }
-
-  const tokenId = req.params.tokenId
-  if (!tokenId || tokenId === "") {
-    res.status(400)
-    return res.json({ error: "tokenId can not be empty" })
-  }
-
-  const amount = req.params.amount
-  if (!amount || amount === "") {
-    res.status(400)
-    return res.json({ error: "amount can not be empty" })
-  }
-
-  const burn = await SLP.TokenType1.burn({
-    fundingAddress: fundingAddress,
-    fundingWif: fundingWif,
-    tokenId: tokenId,
-    amount: amount,
-    bchChangeReceiverAddress: bchChangeReceiverAddress
-  })
-
-  res.status(200)
-  return res.json(burn)
-}
-
-async function burnAllTokenType1(req, res, next) {
-  const fundingAddress = req.params.fundingAddress
-  if (!fundingAddress || fundingAddress === "") {
-    res.status(400)
-    return res.json({ error: "fundingAddress can not be empty" })
-  }
-
-  const fundingWif = req.params.fundingWif
-  if (!fundingWif || fundingWif === "") {
-    res.status(400)
-    return res.json({ error: "fundingWif can not be empty" })
-  }
-
-  const bchChangeReceiverAddress = req.params.bchChangeReceiverAddress
-  if (!bchChangeReceiverAddress || bchChangeReceiverAddress === "") {
-    res.status(400)
-    return res.json({ error: "bchChangeReceiverAddress can not be empty" })
-  }
-
-  const tokenId = req.params.tokenId
-  if (!tokenId || tokenId === "") {
-    res.status(400)
-    return res.json({ error: "tokenId can not be empty" })
-  }
-
-  const burnAll = await SLP.TokenType1.burnAll({
-    fundingAddress: fundingAddress,
-    fundingWif: fundingWif,
-    tokenId: tokenId,
-    bchChangeReceiverAddress: bchChangeReceiverAddress
-  })
-
-  res.status(200)
-  return res.json(burnAll)
-}
 /**
  * @api {get} /slp/txDetails/{txid}  SLP transaction details.
  * @apiName SLP transaction details.
@@ -1487,22 +1274,43 @@ async function txDetails(req, res, next) {
       return res.json({ error: "This is not a txid" })
     }
 
-    let tmpSLP
-    if (process.env.NETWORK === "testnet")
-      tmpSLP = new SLPSDK({ restURL: process.env.TREST_URL })
-    else tmpSLP = new SLPSDK({ restURL: process.env.REST_URL })
+    const query = {
+      v: 3,
+      db: ["g"],
+      q: {
+        find: {
+          "tx.h": txid
+        },
+        limit: 300
+      }
+    }
 
-    const tmpbitboxNetwork = new slp.BitboxNetwork(tmpSLP, slpValidator)
-    //console.log(
-    //  `tmpbitboxNetwork: ${JSON.stringify(tmpbitboxNetwork, null, 2)}`
-    //)
+    const s = JSON.stringify(query)
+    const b64 = Buffer.from(s).toString("base64")
+    const url = `${process.env.SLPDB_URL}q/${b64}`
 
-    // Get TX info + token info
-    const result = await tmpbitboxNetwork.getTransactionDetails(txid)
-    //console.log(`result: ${JSON.stringify(result, null, 2)}`)
+    const options = generateCredentials()
+
+    // Get token data from SLPDB
+    const tokenRes = await axios.get(url, options)
+    // console.log(`tokenRes: ${util.inspect(tokenRes)}`)
+
+    // Format the returned data to an object.
+    const formatted = await formatToRestObject(tokenRes)
+    // console.log(`formatted: ${JSON.stringify(formatted,null,2)}`)
+
+    // Get information on the transaction from Insight API.
+    const retData = await transactions.transactionsFromInsight(txid)
+    // console.log(`retData: ${JSON.stringify(retData,null,2)}`)
+
+    // Return both the tx data from Insight and the formatted token information.
+    const response = {
+      retData,
+      ...formatted
+    }
 
     res.status(200)
-    return res.json(result)
+    return res.json(response)
   } catch (err) {
     wlogger.error(`Error in slp.ts/txDetails().`, err)
 
@@ -1523,6 +1331,7 @@ async function txDetails(req, res, next) {
     return res.json({ error: util.inspect(err) })
   }
 }
+
 /**
  * @api {get} /slp/tokenStats/{tokenId}  List stats for a single slp token.
  * @apiName List stats for a single slp token.
@@ -1587,6 +1396,7 @@ async function tokenStats(req, res, next) {
     return res.json({ error: `Error in /tokenStats: ${err.message}` })
   }
 }
+
 /**
  * @api {get} /slp/transactions/{tokenId}/{address}  SLP transactions by tokenId and address.
  * @apiName SLP transactions by tokenId and address.
@@ -1668,6 +1478,24 @@ async function txsTokenIdAddressSingle(req, res, next) {
   }
 }
 
+// Generates a Basic Authorization header for slpserve.
+function generateCredentials() {
+  // Generate the Basic Authentication header for a private instance of SLPDB.
+  const username = "BITBOX"
+  const password = SLPDB_PASS
+  const combined = `${username}:${password}`
+  var base64Credential = Buffer.from(combined).toString("base64")
+  var readyCredential = `Basic ${base64Credential}`
+
+  const options = {
+    headers: {
+      authorization: readyCredential
+    }
+  }
+
+  return options
+}
+
 module.exports = {
   router,
   testableComponents: {
@@ -1682,11 +1510,11 @@ module.exports = {
     convertAddressBulk,
     validateBulk,
     isValidSlpTxid,
-    createTokenType1,
-    mintTokenType1,
-    sendTokenType1,
-    burnTokenType1,
-    burnAllTokenType1,
+    // createTokenType1,
+    // mintTokenType1,
+    // sendTokenType1,
+    // burnTokenType1,
+    // burnAllTokenType1,
     txDetails,
     tokenStats,
     balancesForTokenSingle,

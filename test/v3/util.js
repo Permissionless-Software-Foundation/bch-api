@@ -135,7 +135,7 @@ describe("#Util", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockAddress })
       }
 
@@ -255,7 +255,7 @@ describe("#Util", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockAddress })
       }
 
@@ -281,7 +281,7 @@ describe("#Util", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .times(2)
           .reply(200, { result: mockData.mockAddress })
       }
