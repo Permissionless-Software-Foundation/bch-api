@@ -102,7 +102,7 @@ describe("#SLP", () => {
       assert.equal(result.status, "slp", "Returns static string")
     })
   })
-
+  /*
   describe("list()", () => {
     // list route handler
     const list = slpRoute.testableComponents.list
@@ -806,7 +806,7 @@ describe("#SLP", () => {
       ])
     })
   })
-
+*/
   describe("validateBulk()", () => {
     const validateBulk = slpRoute.testableComponents.validateBulk
 
@@ -832,47 +832,68 @@ describe("#SLP", () => {
       assert.include(result.error, "Array too large")
     })
 
-    if (process.env.TEST === "integration") {
-      it("should validate array with single element", async () => {
-        // Mock the RPC call for unit tests.
-        // if (process.env.TEST === "unit") {
-        //   sandbox
-        //     .stub(slpRoute.testableComponents, "isValidSlpTxid")
-        //     .resolves(true)
-        // }
+    it("should validate array with single element", async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === "unit") {
+        nock(`${process.env.SLPDB_URL}`)
+          .get(uri => uri.includes("/"))
+          .reply(200, mockData.mockSingleValidTxid)
+      }
 
-        req.body.txids = [
-          "77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d"
-        ]
+      req.body.txids = [
+        "77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d"
+      ]
 
-        const result = await validateBulk(req, res)
-        // console.log(`result: ${util.inspect(result)}`)
+      const result = await validateBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
 
-        assert.isArray(result)
-        assert.hasAllKeys(result[0], ["txid", "valid"])
-      })
+      assert.isArray(result)
+      assert.hasAllKeys(result[0], ["txid", "valid"])
+    })
 
-      it("should validate array with two elements", async () => {
-        // Mock the RPC call for unit tests.
-        // if (process.env.TEST === "unit") {
-        //   sandbox
-        //     .stub(slpRoute.testableComponents, "isValidSlpTxid")
-        //     .resolves(true)
-        // }
+    it("should validate array with two elements", async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === "unit") {
+        nock(`${process.env.SLPDB_URL}`)
+          .get(uri => uri.includes("/"))
+          .reply(200, mockData.mockTwoValidTxid)
+      }
 
-        req.body.txids = [
-          "77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d",
-          "552112f9e458dc7d1d8b328b0a6685e8af74a64b60b6846e7c86407f27f47e42"
-        ]
+      req.body.txids = [
+        "77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d",
+        "552112f9e458dc7d1d8b328b0a6685e8af74a64b60b6846e7c86407f27f47e42"
+      ]
 
-        const result = await validateBulk(req, res)
-        // console.log(`result: ${util.inspect(result)}`)
+      const result = await validateBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
 
-        assert.isArray(result)
-        assert.hasAllKeys(result[0], ["txid", "valid"])
-        assert.equal(result.length, 2)
-      })
-    }
+      assert.isArray(result)
+      assert.hasAllKeys(result[0], ["txid", "valid"])
+      assert.equal(result.length, 2)
+    })
+
+    // Captures a regression bug that went out to production, captured in this
+    // GitHub Issue: https://github.com/Bitcoin-com/rest.bitcoin.com/issues/518
+    it("should return two elements if given two elements", async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === "unit") {
+        nock(`${process.env.SLPDB_URL}`)
+          .get(uri => uri.includes("/"))
+          .reply(200, mockData.mockTwoRedundentTxid)
+      }
+
+      req.body.txids = [
+        "d56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56",
+        "d56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56"
+      ]
+
+      const result = await validateBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.isArray(result)
+      assert.hasAllKeys(result[0], ["txid", "valid"])
+      assert.equal(result.length, 2)
+    })
   })
 
   describe("tokenStatsSingle()", () => {
