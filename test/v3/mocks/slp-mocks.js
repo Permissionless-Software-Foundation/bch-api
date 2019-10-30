@@ -313,6 +313,64 @@ const mockFoobar = {
   u: []
 }
 
+const mockSingleValidTxid = {
+  c: [
+    {
+      _id: "5d965fc27f1cf2184ca2fe73",
+      tx: {
+        h: "77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d"
+      },
+      slp: {
+        valid: true,
+        invalidReason: null
+      }
+    }
+  ],
+  u: []
+}
+
+const mockTwoValidTxid = {
+  c: [
+    {
+      _id: "5d965fc27f1cf2184ca2fe73",
+      tx: {
+        h: "77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d"
+      },
+      slp: {
+        valid: true,
+        invalidReason: null
+      }
+    },
+    {
+      _id: "5d71e69758380a002c492a90",
+      tx: {
+        h: "552112f9e458dc7d1d8b328b0a6685e8af74a64b60b6846e7c86407f27f47e42"
+      },
+      slp: {
+        valid: true,
+        invalidReason: null
+      }
+    }
+  ],
+  u: []
+}
+
+const mockTwoRedundentTxid = {
+  c: [
+    {
+      _id: "5db99c72a391ae2afd604bde",
+      tx: {
+        h: "d56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56"
+      },
+      slp: {
+        valid: true,
+        invalidReason: null
+      }
+    }
+  ],
+  u: []
+}
+
 module.exports = {
   mockList,
   mockSingleToken,
@@ -324,5 +382,8 @@ module.exports = {
   mockTransactions,
   mockSingleTokenError,
   mockSingleAddress,
-  mockFoobar
+  mockFoobar,
+  mockSingleValidTxid,
+  mockTwoValidTxid,
+  mockTwoRedundentTxid
 }
