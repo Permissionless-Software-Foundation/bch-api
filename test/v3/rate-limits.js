@@ -14,11 +14,15 @@ const { mockReq, mockRes, mockNext } = require("./mocks/express-mocks")
 // Libraries under test
 let rateLimitMiddleware = require("../../src/middleware/route-ratelimit")
 const controlRoute = require("../../src/routes/v3/full-node/control")
+const jwtAuth = require("../../src/middleware/jwt-auth")
 
 let req, res, next
 let originalEnvVars // Used during transition from integration to unit tests.
 
-describe("#route-ratelimits", () => {
+// JWT token used in tests.
+const jwt = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkYWRlM2Y1NzM5ZTZjMGZmMDM0YjlhMSIsImlhdCI6MTU3MTY3NzQ1MCwiZXhwIjoxNTc0MjY5NDUwfQ.SSz7F7ETyBB3eoNG2VKCzPOhddtB-vrtmEoj7PxicrQ`
+
+describe("#route-ratelimits & jwt-auth", () => {
   before(() => {
     // Save existing environment variables.
     originalEnvVars = {
@@ -35,14 +39,108 @@ describe("#route-ratelimits", () => {
   // Setup the mocks before each test.
   beforeEach(() => {
     // Mock the req and res objects used by Express routes.
-    req = mockReq
-    res = mockRes
+    req = Object.assign({}, mockReq)
+    res = Object.assign({}, mockRes)
     next = mockNext
 
     // Explicitly reset the parmas and body.
     req.params = {}
     req.body = {}
     req.query = {}
+  })
+
+  describe("#jwt-auth.js", () => {
+    describe("#getTokenFromHeaders", () => {
+      it(`should populate the req.locals object correctly`, () => {
+        // Initialize req.locals
+        req.locals = {
+          proLimit: false,
+          apiLevel: 0
+        }
+
+        const header = `Token ${jwt}`
+        req.headers.authorization = header
+
+        jwtAuth.getTokenFromHeaders(req, res, next)
+
+        // console.log(`req.locals: ${JSON.stringify(req.locals, null, 2)}`)
+
+        assert.property(req.locals, "proLimit")
+        assert.property(req.locals, "apiLevel")
+        assert.property(req.locals, "jwtToken")
+        assert.equal(req.locals.jwtToken, jwt)
+      })
+    })
+
+    describe("#routeAccess", () => {
+      it("should do nothing if req.locals.jwtToken is undefined", () => {
+        // Initialize req.locals
+        req.locals = {
+          proLimit: false,
+          apiLevel: 0
+        }
+        req.url = "/insight/address/details"
+
+        // Reset the history of the stub and assert it has not been called.
+        res.status.resetHistory()
+        assert.equal(res.status.called, false, "stub history reset")
+
+        jwtAuth.routeAccess(req, res, next)
+
+        // console.log(`req.locals: ${JSON.stringify(req.locals, null, 2)}`)
+        assert.equal(
+          res.status.called,
+          false,
+          "stub should NOT have been called."
+        )
+      })
+
+      it("should throw error if full-node tier tries to access indexer", () => {
+        // Initialize req.locals
+        req.locals = {
+          proLimit: true,
+          apiLevel: 10,
+          jwtToken: jwt
+        }
+        req.url = "/insight/address/details"
+
+        try {
+          res.status.resetHistory()
+          assert.equal(res.status.called, false, "stub history reset")
+
+          jwtAuth.routeAccess(req, res, next)
+
+          assert.equal(res.status.called, true, "stub should have been called.")
+        } catch (err) {
+          console.log(`caught error: `, err)
+        }
+      })
+
+      it("should allow indexer tier tries access indexer endpoints", () => {
+        // Initialize req.locals
+        req.locals = {
+          proLimit: true,
+          apiLevel: 20,
+          jwtToken: jwt
+        }
+        req.url = "/insight/address/details"
+
+        try {
+          res.status.resetHistory()
+          assert.equal(res.status.called, false, "stub history reset")
+
+          jwtAuth.routeAccess(req, res, next)
+
+          assert.equal(
+            res.status.called,
+            false,
+            "stub should NOT have been called."
+          )
+        } catch (err) {
+          console.log(`caught error: `, err)
+        }
+      })
+    })
   })
 
   describe("#routeRateLimit", () => {

@@ -75,7 +75,8 @@ const auth = new AuthMW()
 app.use(`/${v3prefix}/`, auth.mw())
 
 // Rate limit on all v3 routes
-app.use(`/${v3prefix}/`, routeRateLimit)
+app.use(`/${v3prefix}/`, routeRateLimit) // Establish and enforce rate limits.
+app.use(`/${v3prefix}/`, jwtAuth.routeAccess) // Enforce access tiers.
 app.use(`/${v3prefix}/` + `health-check`, healthCheckV3)
 app.use(`/${v3prefix}/` + `blockchain`, blockchainV3.router)
 app.use(`/${v3prefix}/` + `control`, controlV3.router)
