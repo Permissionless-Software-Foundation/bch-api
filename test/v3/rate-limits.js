@@ -62,12 +62,67 @@ describe("#route-ratelimits", () => {
       assert.equal(next.called, true)
     })
 
-    it("should trigger rate-limit handler if rate limits exceeds 25 request per minute", async () => {
+    it("should trigger rate-limit handler if rate limits exceeds 5 request per minute", async () => {
       req.baseUrl = "/v3"
       req.path = "/control/getNetworkInfo"
       req.method = "GET"
 
-      for (let i = 0; i < 35; i++) {
+      for (let i = 0; i < 5; i++) {
+        next.reset() // reset the stubbed next() function.
+
+        await routeRateLimit(req, res, next)
+        //console.log(`next() called: ${next.called}`)
+      }
+
+      // Note: next() will be called unless the rate-limit kicks in.
+      assert.equal(
+        next.called,
+        false,
+        `next should not be called if rate limit was triggered.`
+      )
+    })
+
+    it("should NOT trigger rate-limit for free-tier at 5 RPM", async () => {
+      // Clear the require cache before running this test.
+      delete require.cache[
+        require.resolve("../../src/middleware/route-ratelimit")
+      ]
+      rateLimitMiddleware = require("../../src/middleware/route-ratelimit")
+      routeRateLimit = rateLimitMiddleware.routeRateLimit
+
+      req.baseUrl = "/v3"
+      req.path = "/control/getNetworkInfo"
+      req.method = "GET"
+
+      req.locals.proLimit = true
+      req.locals.apiLevel = 0
+
+      for (let i = 0; i < 5; i++) {
+        next.reset() // reset the stubbed next() function.
+
+        await routeRateLimit(req, res, next)
+        //console.log(`next() called: ${next.called}`)
+      }
+
+      //console.log(`req.locals after test: ${util.inspect(req.locals)}`)
+
+      // Note: next() will be called unless the rate-limit kicks in.
+      assert.equal(
+        next.called,
+        true,
+        `next should be called if rate limit was not triggered.`
+      )
+    })
+
+    it("should trigger rate-limit for free tier 10 RPM", async () => {
+      req.baseUrl = "/v3"
+      req.path = "/control/getNetworkInfo"
+      req.method = "GET"
+
+      req.locals.proLimit = true
+      req.locals.apiLevel = 0
+
+      for (let i = 0; i < 12; i++) {
         next.reset() // reset the stubbed next() function.
 
         await routeRateLimit(req, res, next)
@@ -95,11 +150,7 @@ describe("#route-ratelimits", () => {
       req.method = "GET"
 
       req.locals.proLimit = true
-
-      //console.log(`req.locals before test: ${util.inspect(req.locals)}`)
-
-      // Prepare the authorization header
-      //req.headers.authorization = generateAuthHeader("BITBOX")
+      req.locals.apiLevel = 10
 
       for (let i = 0; i < 25; i++) {
         next.reset() // reset the stubbed next() function.
@@ -131,13 +182,9 @@ describe("#route-ratelimits", () => {
       req.method = "GET"
 
       req.locals.proLimit = true
+      req.locals.apiLevel = 10
 
-      //console.log(`req.locals before test: ${util.inspect(req.locals)}`)
-
-      // Prepare the authorization header
-      //req.headers.authorization = generateAuthHeader("BITBOX")
-
-      for (let i = 0; i < 400; i++) {
+      for (let i = 0; i < 150; i++) {
         next.reset() // reset the stubbed next() function.
 
         await routeRateLimit(req, res, next)

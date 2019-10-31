@@ -1,10 +1,13 @@
 /*
   This file controls the request-per-minute (RPM) rate limits.
 
-  It is assumed that this middleware is run AFTER the auth.js middleware which
-  checks for Basic auth. If the user adds the correct Basic auth to the header
-  of their API request, they will get pro-tier rate limits. By default, the
-  freemium rate limits apply.
+  It is assumed that this middleware is run AFTER the jwt-auth.js and auth.js
+  middleware.
+
+  Current rate limiting rules in requests-per-minute:
+  - anonymous access: 3
+  - free access: 10
+  - any paid tier: 100
 */
 
 "use strict"
@@ -16,10 +19,10 @@ const axios = require("axios")
 // Set max requests per minute
 const maxRequests = process.env.RATE_LIMIT_MAX_REQUESTS
   ? parseInt(process.env.RATE_LIMIT_MAX_REQUESTS)
-  : 10
+  : 3
 
 // Pro-tier rate limits are 10x the freemium limits.
-const PRO_RPM = 10 * maxRequests
+// const PRO_RPM = 10 * maxRequests
 
 // Unique route mapped to its rate limit
 const uniqueRateLimits = {}
@@ -86,6 +89,9 @@ const routeRateLimit = async function(req, res, next) {
   if (proRateLimits) {
     // TODO: replace the console.logs with calls to our logging system.
     //console.log(`applying pro-rate limits`)
+
+    let PRO_RPM = 10 // Default value for free tier
+    if (req.locals.apiLevel > 0) PRO_RPM = 100 // RPM for paid tiers.
 
     // Create new RateLimit if none exists for this route
     if (!uniqueRateLimits[route]) {
