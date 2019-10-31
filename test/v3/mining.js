@@ -114,7 +114,7 @@ describe("#Mining", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockMiningInfo })
       }
 
@@ -163,7 +163,7 @@ describe("#Mining", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: 517604755.6648782 })
       }
 

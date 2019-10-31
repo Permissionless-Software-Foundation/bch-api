@@ -27,6 +27,9 @@ describe("#route-ratelimits", () => {
       RPC_USERNAME: process.env.RPC_USERNAME,
       RPC_PASSWORD: process.env.RPC_PASSWORD
     }
+
+    if (!process.env.JWT_AUTH_SERVER)
+      process.env.JWT_AUTH_SERVER = `http://fakeurl.com/`
   })
 
   // Setup the mocks before each test.

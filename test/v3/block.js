@@ -385,8 +385,9 @@ describe("#Block", () => {
 
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
+        console.log(`process.env.RPC_BASEURL: ${process.env.RPC_BASEURL}`)
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(500, {
             error: {
               code: -1,
@@ -410,7 +411,7 @@ describe("#Block", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockBlockHash })
       }
 
@@ -501,7 +502,7 @@ describe("#Block", () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(500, {
             error: {
               code: -1,
@@ -546,7 +547,7 @@ describe("#Block", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .reply(200, { result: mockData.mockBlockHash })
 
         nock(`${process.env.BITCOINCOM_BASEURL}`)
@@ -589,7 +590,7 @@ describe("#Block", () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === "unit") {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(``)
+          .post(uri => uri.includes("/"))
           .times(2)
           .reply(200, { result: mockData.mockBlockHash })
 
