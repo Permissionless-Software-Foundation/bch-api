@@ -20,21 +20,6 @@ const cors = require("cors")
 const AuthMW = require("./middleware/auth")
 const jwtAuth = require("./middleware/jwt-auth")
 
-// v2
-const indexV2 = require("./routes/v2/index")
-const healthCheckV2 = require("./routes/v2/health-check")
-const addressV2 = require("./routes/v2/address")
-const blockV2 = require("./routes/v2/block")
-const blockchainV2 = require("./routes/v2/blockchain")
-const controlV2 = require("./routes/v2/control")
-const generatingV2 = require("./routes/v2/generating")
-const miningV2 = require("./routes/v2/mining")
-const networkV2 = require("./routes/v2/network")
-const rawtransactionsV2 = require("./routes/v2/rawtransactions")
-const transactionV2 = require("./routes/v2/transaction")
-const utilV2 = require("./routes/v2/util")
-const slpV2 = require("./routes/v2/slp")
-
 // v3
 const healthCheckV3 = require("./routes/v3/health-check")
 const blockchainV3 = require("./routes/v3/blockchain")
@@ -78,17 +63,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, "public")))
 
-//
-// let username = process.env.USERNAME;
-// let password = process.env.PASSWORD;
-//
-// app.use(basicAuth(
-//   {
-//     users: { username: password }
-//   }
-// ));
-
-const v2prefix = "v2"
+// const v2prefix = "v2"
 const v3prefix = "v3"
 
 // Inspect the header for a JWT token.
@@ -96,24 +71,8 @@ app.use(`/${v3prefix}/`, jwtAuth.getTokenFromHeaders)
 
 // Instantiate the authorization middleware, used to implement pro-tier rate limiting.
 const auth = new AuthMW()
-app.use(`/${v2prefix}/`, auth.mw())
+// app.use(`/${v2prefix}/`, auth.mw())
 app.use(`/${v3prefix}/`, auth.mw())
-
-// Rate limit on all v2 routes
-app.use(`/${v2prefix}/`, routeRateLimit)
-app.use("/", indexV2)
-app.use(`/${v2prefix}/` + `health-check`, healthCheckV2)
-app.use(`/${v2prefix}/` + `address`, addressV2.router)
-app.use(`/${v2prefix}/` + `blockchain`, blockchainV2.router)
-app.use(`/${v2prefix}/` + `block`, blockV2.router)
-app.use(`/${v2prefix}/` + `control`, controlV2.router)
-app.use(`/${v2prefix}/` + `generating`, generatingV2)
-app.use(`/${v2prefix}/` + `mining`, miningV2.router)
-app.use(`/${v2prefix}/` + `network`, networkV2)
-app.use(`/${v2prefix}/` + `rawtransactions`, rawtransactionsV2.router)
-app.use(`/${v2prefix}/` + `transaction`, transactionV2.router)
-app.use(`/${v2prefix}/` + `util`, utilV2.router)
-app.use(`/${v2prefix}/` + `slp`, slpV2.router)
 
 // Rate limit on all v3 routes
 app.use(`/${v3prefix}/`, routeRateLimit)
