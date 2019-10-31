@@ -13,7 +13,7 @@ const { mockReq, mockRes, mockNext } = require("./mocks/express-mocks")
 
 // Libraries under test
 let rateLimitMiddleware = require("../../src/middleware/route-ratelimit")
-const controlRoute = require("../../src/routes/v3/control")
+const controlRoute = require("../../src/routes/v3/full-node/control")
 
 let req, res, next
 let originalEnvVars // Used during transition from integration to unit tests.

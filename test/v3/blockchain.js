@@ -11,7 +11,7 @@
 const chai = require("chai")
 const assert = chai.assert
 const nock = require("nock") // HTTP mocking
-const blockchainRoute = require("../../src/routes/v3/blockchain")
+const blockchainRoute = require("../../src/routes/v3/full-node/blockchain")
 
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }

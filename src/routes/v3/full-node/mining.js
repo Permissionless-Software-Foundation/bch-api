@@ -4,8 +4,8 @@ const express = require("express")
 const router = express.Router()
 const axios = require("axios")
 
-const routeUtils = require("./route-utils")
-const wlogger = require("../../util/winston-logging")
+const routeUtils = require("../route-utils")
+const wlogger = require("../../../util/winston-logging")
 
 // Used to convert error messages to strings, to safely pass to users.
 const util = require("util")
