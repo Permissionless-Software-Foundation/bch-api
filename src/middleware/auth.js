@@ -42,18 +42,6 @@ class AuthMW {
     _this = this
 
     // Initialize passport for 'anonymous' authentication.
-    /*
-    passport.use(
-      new AnonymousStrategy({ passReqToCallback: true }, function(
-        req,
-        username,
-        password,
-        done
-      ) {
-        console.log(`anonymous auth handler triggered.`)
-      })
-    )
-    */
     passport.use(new AnonymousStrategy())
 
     // Initialize passport for 'basic' authentication.
@@ -69,7 +57,13 @@ class AuthMW {
         //console.log(`password: ${password}`)
 
         // Create the req.locals property if it does not yet exist.
-        if (!req.locals) req.locals = {}
+        if (!req.locals) {
+          req.locals = {
+            // default values
+            proLimit: false,
+            apiLevel: 0
+          }
+        }
 
         // Set pro-tier rate limit to flag to false by default.
         req.locals.proLimit = false

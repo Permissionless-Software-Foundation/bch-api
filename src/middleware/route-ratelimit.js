@@ -29,7 +29,14 @@ const routeRateLimit = async function(req, res, next) {
   if (maxRequests === 0) return next()
 
   // Create a res.locals object if not passed in.
-  if (!req.locals) req.locals = {}
+  if (!req.locals) {
+    req.locals = {
+      // default values
+      jwtToken: "",
+      proLimit: false,
+      apiLevel: 0
+    }
+  }
 
   // Warn if JWT_AUTH_SERVER env var is not set.
   const authServer = process.env.JWT_AUTH_SERVER
@@ -45,14 +52,15 @@ const routeRateLimit = async function(req, res, next) {
 
       const path = `${authServer}apitoken/isvalid/${req.locals.jwtToken}`
 
-      let isValidJwt = await axios.get(path)
-      isValidJwt = isValidJwt.data
-      // console.log(`isValidJwt: ${JSON.stringify(isValidJwt, null, 2)}`)
+      let jwtInfo = await axios.get(path)
+      jwtInfo = jwtInfo.data
+      // console.log(`jwtInfo: ${JSON.stringify(jwtInfo, null, 2)}`)
 
       // Enable pro-tier rate limits if JWT if valid.
-      if (isValidJwt) {
+      if (jwtInfo.isValid) {
         // console.log(`JWT is valid. Enabling pro-tier rate limits.`)
         req.locals.proLimit = true
+        req.locals.apiLevel = jwtInfo.apiLevel
       }
     }
   }

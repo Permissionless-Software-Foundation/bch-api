@@ -25,8 +25,13 @@ const getTokenFromHeaders = (req, res, next) => {
         // console.log(`JWT found: ${token}`)
 
         // Create the req.locals property if it does not yet exist.
-        if (!req.locals) req.locals = {}
-        req.locals.jwtToken = token
+        if (!req.locals) {
+          req.locals = {
+            jwtToken: token,
+            proLimit: false,
+            apiLevel: 0
+          }
+        }
       }
     }
   } catch (err) {
