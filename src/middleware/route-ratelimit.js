@@ -60,16 +60,15 @@ const routeRateLimit = async function(req, res, next) {
       // Get the API level for this user.
       let jwtInfo = await axios.get(path)
       jwtInfo = jwtInfo.data
-      console.log(`jwtInfo: ${JSON.stringify(jwtInfo, null, 2)}`)
+      // console.log(`jwtInfo: ${JSON.stringify(jwtInfo, null, 2)}`)
 
       // If JWT if valid, evaluate the API level for the user.
       if (jwtInfo.isValid) {
         // Set fine-grain permissions for each user based on the JWT token.
         const userPermissions = evalUserPermissioins(req, jwtInfo)
-        console.log(
-          `userPermissions: ${JSON.stringify(userPermissions, null, 2)}`
-        )
-        console.log(` `)
+        // console.log(
+        //   `userPermissions: ${JSON.stringify(userPermissions, null, 2)}`
+        // )
 
         req.locals.proLimit = userPermissions.proLimit
         req.locals.apiLevel = userPermissions.apiLevel
@@ -162,7 +161,7 @@ const routeRateLimit = async function(req, res, next) {
 // uses its output to adjust rate limits on-the-fly based on the users
 // permission level.
 function evalUserPermissioins(req, authData) {
-  console.log(`authData: ${JSON.stringify(authData, null, 2)}`)
+  // console.log(`authData: ${JSON.stringify(authData, null, 2)}`)
 
   // Return object with default values
   const retObj = {
@@ -173,9 +172,9 @@ function evalUserPermissioins(req, authData) {
   const level20Routes = ["insight", "bitcore", "blockbook"]
 
   const locals = req.locals
-  console.log(`locals: ${JSON.stringify(locals, null, 2)}`)
+  // console.log(`locals: ${JSON.stringify(locals, null, 2)}`)
   const url = req.url
-  console.log(`url: ${JSON.stringify(url, null, 2)}`)
+  // console.log(`url: ${JSON.stringify(url, null, 2)}`)
 
   if (authData.apiLevel < 20) {
     // Loop through the routes that are not accessible to this tier.

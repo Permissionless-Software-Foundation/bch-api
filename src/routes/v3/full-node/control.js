@@ -36,8 +36,6 @@ async function getNetworkInfo(req, res, next) {
     requestConfig
   } = routeUtils.setEnvVars()
 
-  console.log(`req.locals: ${JSON.stringify(req.locals, null, 2)}`)
-
   requestConfig.data.id = "getnetworkinfo"
   requestConfig.data.method = "getnetworkinfo"
   requestConfig.data.params = []
