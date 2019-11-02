@@ -53,17 +53,35 @@ const routeRateLimit = async function(req, res, next) {
     if (req.locals.jwtToken) {
       // console.log(`req.locals.jwtToken: ${req.locals.jwtToken}`)
 
+      // URL for the auth server.
       const path = `${authServer}apitoken/isvalid/${req.locals.jwtToken}`
 
+      // Ask Auth server if the JWT token is valid.
+      // Get the API level for this user.
       let jwtInfo = await axios.get(path)
       jwtInfo = jwtInfo.data
-      // console.log(`jwtInfo: ${JSON.stringify(jwtInfo, null, 2)}`)
+      console.log(`jwtInfo: ${JSON.stringify(jwtInfo, null, 2)}`)
 
-      // Enable pro-tier rate limits if JWT if valid.
+      // If JWT if valid, evaluate the API level for the user.
       if (jwtInfo.isValid) {
-        // console.log(`JWT is valid. Enabling pro-tier rate limits.`)
-        req.locals.proLimit = true
-        req.locals.apiLevel = jwtInfo.apiLevel
+        // Set fine-grain permissions for each user based on the JWT token.
+        const userPermissions = evalUserPermissioins(req, jwtInfo)
+        console.log(
+          `userPermissions: ${JSON.stringify(userPermissions, null, 2)}`
+        )
+        console.log(` `)
+
+        req.locals.proLimit = userPermissions.proLimit
+        req.locals.apiLevel = userPermissions.apiLevel
+
+        // const locals = req.locals
+        // console.log(`locals: ${JSON.stringify(locals, null, 2)}`)
+        // const url = req.url
+        // console.log(`url: ${JSON.stringify(url, null, 2)}`)
+        //
+        // // console.log(`JWT is valid. Enabling pro-tier rate limits.`)
+        // req.locals.proLimit = true
+        // req.locals.apiLevel = jwtInfo.apiLevel
       }
     }
   }
@@ -126,7 +144,7 @@ const routeRateLimit = async function(req, res, next) {
 
           res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
           return res.json({
-            error: `Too many requests. Limits are ${maxRequests} requests per minute.`
+            error: `Too many requests. Your limits are currently ${maxRequests} requests per minute.`
           })
         }
       })
@@ -137,6 +155,41 @@ const routeRateLimit = async function(req, res, next) {
 
   // Call rate limit for this route
   uniqueRateLimits[route](req, res, next)
+}
+
+// This function returns the an object with proLimit and apiLevel properties.
+// It does fine-grane analysis on the data coming from the auth servers and
+// uses its output to adjust rate limits on-the-fly based on the users
+// permission level.
+function evalUserPermissioins(req, authData) {
+  console.log(`authData: ${JSON.stringify(authData, null, 2)}`)
+
+  // Return object with default values
+  const retObj = {
+    proLimit: authData.isValid,
+    apiLevel: authData.apiLevel
+  }
+
+  const level20Routes = ["insight", "bitcore", "blockbook"]
+
+  const locals = req.locals
+  console.log(`locals: ${JSON.stringify(locals, null, 2)}`)
+  const url = req.url
+  console.log(`url: ${JSON.stringify(url, null, 2)}`)
+
+  if (authData.apiLevel < 20) {
+    // Loop through the routes that are not accessible to this tier.
+    for (let i = 0; i < level20Routes.length; i++) {
+      // If the requested route is for a higher tier,
+      // revert to anonymous level permissions.
+      if (url.indexOf(level20Routes[i]) > -1) {
+        retObj.proLimit = false
+        retObj.apiLevel = 0
+      }
+    }
+  }
+
+  return retObj
 }
 
 module.exports = { routeRateLimit }

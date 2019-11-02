@@ -60,8 +60,8 @@ const routeAccess = (req, res, next) => {
       // API Level is 0 (free tier): do nothing. All endpoints are open to
       // free public access within the drastically limited rate limits.
 
-      if (locals.apiLevel === 10) {
-        // API level is 10 (full node tier)
+      if (locals.apiLevel < 20) {
+        // API level does not include indexer access.
 
         // Loop through the routes that are not accessible to this tier.
         for (let i = 0; i < level20Routes.length; i++) {
