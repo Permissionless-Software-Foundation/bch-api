@@ -26,7 +26,7 @@ module.exports = {
 // or not.
 function validateArraySize(req, array) {
   const FREEMIUM_INPUT_SIZE = 20
-  const PRO_INPUT_SIZE = 100
+  const PRO_INPUT_SIZE = 20
 
   if (req.locals && req.locals.proLimit) {
     if (array.length <= PRO_INPUT_SIZE) return true
