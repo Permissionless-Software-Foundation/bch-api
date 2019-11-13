@@ -197,7 +197,7 @@ describe("#Insight Address", () => {
 
       // Call the details API.
       const result = await detailsBulk(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Assert current page defaults to 0
       assert.equal(result[0].currentPage, 0)
