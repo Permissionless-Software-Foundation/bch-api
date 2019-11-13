@@ -732,6 +732,8 @@ async function getTxOut(req, res, next) {
     requestConfig.data.method = "gettxout"
     requestConfig.data.params = [txid, n, include_mempool]
 
+    // console.log(`requestConfig: ${JSON.stringify(requestConfig, null, 2)}`)
+
     const response = await BitboxHTTP(requestConfig)
 
     return res.json(response.data.result)

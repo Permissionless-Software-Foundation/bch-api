@@ -840,11 +840,12 @@ describe("#BlockchainRouter", () => {
           .reply(200, { result: mockData.mockTxOut })
       }
 
-      req.params.txid = `2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266`
+      req.params.txid = `197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d`
       req.params.n = 1
+      req.query.include_mempool = "true"
 
       const result = await getTxOut(req, res)
-      //console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.hasAllKeys(result, [
         "bestblock",
