@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@chris.troutner/bch-js": "^1.6.1",
-    "apidoc": "^0.17.7",
+    "apidoc": "^0.18.0",
     "axios": "^0.19.0",
     "body-parser": "^1.18.3",
     "cookie-parser": "~1.4.3",
