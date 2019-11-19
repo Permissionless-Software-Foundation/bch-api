@@ -57,7 +57,19 @@ app.set("view engine", "jade")
 // Mount the docs
 app.use("/docs", express.static(`${__dirname}/../docs`))
 
-app.use(logger("dev"))
+// Log each request to the console with IP addresses.
+// app.use(logger("dev"))
+const morganFormat = `:remote-addr :remote-user :method :url :status :response-time ms - :res[content-length] :user-agent`
+app.use(logger(morganFormat))
+
+// Log the same data to the winston logs.
+const logStream = {
+  write: function(message, encoding) {
+    wlogger.info(`request: ${message}`)
+  }
+}
+app.use(logger(morganFormat, { stream: logStream }))
+
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser())
