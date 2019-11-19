@@ -841,7 +841,7 @@ describe("#BlockchainRouter", () => {
       }
 
       req.params.txid = `197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d`
-      req.params.n = 1
+      req.params.n = 0
       req.query.include_mempool = "true"
 
       const result = await getTxOut(req, res)
