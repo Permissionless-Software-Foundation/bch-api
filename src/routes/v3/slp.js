@@ -13,18 +13,6 @@ const wlogger = require("../../util/winston-logging")
 const util = require("util")
 util.inspect.defaultOptions = { depth: 5 }
 
-const SLPSDK = require("slp-sdk")
-const SLP = new SLPSDK()
-
-// Instantiate SLPJS.
-const slp = require("slpjs")
-const slpjs = new slp.Slp(SLP)
-const utils = slp.Utils
-
-// SLP tx db (LevelDB for caching)
-// const level = require("level")
-// const slpTxDb = level("./slp-tx-db")
-
 // Setup JSON RPC
 const BitboxHTTP = axios.create({
   baseURL: process.env.RPC_BASEURL
