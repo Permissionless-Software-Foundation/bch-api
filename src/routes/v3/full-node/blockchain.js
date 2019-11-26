@@ -9,8 +9,8 @@ const express = require("express")
 const router = express.Router()
 const axios = require("axios")
 
-const routeUtils = require("./route-utils")
-const wlogger = require("../../util/winston-logging")
+const routeUtils = require("../route-utils")
+const wlogger = require("../../../util/winston-logging")
 
 // Used to convert error messages to strings, to safely pass to users.
 const util = require("util")
@@ -731,6 +731,8 @@ async function getTxOut(req, res, next) {
     requestConfig.data.id = "gettxout"
     requestConfig.data.method = "gettxout"
     requestConfig.data.params = [txid, n, include_mempool]
+
+    // console.log(`requestConfig: ${JSON.stringify(requestConfig, null, 2)}`)
 
     const response = await BitboxHTTP(requestConfig)
 

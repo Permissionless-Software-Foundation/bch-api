@@ -14,8 +14,11 @@ const axios = require("axios")
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
 
-const SERVER = `http://192.168.0.36:12400/v3/`
-//const SERVER = `http://localhost:3000/v2/`
+// const SERVER = `http://192.168.0.36:12400/v3/`
+const SERVER = `http://localhost:3000/v3/`
+
+const TEST_JWT =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkYTc5ZDk4OTYyMjRjNjM2MmQwYzkwMiIsImlhdCI6MTU3MTUzOTU1MSwiZXhwIjoxNTc0MTMxNTUxfQ.PfPW_Z2NYT1O2zUHXopcz2aLGHSGudaKOIGnt7SuAi4"
 
 describe("#rate limits", () => {
   it("should get control/getNetworkInfo() with no auth", async () => {
@@ -26,7 +29,7 @@ describe("#rate limits", () => {
 
     const result = await axios(options)
     //console.log(`result.status: ${result.status}`)
-    //console.log(`result.data: ${util.inspect(result.data)}`)
+    // console.log(`result.data: ${util.inspect(result.data)}`)
 
     assert.equal(result.status, 200)
     assert.hasAnyKeys(result.data, ["version"])
@@ -130,4 +133,33 @@ describe("#rate limits", () => {
       assert.include(err.response.data.error, "Too many requests")
     }
   })
+
+  it("should unlock pro-tier for a valid JWT token", async () => {
+    try {
+      // Actual rate limit is 60 per minute X 4 nodes = 240 rpm.
+      const options = {
+        method: "GET",
+        url: `${SERVER}control/`,
+        headers: {
+          Authorization: `Token ${TEST_JWT}`
+        }
+      }
+
+      const promises = []
+      for (let i = 0; i < 60; i++) {
+        const promise = axios(options)
+        promises.push(promise)
+      }
+
+      await Promise.all(promises)
+
+      //assert.equal(true, false, "Unexpected result!")
+      assert.equal(true, true, "Not throwing an error is a pass!")
+    } catch (err) {
+      console.log(`err.response: ${util.inspect(err.response)}`)
+
+      assert.equal(true, false, "Unexpected result!")
+    }
+    // Override default timeout for this test.
+  }).timeout(20000)
 })

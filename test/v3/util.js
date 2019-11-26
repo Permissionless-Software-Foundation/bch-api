@@ -350,9 +350,11 @@ describe("#Util", () => {
       )
     })
 
-    it("should generate transaction for valid token sweep", async () => {
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
+    // Unit test only.
+    if (process.env.TEST === "unit") {
+      it("should generate transaction for valid token sweep", async () => {
+        // Mock the RPC call for unit tests.
+
         sandbox
           .stub(
             utilRouteInst.blockbook.testableComponents,
@@ -370,24 +372,24 @@ describe("#Util", () => {
         sandbox
           .stub(utilRouteInst.bchjs.SLP.Utils, "tokenUtxoDetails")
           .resolves(mockData.mockIsTokenUtxos)
-      }
 
-      // Mock sendRawTransaction() so that the hex does not actually get broadcast
-      // to the network.
-      sandbox
-        .stub(utilRouteInst.bchjs.RawTransactions, "sendRawTransaction")
-        .resolves("test-txid")
+        // Mock sendRawTransaction() so that the hex does not actually get broadcast
+        // to the network.
+        sandbox
+          .stub(utilRouteInst.bchjs.RawTransactions, "sendRawTransaction")
+          .resolves("test-txid")
 
-      req.body = {
-        wif: "L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt",
-        toAddr: "bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p"
-      }
+        req.body = {
+          wif: "L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt",
+          toAddr: "bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p"
+        }
 
-      const result = await utilRouteInst.sweepWif(req, res)
-      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+        const result = await utilRouteInst.sweepWif(req, res)
+        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
-      assert.equal(result, "test-txid")
-    })
+        assert.equal(result, "test-txid")
+      })
+    }
 
     it("should return balance if balance-only is true", async () => {
       // Mock the RPC call for unit tests.

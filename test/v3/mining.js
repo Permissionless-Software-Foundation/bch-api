@@ -10,7 +10,7 @@
 
 const chai = require("chai")
 const assert = chai.assert
-const miningRoute = require("../../src/routes/v3/mining")
+const miningRoute = require("../../src/routes/v3/full-node/mining")
 const nock = require("nock") // HTTP mocking
 
 let originalEnvVars // Used during transition from integration to unit tests.

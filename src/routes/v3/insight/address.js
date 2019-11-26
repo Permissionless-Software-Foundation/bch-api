@@ -45,8 +45,8 @@ function root(req, res, next) {
 // Returns a Promise.
 async function detailsFromInsight(thisAddress, currentPage = 0) {
   try {
-    //const addr = bchjs.Address.toLegacyAddress(thisAddress)
-    const addr = bchjs.Address.toCashAddress(thisAddress)
+    const addr = bchjs.Address.toLegacyAddress(thisAddress)
+    // const addr = bchjs.Address.toCashAddress(thisAddress)
 
     let path = `${process.env.BITCOINCOM_BASEURL}addr/${addr}`
 
@@ -56,12 +56,12 @@ async function detailsFromInsight(thisAddress, currentPage = 0) {
     const to = from + PAGE_SIZE
     path = `${path}?from=${from}&to=${to}`
 
-    //console.log(`insight path: ${path}`)
+    // console.log(`insight path: ${path}`)
 
     // Query the Insight server.
     const axiosResponse = await axios.get(path)
     const retData = axiosResponse.data
-    //console.log(`retData: ${util.inspect(retData)}`)
+    // console.log(`retData: ${util.inspect(retData)}`)
 
     // Calculate pagesTotal from response
     const pagesTotal = Math.ceil(retData.txApperances / PAGE_SIZE)
@@ -254,7 +254,8 @@ async function detailsSingle(req, res, next) {
 // Retrieve UTXO data from the Insight API
 async function utxoFromInsight(thisAddress) {
   try {
-    const addr = bchjs.Address.toCashAddress(thisAddress)
+    const addr = bchjs.Address.toLegacyAddress(thisAddress)
+    // const addr = bchjs.Address.toCashAddress(thisAddress)
 
     const path = `${process.env.BITCOINCOM_BASEURL}addr/${addr}/utxo`
 
@@ -288,6 +289,7 @@ async function utxoFromInsight(thisAddress) {
     throw err
   }
 }
+
 /**
  * @api {post} /address/utxo  Get Address utxos bulk.
  * @apiName Address utxos bulk.
@@ -449,6 +451,7 @@ async function utxoSingle(req, res, next) {
     return res.json({ error: util.inspect(err) })
   }
 }
+
 /**
  * @api {post} /address/utxo  Get Unconfirmed transactions bulk.
  * @apiName Unconfirmed transactions bulk
@@ -545,6 +548,7 @@ async function unconfirmedBulk(req, res, next) {
     return res.json({ error: util.inspect(err) })
   }
 }
+
 /**
  * @api {get} /insight/address/utxo/{address}  Get Unconfirmed transactions single.
  * @apiName Unconfirmed transactions single.

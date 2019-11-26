@@ -14,7 +14,7 @@
 
 const chai = require("chai")
 const assert = chai.assert
-const rawtransactions = require("../../src/routes/v3/rawtransactions")
+const rawtransactions = require("../../src/routes/v3/full-node/rawtransactions")
 const nock = require("nock") // HTTP mocking
 
 let originalEnvVars // Used during transition from integration to unit tests.
@@ -692,7 +692,7 @@ describe("#Raw-Transactions", () => {
         // Integration test
       } else {
         assert.hasAllKeys(result, ["error"])
-        assert.include(result.error, "transaction already in block chain")
+        assert.include(result.error, "Missing inputs")
       }
     })
   })
@@ -800,7 +800,7 @@ describe("#Raw-Transactions", () => {
         // Integration test
       } else {
         assert.hasAllKeys(result, ["error"])
-        assert.include(result.error, "transaction already in block chain")
+        assert.include(result.error, "Missing inputs")
       }
     })
   })

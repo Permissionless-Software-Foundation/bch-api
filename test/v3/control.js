@@ -11,7 +11,7 @@
 
 const chai = require("chai")
 const assert = chai.assert
-const controlRoute = require("../../src/routes/v3/control")
+const controlRoute = require("../../src/routes/v3/full-node/control")
 const nock = require("nock") // HTTP mocking
 
 let originalEnvVars // Used during transition from integration to unit tests.
