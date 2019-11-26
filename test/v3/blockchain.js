@@ -149,7 +149,7 @@ describe("#BlockchainRouter", () => {
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
 
-      assert.equal(res.statusCode, 503, "HTTP status code 503 expected.")
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
       assert.include(
         result.error,
         "Could not communicate with full node",
@@ -201,7 +201,7 @@ describe("#BlockchainRouter", () => {
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
 
-      assert.equal(res.statusCode, 503, "HTTP status code 503 expected.")
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
       assert.include(
         result.error,
         "Could not communicate with full node",
@@ -252,7 +252,7 @@ describe("#BlockchainRouter", () => {
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
 
-      assert.equal(res.statusCode, 503, "HTTP status code 503 expected.")
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
       assert.include(
         result.error,
         "Network error: Could not communicate with full node",
@@ -499,7 +499,7 @@ describe("#BlockchainRouter", () => {
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
 
-      assert.equal(res.statusCode, 503, "HTTP status code 503 expected.")
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
       assert.include(
         result.error,
         "Could not communicate with full node",
@@ -540,7 +540,7 @@ describe("#BlockchainRouter", () => {
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
 
-      assert.equal(res.statusCode, 503, "HTTP status code 503 expected.")
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
       assert.include(
         result.error,
         "Could not communicate with full node",
@@ -580,7 +580,7 @@ describe("#BlockchainRouter", () => {
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
 
-      assert.equal(res.statusCode, 503, "HTTP status code 503 expected.")
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
       assert.include(
         result.error,
         "Could not communicate with full node",
@@ -626,7 +626,7 @@ describe("#BlockchainRouter", () => {
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
 
-      assert.equal(res.statusCode, 503, "HTTP status code 503 expected.")
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
       assert.include(
         result.error,
         "Could not communicate with full node",
@@ -678,7 +678,7 @@ describe("#BlockchainRouter", () => {
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
 
-      assert.equal(res.statusCode, 503, "HTTP status code 503 expected.")
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
       assert.include(
         result.error,
         "Could not communicate with full node",
@@ -823,7 +823,7 @@ describe("#BlockchainRouter", () => {
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
 
-      assert.equal(res.statusCode, 503, "HTTP status code 503 expected.")
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
       assert.include(
         result.error,
         "Could not communicate with full node",
@@ -891,7 +891,7 @@ describe("#BlockchainRouter", () => {
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
 
-      assert.equal(res.statusCode, 503, "HTTP status code 503 expected.")
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
       assert.include(
         result.error,
         "Could not communicate with full node",
@@ -1028,7 +1028,7 @@ describe("#BlockchainRouter", () => {
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
 
-      assert.equal(res.statusCode, 503, "HTTP status code 503 expected.")
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
       assert.include(
         result.error,
         "Could not communicate with full node",
