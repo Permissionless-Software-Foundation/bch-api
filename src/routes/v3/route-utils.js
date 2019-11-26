@@ -131,6 +131,15 @@ function decodeError(err) {
       }
     }
 
+    // Different kind of network error
+    if (err.message && err.message.indexOf("EAI_AGAIN") > -1) {
+      return {
+        msg:
+          "Network error: Could not communicate with full node or other external service.",
+        status: 503
+      }
+    }
+
     return { msg: false, status: 500 }
   } catch (err) {
     wlogger.error(`unhandled error in route-utils.js/decodeError(): `, err)
