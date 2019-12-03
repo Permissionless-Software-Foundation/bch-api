@@ -513,7 +513,7 @@ describe("#SLP", () => {
       ])
     })
   })
-  /*
+
   describe("balancesForAddressBulk()", () => {
     const balancesForAddressBulk =
       slpRoute.testableComponents.balancesForAddressBulk
@@ -599,7 +599,7 @@ describe("#SLP", () => {
       })
     }
   })
-
+  /*
   describe("balancesForAddressByTokenID()", () => {
     const balancesForAddressByTokenID =
       slpRoute.testableComponents.balancesForAddressByTokenID

@@ -524,7 +524,7 @@ async function balancesForAddressBulk(req, res, next) {
 
       // Ensure the input is a valid BCH address.
       try {
-        utils.toCashAddress(address)
+        bchjs.SLP.Address.toCashAddress(address)
       } catch (err) {
         res.status(400)
         return res.json({
@@ -533,7 +533,7 @@ async function balancesForAddressBulk(req, res, next) {
       }
 
       // Prevent a common user error. Ensure they are using the correct network address.
-      const cashAddr = utils.toCashAddress(address)
+      const cashAddr = bchjs.SLP.Address.toCashAddress(address)
       const networkIsValid = routeUtils.validateNetwork(cashAddr)
       if (!networkIsValid) {
         res.status(400)
@@ -552,7 +552,7 @@ async function balancesForAddressBulk(req, res, next) {
           q: {
             db: ["a"],
             find: {
-              address: SLP.Address.toSLPAddress(address),
+              address: bchjs.SLP.Address.toSLPAddress(address),
               token_balance: { $gte: 0 }
             },
             limit: 10000
