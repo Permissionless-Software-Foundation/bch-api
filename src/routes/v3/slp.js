@@ -27,7 +27,8 @@ const password = process.env.RPC_PASSWORD
 // https://gist.github.com/christroutner/fc717ca704dec3dded8b52fae387eab2
 const SLPDB_PASS = process.env.SLPDB_PASS ? process.env.SLPDB_PASS : "BITBOX"
 
-const transactions = require("./insight/transaction")
+// const transactions = require("./insight/transaction")
+const rawtransactions = require("./full-node/rawtransactions")
 
 // Setup REST and TREST URLs used by slpjs
 // Dev note: this allows for unit tests to mock the URL.
@@ -1201,8 +1202,9 @@ async function txDetails(req, res, next) {
     // console.log(`formatted: ${JSON.stringify(formatted,null,2)}`)
 
     // Get information on the transaction from Insight API.
-    const retData = await transactions.transactionsFromInsight(txid)
-    // console.log(`retData: ${JSON.stringify(retData,null,2)}`)
+    // const retData = await transactions.transactionsFromInsight(txid)
+    const retData = await rawtransactions.getRawTransactionsFromNode(txid, true)
+    // console.log(`retData: ${JSON.stringify(retData, null, 2)}`)
 
     // Return both the tx data from Insight and the formatted token information.
     const response = {
