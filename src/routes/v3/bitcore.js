@@ -5,7 +5,6 @@
 "use strict"
 
 const express = require("express")
-const requestUtils = require("./services/requestUtils")
 const axios = require("axios")
 const routeUtils = require("./route-utils")
 const wlogger = require("../../util/winston-logging")
