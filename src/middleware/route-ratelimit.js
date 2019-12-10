@@ -93,11 +93,14 @@ const routeRateLimit = async function(req, res, next) {
   const route =
     rateLimitTier +
     req.method +
+    req.locals.apiLevel + // Generates new rate limit when user upgrades JWT token.
     path
       .split("/")
       .slice(0, 4)
       .join("/")
   //console.log(`route identifier: ${JSON.stringify(route, null, 2)}`)
+
+  console.log(`req.locals: ${JSON.stringify(req.locals, null, 2)}`)
 
   // This boolean value is passed from the auth.js middleware.
   const proRateLimits = req.locals.proLimit
@@ -112,6 +115,8 @@ const routeRateLimit = async function(req, res, next) {
     let PRO_RPM = 10 // Default value for free tier
     if (req.locals.apiLevel > 0) PRO_RPM = 100 // RPM for paid tiers.
 
+    // console.log(`PRO_RPM: ${PRO_RPM}, apiLevel: ${req.locals.apiLevel}`)
+
     // Create new RateLimit if none exists for this route
     if (!uniqueRateLimits[route]) {
       uniqueRateLimits[route] = new RateLimit({
@@ -123,7 +128,7 @@ const routeRateLimit = async function(req, res, next) {
 
           res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
           return res.json({
-            error: `Too many requests. Limits are ${PRO_RPM} requests per minute.`
+            error: `Too many requests. Limits are ${PRO_RPM} requests per minute. Increase rate limits at https://account.bchjs.cash`
           })
         }
       })
@@ -145,7 +150,7 @@ const routeRateLimit = async function(req, res, next) {
 
           res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
           return res.json({
-            error: `Too many requests. Your limits are currently ${maxRequests} requests per minute.`
+            error: `Too many requests. Your limits are currently ${maxRequests} requests per minute. Increase rate limits at https://account.bchjs.cash`
           })
         }
       })
