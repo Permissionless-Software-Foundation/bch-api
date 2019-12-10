@@ -105,7 +105,7 @@ const routeRateLimit = async function(req, res, next) {
   // Pro level rate limits
   if (proRateLimits !== undefined) {
     // TODO: replace the console.logs with calls to our logging system.
-    console.log(`applying pro-rate limits`)
+    // console.log(`applying pro-rate limits`)
 
     let PRO_RPM = 10 // Default value for free tier
     if (req.locals.apiLevel > 0) PRO_RPM = 100 // RPM for paid tiers.
@@ -130,7 +130,7 @@ const routeRateLimit = async function(req, res, next) {
     // Freemium level rate limits
   } else {
     // TODO: replace the console.logs with calls to our logging system.
-    console.log(`applying freemium limits`)
+    // console.log(`applying freemium limits`)
 
     // Create new RateLimit if none exists for this route
     if (!uniqueRateLimits[route]) {
