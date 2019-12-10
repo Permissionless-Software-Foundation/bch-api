@@ -102,8 +102,10 @@ const routeRateLimit = async function(req, res, next) {
   // This boolean value is passed from the auth.js middleware.
   const proRateLimits = req.locals.proLimit
 
+  // console.log(`proRateLimits: ${proRateLimits}`)
+
   // Pro level rate limits
-  if (proRateLimits !== undefined) {
+  if (proRateLimits || proRateLimits === 0) {
     // TODO: replace the console.logs with calls to our logging system.
     // console.log(`applying pro-rate limits`)
 
@@ -168,6 +170,9 @@ function evalUserPermissioins(req, authData) {
     proLimit: authData.isValid,
     apiLevel: authData.apiLevel
   }
+
+  // if apiLevel = 0 (free tier), then return the default values.
+  if (retObj.apiLevel === 0) return retObj
 
   const level20Routes = ["insight", "bitcore", "blockbook"]
 
