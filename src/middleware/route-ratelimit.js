@@ -8,6 +8,11 @@
   - anonymous access: 3
   - free access: 10, apiLevel = 0
   - any paid tier: 100, apiLevel > 0
+
+  If a person signs up for full node access but not indexer access, then the
+  apiLevel will be 10. If they call an endpoint that uses an indexer, the apiLevel
+  will be downgraded to 0 on-the-fly. Indexer endpoints will effectively be
+  downgraded to the anonymous access tier.
 */
 
 "use strict"
@@ -72,15 +77,6 @@ const routeRateLimit = async function(req, res, next) {
 
         req.locals.proLimit = userPermissions.proLimit
         req.locals.apiLevel = userPermissions.apiLevel
-
-        // const locals = req.locals
-        // console.log(`locals: ${JSON.stringify(locals, null, 2)}`)
-        // const url = req.url
-        // console.log(`url: ${JSON.stringify(url, null, 2)}`)
-        //
-        // // console.log(`JWT is valid. Enabling pro-tier rate limits.`)
-        // req.locals.proLimit = true
-        // req.locals.apiLevel = jwtInfo.apiLevel
       }
     }
   }
@@ -100,7 +96,7 @@ const routeRateLimit = async function(req, res, next) {
       .join("/")
   //console.log(`route identifier: ${JSON.stringify(route, null, 2)}`)
 
-  console.log(`req.locals: ${JSON.stringify(req.locals, null, 2)}`)
+  // console.log(`req.locals: ${JSON.stringify(req.locals, null, 2)}`)
 
   // This boolean value is passed from the auth.js middleware.
   const proRateLimits = req.locals.proLimit
