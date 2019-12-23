@@ -8,6 +8,8 @@ start-decatur-test
 start-bitcoincom.sh
 test-remote-server.sh
 start-bitcoincom-testnet.sh
+start-local-server.sh
+start-local-testnet-server.sh
 
 coverage
 start-my-infra
