@@ -7,6 +7,7 @@ start-decatur-main
 start-decatur-test
 start-bitcoincom.sh
 test-remote-server.sh
+start-bitcoincom-testnet.sh
 
 coverage
 start-my-infra
@@ -16,3 +17,4 @@ nohup.out
 slp-tx-db/
 logs/
 docs/*
+
