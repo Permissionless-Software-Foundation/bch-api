@@ -1,35 +1,194 @@
-<!doctype html>
+<!DOCTYPE html>
 
 <html lang="en">
-<head>
-  <meta charset="utf-8">
+  <head>
+    <meta charset="utf-8" />
 
-  <title>BCH API</title>
-  <meta name="description" content="BCH API">
-  <meta name="author" content="Chris Troutner">
+    <title>BCH API</title>
+    <meta name="description" content="BCH API" />
+    <meta name="author" content="Chris Troutner" />
 
-  <link rel="stylesheet" href="css/styles.css?v=1.0">
+    <link rel="stylesheet" href="css/styles.css?v=1.0" />
+  </head>
 
-</head>
+  <body>
+    <h1>BCH API</h1>
+    <h4>The REST API for the Bitcoin Cash blockchain.</h4>
+    <br />
 
-<body>
-  <h1>BCH API</h1>
-  <p>
-    This web server is based on <a href="https://rest.bitcoin.com">rest.bitcoin.com</a>.
-    Go there to view an interactive UI of the REST API endpoints.
-  </p>
-  <ul>
-    <li>
-      <a href="/docs">
-        View the BCH-API documentation
-      </a>
-    </li>
-    <li>
-      View the original rest.bitcoin.com API documentation
-      on <a href="https://developer.bitcoin.com/rest/docs/getting-started">developer.bitcoin.com</a>.
-    </li>
-  </ul>
+    <p>
+      bch-api is a
+      <a
+        href="https://en.wikipedia.org/wiki/Representational_state_transfer"
+        target="_blank"
+        >REST API</a
+      >, allowing modern applications to interact with the Bitcoin Cash (BCH)
+      blockchain. New to the BCH blockchain? Start by reading more about
+      <a
+        href="https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer"
+        target="_blank"
+        >building full stack applications on BCH</a
+      >.
+    </p><br />
+    <p>
+      A REST API can work with any programming language, but bch-api is intended
+      to be paired with the
+      <a
+        href="https://www.npmjs.com/package/@chris.troutner/bch-js"
+        target="_blank"
+        >npm bch-js</a
+      >
+      JavaScript library.
+      <a
+        href="https://github.com/Permissionless-Software-Foundation/bch-js-examples"
+        target="_blank"
+        >Here is example code</a
+      >
+      for common BCH use cases.
+      <a href="https://www.npmjs.com/package/slp-cli-wallet" target="_blank">
+        slp-cli-wallet</a
+      >
+      is another npm library that provides common wallet functionality, to get
+      your apps up and running as quickly as possible.
+    </p><br />
+    <p>
+      While you'll be able to run through the examples without one, you should
+      <a href="https://account.bchjs.cash/" target="_blank"
+        >sign-up for a free API key</a
+      >
+      in order to unlock higher rate limits.
+    </p>
 
-  <script src="js/scripts.js"></script>
-</body>
+    <br />
+    <h2>Quick Links</h2>
+    <ul>
+      <li>
+        <h3>bch-api</h3>
+        <ul>
+          <li>
+            <a href="https://account.bchjs.cash" target="_blank">
+              Get an API key to increase rate limits
+            </a>
+          </li>
+          <br />
+
+          <li>
+            <a href="/docs">
+              bch-api documentation
+            </a>
+          </li>
+          <br />
+
+          <li>
+            <a href="https://tapi.bchjs.cash">
+              testnet REST API
+            </a>
+          </li>
+          <br />
+
+          <li>
+            <a href="https://github.com/christroutner/bch-api" target="_blank">
+              bch-api GitHub repository
+            </a>
+          </li>
+          <br />
+
+          <li>
+            <a href="https://t.me/bch_js_toolkit" target="_blank">
+              Community Telegram Channel
+            </a>
+          </li>
+          <br />
+        </ul>
+      </li>
+
+      <br /><br />
+      <li>
+        <h3>Bitcoin Cash</h3>
+        <ul>
+          <li>
+            <a href="https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer"
+            target="_blank">
+              How to become a BCH Full Stack Developer
+            </a>
+          </li>
+          <br />
+          <li>
+            <a href="https://bchjs.cash/" target="_blank">
+              Run your own infrastructure
+            </a>
+          </li>
+          <br />
+
+          <li>
+            <a href="https://github.com/bitcoinbook/bitcoinbook#chapters" target="_blank">
+              Mastering Bitcoin (great free reference)
+            </a>
+          </li>
+          <br />
+
+          <li>
+            <a href="https://explorer.bitcoin.com/bch" target="_blank">
+              Bitcoin Cash Block Explorer
+            </a>
+          </li>
+          <br />
+
+          <li>
+            <a href="https://developer.bitcoin.com/faucets/bch/" target="_blank">
+              Testnet Faucet
+            </a>
+          </li>
+          <br />
+        </ul>
+      </li>
+
+      <br /><br />
+      <li>
+        <h3>bch-js</h3>
+        <ul>
+          <li>
+            <a href="https://www.npmjs.com/package/@chris.troutner/bch-js"
+            target="_blank">
+              npm library
+            </a>
+          </li>
+          <br />
+
+          <li>
+            <a href="https://github.com/Permissionless-Software-Foundation/bch-js-examples" target="_blank">
+              Code examples
+            </a>
+          </li>
+          <br />
+
+          <li>
+            <a href="https://github.com/christroutner/bch-js" target="_blank">
+              GitHub code repository
+            </a>
+          </li>
+          <br />
+        </ul>
+      </li>
+    </ul>
+
+    <br />
+    <h2>Credit</h2>
+    <p>
+      This web server is based on
+      <a href="https://rest.bitcoin.com">rest.bitcoin.com</a>. Most endpoints
+      are common between the two projects. You may want to plan with their
+      interactive UI to explore the API endpoints.
+    </p>
+    <ul>
+      <li>
+        View the original rest.bitcoin.com API documentation on
+        <a href="https://developer.bitcoin.com/rest/docs/getting-started"
+          >developer.bitcoin.com</a
+        >.
+      </li>
+    </ul>
+
+    <script src="js/scripts.js"></script>
+  </body>
 </html>
