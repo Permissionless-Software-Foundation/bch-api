@@ -26,7 +26,7 @@ module.exports = {
 // or not.
 function validateArraySize(req, array) {
   const FREEMIUM_INPUT_SIZE = 20
-  const PRO_INPUT_SIZE = 100
+  const PRO_INPUT_SIZE = 20
 
   if (req.locals && req.locals.proLimit) {
     if (array.length <= PRO_INPUT_SIZE) return true
@@ -124,6 +124,15 @@ function decodeError(err) {
 
     // Different kind of network error
     if (err.message && err.message.indexOf("ENETUNREACH") > -1) {
+      return {
+        msg:
+          "Network error: Could not communicate with full node or other external service.",
+        status: 503
+      }
+    }
+
+    // Different kind of network error
+    if (err.message && err.message.indexOf("EAI_AGAIN") > -1) {
       return {
         msg:
           "Network error: Could not communicate with full node or other external service.",

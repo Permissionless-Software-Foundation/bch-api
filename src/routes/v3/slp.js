@@ -9,21 +9,12 @@ const routeUtils = require("./route-utils")
 const strftime = require("strftime")
 const wlogger = require("../../util/winston-logging")
 
+const BCHJS = require("@chris.troutner/bch-js")
+const bchjs = new BCHJS()
+
 // Used to convert error messages to strings, to safely pass to users.
 const util = require("util")
 util.inspect.defaultOptions = { depth: 5 }
-
-const SLPSDK = require("slp-sdk")
-const SLP = new SLPSDK()
-
-// Instantiate SLPJS.
-const slp = require("slpjs")
-const slpjs = new slp.Slp(SLP)
-const utils = slp.Utils
-
-// SLP tx db (LevelDB for caching)
-// const level = require("level")
-// const slpTxDb = level("./slp-tx-db")
 
 // Setup JSON RPC
 const BitboxHTTP = axios.create({
@@ -36,7 +27,8 @@ const password = process.env.RPC_PASSWORD
 // https://gist.github.com/christroutner/fc717ca704dec3dded8b52fae387eab2
 const SLPDB_PASS = process.env.SLPDB_PASS ? process.env.SLPDB_PASS : "BITBOX"
 
-const transactions = require("./insight/transaction")
+// const transactions = require("./insight/transaction")
+const rawtransactions = require("./full-node/rawtransactions")
 
 // Setup REST and TREST URLs used by slpjs
 // Dev note: this allows for unit tests to mock the URL.
@@ -375,7 +367,7 @@ async function balancesForAddress(req, res, next) {
 
     // Ensure the input is a valid BCH address.
     try {
-      const cash = utils.toCashAddress(address)
+      const cash = bchjs.SLP.Address.toCashAddress(address)
     } catch (err) {
       res.status(400)
       return res.json({
@@ -384,7 +376,7 @@ async function balancesForAddress(req, res, next) {
     }
 
     // Prevent a common user error. Ensure they are using the correct network address.
-    const cashAddr = utils.toCashAddress(address)
+    const cashAddr = bchjs.SLP.Address.toCashAddress(address)
     const networkIsValid = routeUtils.validateNetwork(cashAddr)
     if (!networkIsValid) {
       res.status(400)
@@ -398,7 +390,7 @@ async function balancesForAddress(req, res, next) {
       q: {
         db: ["a"],
         find: {
-          address: SLP.Address.toSLPAddress(address),
+          address: bchjs.SLP.Address.toSLPAddress(address),
           token_balance: { $gte: 0 }
         },
         limit: 10000
@@ -481,7 +473,7 @@ async function balancesForAddress(req, res, next) {
 
     res.status(500)
     return res.json({
-      error: `Error in /ddress/:address: ${err.message}`
+      error: `Error in /address/:address: ${err.message}`
     })
   }
 }
@@ -533,7 +525,7 @@ async function balancesForAddressBulk(req, res, next) {
 
       // Ensure the input is a valid BCH address.
       try {
-        utils.toCashAddress(address)
+        bchjs.SLP.Address.toCashAddress(address)
       } catch (err) {
         res.status(400)
         return res.json({
@@ -542,7 +534,7 @@ async function balancesForAddressBulk(req, res, next) {
       }
 
       // Prevent a common user error. Ensure they are using the correct network address.
-      const cashAddr = utils.toCashAddress(address)
+      const cashAddr = bchjs.SLP.Address.toCashAddress(address)
       const networkIsValid = routeUtils.validateNetwork(cashAddr)
       if (!networkIsValid) {
         res.status(400)
@@ -561,7 +553,7 @@ async function balancesForAddressBulk(req, res, next) {
           q: {
             db: ["a"],
             find: {
-              address: SLP.Address.toSLPAddress(address),
+              address: bchjs.SLP.Address.toSLPAddress(address),
               token_balance: { $gte: 0 }
             },
             limit: 10000
@@ -1210,8 +1202,9 @@ async function txDetails(req, res, next) {
     // console.log(`formatted: ${JSON.stringify(formatted,null,2)}`)
 
     // Get information on the transaction from Insight API.
-    const retData = await transactions.transactionsFromInsight(txid)
-    // console.log(`retData: ${JSON.stringify(retData,null,2)}`)
+    // const retData = await transactions.transactionsFromInsight(txid)
+    const retData = await rawtransactions.getRawTransactionsFromNode(txid, true)
+    // console.log(`retData: ${JSON.stringify(retData, null, 2)}`)
 
     // Return both the tx data from Insight and the formatted token information.
     const response = {
