@@ -65,8 +65,8 @@
     "proxyquire": "^2.1.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
+    "sinon": "^8.0.0",
     "semantic-release": "^16.0.0",
-    "sinon": "^7.3.2",
     "typescript": "^3.1.4"
   },
   "release": {
