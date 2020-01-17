@@ -29,6 +29,7 @@ router.get("/getChainTips", getChainTips)
 router.get("/getDifficulty", getDifficulty)
 router.get("/getMempoolEntry/:txid", getMempoolEntrySingle)
 router.post("/getMempoolEntry", getMempoolEntryBulk)
+router.get("/getMempoolAncestors/:txid", getMempoolAncestorsSingle)
 router.get("/getMempoolInfo", getMempoolInfo)
 router.get("/getRawMempool", getRawMempool)
 router.get("/getTxOut/:txid/:n", getTxOut)
@@ -586,6 +587,62 @@ async function getMempoolEntryBulk(req, res, next) {
 }
 
 /**
+ * @api {get} /blockchain/getMempoolAncestors/:txid Get Mempool Ancestors
+ * @apiName getMempoolAncestors
+ * @apiGroup Blockchain
+ * @apiDescription Returns mempool ancestors data for given TXID. It must be in
+ * mempool (unconfirmed). This call is handy to tell if a UTXO is bumping up
+ * against the 25 ancestor chain-limit.
+ *
+ * @apiExample Example usage:
+ * curl -X GET "https://mainnet.bchjs.cash/v3/blockchain/getMempoolEntry/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
+ *
+ */
+async function getMempoolAncestorsSingle(req, res, next) {
+  try {
+    // Validate input parameter
+    const txid = req.params.txid
+    if (!txid || txid === "") {
+      res.status(400)
+      return res.json({ error: "txid can not be empty" })
+    }
+
+    let verbose = req.params.verbose
+    if (verbose === undefined) verbose = false
+
+    const {
+      BitboxHTTP,
+      username,
+      password,
+      requestConfig
+    } = routeUtils.setEnvVars()
+
+    requestConfig.data.id = "getmempoolancestors"
+    requestConfig.data.method = "getmempoolancestors"
+    requestConfig.data.params = [txid, verbose]
+
+    const response = await BitboxHTTP(requestConfig)
+    // console.log(`response: ${util.inspect(response)}`)
+
+    return res.json(response.data.result)
+  } catch (err) {
+    // Attempt to decode the error message.
+    const { msg, status } = routeUtils.decodeError(err)
+    if (msg) {
+      res.status(status)
+      return res.json({ error: msg })
+    }
+
+    // Write out error to error log.
+    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    wlogger.error(`Error in blockchain.ts/getMempoolAncestorsSingle().`, err)
+
+    res.status(500)
+    return res.json({ error: util.inspect(err) })
+  }
+}
+
+/**
  * @api {get} /blockchain/getMempoolInfo Get mempool info
  * @apiName getMempoolInfo
  * @apiGroup Blockchain
@@ -1089,6 +1146,7 @@ module.exports = {
     getRawMempool,
     getMempoolEntrySingle,
     getMempoolEntryBulk,
+    getMempoolAncestorsSingle,
     getTxOut,
     getTxOutProofSingle,
     getTxOutProofBulk,
