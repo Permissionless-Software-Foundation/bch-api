@@ -19,4 +19,4 @@ deploy:
   provider: script
   skip_cleanup: true
   script:
-    - ./deploy-production.sh || npx semantic-release
+    - npx semantic-release && ./deploy-production.sh
