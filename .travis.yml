@@ -15,13 +15,8 @@ script: "npm run test"
 after_success:
   - npm run coverage
 
-notifications:
-  slack:
-    secure: OUK3/iI5CNePVCmOKjcrUiqCDHClew81paGXPo/E4KCYJYDLURZFzPmG70aRxEWJwilN0frmcKmdVqLWt1+yTR1DBjJQr0MT2aOmt/STUb9sRmVs49kHpwh9uAzmAKNp71YW+vkunVv9yfys+N+F8I3ky5DSRtRGA0tiqC9TQo7wM5c/LvZqVloPwhbx0435OUg6hNQJYIJ1bJi8gR33kRq9rH6QlHIPcrzhDugQhIweDZxevHIXNrAtA2alrWC0DMu5CSHWkDrNH9iJ5b7PMl9uA6/TJdeM4lt3NaTBp9oNTr+gORSx9OXatAudqdKwZ6GSj8Gc3CxWpNSgrV7SZ7Z4VCiuYsZB3sMZE+qsLiFqR65MvvSWZrdljQ9hvoAr435JTdXUJjgVenDM++MUZ2R1l2X9MT7rJ6SKJo+ZH4pHQ+rIYzQUv4dO4Ym+lVXaxGC9+yykebctq20e4uQnbX368LpWU+ReRo7AEzz050hKlpl81gEfL9/3vJSHXZsDU2id0f0U/Ce409xtjLf7oOQcs5cDxD77iYJeGvwcmDKgQBZQnzyYQIamozZOdTAeWV5HyIGgdmyn5LBOMaNhqL9ZSCEwj50dsqehqKEafmDtr+scNs+R1x80RrQSu/COZg/Pjo35SFjmTahPWqo2xeNDLUNlGxS1ANBBy6LYZnc=
-
 deploy:
   provider: script
   skip_cleanup: true
   script:
-    - npx semantic-release
-  
+    - ./deploy-production.sh || npx semantic-release
