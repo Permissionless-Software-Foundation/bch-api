@@ -17,7 +17,8 @@ module.exports = {
   validateNetwork, // Prevents a common user error
   setEnvVars, // Allows RPC variables to be set dynamically based on changing env vars.
   decodeError, // Extract and interpret error messages.
-  validateArraySize // Ensure the passed array meets rate limiting requirements.
+  validateArraySize, // Ensure the passed array meets rate limiting requirements.
+  getAxiosOptions
 }
 
 // This function expects the Request Express.js object and an array as input.
@@ -74,7 +75,8 @@ function validateNetwork(addr) {
 // Dynamically set these based on env vars. Allows unit testing.
 function setEnvVars() {
   const BitboxHTTP = axios.create({
-    baseURL: process.env.RPC_BASEURL
+    baseURL: process.env.RPC_BASEURL,
+    timeout: 15000
   })
   const username = process.env.RPC_USERNAME
   const password = process.env.RPC_PASSWORD
@@ -91,6 +93,22 @@ function setEnvVars() {
   }
 
   return { BitboxHTTP, username, password, requestConfig }
+}
+
+// Axios options used when calling axios.post() to talk with a full node.
+function getAxiosOptions() {
+  return {
+    method: "post",
+    baseURL: process.env.RPC_BASEURL,
+    timeout: 15000,
+    auth: {
+      username: process.env.RPC_USERNAME,
+      password: process.env.RPC_PASSWORD
+    },
+    data: {
+      jsonrpc: "1.0"
+    }
+  }
 }
 
 // Error messages returned by a full node can be burried pretty deep inside the
