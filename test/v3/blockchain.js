@@ -121,14 +121,14 @@ describe("#BlockchainRouter", () => {
 
     it("should GET /getBestBlockHash", async () => {
       // Mock the RPC call for unit tests.
-      // if (process.env.TEST === "unit") {
-      //   nock(`${process.env.RPC_BASEURL}`)
-      //     .post(uri => uri.includes("/"))
-      //     .reply(200, { result: mockData.mockBlockHash })
-      // }
+      if (process.env.TEST === "unit") {
+        nock(`${process.env.RPC_BASEURL}`)
+          .post(uri => uri.includes("/"))
+          .reply(200, { result: mockData.mockBlockHash })
+      }
 
       const result = await getBestBlockHash(req, res)
-      console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.isString(result)
       assert.equal(result.length, 64, "Hash string is fixed length")

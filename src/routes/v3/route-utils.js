@@ -131,6 +131,9 @@ function decodeError(err) {
     if (err.response && err.response.data)
       return { msg: err.response.data, status: err.response.status }
 
+    // console.log(`err.message: ${err.message}`)
+    // console.log(`err: `, err)
+
     // Attempt to detect a network connection error.
     if (err.message && err.message.indexOf("ENOTFOUND") > -1) {
       return {
@@ -151,6 +154,18 @@ function decodeError(err) {
 
     // Different kind of network error
     if (err.message && err.message.indexOf("EAI_AGAIN") > -1) {
+      return {
+        msg:
+          "Network error: Could not communicate with full node or other external service.",
+        status: 503
+      }
+    }
+
+    // Axios timeout (aborted) error, or service is down (connection refused).
+    if (
+      err.code &&
+      (err.code === "ECONNABORTED" || err.code === "ECONNREFUSED")
+    ) {
       return {
         msg:
           "Network error: Could not communicate with full node or other external service.",
