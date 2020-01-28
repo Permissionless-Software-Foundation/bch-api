@@ -121,7 +121,7 @@ describe("#BlockchainRouter", () => {
       )
     })
 
-    it("returns proper error downstream service stalls", async () => {
+    it("returns proper error when downstream service stalls", async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, "request").throws({ code: "ECONNABORTED" })
 
@@ -136,7 +136,7 @@ describe("#BlockchainRouter", () => {
       )
     })
 
-    it("returns proper error downstream is down", async () => {
+    it("returns proper error when downstream service is down", async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, "request").throws({ code: "ECONNREFUSED" })
 
@@ -167,59 +167,89 @@ describe("#BlockchainRouter", () => {
     })
   })
 
-  // describe("getBlockchainInfo()", () => {
-  //   // block route handler.
-  //   const getBlockchainInfo =
-  //     blockchainRoute.testableComponents.getBlockchainInfo
-  //
-  //   it("should throw 503 when network issues", async () => {
-  //     // Save the existing RPC URL.
-  //     const savedUrl2 = process.env.RPC_BASEURL
-  //
-  //     // Manipulate the URL to cause a 500 network error.
-  //     process.env.RPC_BASEURL = "http://fakeurl/api/"
-  //
-  //     const result = await getBlockchainInfo(req, res)
-  //     //console.log(`result: ${util.inspect(result)}`)
-  //
-  //     // Restore the saved URL.
-  //     process.env.RPC_BASEURL = savedUrl2
-  //
-  //     assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
-  //     assert.include(
-  //       result.error,
-  //       "Could not communicate with full node",
-  //       "Error message expected"
-  //     )
-  //   })
-  //
-  //   it("should GET /getBlockchainInfo", async () => {
-  //     // Mock the RPC call for unit tests.
-  //     if (process.env.TEST === "unit") {
-  //       nock(`${process.env.RPC_BASEURL}`)
-  //         .post(uri => uri.includes("/"))
-  //         .reply(200, { result: mockData.mockBlockchainInfo })
-  //     }
-  //
-  //     const result = await getBlockchainInfo(req, res)
-  //     //console.log(`result: ${util.inspect(result)}`)
-  //
-  //     assert.hasAnyKeys(result, [
-  //       "chain",
-  //       "blocks",
-  //       "headers",
-  //       "bestblockhash",
-  //       "difficulty",
-  //       "mediantime",
-  //       "verificationprogress",
-  //       "chainwork",
-  //       "pruned",
-  //       "softforks",
-  //       "bip9_softforks"
-  //     ])
-  //   })
-  // })
-  //
+  describe("getBlockchainInfo()", () => {
+    // block route handler.
+    // const getBlockchainInfo =
+    //   blockchainRoute.testableComponents.getBlockchainInfo
+
+    it("should throw 503 when network issues", async () => {
+      // Save the existing RPC URL.
+      const savedUrl2 = process.env.RPC_BASEURL
+
+      // Manipulate the URL to cause a 500 network error.
+      process.env.RPC_BASEURL = "http://fakeurl/api/"
+
+      const result = await uut.getBlockchainInfo(req, res)
+      //console.log(`result: ${util.inspect(result)}`)
+
+      // Restore the saved URL.
+      process.env.RPC_BASEURL = savedUrl2
+
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
+      assert.include(
+        result.error,
+        "Could not communicate with full node",
+        "Error message expected"
+      )
+    })
+
+    it("returns proper error when downstream service stalls", async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, "request").throws({ code: "ECONNABORTED" })
+
+      const result = await uut.getBestBlockHash(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
+      assert.include(
+        result.error,
+        "Could not communicate with full node",
+        "Error message expected"
+      )
+    })
+
+    it("returns proper error when downstream service is down", async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, "request").throws({ code: "ECONNREFUSED" })
+
+      const result = await uut.getBestBlockHash(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
+      assert.include(
+        result.error,
+        "Could not communicate with full node",
+        "Error message expected"
+      )
+    })
+
+    it("should GET /getBlockchainInfo", async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === "unit") {
+        nock(`${process.env.RPC_BASEURL}`)
+          .post(uri => uri.includes("/"))
+          .reply(200, { result: mockData.mockBlockchainInfo })
+      }
+
+      const result = await uut.getBlockchainInfo(req, res)
+      //console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAnyKeys(result, [
+        "chain",
+        "blocks",
+        "headers",
+        "bestblockhash",
+        "difficulty",
+        "mediantime",
+        "verificationprogress",
+        "chainwork",
+        "pruned",
+        "softforks",
+        "bip9_softforks"
+      ])
+    })
+  })
+
   // describe("getBlockCount()", () => {
   //   // block route handler.
   //   const getBlockCount = blockchainRoute.testableComponents.getBlockCount
