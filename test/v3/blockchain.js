@@ -115,6 +115,10 @@ describe("#BlockchainRouter", () => {
       )
     })
 
+    // it("return proper error connection is refused", async () => {
+    //
+    // })
+
     it("should GET /getBestBlockHash", async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === "unit") {
@@ -124,7 +128,7 @@ describe("#BlockchainRouter", () => {
       }
 
       const result = await getBestBlockHash(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.isString(result)
       assert.equal(result.length, 64, "Hash string is fixed length")
