@@ -7,13 +7,15 @@
 const express = require("express")
 const router = express.Router()
 
+const axios = require("axios")
+const wlogger = require("../../../util/winston-logging")
+
+const RouteUtils = require("../route-utils2")
+const routeUtils = new RouteUtils()
+
 // Used to convert error messages to strings, to safely pass to users.
 const util = require("util")
 util.inspect.defaultOptions = { depth: 1 }
-
-const axios = require("axios")
-const routeUtils = require("../route-utils")
-const wlogger = require("../../../util/winston-logging")
 
 const BCHJS = require("@chris.troutner/bch-js")
 const bchjs = new BCHJS()
@@ -26,6 +28,7 @@ class Blockchain {
 
     this.bchjs = bchjs
     this.axios = axios
+    this.routeUtils = routeUtils
 
     this.router = router
     this.router.get("/", this.root)
@@ -40,7 +43,7 @@ class Blockchain {
   // DRY error handler.
   errorHandler(err, res) {
     // Attempt to decode the error message.
-    const { msg, status } = routeUtils.decodeError(err)
+    const { msg, status } = this.routeUtils.decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -65,7 +68,7 @@ class Blockchain {
   async getBestBlockHash(req, res, next) {
     try {
       // Axios options
-      const options = routeUtils.getAxiosOptions()
+      const options = this.routeUtils.getAxiosOptions()
       options.data.id = "getbestblockhash"
       options.data.method = "getbestblockhash"
       options.data.params = []
@@ -110,7 +113,7 @@ class Blockchain {
   async getBlockchainInfo(req, res, next) {
     try {
       // Axios options
-      const options = routeUtils.getAxiosOptions()
+      const options = this.routeUtils.getAxiosOptions()
       options.data.id = "getblockchaininfo"
       options.data.method = "getblockchaininfo"
       options.data.params = []

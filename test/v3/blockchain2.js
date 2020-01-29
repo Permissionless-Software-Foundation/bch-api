@@ -28,7 +28,7 @@ const mockData = require("./mocks/blockchain-mock")
 
 let originalEnvVars // Used during transition from integration to unit tests.
 
-describe("#BlockchainRouter", () => {
+describe("#BlockchainRouter2", () => {
   let req, res
   let sandbox
 
