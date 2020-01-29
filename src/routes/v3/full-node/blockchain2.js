@@ -60,8 +60,8 @@ class Blockchain {
    * @apiDescription Returns the hash of the best (tip) block in the longest
    * block chain.
    *
-   * @apiExample Example usage:
-   * curl -X GET "https://mainnet.bchjs.cash/v3/blockchain/getBestBlockHash" -H "accept: application/json"
+   * @apiExample curl Example:
+   * curl -X GET "https://api.fullstack.cash/v3/blockchain/getBestBlockHash" -H "accept: application/json"
    *
    * @apiSuccess {String}   bestBlockHash           000000000000000002bc884334336d99c9a9c616670a9244c6a8c1fc35aa91a1
    */
@@ -92,7 +92,7 @@ class Blockchain {
    * @apiDescription Returns an object containing various state info regarding blockchain processing.
    *
    * @apiExample Example usage:
-   * curl -X GET "https://mainnet.bchjs.cash/v3/blockchain/getBlockchainInfo" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v3/blockchain/getBlockchainInfo" -H "accept: application/json"
    *
    * @apiSuccess {Object}   object                      Object containing data
    * @apiSuccess {String}   object.chain                "main"
