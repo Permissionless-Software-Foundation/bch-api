@@ -17,8 +17,7 @@ module.exports = {
   validateNetwork, // Prevents a common user error
   setEnvVars, // Allows RPC variables to be set dynamically based on changing env vars.
   decodeError, // Extract and interpret error messages.
-  validateArraySize, // Ensure the passed array meets rate limiting requirements.
-  getAxiosOptions
+  validateArraySize // Ensure the passed array meets rate limiting requirements.
 }
 
 // This function expects the Request Express.js object and an array as input.
@@ -75,8 +74,7 @@ function validateNetwork(addr) {
 // Dynamically set these based on env vars. Allows unit testing.
 function setEnvVars() {
   const BitboxHTTP = axios.create({
-    baseURL: process.env.RPC_BASEURL,
-    timeout: 15000
+    baseURL: process.env.RPC_BASEURL
   })
   const username = process.env.RPC_USERNAME
   const password = process.env.RPC_PASSWORD
@@ -93,22 +91,6 @@ function setEnvVars() {
   }
 
   return { BitboxHTTP, username, password, requestConfig }
-}
-
-// Axios options used when calling axios.post() to talk with a full node.
-function getAxiosOptions() {
-  return {
-    method: "post",
-    baseURL: process.env.RPC_BASEURL,
-    timeout: 15000,
-    auth: {
-      username: process.env.RPC_USERNAME,
-      password: process.env.RPC_PASSWORD
-    },
-    data: {
-      jsonrpc: "1.0"
-    }
-  }
 }
 
 // Error messages returned by a full node can be burried pretty deep inside the
@@ -131,9 +113,6 @@ function decodeError(err) {
     if (err.response && err.response.data)
       return { msg: err.response.data, status: err.response.status }
 
-    // console.log(`err.message: ${err.message}`)
-    // console.log(`err: `, err)
-
     // Attempt to detect a network connection error.
     if (err.message && err.message.indexOf("ENOTFOUND") > -1) {
       return {
@@ -154,18 +133,6 @@ function decodeError(err) {
 
     // Different kind of network error
     if (err.message && err.message.indexOf("EAI_AGAIN") > -1) {
-      return {
-        msg:
-          "Network error: Could not communicate with full node or other external service.",
-        status: 503
-      }
-    }
-
-    // Axios timeout (aborted) error, or service is down (connection refused).
-    if (
-      err.code &&
-      (err.code === "ECONNABORTED" || err.code === "ECONNREFUSED")
-    ) {
       return {
         msg:
           "Network error: Could not communicate with full node or other external service.",
