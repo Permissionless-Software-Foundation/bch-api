@@ -56,18 +56,14 @@ function root(req, res, next) {
  */
 async function getBestBlockHash(req, res, next) {
   try {
-    const {
-      BitboxHTTP,
-      username,
-      password,
-      requestConfig
-    } = routeUtils.setEnvVars()
+    // Axios options
+    const options = routeUtils.getAxiosOptions()
+    options.data.id = "getbestblockhash"
+    options.data.method = "getbestblockhash"
+    options.data.params = []
 
-    requestConfig.data.id = "getbestblockhash"
-    requestConfig.data.method = "getbestblockhash"
-    requestConfig.data.params = []
+    const response = await axios.request(options)
 
-    const response = await BitboxHTTP(requestConfig)
     return res.json(response.data.result)
   } catch (err) {
     // Attempt to decode the error message.

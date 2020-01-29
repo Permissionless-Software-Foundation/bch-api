@@ -31,6 +31,7 @@ const utilV3 = require("./routes/v3/util")
 const slpV3 = require("./routes/v3/slp")
 const xpubV3 = require("./routes/v3/xpub")
 const blockbookV3 = require("./routes/v3/blockbook")
+const Ninsight = require("./routes/v3/ninsight")
 
 require("dotenv").config()
 
@@ -92,6 +93,9 @@ app.use(`/${v3prefix}/` + `util`, utilV3.router)
 app.use(`/${v3prefix}/` + `slp`, slpV3.router)
 app.use(`/${v3prefix}/` + `xpub`, xpubV3.router)
 app.use(`/${v3prefix}/` + `blockbook`, blockbookV3.router)
+
+const ninsight = new Ninsight()
+app.use(`/${v3prefix}/` + `ninsight`, ninsight.router)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
