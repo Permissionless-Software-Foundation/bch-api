@@ -15,15 +15,15 @@
     "test:temp": "export NETWORK=mainnet && mocha --timeout 25000 test/v3/blockchain.js",
     "test:integration": "mocha test/v3/integration",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "coverage:report": "export NETWORK=testnet && nyc --reporter=html mocha test/v2/",
+    "coverage:report": "export NETWORK=mainnet && nyc --reporter=html mocha --timeout 25000 test/v3/",
     "docs": "./node_modules/.bin/apidoc -i src/routes/v3 -o docs"
   },
   "engines": {
     "node": ">=10.15.1"
   },
   "dependencies": {
-    "apidoc": "^0.20.0",
     "@chris.troutner/bch-js": "^2.0.0",
+    "apidoc": "^0.20.0",
     "axios": "^0.19.0",
     "body-parser": "^1.18.3",
     "cookie-parser": "~1.4.3",
@@ -34,6 +34,7 @@
     "express-basic-auth": "^1.1.3",
     "express-rate-limit": "^5.0.0",
     "helmet": "^3.21.2",
+    "ioredis": "^4.14.1",
     "level": "^6.0.0",
     "mkdirp": "^1.0.0",
     "mocha": "^7.0.1",
@@ -44,6 +45,7 @@
     "passport-http": "^0.3.0",
     "pg": "^7.11.0",
     "pg-hstore": "^2.3.2",
+    "rate-limiter-flexible": "^1.3.2",
     "strftime": "^0.10.0",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.0.0"

@@ -159,7 +159,7 @@ const routeRateLimit = async function(req, res, next) {
   uniqueRateLimits[route](req, res, next)
 }
 
-// This function returns the an object with proLimit and apiLevel properties.
+// This function returns an object with proLimit and apiLevel properties.
 // It does fine-grane analysis on the data coming from the auth servers and
 // uses its output to adjust rate limits on-the-fly based on the users
 // permission level.

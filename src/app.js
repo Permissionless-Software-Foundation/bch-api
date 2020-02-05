@@ -78,11 +78,14 @@ const v3prefix = "v3"
 app.use(`/${v3prefix}/`, jwtAuth.getTokenFromHeaders)
 
 // Instantiate the authorization middleware, used to implement pro-tier rate limiting.
+// Handles Anonymous and Basic Authorization schemes used by passport.js
 const auth = new AuthMW()
 app.use(`/${v3prefix}/`, auth.mw())
 
 // Rate limit on all v3 routes
-app.use(`/${v3prefix}/`, routeRateLimit) // Establish and enforce rate limits.
+// Establish and enforce rate limits.
+app.use(`/${v3prefix}/`, routeRateLimit)
+
 app.use(`/${v3prefix}/` + `health-check`, healthCheckV3)
 app.use(`/${v3prefix}/` + `blockchain`, blockchainV3.router)
 app.use(`/${v3prefix}/` + `control`, controlV3.router)
