@@ -18,7 +18,7 @@ util.inspect.defaultOptions = { depth: 1 }
 const SERVER = `http://localhost:3000/v3/`
 
 const TEST_JWT =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkYTc5ZDk4OTYyMjRjNjM2MmQwYzkwMiIsImlhdCI6MTU3MTUzOTU1MSwiZXhwIjoxNTc0MTMxNTUxfQ.PfPW_Z2NYT1O2zUHXopcz2aLGHSGudaKOIGnt7SuAi4"
+  "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlM2EwNDE1ZWIyOWE5NjJkYTI3MDhiNCIsImFwaUxldmVsIjowLCJyYXRlTGltaXQiOjEwLCJpYXQiOjE1ODA4NjA0NjcsImV4cCI6MTU4MzQ1MjQ2N30.fuY5S-YrF0J11h5uyMjPe7wiVkYRnIyXi4dL9-V-C6pLJm33p0dSq_pSheVVWw78n5kAvL_9kFHngbnmQiOJYQ"
 
 describe("#rate limits", () => {
   it("should get control/getNetworkInfo() with no auth", async () => {

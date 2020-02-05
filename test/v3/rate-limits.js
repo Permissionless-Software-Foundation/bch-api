@@ -12,7 +12,10 @@ util.inspect.defaultOptions = { depth: 1 }
 const { mockReq, mockRes, mockNext } = require("./mocks/express-mocks")
 
 // Libraries under test
-let rateLimitMiddleware = require("../../src/middleware/route-ratelimit")
+const RateLimits = require("../../src/middleware/route-ratelimit")
+const rateLimits = new RateLimits()
+let rateLimitMiddleware = rateLimits.routeRateLimit
+
 const controlRoute = require("../../src/routes/v3/full-node/control")
 const jwtAuth = require("../../src/middleware/jwt-auth")
 
@@ -74,6 +77,7 @@ describe("#route-ratelimits & jwt-auth", () => {
   })
 
   describe("#routeRateLimit", () => {
+    rateLimitMiddleware = new RateLimits()
     let routeRateLimit = rateLimitMiddleware.routeRateLimit
     const getInfo = controlRoute.testableComponents.getInfo
 
@@ -112,10 +116,11 @@ describe("#route-ratelimits & jwt-auth", () => {
 
     it("should NOT trigger rate-limit for free-tier at 5 RPM", async () => {
       // Clear the require cache before running this test.
-      delete require.cache[
-        require.resolve("../../src/middleware/route-ratelimit")
-      ]
-      rateLimitMiddleware = require("../../src/middleware/route-ratelimit")
+      // delete require.cache[
+      //   require.resolve("../../src/middleware/route-ratelimit")
+      // ]
+      // rateLimitMiddleware = require("../../src/middleware/route-ratelimit")
+      rateLimitMiddleware = new RateLimits()
       routeRateLimit = rateLimitMiddleware.routeRateLimit
 
       req.baseUrl = "/v3"
@@ -167,10 +172,11 @@ describe("#route-ratelimits & jwt-auth", () => {
 
     it("should NOT trigger rate-limit handler for pro-tier at 25 RPM", async () => {
       // Clear the require cache before running this test.
-      delete require.cache[
-        require.resolve("../../src/middleware/route-ratelimit")
-      ]
-      rateLimitMiddleware = require("../../src/middleware/route-ratelimit")
+      // delete require.cache[
+      //   require.resolve("../../src/middleware/route-ratelimit")
+      // ]
+      // rateLimitMiddleware = require("../../src/middleware/route-ratelimit")
+      rateLimitMiddleware = new RateLimits()
       routeRateLimit = rateLimitMiddleware.routeRateLimit
 
       req.baseUrl = "/v3"
@@ -199,10 +205,11 @@ describe("#route-ratelimits & jwt-auth", () => {
 
     it("rate-limiting should still kick in at a higher RPM for pro-tier", async () => {
       // Clear the require cache before running this test.
-      delete require.cache[
-        require.resolve("../../src/middleware/route-ratelimit")
-      ]
-      rateLimitMiddleware = require("../../src/middleware/route-ratelimit")
+      // delete require.cache[
+      //   require.resolve("../../src/middleware/route-ratelimit")
+      // ]
+      // rateLimitMiddleware = require("../../src/middleware/route-ratelimit")
+      rateLimitMiddleware = new RateLimits()
       routeRateLimit = rateLimitMiddleware.routeRateLimit
 
       req.baseUrl = "/v3"
