@@ -21,6 +21,10 @@ const express = require("express")
 const RateLimit = require("express-rate-limit")
 const axios = require("axios")
 
+const jwt = require("jsonwebtoken")
+const KeyEncoder = require("key-encoder").default
+const keyEncoder = new KeyEncoder("secp256k1")
+
 // Set max requests per minute
 const maxRequests = process.env.RATE_LIMIT_MAX_REQUESTS
   ? parseInt(process.env.RATE_LIMIT_MAX_REQUESTS)
@@ -202,6 +206,47 @@ class RateLimits {
     }
 
     return retObj
+  }
+
+  newRateLimit(req, res, next) {
+    try {
+      // Create a res.locals object if not passed in.
+      if (!req.locals) {
+        req.locals = {
+          // default values
+          jwtToken: "",
+          proLimit: false,
+          apiLevel: 0
+        }
+      }
+
+      if (req.locals.jwtToken) {
+        // Hexadecimal
+        const publicKey =
+          "03e6c358092a459f7da9420de770eef3e16cf3c9c54a3d3d14ac2d7f0b82af4d7d"
+
+        const jwtOptions = {
+          algorithms: ["ES256"]
+        }
+
+        const pemPublicKey = keyEncoder.encodePublic(publicKey, "raw", "pem")
+
+        // Validate the JWT token.
+        const decoded = jwt.verify(
+          req.locals.jwtToken,
+          pemPublicKey,
+          jwtOptions
+        )
+        console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
+      } else {
+        console.log(`No JWT token found!`)
+      }
+    } catch (err) {
+      console.error(`Error in route-ratelimit.js/newRateLimit(): `, err)
+      // throw err
+    }
+
+    next()
   }
 }
 

@@ -86,7 +86,8 @@ app.use(`/${v3prefix}/`, auth.mw())
 
 // Rate limit on all v3 routes
 // Establish and enforce rate limits.
-app.use(`/${v3prefix}/`, rateLimits.routeRateLimit)
+// app.use(`/${v3prefix}/`, rateLimits.routeRateLimit)
+app.use(`/${v3prefix}/`, rateLimits.newRateLimit)
 
 app.use(`/${v3prefix}/` + `health-check`, healthCheckV3)
 app.use(`/${v3prefix}/` + `blockchain`, blockchainV3.router)
