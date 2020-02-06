@@ -25,6 +25,18 @@ const jwt = require("jsonwebtoken")
 const KeyEncoder = require("key-encoder").default
 const keyEncoder = new KeyEncoder("secp256k1")
 
+// Redis
+const Redis = require("ioredis")
+const redisClient = new Redis({ enableOfflineQueue: false })
+
+// Rate limiter middleware lib.
+const { RateLimiterRedis } = require("rate-limiter-flexible")
+const rateLimitOptions = {
+  storeClient: redisClient,
+  points: 100, // Number of points
+  duration: 1 // Per second
+}
+
 // Set max requests per minute
 const maxRequests = process.env.RATE_LIMIT_MAX_REQUESTS
   ? parseInt(process.env.RATE_LIMIT_MAX_REQUESTS)
@@ -41,6 +53,8 @@ let _this
 class RateLimits {
   constructor() {
     _this = this
+
+    this.rateLimiter = new RateLimiterRedis(rateLimitOptions)
   }
 
   async routeRateLimit(req, res, next) {
@@ -208,8 +222,10 @@ class RateLimits {
     return retObj
   }
 
-  newRateLimit(req, res, next) {
+  async newRateLimit(req, res, next) {
     try {
+      let userId
+
       // Create a res.locals object if not passed in.
       if (!req.locals) {
         req.locals = {
@@ -238,8 +254,26 @@ class RateLimits {
           jwtOptions
         )
         console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
+
+        userId = decoded.id
       } else {
         console.log(`No JWT token found!`)
+      }
+
+      try {
+        // https://github.com/animir/node-rate-limiter-flexible/wiki/Overall-example#authorized-and-not-authorized-users
+        const key = userId ? userId : req.ip
+        const pointsToConsume = userId ? 1 : 30
+
+        console.log(`User ${userId} consuming ${pointsToConsume} points.`)
+
+        await this.rateLimiter.consume(key, pointToConsume)
+      } catch (err) {
+        // Rate limited was triggered
+        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        return res.json({
+          error: `Too many requests. Your limits are currently ${maxRequests} requests per minute. Increase rate limits at https://account.bchjs.cash`
+        })
       }
     } catch (err) {
       console.error(`Error in route-ratelimit.js/newRateLimit(): `, err)
