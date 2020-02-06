@@ -40,6 +40,10 @@ class RateLimits {
     this.rateLimiter = new RateLimiterRedis(rateLimitOptions)
   }
 
+  closeRedis() {
+    redisClient.disconnect()
+  }
+
   /*
     This function controls the tierd request-per-minute (RPM) rate limits.
     This is an older implementation that is currently not used.

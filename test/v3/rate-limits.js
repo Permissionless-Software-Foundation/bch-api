@@ -52,6 +52,10 @@ describe("#route-ratelimits & jwt-auth", () => {
     req.query = {}
   })
 
+  after(() => {
+    rateLimits.closeRedis()
+  })
+
   describe("#jwt-auth.js", () => {
     describe("#getTokenFromHeaders", () => {
       it(`should populate the req.locals object correctly`, () => {
