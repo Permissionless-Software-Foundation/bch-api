@@ -40,6 +40,8 @@ class RateLimits {
     this.rateLimiter = new RateLimiterRedis(rateLimitOptions)
   }
 
+  // Used to disconnect from the Redis DB.
+  // Called by unit tests so that node.js thread doesn't live forever.
   closeRedis() {
     redisClient.disconnect()
   }
@@ -228,9 +230,7 @@ class RateLimits {
 
   /*
     This is the new rate limit function that uses the rate-limiter-flexible npm
-    library. For the moment, it only distinguishes between anonymous usage
-    and registered user access. anon usage allows up to 3 RPM, whereas registered
-    users (with JWT tokens) have 100 RPM.
+    library.
   */
   async newRateLimit(req, res, next) {
     try {
@@ -353,7 +353,7 @@ class RateLimits {
   // what kind of variations will be seen in production.
   getResource(url) {
     try {
-      console.log(`url: ${JSON.stringify(url, null, 2)}`)
+      // console.log(`url: ${JSON.stringify(url, null, 2)}`)
 
       const splitUrl = url.split("/")
       const resource = splitUrl[1]

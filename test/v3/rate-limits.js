@@ -240,6 +240,18 @@ describe("#route-ratelimits & jwt-auth", () => {
       )
     })
   })
+
+  describe("#getResource", () => {
+    it("should decode a blockchain request", () => {
+      const url =
+        "/blockchain/getTxOut/62a3ea958a463a372bc0caf2c374a7f60be9c624be63a0db8db78f05809df6d8/0?include_mempool=true"
+
+      const result = rateLimits.getResource(url)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.equal(result, "blockchain")
+    })
+  })
 })
 
 // Generates a Basic authorization header.
