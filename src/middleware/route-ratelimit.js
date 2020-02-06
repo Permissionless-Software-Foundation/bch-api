@@ -1,20 +1,3 @@
-/*
-  This file controls the request-per-minute (RPM) rate limits.
-
-  It is assumed that this middleware is run AFTER the jwt-auth.js and auth.js
-  middleware.
-
-  Current rate limiting rules in requests-per-minute:
-  - anonymous access: 3
-  - free access: 10, apiLevel = 0
-  - any paid tier: 100, apiLevel > 0
-
-  If a person signs up for full node access but not indexer access, then the
-  apiLevel will be 10. If they call an endpoint that uses an indexer, the apiLevel
-  will be downgraded to 0 on-the-fly. Indexer endpoints will effectively be
-  downgraded to the anonymous access tier.
-*/
-
 "use strict"
 
 const express = require("express")
@@ -57,6 +40,23 @@ class RateLimits {
     this.rateLimiter = new RateLimiterRedis(rateLimitOptions)
   }
 
+  /*
+    This function controls the tierd request-per-minute (RPM) rate limits.
+    This is an older implementation that is currently not used.
+
+    It is assumed that this middleware is run AFTER the jwt-auth.js and auth.js
+    middleware.
+
+    Current rate limiting rules in requests-per-minute:
+    - anonymous access: 3
+    - free access: 10, apiLevel = 0
+    - any paid tier: 100, apiLevel > 0
+
+    If a person signs up for full node access but not indexer access, then the
+    apiLevel will be 10. If they call an endpoint that uses an indexer, the apiLevel
+    will be downgraded to 0 on-the-fly. Indexer endpoints will effectively be
+    downgraded to the anonymous access tier.
+  */
   async routeRateLimit(req, res, next) {
     // Disable rate limiting if 0 passed from RATE_LIMIT_MAX_REQUESTS
     if (maxRequests === 0) return next()
@@ -222,9 +222,16 @@ class RateLimits {
     return retObj
   }
 
+  /*
+    This is the new rate limit function that uses the rate-limiter-flexible npm
+    library. For the moment, it only distinguishes between anonymous usage
+    and registered user access. anon usage allows up to 3 RPM, whereas registered
+    users (with JWT tokens) have 100 RPM.
+  */
   async newRateLimit(req, res, next) {
     try {
       let userId
+      let decoded
 
       // Create a res.locals object if not passed in.
       if (!req.locals) {
@@ -248,27 +255,36 @@ class RateLimits {
         const pemPublicKey = keyEncoder.encodePublic(publicKey, "raw", "pem")
 
         // Validate the JWT token.
-        const decoded = jwt.verify(
-          req.locals.jwtToken,
-          pemPublicKey,
-          jwtOptions
-        )
-        console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
+        decoded = jwt.verify(req.locals.jwtToken, pemPublicKey, jwtOptions)
+        // console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
 
         userId = decoded.id
       } else {
         console.log(`No JWT token found!`)
       }
 
+      // Code here for the rate limiter is adapted from this example:
+      // https://github.com/animir/node-rate-limiter-flexible/wiki/Overall-example#authorized-and-not-authorized-users
       try {
-        // https://github.com/animir/node-rate-limiter-flexible/wiki/Overall-example#authorized-and-not-authorized-users
-        const key = userId ? userId : req.ip
-        const pointsToConsume = userId ? 1 : 30
+        // The resource being consumed: full node, indexer, SLPDB, etc.
+        const resource = _this.getResource(req.url)
+        console.log(`resource: ${resource}`)
 
-        console.log(`User ${userId} consuming ${pointsToConsume} points.`)
+        let key = userId ? userId : req.ip
+        key = `${key}-${resource}`
 
-        await this.rateLimiter.consume(key, pointToConsume)
+        // const pointsToConsume = userId ? 1 : 30
+        decoded.resource = resource
+        const pointsToConsume = _this.calcPoints(decoded)
+
+        console.log(
+          `User ${userId} consuming ${pointsToConsume} point for resource ${resource}.`
+        )
+
+        await _this.rateLimiter.consume(key, pointsToConsume)
       } catch (err) {
+        console.log(`err: `, err)
+
         // Rate limited was triggered
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
@@ -281,6 +297,68 @@ class RateLimits {
     }
 
     next()
+  }
+
+  // Calculates the points consumed, based on the jwt information and the route
+  // requested.
+  calcPoints(jwtInfo) {
+    let retVal = 30 // By default, use anonymous tier.
+
+    try {
+      // console.log(`jwtInfo: ${JSON.stringify(jwtInfo, null, 2)}`)
+
+      const apiLevel = jwtInfo.apiLevel
+      const resource = jwtInfo.resource
+
+      const level20Routes = ["insight", "bitcore", "blockbook"]
+      const level30Routes = ["slp"]
+
+      // Only evaluate if user is using a JWT token.
+      if (jwtInfo.id) {
+        // SLP indexer routes
+        if (level30Routes.includes(resource)) {
+          if (apiLevel >= 30) retVal = 1
+          else retVal = 30
+        }
+
+        // Normal indexer routes
+        else if (level20Routes.includes(resource)) {
+          if (apiLevel >= 20) retVal = 1
+          else retVal = 30
+        }
+
+        // Free tier, full node only.
+        else {
+          retVal = 1
+        }
+      }
+
+      return retVal
+    } catch (err) {
+      console.error(`Error in route-ratelimit.js/calcPoints()`)
+      // throw err
+      retVal = 30
+    }
+
+    return retVal
+  }
+
+  // This function parses the req.url property to identify what resource
+  // the user is requesting.
+  // This was created as a function so that it can be unit tested. Not sure
+  // what kind of variations will be seen in production.
+  getResource(url) {
+    try {
+      console.log(`url: ${JSON.stringify(url, null, 2)}`)
+
+      const splitUrl = url.split("/")
+      const resource = splitUrl[1]
+
+      return resource
+    } catch (err) {
+      console.error(`Error in getResource().`)
+      throw err
+    }
   }
 }
 
