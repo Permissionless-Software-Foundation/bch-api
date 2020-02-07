@@ -37,6 +37,7 @@ class RateLimits {
   constructor() {
     _this = this
 
+    this.jwt = jwt
     this.rateLimiter = new RateLimiterRedis(rateLimitOptions)
   }
 
@@ -259,7 +260,11 @@ class RateLimits {
         const pemPublicKey = keyEncoder.encodePublic(publicKey, "raw", "pem")
 
         // Validate the JWT token.
-        decoded = jwt.verify(req.locals.jwtToken, pemPublicKey, jwtOptions)
+        decoded = _this.jwt.verify(
+          req.locals.jwtToken,
+          pemPublicKey,
+          jwtOptions
+        )
         // console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
 
         userId = decoded.id
@@ -289,7 +294,7 @@ class RateLimits {
 
         await _this.rateLimiter.consume(key, pointsToConsume)
       } catch (err) {
-        console.log(`err: `, err)
+        // console.log(`err: `, err)
 
         // Rate limited was triggered
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
@@ -336,9 +341,14 @@ class RateLimits {
           else retVal = 10
         }
 
+        // Full node tier
+        else if (apiLevel >= 10) {
+          retVal = 1
+        }
+
         // Free tier, full node only.
         else {
-          retVal = 1
+          retVal = 10
         }
       }
 
