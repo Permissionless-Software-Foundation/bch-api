@@ -235,7 +235,7 @@ class RateLimits {
   async newRateLimit(req, res, next) {
     try {
       let userId
-      let decoded
+      let decoded = {}
 
       // Create a res.locals object if not passed in.
       if (!req.locals) {
@@ -275,15 +275,17 @@ class RateLimits {
         console.log(`resource: ${resource}`)
 
         let key = userId ? userId : req.ip
-        key = `${key}-${resource}`
 
         // const pointsToConsume = userId ? 1 : 30
         decoded.resource = resource
         const pointsToConsume = _this.calcPoints(decoded)
 
         console.log(
-          `User ${userId} consuming ${pointsToConsume} point for resource ${resource}.`
+          `User ${key} consuming ${pointsToConsume} point for resource ${resource}.`
         )
+
+        // Update the key so that rate limits track both the user and the resource.
+        key = `${key}-${resource}`
 
         await _this.rateLimiter.consume(key, pointsToConsume)
       } catch (err) {
@@ -317,18 +319,21 @@ class RateLimits {
       const level20Routes = ["insight", "bitcore", "blockbook"]
       const level30Routes = ["slp"]
 
+      // console.log(`apiLevel: ${apiLevel}`)
+
       // Only evaluate if user is using a JWT token.
       if (jwtInfo.id) {
         // SLP indexer routes
         if (level30Routes.includes(resource)) {
           if (apiLevel >= 30) retVal = 1
-          else retVal = 30
+          // else if (apiLevel >= 10) retVal = 10
+          else retVal = 10
         }
 
         // Normal indexer routes
         else if (level20Routes.includes(resource)) {
           if (apiLevel >= 20) retVal = 1
-          else retVal = 30
+          else retVal = 10
         }
 
         // Free tier, full node only.
@@ -353,7 +358,7 @@ class RateLimits {
   // what kind of variations will be seen in production.
   getResource(url) {
     try {
-      // console.log(`url: ${JSON.stringify(url, null, 2)}`)
+      console.log(`url: ${JSON.stringify(url, null, 2)}`)
 
       const splitUrl = url.split("/")
       const resource = splitUrl[1]
