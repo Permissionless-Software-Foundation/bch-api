@@ -12,7 +12,11 @@ const keyEncoder = new KeyEncoder("secp256k1")
 
 // Redis
 const Redis = require("ioredis")
-const redisClient = new Redis({ enableOfflineQueue: false })
+const redisClient = new Redis({
+  enableOfflineQueue: false,
+  port: process.env.REDIS_PORT ? process.env.REDIS_PORT : 6379,
+  host: process.env.REDIS_HOST ? process.env.REDIS_HOST : "127.0.0.1"
+})
 
 // Rate limiter middleware lib.
 const { RateLimiterRedis } = require("rate-limiter-flexible")

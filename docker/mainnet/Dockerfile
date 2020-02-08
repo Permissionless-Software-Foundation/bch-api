@@ -11,6 +11,9 @@ USER safeuser
 # Prep 'sudo' commands.
 #RUN echo 'abcd8765' | sudo -S pwd
 
+# Install Redis. TODO: Make this a separate container.
+
+
 # Clone the repository
 WORKDIR /home/safeuser
 RUN git clone https://github.com/christroutner/bch-api
