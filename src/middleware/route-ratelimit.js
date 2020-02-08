@@ -4,6 +4,8 @@ const express = require("express")
 const RateLimit = require("express-rate-limit")
 const axios = require("axios")
 
+const wlogger = require("../util/winston-logging")
+
 const jwt = require("jsonwebtoken")
 const KeyEncoder = require("key-encoder").default
 const keyEncoder = new KeyEncoder("secp256k1")
@@ -64,6 +66,7 @@ class RateLimits {
     will be downgraded to 0 on-the-fly. Indexer endpoints will effectively be
     downgraded to the anonymous access tier.
   */
+  // CT 2/7/20: Older rate-limiting code that does not scale well.
   async routeRateLimit(req, res, next) {
     // Disable rate limiting if 0 passed from RATE_LIMIT_MAX_REQUESTS
     if (maxRequests === 0) return next()
@@ -195,6 +198,7 @@ class RateLimits {
   // It does fine-grane analysis on the data coming from the auth servers and
   // uses its output to adjust rate limits on-the-fly based on the users
   // permission level.
+  // CT 2/7/20: I believe this is older code that is only used by routeRateLimit.
   evalUserPermissioins(req, authData) {
     // console.log(`authData: ${JSON.stringify(authData, null, 2)}`)
 
@@ -269,7 +273,7 @@ class RateLimits {
 
         userId = decoded.id
       } else {
-        console.log(`No JWT token found!`)
+        wlogger.debug(`No JWT token found!`)
       }
 
       // Code here for the rate limiter is adapted from this example:
@@ -277,7 +281,7 @@ class RateLimits {
       try {
         // The resource being consumed: full node, indexer, SLPDB, etc.
         const resource = _this.getResource(req.url)
-        console.log(`resource: ${resource}`)
+        wlogger.debug(`resource: ${resource}`)
 
         let key = userId ? userId : req.ip
 
@@ -285,7 +289,7 @@ class RateLimits {
         decoded.resource = resource
         const pointsToConsume = _this.calcPoints(decoded)
 
-        console.log(
+        wlogger.info(
           `User ${key} consuming ${pointsToConsume} point for resource ${resource}.`
         )
 
@@ -303,7 +307,7 @@ class RateLimits {
         })
       }
     } catch (err) {
-      console.error(`Error in route-ratelimit.js/newRateLimit(): `, err)
+      wlogger.error(`Error in route-ratelimit.js/newRateLimit(): `, err)
       // throw err
     }
 
@@ -324,7 +328,7 @@ class RateLimits {
       const level30Routes = ["insight", "bitcore", "blockbook"]
       const level40Routes = ["slp"]
 
-      // console.log(`apiLevel: ${apiLevel}`)
+      wlogger.debug(`apiLevel: ${apiLevel}`)
 
       // Only evaluate if user is using a JWT token.
       if (jwtInfo.id) {
@@ -354,7 +358,7 @@ class RateLimits {
 
       return retVal
     } catch (err) {
-      console.error(`Error in route-ratelimit.js/calcPoints()`)
+      wlogger.error(`Error in route-ratelimit.js/calcPoints()`)
       // throw err
       retVal = 30
     }
@@ -368,14 +372,14 @@ class RateLimits {
   // what kind of variations will be seen in production.
   getResource(url) {
     try {
-      console.log(`url: ${JSON.stringify(url, null, 2)}`)
+      wlogger.debug(`url: ${JSON.stringify(url, null, 2)}`)
 
       const splitUrl = url.split("/")
       const resource = splitUrl[1]
 
       return resource
     } catch (err) {
-      console.error(`Error in getResource().`)
+      wlogger.error(`Error in getResource().`)
       throw err
     }
   }
