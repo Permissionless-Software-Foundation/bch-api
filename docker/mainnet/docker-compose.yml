@@ -13,3 +13,5 @@ redis:
   image: redis:latest
   container_name: redis-bch-api-main
   restart: always
+  ports:
+    - "6379:6379"
