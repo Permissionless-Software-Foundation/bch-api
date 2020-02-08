@@ -370,7 +370,7 @@ describe("#route-ratelimits & jwt-auth", () => {
     })
   })
 
-  describe("#newRateLimit", () => {
+  describe("#rateLimitByResource", () => {
     it("should pass through rate-limit middleware", async () => {
       req.baseUrl = "/v3"
       req.path = "/control/getNetworkInfo"
@@ -378,8 +378,8 @@ describe("#route-ratelimits & jwt-auth", () => {
       req.method = "GET"
 
       // Call the route twice to trigger the rate handling.
-      await rateLimits.newRateLimit(req, res, next)
-      await rateLimits.newRateLimit(req, res, next)
+      await rateLimits.rateLimitByResource(req, res, next)
+      await rateLimits.rateLimitByResource(req, res, next)
 
       // next() will be called if rate-limit is not triggered
       assert.equal(next.called, true)
@@ -394,7 +394,7 @@ describe("#route-ratelimits & jwt-auth", () => {
       for (let i = 0; i < 5; i++) {
         next.reset() // reset the stubbed next() function.
 
-        await rateLimits.newRateLimit(req, res, next)
+        await rateLimits.rateLimitByResource(req, res, next)
         //console.log(`next() called: ${next.called}`)
       }
 
@@ -428,7 +428,7 @@ describe("#route-ratelimits & jwt-auth", () => {
       for (let i = 0; i < 5; i++) {
         next.reset() // reset the stubbed next() function.
 
-        await rateLimits.newRateLimit(req, res, next)
+        await rateLimits.rateLimitByResource(req, res, next)
         //console.log(`next() called: ${next.called}`)
       }
 
@@ -464,7 +464,7 @@ describe("#route-ratelimits & jwt-auth", () => {
       for (let i = 0; i < 12; i++) {
         next.reset() // reset the stubbed next() function.
 
-        await rateLimits.newRateLimit(req, res, next)
+        await rateLimits.rateLimitByResource(req, res, next)
         //console.log(`next() called: ${next.called}`)
       }
 

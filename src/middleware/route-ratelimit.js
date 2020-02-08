@@ -233,7 +233,7 @@ class RateLimits {
     This is the new rate limit function that uses the rate-limiter-flexible npm
     library.
   */
-  async newRateLimit(req, res, next) {
+  async rateLimitByResource(req, res, next) {
     try {
       let userId
       let decoded = {}
