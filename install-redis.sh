@@ -7,6 +7,6 @@
 sudo apt install redis-server
 
 # Converting to systemd managed process
-#echo "supervised systemd" >> /etc/redis/redis.conf
+echo "supervised systemd" >> /etc/redis/redis.conf
 
-#sudo systemctl restart redis.service
+sudo systemctl restart redis.service
