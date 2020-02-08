@@ -1,4 +1,6 @@
 /*
+  This is a middleware library for handling and processing JWT tokens.
+
   This middleware inspects the request header for a JWT token.
   If found, will populate req.locals.jwtToken with the JWT token.
 */
