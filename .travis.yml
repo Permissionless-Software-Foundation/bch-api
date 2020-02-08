@@ -10,6 +10,9 @@ sudo: required
 services:
   - docker
 
+before_install:
+  - ./install-redis.sh
+
 script: "npm run test"
 
 after_success:
