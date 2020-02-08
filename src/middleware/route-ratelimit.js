@@ -321,28 +321,28 @@ class RateLimits {
       const apiLevel = jwtInfo.apiLevel
       const resource = jwtInfo.resource
 
-      const level20Routes = ["insight", "bitcore", "blockbook"]
-      const level30Routes = ["slp"]
+      const level30Routes = ["insight", "bitcore", "blockbook"]
+      const level40Routes = ["slp"]
 
       // console.log(`apiLevel: ${apiLevel}`)
 
       // Only evaluate if user is using a JWT token.
       if (jwtInfo.id) {
         // SLP indexer routes
-        if (level30Routes.includes(resource)) {
-          if (apiLevel >= 30) retVal = 1
+        if (level40Routes.includes(resource)) {
+          if (apiLevel >= 40) retVal = 1
           // else if (apiLevel >= 10) retVal = 10
           else retVal = 10
         }
 
         // Normal indexer routes
-        else if (level20Routes.includes(resource)) {
-          if (apiLevel >= 20) retVal = 1
+        else if (level30Routes.includes(resource)) {
+          if (apiLevel >= 30) retVal = 1
           else retVal = 10
         }
 
         // Full node tier
-        else if (apiLevel >= 10) {
+        else if (apiLevel >= 20) {
           retVal = 1
         }
 

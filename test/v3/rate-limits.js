@@ -303,7 +303,7 @@ describe("#route-ratelimits & jwt-auth", () => {
       assert.equal(result, 10)
     })
 
-    it("should return 1 point for indexer tier requesting full node access", () => {
+    it("should return 1 point for full node tier requesting full node access", () => {
       const jwtInfo = {
         apiLevel: 20,
         resource: "blockchain",
@@ -314,7 +314,7 @@ describe("#route-ratelimits & jwt-auth", () => {
       assert.equal(result, 1)
     })
 
-    it("should return 1 points for indexer tier requesting indexer access", () => {
+    it("should return 10 points for full-node tier requesting indexer access", () => {
       const jwtInfo = {
         apiLevel: 20,
         resource: "blockbook",
@@ -322,10 +322,10 @@ describe("#route-ratelimits & jwt-auth", () => {
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 1)
+      assert.equal(result, 10)
     })
 
-    it("should return 10 points for indexer tier requesting SLPDB access", () => {
+    it("should return 10 points for full node tier requesting SLPDB access", () => {
       const jwtInfo = {
         apiLevel: 20,
         resource: "slp",
@@ -336,7 +336,7 @@ describe("#route-ratelimits & jwt-auth", () => {
       assert.equal(result, 10)
     })
 
-    it("should return 1 point for SLP tier requesting full node access", () => {
+    it("should return 1 point for indexer tier requesting full node access", () => {
       const jwtInfo = {
         apiLevel: 30,
         resource: "blockchain",
@@ -347,7 +347,7 @@ describe("#route-ratelimits & jwt-auth", () => {
       assert.equal(result, 1)
     })
 
-    it("should return 1 points for SLP tier requesting indexer access", () => {
+    it("should return 1 points for indexer tier requesting indexer access", () => {
       const jwtInfo = {
         apiLevel: 30,
         resource: "blockbook",
@@ -358,9 +358,42 @@ describe("#route-ratelimits & jwt-auth", () => {
       assert.equal(result, 1)
     })
 
-    it("should return 1 points for SLP tier requesting SLPDB access", () => {
+    it("should return 10 points for indexer tier requesting SLPDB access", () => {
       const jwtInfo = {
         apiLevel: 30,
+        resource: "slp",
+        id: "5e3a0415eb29a962da2708b4"
+      }
+
+      const result = rateLimits.calcPoints(jwtInfo)
+      assert.equal(result, 10)
+    })
+
+    it("should return 1 point for SLP tier requesting full node access", () => {
+      const jwtInfo = {
+        apiLevel: 40,
+        resource: "blockchain",
+        id: "5e3a0415eb29a962da2708b4"
+      }
+
+      const result = rateLimits.calcPoints(jwtInfo)
+      assert.equal(result, 1)
+    })
+
+    it("should return 1 points for SLP tier requesting indexer access", () => {
+      const jwtInfo = {
+        apiLevel: 40,
+        resource: "blockbook",
+        id: "5e3a0415eb29a962da2708b4"
+      }
+
+      const result = rateLimits.calcPoints(jwtInfo)
+      assert.equal(result, 1)
+    })
+
+    it("should return 1 points for SLP tier requesting SLPDB access", () => {
+      const jwtInfo = {
+        apiLevel: 40,
         resource: "slp",
         id: "5e3a0415eb29a962da2708b4"
       }
