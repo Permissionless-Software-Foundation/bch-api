@@ -1,10 +1,17 @@
-bch-api:
+bch-api-test:
   build: .
   dockerfile: Dockerfile
   #image: bitcore
-  container_name: bch-api
-  #links:
-  #  - mongodb
+  container_name: bch-api-test
+  links:
+    - redis-test
   ports:
     - "13400:3000"
   restart: always
+
+redis-test:
+  image: redis:latest
+  container_name: redis-test
+  restart: always
+  ports:
+    - "6380:6379"
