@@ -206,6 +206,7 @@ class RateLimits {
   // uses its output to adjust rate limits on-the-fly based on the users
   // permission level.
   // CT 2/7/20: I believe this is older code that is only used by routeRateLimit.
+  // It will probably be removed in the future.
   evalUserPermissioins(req, authData) {
     // console.log(`authData: ${JSON.stringify(authData, null, 2)}`)
 
@@ -259,6 +260,7 @@ class RateLimits {
         }
       }
 
+      // Decode the JWT token if one exists.
       if (req.locals.jwtToken) {
         // Hexadecimal
         const publicKey =
