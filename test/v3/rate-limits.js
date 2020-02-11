@@ -53,6 +53,7 @@ describe("#route-ratelimits & jwt-auth", () => {
     req.params = {}
     req.body = {}
     req.query = {}
+    req.locals = {}
 
     sandbox = sinon.createSandbox()
   })
@@ -160,7 +161,7 @@ describe("#route-ratelimits & jwt-auth", () => {
       )
     })
 
-    it("should trigger rate-limit for free tier 10 RPM", async () => {
+    it("should trigger rate-limit for free tier after 10 RPM", async () => {
       req.baseUrl = "/v3"
       req.path = "/control/getNetworkInfo"
       req.method = "GET"
@@ -403,6 +404,35 @@ describe("#route-ratelimits & jwt-auth", () => {
     })
   })
 
+  describe("#calcPoints2", () => {
+    it("should return 30 points for anonymous user", () => {
+      const result = rateLimits.calcPoints2({})
+      // console.log(`result: ${result}`)
+
+      assert.equal(result, 30)
+    })
+
+    it("should return 10 point for free tier", () => {
+      const jwtInfo = {
+        rateLimit: 10,
+        id: "5e3a0415eb29a962da2708b4"
+      }
+
+      const result = rateLimits.calcPoints2(jwtInfo)
+      assert.equal(result, 10)
+    })
+
+    it("should return 1 point for pro tier", () => {
+      const jwtInfo = {
+        rateLimit: 100,
+        id: "5e3a0415eb29a962da2708b4"
+      }
+
+      const result = rateLimits.calcPoints2(jwtInfo)
+      assert.equal(result, 1)
+    })
+  })
+
   describe("#rateLimitByResource", () => {
     it("should pass through rate-limit middleware", async () => {
       req.baseUrl = "/v3"
@@ -452,7 +482,7 @@ describe("#route-ratelimits & jwt-auth", () => {
 
       const jwtInfo = {
         apiLevel: 10,
-        id: "5e3a0415eb29a962da2708b4"
+        id: "5e3a0415eb29a962da2708b1"
       }
 
       // Mock the call to the jwt library.
@@ -488,7 +518,7 @@ describe("#route-ratelimits & jwt-auth", () => {
 
       const jwtInfo = {
         apiLevel: 10,
-        id: "5e3a0415eb29a962da2708b4"
+        id: "5e3a0415eb29a962da2708b2"
       }
 
       // Mock the call to the jwt library.
@@ -506,6 +536,257 @@ describe("#route-ratelimits & jwt-auth", () => {
         next.called,
         false,
         `next should not be called if rate limit was triggered.`
+      )
+    })
+
+    it("should NOT trigger rate-limit handler for indexer-tier at 25 RPM", async () => {
+      // Create a new instance of the rate limit so we start with zeroed tracking.
+      rateLimits = new RateLimits()
+
+      req.baseUrl = "/v3"
+      req.path = "/control/getNetworkInfo"
+      req.url = req.path
+      req.method = "GET"
+
+      req.locals.jwtToken = "some-token"
+
+      const jwtInfo = {
+        apiLevel: 20,
+        id: "5e3a0415eb29a962da2708b3"
+      }
+
+      // Mock the call to the jwt library.
+      sandbox.stub(rateLimits.jwt, "verify").returns(jwtInfo)
+
+      for (let i = 0; i < 25; i++) {
+        next.reset() // reset the stubbed next() function.
+
+        await rateLimits.rateLimitByResource(req, res, next)
+        //console.log(`next() called: ${next.called}`)
+      }
+
+      //console.log(`req.locals after test: ${util.inspect(req.locals)}`)
+
+      // Note: next() will be called unless the rate-limit kicks in.
+      assert.equal(
+        next.called,
+        true,
+        `next should be called if rate limit was not triggered.`
+      )
+    })
+
+    it("should still rate-limit at a higher RPM for pro-tier", async () => {
+      // Create a new instance of the rate limit so we start with zeroed tracking.
+      rateLimits = new RateLimits()
+
+      req.baseUrl = "/v3"
+      req.path = "/control/getNetworkInfo"
+      req.url = req.path
+      req.method = "GET"
+
+      req.locals.jwtToken = "some-token"
+
+      const jwtInfo = {
+        apiLevel: 20,
+        id: "5e3a0415eb29a962da2708b5"
+      }
+
+      // Mock the call to the jwt library.
+      sandbox.stub(rateLimits.jwt, "verify").returns(jwtInfo)
+
+      for (let i = 0; i < 150; i++) {
+        next.reset() // reset the stubbed next() function.
+
+        await rateLimits.rateLimitByResource(req, res, next)
+        //console.log(`next() called: ${next.called}`)
+      }
+
+      //console.log(`req.locals after test: ${util.inspect(req.locals)}`)
+
+      // Note: next() will be called unless the rate-limit kicks in.
+      assert.equal(
+        next.called,
+        false,
+        `next should NOT be called if rate limit was triggered.`
+      )
+    })
+  })
+
+  describe("#rateLimitSimple", () => {
+    it("should pass through rate-limit middleware", async () => {
+      req.baseUrl = "/v3"
+      req.path = "/control/getNetworkInfo"
+      req.url = req.path
+      req.method = "GET"
+
+      // Call the route twice to trigger the rate handling.
+      await rateLimits.rateLimitSimple(req, res, next)
+      await rateLimits.rateLimitSimple(req, res, next)
+
+      // next() will be called if rate-limit is not triggered
+      assert.equal(next.called, true)
+    })
+
+    it("should trigger rate-limit handler if rate limits exceeds 5 request per minute", async () => {
+      req.baseUrl = "/v3"
+      req.path = "/control/getNetworkInfo"
+      req.url = req.path
+      req.method = "GET"
+
+      for (let i = 0; i < 5; i++) {
+        next.reset() // reset the stubbed next() function.
+
+        await rateLimits.rateLimitSimple(req, res, next)
+        //console.log(`next() called: ${next.called}`)
+      }
+
+      // Note: next() will be called unless the rate-limit kicks in.
+      assert.equal(
+        next.called,
+        false,
+        `next should not be called if rate limit was triggered.`
+      )
+    })
+
+    it("should NOT trigger rate-limit for free-tier at 5 RPM", async () => {
+      // Create a new instance of the rate limit so we start with zeroed tracking.
+      rateLimits = new RateLimits()
+
+      req.baseUrl = "/v3"
+      req.path = "/control/getNetworkInfo"
+      req.url = req.path
+      req.method = "GET"
+
+      req.locals.jwtToken = "some-token"
+
+      const jwtInfo = {
+        rateLimit: 10,
+        id: "5e3a0415eb29a962da2708c1"
+      }
+
+      // Mock the call to the jwt library.
+      sandbox.stub(rateLimits.jwt, "verify").returns(jwtInfo)
+
+      for (let i = 0; i < 5; i++) {
+        next.reset() // reset the stubbed next() function.
+
+        await rateLimits.rateLimitSimple(req, res, next)
+        //console.log(`next() called: ${next.called}`)
+      }
+
+      //console.log(`req.locals after test: ${util.inspect(req.locals)}`)
+
+      // Note: next() will be called unless the rate-limit kicks in.
+      assert.equal(
+        next.called,
+        true,
+        `next should be called if rate limit was not triggered.`
+      )
+    })
+
+    it("should trigger rate-limit for free tier after 10 RPM", async () => {
+      // Create a new instance of the rate limit so we start with zeroed tracking.
+      rateLimits = new RateLimits()
+
+      req.baseUrl = "/v3"
+      req.path = "/control/getNetworkInfo"
+      req.url = req.path
+      req.method = "GET"
+
+      req.locals.jwtToken = "some-token"
+
+      const jwtInfo = {
+        rateLimit: 10,
+        id: "5e3a0415eb29a962da2708c2"
+      }
+
+      // Mock the call to the jwt library.
+      sandbox.stub(rateLimits.jwt, "verify").returns(jwtInfo)
+
+      for (let i = 0; i < 12; i++) {
+        next.reset() // reset the stubbed next() function.
+
+        await rateLimits.rateLimitSimple(req, res, next)
+        //console.log(`next() called: ${next.called}`)
+      }
+
+      // Note: next() will be called unless the rate-limit kicks in.
+      assert.equal(
+        next.called,
+        false,
+        `next should not be called if rate limit was triggered.`
+      )
+    })
+
+    it("should NOT trigger rate-limit handler for pro-tier at 25 RPM", async () => {
+      // Create a new instance of the rate limit so we start with zeroed tracking.
+      rateLimits = new RateLimits()
+
+      req.baseUrl = "/v3"
+      req.path = "/control/getNetworkInfo"
+      req.url = req.path
+      req.method = "GET"
+
+      req.locals.jwtToken = "some-token"
+
+      const jwtInfo = {
+        rateLimit: 100,
+        id: "5e3a0415eb29a962da2708c3"
+      }
+
+      // Mock the call to the jwt library.
+      sandbox.stub(rateLimits.jwt, "verify").returns(jwtInfo)
+
+      for (let i = 0; i < 25; i++) {
+        next.reset() // reset the stubbed next() function.
+
+        await rateLimits.rateLimitSimple(req, res, next)
+        //console.log(`next() called: ${next.called}`)
+      }
+
+      //console.log(`req.locals after test: ${util.inspect(req.locals)}`)
+
+      // Note: next() will be called unless the rate-limit kicks in.
+      assert.equal(
+        next.called,
+        true,
+        `next should be called if rate limit was not triggered.`
+      )
+    })
+
+    it("should still rate-limit at a higher RPM for pro-tier", async () => {
+      // Create a new instance of the rate limit so we start with zeroed tracking.
+      rateLimits = new RateLimits()
+
+      req.baseUrl = "/v3"
+      req.path = "/control/getNetworkInfo"
+      req.url = req.path
+      req.method = "GET"
+
+      req.locals.jwtToken = "some-token"
+
+      const jwtInfo = {
+        rateLimit: 100,
+        id: "5e3a0415eb29a962da2708c4"
+      }
+
+      // Mock the call to the jwt library.
+      sandbox.stub(rateLimits.jwt, "verify").returns(jwtInfo)
+
+      for (let i = 0; i < 150; i++) {
+        next.reset() // reset the stubbed next() function.
+
+        await rateLimits.rateLimitSimple(req, res, next)
+        //console.log(`next() called: ${next.called}`)
+      }
+
+      //console.log(`req.locals after test: ${util.inspect(req.locals)}`)
+
+      // Note: next() will be called unless the rate-limit kicks in.
+      assert.equal(
+        next.called,
+        false,
+        `next should NOT be called if rate limit was triggered.`
       )
     })
   })
