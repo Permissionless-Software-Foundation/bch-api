@@ -36,19 +36,22 @@ class Blockchain {
     this.router.get("/getBlockchainInfo", this.getBlockchainInfo)
     this.router.get("/getBlockCount", this.getBlockCount)
     this.router.get("/getBlockHeader/:hash", this.getBlockHeaderSingle)
-    this.router.post("/getBlockHeader", getBlockHeaderBulk)
-    this.router.get("/getChainTips", getChainTips)
-    this.router.get("/getDifficulty", getDifficulty)
-    this.router.get("/getMempoolEntry/:txid", getMempoolEntrySingle)
-    this.router.post("/getMempoolEntry", getMempoolEntryBulk)
-    this.router.get("/getMempoolAncestors/:txid", getMempoolAncestorsSingle)
-    this.router.get("/getMempoolInfo", getMempoolInfo)
-    this.router.get("/getRawMempool", getRawMempool)
-    this.router.get("/getTxOut/:txid/:n", getTxOut)
-    this.router.get("/getTxOutProof/:txid", getTxOutProofSingle)
-    this.router.post("/getTxOutProof", getTxOutProofBulk)
-    this.router.get("/verifyTxOutProof/:proof", verifyTxOutProofSingle)
-    this.router.post("/verifyTxOutProof", verifyTxOutProofBulk)
+    this.router.post("/getBlockHeader", this.getBlockHeaderBulk)
+    this.router.get("/getChainTips", this.getChainTips)
+    this.router.get("/getDifficulty", this.getDifficulty)
+    this.router.get("/getMempoolEntry/:txid", this.getMempoolEntrySingle)
+    this.router.post("/getMempoolEntry", this.getMempoolEntryBulk)
+    this.router.get(
+      "/getMempoolAncestors/:txid",
+      this.getMempoolAncestorsSingle
+    )
+    this.router.get("/getMempoolInfo", this.getMempoolInfo)
+    this.router.get("/getRawMempool", this.getRawMempool)
+    this.router.get("/getTxOut/:txid/:n", this.getTxOut)
+    this.router.get("/getTxOutProof/:txid", this.getTxOutProofSingle)
+    this.router.post("/getTxOutProof", this.getTxOutProofBulk)
+    this.router.get("/verifyTxOutProof/:proof", this.verifyTxOutProofSingle)
+    this.router.post("/verifyTxOutProof", this.verifyTxOutProofBulk)
   }
 
   root(req, res, next) {
@@ -532,7 +535,7 @@ class Blockchain {
       options.data.method = "getmempoolancestors"
       options.data.params = [txid, verbose]
 
-      const response = await this.axios.request(requestConfig)
+      const response = await this.axios.request(options)
       // console.log(`response: ${util.inspect(response)}`)
 
       return res.json(response.data.result)
