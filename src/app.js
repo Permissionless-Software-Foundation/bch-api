@@ -24,7 +24,7 @@ const jwtAuth = require("./middleware/jwt-auth")
 
 // v3
 const healthCheckV3 = require("./routes/v3/health-check")
-const blockchainV3 = require("./routes/v3/full-node/blockchain")
+const BlockchainV3 = require("./routes/v3/full-node/blockchain")
 const controlV3 = require("./routes/v3/full-node/control")
 const miningV3 = require("./routes/v3/full-node/mining")
 const networkV3 = require("./routes/v3/full-node/network")
@@ -36,6 +36,9 @@ const blockbookV3 = require("./routes/v3/blockbook")
 const Ninsight = require("./routes/v3/ninsight")
 
 require("dotenv").config()
+
+// Instantiate route libraries.
+const blockchainV3 = new BlockchainV3()
 
 const app = express()
 
