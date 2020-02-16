@@ -61,7 +61,7 @@ class Blockchain {
   // DRY error handler.
   errorHandler(err, res) {
     // Attempt to decode the error message.
-    const { msg, status } = this.routeUtils.decodeError(err)
+    const { msg, status } = _this.routeUtils.decodeError(err)
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -86,12 +86,12 @@ class Blockchain {
   async getBestBlockHash(req, res, next) {
     try {
       // Axios options
-      const options = this.routeUtils.getAxiosOptions()
+      const options = _this.routeUtils.getAxiosOptions()
       options.data.id = "getbestblockhash"
       options.data.method = "getbestblockhash"
       options.data.params = []
 
-      const response = await this.axios.request(options)
+      const response = await _this.axios.request(options)
       // console.log(`response.data: ${JSON.stringify(response.data, null, 2)}`)
 
       return res.json(response.data.result)
@@ -99,7 +99,7 @@ class Blockchain {
       // Write out error to error log.
       wlogger.error("Error in blockchain.ts/getBestBlockHash().", err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -131,19 +131,19 @@ class Blockchain {
   async getBlockchainInfo(req, res, next) {
     try {
       // Axios options
-      const options = this.routeUtils.getAxiosOptions()
+      const options = _this.routeUtils.getAxiosOptions()
       options.data.id = "getblockchaininfo"
       options.data.method = "getblockchaininfo"
       options.data.params = []
 
-      const response = await this.axios.request(options)
+      const response = await _this.axios.request(options)
 
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
       wlogger.error("Error in blockchain.ts/getBlockchainInfo().", err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -161,12 +161,12 @@ class Blockchain {
   async getBlockCount(req, res, next) {
     try {
       // Axios options
-      const options = this.routeUtils.getAxiosOptions()
+      const options = _this.routeUtils.getAxiosOptions()
       options.data.id = "getblockcount"
       options.data.method = "getblockcount"
       options.data.params = []
 
-      const response = await this.axios.request(options)
+      const response = await _this.axios.request(options)
 
       return res.json(response.data.result)
     } catch (err) {
@@ -174,7 +174,7 @@ class Blockchain {
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
       wlogger.error("Error in blockchain.ts/getBlockCount().", err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -221,12 +221,12 @@ class Blockchain {
       }
 
       // Axios options
-      const options = this.routeUtils.getAxiosOptions()
+      const options = _this.routeUtils.getAxiosOptions()
       options.data.id = "getblockheader"
       options.data.method = "getblockheader"
       options.data.params = [hash, verbose]
 
-      const response = await this.axios.request(options)
+      const response = await _this.axios.request(options)
 
       return res.json(response.data.result)
     } catch (err) {
@@ -234,7 +234,7 @@ class Blockchain {
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
       wlogger.error("Error in blockchain.ts/getBlockHeaderSingle().", err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -304,7 +304,7 @@ class Blockchain {
       }
 
       // Axios options
-      const options = this.routeUtils.getAxiosOptions()
+      const options = _this.routeUtils.getAxiosOptions()
 
       // Loop through each hash and creates an array of requests to call in parallel
       const promises = hashes.map(async hash => {
@@ -312,10 +312,10 @@ class Blockchain {
         options.data.method = "getblockheader"
         options.data.params = [hash, verbose]
 
-        return await this.axios.request(options)
+        return await _this.axios.request(options)
       })
 
-      const axiosResult = await this.axios.all(promises)
+      const axiosResult = await _this.axios.all(promises)
 
       // Extract the data component from the axios response.
       const result = axiosResult.map(x => x.data.result)
@@ -327,7 +327,7 @@ class Blockchain {
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
       wlogger.error("Error in blockchain.ts/getBlockHeaderBulk().", err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -345,20 +345,20 @@ class Blockchain {
   async getChainTips(req, res, next) {
     try {
       // Axios options
-      const options = this.routeUtils.getAxiosOptions()
+      const options = _this.routeUtils.getAxiosOptions()
 
       options.data.id = "getchaintips"
       options.data.method = "getchaintips"
       options.data.params = []
 
-      const response = await this.axios.request(options)
+      const response = await _this.axios.request(options)
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
       wlogger.error("Error in blockchain.ts/getChainTips().", err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -376,13 +376,13 @@ class Blockchain {
   async getDifficulty(req, res, next) {
     try {
       // Axios options
-      const options = this.routeUtils.getAxiosOptions()
+      const options = _this.routeUtils.getAxiosOptions()
 
       options.data.id = "getdifficulty"
       options.data.method = "getdifficulty"
       options.data.params = []
 
-      const response = await this.axios.request(options)
+      const response = await _this.axios.request(options)
 
       return res.json(response.data.result)
     } catch (err) {
@@ -390,7 +390,7 @@ class Blockchain {
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
       wlogger.error("Error in blockchain.ts/getDifficulty().", err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -415,13 +415,13 @@ class Blockchain {
       }
 
       // Axios options
-      const options = this.routeUtils.getAxiosOptions()
+      const options = _this.routeUtils.getAxiosOptions()
 
       options.data.id = "getmempoolentry"
       options.data.method = "getmempoolentry"
       options.data.params = [txid]
 
-      const response = await this.axios.request(options)
+      const response = await _this.axios.request(options)
 
       return res.json(response.data.result)
     } catch (err) {
@@ -429,7 +429,7 @@ class Blockchain {
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
       wlogger.error("Error in blockchain.ts/getMempoolEntrySingle().", err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -477,7 +477,7 @@ class Blockchain {
       }
 
       // Axios options
-      const options = this.routeUtils.getAxiosOptions()
+      const options = _this.routeUtils.getAxiosOptions()
 
       // Loop through each txid and creates an array of requests to call in parallel
       const promises = txids.map(async txid => {
@@ -485,10 +485,10 @@ class Blockchain {
         options.data.method = "getmempoolentry"
         options.data.params = [txid]
 
-        return await this.axios.request(options)
+        return await _this.axios.request(options)
       })
 
-      const axiosResult = await this.axios.all(promises)
+      const axiosResult = await _this.axios.all(promises)
 
       // Extract the data component from the axios response.
       const result = axiosResult.map(x => x.data.result)
@@ -500,7 +500,7 @@ class Blockchain {
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
       wlogger.error("Error in blockchain.ts/getMempoolEntryBulk().", err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -529,13 +529,13 @@ class Blockchain {
       if (verbose === undefined) verbose = false
 
       // Axios options
-      const options = this.routeUtils.getAxiosOptions()
+      const options = _this.routeUtils.getAxiosOptions()
 
       options.data.id = "getmempoolancestors"
       options.data.method = "getmempoolancestors"
       options.data.params = [txid, verbose]
 
-      const response = await this.axios.request(options)
+      const response = await _this.axios.request(options)
       // console.log(`response: ${util.inspect(response)}`)
 
       return res.json(response.data.result)
@@ -544,7 +544,7 @@ class Blockchain {
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
       wlogger.error("Error in blockchain.ts/getMempoolAncestorsSingle().", err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -561,20 +561,20 @@ class Blockchain {
   async getMempoolInfo(req, res, next) {
     try {
       // Axios options
-      const options = this.routeUtils.getAxiosOptions()
+      const options = _this.routeUtils.getAxiosOptions()
 
       options.data.id = "getmempoolinfo"
       options.data.method = "getmempoolinfo"
       options.data.params = []
 
-      const response = await this.axios.request(options)
+      const response = await _this.axios.request(options)
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
       wlogger.error("Error in blockchain.ts/getMempoolInfo().", err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -588,6 +588,7 @@ class Blockchain {
    * curl -X GET https://mainnet.bchjs.cash/v3/getMempoolInfo -H "accept: application/json"
    *
    */
+
   /**
    * @api {get} /blockchain/getRawMempool/?verbose= Get raw mempool
    * @apiName getRawMempool
@@ -604,7 +605,7 @@ class Blockchain {
   async getRawMempool(req, res, next) {
     try {
       // Axios options
-      const options = this.routeUtils.getAxiosOptions()
+      const options = _this.routeUtils.getAxiosOptions()
 
       let verbose = false
       if (req.query.verbose && req.query.verbose === "true") verbose = true
@@ -613,7 +614,7 @@ class Blockchain {
       options.data.method = "getrawmempool"
       options.data.params = [verbose]
 
-      const response = await this.axios.request(options)
+      const response = await _this.axios.request(options)
 
       return res.json(response.data.result)
     } catch (err) {
@@ -621,7 +622,7 @@ class Blockchain {
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
       wlogger.error("Error in blockchain.ts/getRawMempool().", err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -661,7 +662,7 @@ class Blockchain {
         include_mempool = true
 
       // Axios options
-      const options = this.routeUtils.getAxiosOptions()
+      const options = _this.routeUtils.getAxiosOptions()
 
       options.data.id = "gettxout"
       options.data.method = "gettxout"
@@ -669,7 +670,7 @@ class Blockchain {
 
       // console.log(`requestConfig: ${JSON.stringify(requestConfig, null, 2)}`)
 
-      const response = await this.axios.request(options)
+      const response = await _this.axios.request(options)
 
       return res.json(response.data.result)
     } catch (err) {
@@ -677,7 +678,7 @@ class Blockchain {
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
       wlogger.error("Error in blockchain.ts/getTxOut().", err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -703,13 +704,13 @@ class Blockchain {
       }
 
       // Axios options
-      const options = this.routeUtils.getAxiosOptions()
+      const options = _this.routeUtils.getAxiosOptions()
 
       options.data.id = "gettxoutproof"
       options.data.method = "gettxoutproof"
       options.data.params = [[txid]]
 
-      const response = await this.axios.request(options)
+      const response = await _this.axios.request(options)
 
       return res.json(response.data.result)
     } catch (err) {
@@ -717,7 +718,7 @@ class Blockchain {
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
       wlogger.error("Error in blockchain.ts/getTxOutProofSingle().", err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -743,7 +744,7 @@ class Blockchain {
       }
 
       // Axios options
-      const options = this.routeUtils.getAxiosOptions()
+      const options = _this.routeUtils.getAxiosOptions()
 
       // Validate each element in the array.
       for (let i = 0; i < txids.length; i++) {
@@ -768,11 +769,11 @@ class Blockchain {
         options.data.method = "gettxoutproof"
         options.data.params = [[txid]]
 
-        return await this.axios.request(options)
+        return await _this.axios.request(options)
       })
 
       // Wait for all parallel promisses to resolve.
-      const axiosResult = await this.axios.all(promises)
+      const axiosResult = await _this.axios.all(promises)
 
       // Extract the data component from the axios response.
       const result = axiosResult.map(x => x.data.result)
@@ -784,7 +785,7 @@ class Blockchain {
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
       wlogger.error("Error in blockchain.ts/getTxOutProofBulk().", err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -798,13 +799,13 @@ class Blockchain {
       }
 
       // Axios options
-      const options = this.routeUtils.getAxiosOptions()
+      const options = _this.routeUtils.getAxiosOptions()
 
       options.data.id = "verifytxoutproof"
       options.data.method = "verifytxoutproof"
       options.data.params = [req.params.proof]
 
-      const response = await this.axios.request(options)
+      const response = await _this.axios.request(options)
 
       return res.json(response.data.result)
     } catch (err) {
@@ -812,7 +813,7 @@ class Blockchain {
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
       wlogger.error("Error in blockchain.ts/verifyTxOutProofSingle().", err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -837,7 +838,7 @@ class Blockchain {
       }
 
       // Axios options
-      const options = this.routeUtils.getAxiosOptions()
+      const options = _this.routeUtils.getAxiosOptions()
 
       // Validate each element in the array.
       for (let i = 0; i < proofs.length; i++) {
@@ -860,11 +861,11 @@ class Blockchain {
         options.data.method = "verifytxoutproof"
         options.data.params = [proof]
 
-        return await this.axios.request(options)
+        return await _this.axios.request(options)
       })
 
       // Wait for all parallel promisses to resolve.
-      const axiosResult = await this.axios.all(promises)
+      const axiosResult = await _this.axios.all(promises)
 
       // Extract the data component from the axios response.
       const result = axiosResult.map(x => x.data.result[0])
@@ -876,7 +877,7 @@ class Blockchain {
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
       wlogger.error("Error in blockchain.ts/verifyTxOutProofBulk().", err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 }
