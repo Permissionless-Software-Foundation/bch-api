@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node ./src/app.js",
     "dev": "nodemon ./dist/app.js",
-    "test": "npm run test-v3",
+    "test": "npm run lint && npm run test-v3",
     "lint": "standard --env mocha --fix",
     "test-v3": "export NETWORK=mainnet && nyc --reporter=text mocha --timeout 25000 test/v3/",
     "test:temp": "export NETWORK=mainnet && mocha --timeout 25000 test/v3/blockchain.js",
