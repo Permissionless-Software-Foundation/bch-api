@@ -3,7 +3,9 @@
 const express = require("express")
 
 // Middleware
-const { routeRateLimit } = require("./middleware/route-ratelimit")
+// const { routeRateLimit } = require("./middleware/route-ratelimit")
+const RateLimits = require("./middleware/route-ratelimit")
+const rateLimits = new RateLimits()
 
 const path = require("path")
 const logger = require("morgan")
@@ -22,7 +24,7 @@ const jwtAuth = require("./middleware/jwt-auth")
 
 // v3
 const healthCheckV3 = require("./routes/v3/health-check")
-const blockchainV3 = require("./routes/v3/full-node/blockchain")
+const BlockchainV3 = require("./routes/v3/full-node/blockchain")
 const controlV3 = require("./routes/v3/full-node/control")
 const miningV3 = require("./routes/v3/full-node/mining")
 const networkV3 = require("./routes/v3/full-node/network")
@@ -34,6 +36,9 @@ const blockbookV3 = require("./routes/v3/blockbook")
 const Ninsight = require("./routes/v3/ninsight")
 
 require("dotenv").config()
+
+// Instantiate route libraries.
+const blockchainV3 = new BlockchainV3()
 
 const app = express()
 
@@ -78,11 +83,15 @@ const v3prefix = "v3"
 app.use(`/${v3prefix}/`, jwtAuth.getTokenFromHeaders)
 
 // Instantiate the authorization middleware, used to implement pro-tier rate limiting.
+// Handles Anonymous and Basic Authorization schemes used by passport.js
 const auth = new AuthMW()
 app.use(`/${v3prefix}/`, auth.mw())
 
 // Rate limit on all v3 routes
-app.use(`/${v3prefix}/`, routeRateLimit) // Establish and enforce rate limits.
+// Establish and enforce rate limits.
+// app.use(`/${v3prefix}/`, rateLimits.routeRateLimit)
+app.use(`/${v3prefix}/`, rateLimits.rateLimitByResource)
+
 app.use(`/${v3prefix}/` + `health-check`, healthCheckV3)
 app.use(`/${v3prefix}/` + `blockchain`, blockchainV3.router)
 app.use(`/${v3prefix}/` + `control`, controlV3.router)

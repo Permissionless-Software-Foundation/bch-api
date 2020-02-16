@@ -17,4 +17,8 @@ export NODE_TLS_REJECT_UNAUTHORIZED=0
 
 export JWT_AUTH_SERVER=http://localhost:5001/
 
+# Redis DB
+export REDIS_PORT=6379
+export REDIS_HOST=172.17.0.1
+
 npm start

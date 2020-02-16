@@ -1,4 +1,7 @@
 /*
+  CT 2/4/20 Note: This library handles anonymous and Basic auth. This library
+  can be phased out with the chage to JWT tokens and the new rate-limit library.
+
   Handle authorization for bypassing rate limits.
 
   1) Default is 'Anonymous Authentication', which unlocks the freemimum tier by
