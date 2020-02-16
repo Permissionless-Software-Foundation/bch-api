@@ -24,7 +24,7 @@ const jwtAuth = require("./middleware/jwt-auth")
 
 // v3
 const healthCheckV3 = require("./routes/v3/health-check")
-const BlockchainV3 = require("./routes/v3/full-node/blockchain2")
+const BlockchainV3 = require("./routes/v3/full-node/blockchain")
 const controlV3 = require("./routes/v3/full-node/control")
 const miningV3 = require("./routes/v3/full-node/mining")
 const networkV3 = require("./routes/v3/full-node/network")
