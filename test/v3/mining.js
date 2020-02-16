@@ -6,24 +6,24 @@
   to 'integration' to run the tests against BCH mainnet.
 */
 
-"use strict"
+'use strict'
 
-const chai = require("chai")
+const chai = require('chai')
 const assert = chai.assert
-const miningRoute = require("../../src/routes/v3/full-node/mining")
-const nock = require("nock") // HTTP mocking
+const miningRoute = require('../../src/routes/v3/full-node/mining')
+const nock = require('nock') // HTTP mocking
 
 let originalEnvVars // Used during transition from integration to unit tests.
 
 // Mocking data.
-const { mockReq, mockRes } = require("./mocks/express-mocks")
-const mockData = require("./mocks/mining-mocks")
+const { mockReq, mockRes } = require('./mocks/express-mocks')
+const mockData = require('./mocks/mining-mocks')
 
 // Used for debugging.
-const util = require("util")
+const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-describe("#Mining", () => {
+describe('#Mining', () => {
   let req, res
 
   before(() => {
@@ -36,12 +36,12 @@ describe("#Mining", () => {
     }
 
     // Set default environment variables for unit tests.
-    if (!process.env.TEST) process.env.TEST = "unit"
-    if (process.env.TEST === "unit") {
-      process.env.BITCOINCOM_BASEURL = "http://fakeurl/api/"
-      process.env.RPC_BASEURL = "http://fakeurl/api"
-      process.env.RPC_USERNAME = "fakeusername"
-      process.env.RPC_PASSWORD = "fakepassword"
+    if (!process.env.TEST) process.env.TEST = 'unit'
+    if (process.env.TEST === 'unit') {
+      process.env.BITCOINCOM_BASEURL = 'http://fakeurl/api/'
+      process.env.RPC_BASEURL = 'http://fakeurl/api'
+      process.env.RPC_USERNAME = 'fakeusername'
+      process.env.RPC_PASSWORD = 'fakepassword'
     }
   })
 
@@ -74,30 +74,30 @@ describe("#Mining", () => {
     process.env.RPC_PASSWORD = originalEnvVars.RPC_PASSWORD
   })
 
-  describe("#root", async () => {
+  describe('#root', async () => {
     // root route handler.
     const root = miningRoute.testableComponents.root
 
-    it("should respond to GET for base route", async () => {
+    it('should respond to GET for base route', async () => {
       const result = root(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(result.status, "mining", "Returns static string")
+      assert.equal(result.status, 'mining', 'Returns static string')
     })
   })
 
-  describe("#getMiningInfo", async () => {
+  describe('#getMiningInfo', async () => {
     const getMiningInfo = miningRoute.testableComponents.getMiningInfo
 
-    it("should throw 503 when network issues", async () => {
+    it('should throw 503 when network issues', async () => {
       // Save the existing RPC URL.
       const savedUrl2 = process.env.RPC_BASEURL
 
       // Manipulate the URL to cause a 500 network error.
-      process.env.RPC_BASEURL = "http://fakeurl/api/"
+      process.env.RPC_BASEURL = 'http://fakeurl/api/'
 
-      const result = await getMiningInfo(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      await getMiningInfo(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
@@ -105,48 +105,48 @@ describe("#Mining", () => {
       assert.isAbove(
         res.statusCode,
         499,
-        "HTTP status code 500 or greater expected."
+        'HTTP status code 500 or greater expected.'
       )
-      //assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
+      // assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
     })
 
-    it("should GET mining information", async () => {
+    it('should GET mining information', async () => {
       // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
+      if (process.env.TEST === 'unit') {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(uri => uri.includes("/"))
+          .post(uri => uri.includes('/'))
           .reply(200, { result: mockData.mockMiningInfo })
       }
 
       const result = await getMiningInfo(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, [
-        "blocks",
-        "currentblocksize",
-        "currentblocktx",
-        "difficulty",
-        "blockprioritypercentage",
-        "warnings",
-        "networkhashps",
-        "pooledtx",
-        "chain"
+        'blocks',
+        'currentblocksize',
+        'currentblocktx',
+        'difficulty',
+        'blockprioritypercentage',
+        'warnings',
+        'networkhashps',
+        'pooledtx',
+        'chain'
       ])
     })
   })
 
-  describe("#getNetworkHashPS", async () => {
+  describe('#getNetworkHashPS', async () => {
     const getNetworkHashPS = miningRoute.testableComponents.getNetworkHashPS
 
-    it("should throw 503 when network issues", async () => {
+    it('should throw 503 when network issues', async () => {
       // Save the existing RPC URL.
       const savedUrl2 = process.env.RPC_BASEURL
 
       // Manipulate the URL to cause a 500 network error.
-      process.env.RPC_BASEURL = "http://fakeurl/api/"
+      process.env.RPC_BASEURL = 'http://fakeurl/api/'
 
-      const result = await getNetworkHashPS(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      await getNetworkHashPS(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
@@ -154,21 +154,21 @@ describe("#Mining", () => {
       assert.isAbove(
         res.statusCode,
         499,
-        "HTTP status code 500 or greater expected."
+        'HTTP status code 500 or greater expected.'
       )
-      //assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
+      // assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
     })
 
-    it("should GET Network Hash per second", async () => {
+    it('should GET Network Hash per second', async () => {
       // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
+      if (process.env.TEST === 'unit') {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(uri => uri.includes("/"))
+          .post(uri => uri.includes('/'))
           .reply(200, { result: 517604755.6648782 })
       }
 
       const result = await getNetworkHashPS(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.isNumber(result)
     })

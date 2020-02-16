@@ -6,27 +6,27 @@
   to 'integration' to run the tests against BCH mainnet.
 */
 
-"use strict"
+'use strict'
 
-const chai = require("chai")
+const chai = require('chai')
 const assert = chai.assert
-const utilRoute = require("../../src/routes/v3/util")
-const nock = require("nock") // HTTP mocking
-const sinon = require("sinon")
+const utilRoute = require('../../src/routes/v3/util')
+const nock = require('nock') // HTTP mocking
+const sinon = require('sinon')
 
 let originalEnvVars // Used during transition from integration to unit tests.
 
 // Mocking data.
-const { mockReq, mockRes } = require("./mocks/express-mocks")
-const mockData = require("./mocks/util-mocks")
+const { mockReq, mockRes } = require('./mocks/express-mocks')
+const mockData = require('./mocks/util-mocks')
 
-const util = require("util")
+const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-const UtilRoute = utilRoute.UtilRoute
+// const UtilRoute = utilRoute.UtilRoute
 const utilRouteInst = new utilRoute.UtilRoute()
 
-describe("#Util", () => {
+describe('#Util', () => {
   let req, res
   let sandbox
 
@@ -40,12 +40,12 @@ describe("#Util", () => {
     }
 
     // Set default environment variables for unit tests.
-    if (!process.env.TEST) process.env.TEST = "unit"
-    if (process.env.TEST === "unit") {
-      process.env.BITCOINCOM_BASEURL = "http://fakeurl/api/"
-      process.env.RPC_BASEURL = "http://fakeurl/api"
-      process.env.RPC_USERNAME = "fakeusername"
-      process.env.RPC_PASSWORD = "fakepassword"
+    if (!process.env.TEST) process.env.TEST = 'unit'
+    if (process.env.TEST === 'unit') {
+      process.env.BITCOINCOM_BASEURL = 'http://fakeurl/api/'
+      process.env.RPC_BASEURL = 'http://fakeurl/api'
+      process.env.RPC_USERNAME = 'fakeusername'
+      process.env.RPC_PASSWORD = 'fakepassword'
     }
   })
 
@@ -82,43 +82,43 @@ describe("#Util", () => {
     process.env.RPC_PASSWORD = originalEnvVars.RPC_PASSWORD
   })
 
-  describe("#root", async () => {
+  describe('#root', async () => {
     // root route handler.
     const root = utilRouteInst.root
 
-    it("should respond to GET for base route", async () => {
+    it('should respond to GET for base route', async () => {
       const result = root(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(result.status, "util", "Returns static string")
+      assert.equal(result.status, 'util', 'Returns static string')
     })
   })
 
-  describe("#validateAddressSingle", async () => {
+  describe('#validateAddressSingle', async () => {
     const validateAddress = utilRouteInst.validateAddressSingle
 
-    it("should throw an error for an empty address", async () => {
+    it('should throw an error for an empty address', async () => {
       const result = await validateAddress(req, res)
 
-      assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
       assert.include(
         result.error,
-        "address can not be empty",
-        "Proper error message"
+        'address can not be empty',
+        'Proper error message'
       )
     })
 
-    it("should throw 503 when network issues", async () => {
+    it('should throw 503 when network issues', async () => {
       // Save the existing RPC URL.
       const savedUrl2 = process.env.RPC_BASEURL
 
       // Manipulate the URL to cause a 500 network error.
-      process.env.RPC_BASEURL = "http://fakeurl/api/"
+      process.env.RPC_BASEURL = 'http://fakeurl/api/'
 
-      req.params.address = `bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y`
+      req.params.address = 'bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y'
 
-      const result = await validateAddress(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      await validateAddress(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
@@ -126,120 +126,120 @@ describe("#Util", () => {
       assert.isAbove(
         res.statusCode,
         499,
-        "HTTP status code 500 or greater expected."
+        'HTTP status code 500 or greater expected.'
       )
-      //assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
+      // assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
     })
 
-    it("should validate address", async () => {
+    it('should validate address', async () => {
       // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
+      if (process.env.TEST === 'unit') {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(uri => uri.includes("/"))
+          .post(uri => uri.includes('/'))
           .reply(200, { result: mockData.mockAddress })
       }
 
-      req.params.address = `bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd`
+      req.params.address = 'bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd'
 
       const result = await validateAddress(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAnyKeys(result, [
-        "isvalid",
-        "address",
-        "scriptPubKey",
-        "ismine",
-        "iswatchonly",
-        "isscript"
+        'isvalid',
+        'address',
+        'scriptPubKey',
+        'ismine',
+        'iswatchonly',
+        'isscript'
       ])
     })
   })
 
-  describe("#validateAddressBulk", async () => {
+  describe('#validateAddressBulk', async () => {
     const validateAddressBulk = utilRouteInst.validateAddressBulk
 
-    it("should throw an error for an empty body", async () => {
+    it('should throw an error for an empty body', async () => {
       const result = await validateAddressBulk(req, res)
 
-      assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
       assert.include(
         result.error,
-        "addresses needs to be an array. Use GET for single address.",
-        "Proper error message"
+        'addresses needs to be an array. Use GET for single address.',
+        'Proper error message'
       )
     })
 
-    it("should error on non-array single address", async () => {
+    it('should error on non-array single address', async () => {
       req.body = {
-        addresses: `bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y`
+        addresses: 'bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y'
       }
 
       const result = await validateAddressBulk(req, res)
 
-      assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
       assert.include(
         result.error,
-        "addresses needs to be an array. Use GET for single address.",
-        "Proper error message"
+        'addresses needs to be an array. Use GET for single address.',
+        'Proper error message'
       )
     })
 
-    it("should throw 400 error if addresses array is too large", async () => {
+    it('should throw 400 error if addresses array is too large', async () => {
       const testArray = []
-      for (var i = 0; i < 25; i++) testArray.push("")
+      for (var i = 0; i < 25; i++) testArray.push('')
 
       req.body.addresses = testArray
 
       const result = await validateAddressBulk(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "Array too large")
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'Array too large')
     })
 
-    it("should error on invalid address", async () => {
+    it('should error on invalid address', async () => {
       req.body = {
-        addresses: [`bchtest:qqqk4y6lsl5da64sg5qc3xezmpl`]
+        addresses: ['bchtest:qqqk4y6lsl5da64sg5qc3xezmpl']
       }
 
       const result = await validateAddressBulk(req, res)
 
-      assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
       assert.include(
         result.error,
-        "Invalid BCH address. Double check your address is valid",
-        "Proper error message"
+        'Invalid BCH address. Double check your address is valid',
+        'Proper error message'
       )
     })
 
-    it("should error on mainnet address when using testnet", async () => {
+    it('should error on mainnet address when using testnet', async () => {
       req.body = {
-        addresses: [`bchtest:qrls6vzjkkxlds7aqv9075u0fttwc7u9jvczn5fdt9`]
+        addresses: ['bchtest:qrls6vzjkkxlds7aqv9075u0fttwc7u9jvczn5fdt9']
       }
 
       const result = await validateAddressBulk(req, res)
 
-      assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
       assert.include(
         result.error,
-        "Invalid network. Trying to use a testnet address on mainnet, or vice versa.",
-        "Proper error message"
+        'Invalid network. Trying to use a testnet address on mainnet, or vice versa.',
+        'Proper error message'
       )
     })
 
-    it("should throw 503 when network issues", async () => {
+    it('should throw 503 when network issues', async () => {
       // Save the existing RPC URL.
       const savedUrl2 = process.env.RPC_BASEURL
 
       // Manipulate the URL to cause a 500 network error.
-      process.env.RPC_BASEURL = "http://fakeurl/api/"
+      process.env.RPC_BASEURL = 'http://fakeurl/api/'
 
       req.body.addresses = [
-        `bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd`
+        'bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd'
       ]
 
-      const result = await validateAddressBulk(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      await validateAddressBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
@@ -247,157 +247,157 @@ describe("#Util", () => {
       assert.isAbove(
         res.statusCode,
         499,
-        "HTTP status code 500 or greater expected."
+        'HTTP status code 500 or greater expected.'
       )
     })
 
-    it("should validate a single address", async () => {
+    it('should validate a single address', async () => {
       // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
+      if (process.env.TEST === 'unit') {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(uri => uri.includes("/"))
+          .post(uri => uri.includes('/'))
           .reply(200, { result: mockData.mockAddress })
       }
 
       req.body.addresses = [
-        `bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd`
+        'bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd'
       ]
 
       const result = await validateAddressBulk(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
       assert.hasAnyKeys(result[0], [
-        "isvalid",
-        "address",
-        "scriptPubKey",
-        "ismine",
-        "iswatchonly",
-        "isscript"
+        'isvalid',
+        'address',
+        'scriptPubKey',
+        'ismine',
+        'iswatchonly',
+        'isscript'
       ])
     })
 
-    it("should validate a multiple addresses", async () => {
+    it('should validate a multiple addresses', async () => {
       // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
+      if (process.env.TEST === 'unit') {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(uri => uri.includes("/"))
+          .post(uri => uri.includes('/'))
           .times(2)
           .reply(200, { result: mockData.mockAddress })
       }
 
       req.body.addresses = [
-        `bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd`,
-        `bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd`
+        'bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd',
+        'bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd'
       ]
 
       const result = await validateAddressBulk(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
       assert.hasAnyKeys(result[0], [
-        "isvalid",
-        "address",
-        "scriptPubKey",
-        "ismine",
-        "iswatchonly",
-        "isscript"
+        'isvalid',
+        'address',
+        'scriptPubKey',
+        'ismine',
+        'iswatchonly',
+        'isscript'
       ])
     })
   })
 
-  describe("#sweepWif", () => {
-    it("should throw 400 if WIF is not included", async () => {
+  describe('#sweepWif', () => {
+    it('should throw 400 if WIF is not included', async () => {
       req.body = {}
 
       const result = await utilRouteInst.sweepWif(req, res)
 
-      assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
       assert.include(
         result.error,
-        "WIF needs to a proper compressed WIF starting with K or L",
-        "Proper error message"
+        'WIF needs to a proper compressed WIF starting with K or L',
+        'Proper error message'
       )
     })
 
-    it("should throw 400 if WIF is malformed", async () => {
+    it('should throw 400 if WIF is malformed', async () => {
       req.body = {
-        wif: `abc123`
+        wif: 'abc123'
       }
 
       const result = await utilRouteInst.sweepWif(req, res)
 
-      assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
       assert.include(
         result.error,
-        "WIF needs to a proper compressed WIF starting with K or L",
-        "Proper error message"
+        'WIF needs to a proper compressed WIF starting with K or L',
+        'Proper error message'
       )
     })
 
-    it("should throw 400 if destination address is not included", async () => {
+    it('should throw 400 if destination address is not included', async () => {
       req.body = {
-        wif: "L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt"
+        wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt'
       }
 
       const result = await utilRouteInst.sweepWif(req, res)
 
-      assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
       assert.include(
         result.error,
-        "address can not be empty",
-        "Proper error message"
+        'address can not be empty',
+        'Proper error message'
       )
     })
 
     // Unit test only.
-    if (process.env.TEST === "unit") {
-      it("should generate transaction for valid token sweep", async () => {
+    if (process.env.TEST === 'unit') {
+      it('should generate transaction for valid token sweep', async () => {
         // Mock the RPC call for unit tests.
 
         sandbox
           .stub(
             utilRouteInst.blockbook.testableComponents,
-            "balanceFromBlockbook"
+            'balanceFromBlockbook'
           )
           .resolves(mockData.mockBalance)
 
         sandbox
           .stub(
             utilRouteInst.blockbook.testableComponents,
-            "utxosFromBlockbook"
+            'utxosFromBlockbook'
           )
           .resolves(mockData.mockUtxos)
 
         sandbox
-          .stub(utilRouteInst.bchjs.SLP.Utils, "tokenUtxoDetails")
+          .stub(utilRouteInst.bchjs.SLP.Utils, 'tokenUtxoDetails')
           .resolves(mockData.mockIsTokenUtxos)
 
         // Mock sendRawTransaction() so that the hex does not actually get broadcast
         // to the network.
         sandbox
-          .stub(utilRouteInst.bchjs.RawTransactions, "sendRawTransaction")
-          .resolves("test-txid")
+          .stub(utilRouteInst.bchjs.RawTransactions, 'sendRawTransaction')
+          .resolves('test-txid')
 
         req.body = {
-          wif: "L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt",
-          toAddr: "bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p"
+          wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt',
+          toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p'
         }
 
         const result = await utilRouteInst.sweepWif(req, res)
         // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
-        assert.equal(result, "test-txid")
+        assert.equal(result, 'test-txid')
       })
     }
 
-    it("should return balance if balance-only is true", async () => {
+    it('should return balance if balance-only is true', async () => {
       // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
+      if (process.env.TEST === 'unit') {
         sandbox
           .stub(
             utilRouteInst.blockbook.testableComponents,
-            "balanceFromBlockbook"
+            'balanceFromBlockbook'
           )
           .resolves(mockData.mockBalance)
       }
@@ -405,11 +405,11 @@ describe("#Util", () => {
       // Mock sendRawTransaction() so that the hex does not actually get broadcast
       // to the network.
       sandbox
-        .stub(utilRouteInst.bchjs.RawTransactions, "sendRawTransaction")
-        .resolves("test-txid")
+        .stub(utilRouteInst.bchjs.RawTransactions, 'sendRawTransaction')
+        .resolves('test-txid')
 
       req.body = {
-        wif: "L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt",
+        wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt',
         balanceOnly: true
       }
 
@@ -420,125 +420,125 @@ describe("#Util", () => {
     })
 
     // Unit tests only
-    if (process.env.TEST === "unit") {
-      it("should generate transaction for valid BCH-only sweep", async () => {
+    if (process.env.TEST === 'unit') {
+      it('should generate transaction for valid BCH-only sweep', async () => {
         sandbox
           .stub(
             utilRouteInst.blockbook.testableComponents,
-            "balanceFromBlockbook"
+            'balanceFromBlockbook'
           )
           .resolves(mockData.mockBalance)
 
         sandbox
           .stub(
             utilRouteInst.blockbook.testableComponents,
-            "utxosFromBlockbook"
+            'utxosFromBlockbook'
           )
           .resolves(mockData.mockUtxos)
 
         // Force token utxo to appear as regular BCH utxo.
         sandbox
-          .stub(utilRouteInst.bchjs.SLP.Utils, "tokenUtxoDetails")
+          .stub(utilRouteInst.bchjs.SLP.Utils, 'tokenUtxoDetails')
           .resolves([false, false])
 
         // Mock sendRawTransaction() so that the hex does not actually get broadcast
         // to the network.
         sandbox
-          .stub(utilRouteInst.bchjs.RawTransactions, "sendRawTransaction")
-          .resolves("test-txid")
+          .stub(utilRouteInst.bchjs.RawTransactions, 'sendRawTransaction')
+          .resolves('test-txid')
 
         req.body = {
-          wif: "L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt",
-          toAddr: "bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p"
+          wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt',
+          toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p'
         }
 
         const result = await utilRouteInst.sweepWif(req, res)
         // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
-        assert.equal(result, "test-txid")
+        assert.equal(result, 'test-txid')
       })
 
-      it("should throw 422 error if no non-token UTXOs", async () => {
+      it('should throw 422 error if no non-token UTXOs', async () => {
         sandbox
           .stub(
             utilRouteInst.blockbook.testableComponents,
-            "balanceFromBlockbook"
+            'balanceFromBlockbook'
           )
           .resolves(mockData.mockBalance)
 
         sandbox
           .stub(
             utilRouteInst.blockbook.testableComponents,
-            "utxosFromBlockbook"
+            'utxosFromBlockbook'
           )
           .resolves(mockData.mockUtxos)
 
         // Force token utxo to appear as regular BCH utxo.
         sandbox
-          .stub(utilRouteInst.bchjs.SLP.Utils, "tokenUtxoDetails")
+          .stub(utilRouteInst.bchjs.SLP.Utils, 'tokenUtxoDetails')
           .resolves(mockData.tokensOnly)
 
         // Mock sendRawTransaction() so that the hex does not actually get broadcast
         // to the network.
         sandbox
-          .stub(utilRouteInst.bchjs.RawTransactions, "sendRawTransaction")
-          .resolves("test-txid")
+          .stub(utilRouteInst.bchjs.RawTransactions, 'sendRawTransaction')
+          .resolves('test-txid')
 
         req.body = {
-          wif: "L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt",
-          toAddr: "bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p"
+          wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt',
+          toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p'
         }
 
         const result = await utilRouteInst.sweepWif(req, res)
         // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
         assert.equal(res.statusCode, 422)
-        assert.property(result, "error")
+        assert.property(result, 'error')
         assert.include(
           result.error,
-          "Tokens found, but no BCH UTXOs found. Add BCH to wallet to move tokens"
+          'Tokens found, but no BCH UTXOs found. Add BCH to wallet to move tokens'
         )
       })
 
-      it("should detect and throw error for multiple token classes", async () => {
+      it('should detect and throw error for multiple token classes', async () => {
         sandbox
           .stub(
             utilRouteInst.blockbook.testableComponents,
-            "balanceFromBlockbook"
+            'balanceFromBlockbook'
           )
           .resolves(mockData.mockBalance)
 
         sandbox
           .stub(
             utilRouteInst.blockbook.testableComponents,
-            "utxosFromBlockbook"
+            'utxosFromBlockbook'
           )
           .resolves(mockData.mockThreeUtxos)
 
         // Force token utxo to appear as regular BCH utxo.
         sandbox
-          .stub(utilRouteInst.bchjs.SLP.Utils, "tokenUtxoDetails")
+          .stub(utilRouteInst.bchjs.SLP.Utils, 'tokenUtxoDetails')
           .resolves(mockData.multipleTokens)
 
         // Mock sendRawTransaction() so that the hex does not actually get broadcast
         // to the network.
         sandbox
-          .stub(utilRouteInst.bchjs.RawTransactions, "sendRawTransaction")
-          .resolves("test-txid")
+          .stub(utilRouteInst.bchjs.RawTransactions, 'sendRawTransaction')
+          .resolves('test-txid')
 
         req.body = {
-          wif: "L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt",
-          toAddr: "bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p"
+          wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt',
+          toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p'
         }
 
         const result = await utilRouteInst.sweepWif(req, res)
         // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
         assert.equal(res.statusCode, 422)
-        assert.property(result, "error")
+        assert.property(result, 'error')
         assert.include(
           result.error,
-          "Multiple token classes detected. This function only supports a single class of token"
+          'Multiple token classes detected. This function only supports a single class of token'
         )
       })
     }

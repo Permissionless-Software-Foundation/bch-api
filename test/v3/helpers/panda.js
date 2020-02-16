@@ -1,9 +1,9 @@
-"use strict"
+'use strict'
 
 /**
  * Read more about panda here: https://panda-suite.github.io/
  */
-const panda = require("pandacash-core")
+const panda = require('pandacash-core')
 
 const runLocalNode = done => {
   const server = panda.server({
@@ -16,7 +16,7 @@ const runLocalNode = done => {
 
   server.listen({
     port: 48332,
-    walletPort: 48333,
+    walletPort: 48333
   }, (err, pandaCashCore) => {
     if (err) return console.error(err)
 

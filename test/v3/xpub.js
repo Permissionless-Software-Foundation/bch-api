@@ -6,30 +6,30 @@
   to 'integration' to run the tests against BCH mainnet.
 */
 
-"use strict"
+'use strict'
 
-const chai = require("chai")
+const chai = require('chai')
 const assert = chai.assert
-const xpubRoute = require("../../src/routes/v3/xpub")
-const nock = require("nock") // HTTP mocking
+const xpubRoute = require('../../src/routes/v3/xpub')
+const nock = require('nock') // HTTP mocking
 
-let originalUrl // Used during transition from integration to unit tests.
+// let originalUrl // Used during transition from integration to unit tests.
 
 // Mocking data.
-const { mockReq, mockRes } = require("./mocks/express-mocks")
-const mockData = require("./mocks/address-mock")
+const { mockReq, mockRes } = require('./mocks/express-mocks')
+// const mockData = require('./mocks/address-mock')
 
 // Used for debugging.
-const util = require("util")
+const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-describe("#XPUBRouter", () => {
+describe('#XPUBRouter', () => {
   let req, res
 
   before(() => {
     // Set default environment variables for unit tests.
-    if (!process.env.TEST) process.env.TEST = "unit"
-    //if (process.env.TEST === "unit")
+    if (!process.env.TEST) process.env.TEST = 'unit'
+    // if (process.env.TEST === "unit")
     //  process.env.BITCOINCOM_BASEURL = "http://fakeurl/api
   })
 
@@ -55,44 +55,44 @@ describe("#XPUBRouter", () => {
   })
 
   after(() => {
-    //process.env.BITCOINCOM_BASEURL = originalUrl
+    // process.env.BITCOINCOM_BASEURL = originalUrl
   })
 
-  describe("#root", () => {
+  describe('#root', () => {
     // root route handler.
     const root = xpubRoute.testableComponents.root
 
-    it("should respond to GET for base route", async () => {
+    it('should respond to GET for base route', async () => {
       const result = root(req, res)
 
-      assert.equal(result.status, "address", "Returns static string")
+      assert.equal(result.status, 'address', 'Returns static string')
     })
   })
 
-  describe("#FromXPubSingle", () => {
+  describe('#FromXPubSingle', () => {
     // details route handler.
     const fromXPubSingle = xpubRoute.testableComponents.fromXPubSingle
 
-    it("should throw 400 if xpub is empty", async () => {
+    it('should throw 400 if xpub is empty', async () => {
       const result = await fromXPubSingle(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ["error"])
-      assert.include(result.error, "xpub can not be empty")
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'xpub can not be empty')
     })
 
-    it("should error on an array", async () => {
+    it('should error on an array', async () => {
       req.params.xpub = [
-        `tpubDHTK2jqg73w3GwoiHfAMbMYML1HN8FhrUxD9rFgbSgHXdwwrY6pAFqKDfUHhqw7vreaZty5hPGjb1S7ZPQeMmu6TFHAKfY9tJpYbvaGjPRM`
+        'tpubDHTK2jqg73w3GwoiHfAMbMYML1HN8FhrUxD9rFgbSgHXdwwrY6pAFqKDfUHhqw7vreaZty5hPGjb1S7ZPQeMmu6TFHAKfY9tJpYbvaGjPRM'
       ]
 
       const result = await fromXPubSingle(req, res)
 
-      assert.equal(res.statusCode, 400, "HTTP status code 400 expected.")
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
       assert.include(
         result.error,
-        "xpub can not be an array",
-        "Proper error message"
+        'xpub can not be an array',
+        'Proper error message'
       )
     })
     /*
@@ -118,8 +118,8 @@ describe("#XPUBRouter", () => {
       }
     })
 */
-    it("should create an address from xpub", async () => {
-      req.params.xpub = `tpubDHTK2jqg73w3GwoiHfAMbMYML1HN8FhrUxD9rFgbSgHXdwwrY6pAFqKDfUHhqw7vreaZty5hPGjb1S7ZPQeMmu6TFHAKfY9tJpYbvaGjPRM`
+    it('should create an address from xpub', async () => {
+      req.params.xpub = 'tpubDHTK2jqg73w3GwoiHfAMbMYML1HN8FhrUxD9rFgbSgHXdwwrY6pAFqKDfUHhqw7vreaZty5hPGjb1S7ZPQeMmu6TFHAKfY9tJpYbvaGjPRM'
 
       // Mock the Insight URL for unit tests.
       // TODO add unit test
@@ -133,7 +133,7 @@ describe("#XPUBRouter", () => {
 
       // Call the details API.
       const result = await fromXPubSingle(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Assert that required fields exist in the returned object.
       assert.exists(result.legacyAddress)

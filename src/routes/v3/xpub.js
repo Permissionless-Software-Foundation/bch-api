@@ -2,51 +2,51 @@
   xpub route
 */
 
-"use strict"
+'use strict'
 
-const express = require("express")
-const axios = require("axios")
-const routeUtils = require("./route-utils")
-const wlogger = require("../../util/winston-logging")
+const express = require('express')
+// const axios = require('axios')
+const routeUtils = require('./route-utils')
+const wlogger = require('../../util/winston-logging')
 
-//const router = express.Router()
+// const router = express.Router()
 const router = express.Router()
 
 // Used for processing error messages before sending them to the user.
-const util = require("util")
+const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-const BCHJS = require("@chris.troutner/bch-js")
+const BCHJS = require('@chris.troutner/bch-js')
 const bchjs = new BCHJS()
 
 // Connect the route endpoints to their handler functions.
-router.get("/", root)
-router.get("/fromXPub/:xpub", fromXPubSingle)
+router.get('/', root)
+router.get('/fromXPub/:xpub', fromXPubSingle)
 
 // Root API endpoint. Simply acknowledges that it exists.
-function root(req, res, next) {
-  return res.json({ status: "address" })
+function root (req, res, next) {
+  return res.json({ status: 'address' })
 }
 
-async function fromXPubSingle(req, res, next) {
+async function fromXPubSingle (req, res, next) {
   try {
     const xpub = req.params.xpub
-    const hdPath = req.query.hdPath ? req.query.hdPath : "0"
+    const hdPath = req.query.hdPath ? req.query.hdPath : '0'
 
-    if (!xpub || xpub === "") {
+    if (!xpub || xpub === '') {
       res.status(400)
-      return res.json({ error: "xpub can not be empty" })
+      return res.json({ error: 'xpub can not be empty' })
     }
 
     // Reject if xpub is an array.
     if (Array.isArray(xpub)) {
       res.status(400)
       return res.json({
-        error: "xpub can not be an array. Use POST for bulk upload."
+        error: 'xpub can not be an array. Use POST for bulk upload.'
       })
     }
 
-    wlogger.debug(`Executing address/fromXPub with this xpub: `, xpub)
+    wlogger.debug('Executing address/fromXPub with this xpub: ', xpub)
 
     const cashAddr = bchjs.Address.fromXPub(xpub, hdPath)
     const legacyAddr = bchjs.Address.toLegacyAddress(cashAddr)
@@ -64,7 +64,7 @@ async function fromXPubSingle(req, res, next) {
     }
 
     // Write out error to error log.
-    wlogger.error(`Error in address.ts/fromXPubSingle().`, err)
+    wlogger.error('Error in address.ts/fromXPubSingle().', err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })

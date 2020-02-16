@@ -1,21 +1,21 @@
-"use strict"
+'use strict'
 
-const express = require("express")
+const express = require('express')
 const router = express.Router()
-const axios = require("axios")
+// const axios = require('axios')
 
-const routeUtils = require("../route-utils")
-const wlogger = require("../../../util/winston-logging")
+const routeUtils = require('../route-utils')
+const wlogger = require('../../../util/winston-logging')
 
 // Used for processing error messages before sending them to the user.
-const util = require("util")
+const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-router.get("/", root)
-router.get("/getnetworkinfo", getNetworkInfo)
+router.get('/', root)
+router.get('/getnetworkinfo', getNetworkInfo)
 
-function root(req, res, next) {
-  return res.json({ status: "control" })
+function root (req, res, next) {
+  return res.json({ status: 'control' })
 }
 
 /**
@@ -28,16 +28,16 @@ function root(req, res, next) {
  * curl -X GET "https://mainnet.bchjs.cash/v3/control/getnetworkinfo" -H "accept: application/json"
  *
  */
-async function getNetworkInfo(req, res, next) {
+async function getNetworkInfo (req, res, next) {
   const {
     BitboxHTTP,
-    username,
-    password,
+    // username,
+    // password,
     requestConfig
   } = routeUtils.setEnvVars()
 
-  requestConfig.data.id = "getnetworkinfo"
-  requestConfig.data.method = "getnetworkinfo"
+  requestConfig.data.id = 'getnetworkinfo'
+  requestConfig.data.method = 'getnetworkinfo'
   requestConfig.data.params = []
 
   try {
@@ -45,14 +45,13 @@ async function getNetworkInfo(req, res, next) {
 
     return res.json(response.data.result)
   } catch (error) {
-    wlogger.error(`Error in control.ts/getNetworkInfo().`, error)
+    wlogger.error('Error in control.ts/getNetworkInfo().', error)
 
     // Write out error to error log.
-    //logger.error(`Error in control/getInfo: `, error)
+    // logger.error(`Error in control/getInfo: `, error)
 
     res.status(500)
-    if (error.response && error.response.data && error.response.data.error)
-      return res.json({ error: error.response.data.error })
+    if (error.response && error.response.data && error.response.data.error) { return res.json({ error: error.response.data.error }) }
     return res.json({ error: util.inspect(error) })
   }
 }

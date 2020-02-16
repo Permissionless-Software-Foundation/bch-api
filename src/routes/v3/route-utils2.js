@@ -2,22 +2,22 @@
   A private library of utility functions used by several different routes.
 */
 
-"use strict"
+'use strict'
 
-const axios = require("axios")
-const wlogger = require("../../util/winston-logging")
+const axios = require('axios')
+const wlogger = require('../../util/winston-logging')
 
-const util = require("util")
+const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-const BCHJS = require("@chris.troutner/bch-js")
+const BCHJS = require('@chris.troutner/bch-js')
 const bchjs = new BCHJS()
 
-let _this
+// let _this
 
 class RouteUtils {
-  constructor() {
-    _this = this
+  constructor () {
+    // _this = this
 
     this.bchjs = bchjs
     this.axios = axios
@@ -27,7 +27,7 @@ class RouteUtils {
   // The array is then validated against freemium and pro-tier rate limiting
   // requirements. A boolean is returned to indicate if the array size if valid
   // or not.
-  validateArraySize(req, array) {
+  validateArraySize (req, array) {
     const FREEMIUM_INPUT_SIZE = 20
     const PRO_INPUT_SIZE = 20
 
@@ -41,9 +41,9 @@ class RouteUtils {
   }
 
   // Axios options used when calling axios.post() to talk with a full node.
-  getAxiosOptions() {
+  getAxiosOptions () {
     return {
-      method: "post",
+      method: 'post',
       baseURL: process.env.RPC_BASEURL,
       timeout: 15000,
       auth: {
@@ -51,7 +51,7 @@ class RouteUtils {
         password: process.env.RPC_PASSWORD
       },
       data: {
-        jsonrpc: "1.0"
+        jsonrpc: '1.0'
       }
     }
   }
@@ -61,13 +61,13 @@ class RouteUtils {
   // This prevent a common user-error issue that is easy to make: passing a
   // testnet address into rest.bitcoin.com or passing a mainnet address into
   // trest.bitcoin.com.
-  validateNetwork(addr) {
+  validateNetwork (addr) {
     try {
       const network = process.env.NETWORK
 
       // Return false if NETWORK is not defined.
-      if (!network || network === "") {
-        console.log(`Warning: NETWORK environment variable is not defined!`)
+      if (!network || network === '') {
+        console.log('Warning: NETWORK environment variable is not defined!')
         return false
       }
 
@@ -77,15 +77,15 @@ class RouteUtils {
 
       // Return true if the network and address both match testnet
       const addrIsTest = this.bchjs.Address.isTestnetAddress(cashAddr)
-      if (network === "testnet" && addrIsTest) return true
+      if (network === 'testnet' && addrIsTest) return true
 
       // Return true if the network and address both match mainnet
       const addrIsMain = this.bchjs.Address.isMainnetAddress(cashAddr)
-      if (network === "mainnet" && addrIsMain) return true
+      if (network === 'mainnet' && addrIsMain) return true
 
       return false
     } catch (err) {
-      logger.error(`Error in validateNetwork()`)
+      wlogger.error('Error in validateNetwork()')
       return false
     }
   }
@@ -95,7 +95,7 @@ class RouteUtils {
   // error messages.
   // Returns an object. If successful, obj.msg is a string.
   // If there is a failure, obj.msg is false.
-  decodeError(err) {
+  decodeError (err) {
     try {
       // Attempt to extract the full node error message.
       if (
@@ -103,39 +103,41 @@ class RouteUtils {
         err.response.data &&
         err.response.data.error &&
         err.response.data.error.message
-      )
+      ) {
         return { msg: err.response.data.error.message, status: 400 }
+      }
 
       // Attempt to extract the Insight error message
-      if (err.response && err.response.data)
+      if (err.response && err.response.data) {
         return { msg: err.response.data, status: err.response.status }
+      }
 
       // console.log(`err.message: ${err.message}`)
       // console.log(`err: `, err)
 
       // Attempt to detect a network connection error.
-      if (err.message && err.message.indexOf("ENOTFOUND") > -1) {
+      if (err.message && err.message.indexOf('ENOTFOUND') > -1) {
         return {
           msg:
-            "Network error: Could not communicate with full node or other external service.",
+            'Network error: Could not communicate with full node or other external service.',
           status: 503
         }
       }
 
       // Different kind of network error
-      if (err.message && err.message.indexOf("ENETUNREACH") > -1) {
+      if (err.message && err.message.indexOf('ENETUNREACH') > -1) {
         return {
           msg:
-            "Network error: Could not communicate with full node or other external service.",
+            'Network error: Could not communicate with full node or other external service.',
           status: 503
         }
       }
 
       // Different kind of network error
-      if (err.message && err.message.indexOf("EAI_AGAIN") > -1) {
+      if (err.message && err.message.indexOf('EAI_AGAIN') > -1) {
         return {
           msg:
-            "Network error: Could not communicate with full node or other external service.",
+            'Network error: Could not communicate with full node or other external service.',
           status: 503
         }
       }
@@ -143,18 +145,18 @@ class RouteUtils {
       // Axios timeout (aborted) error, or service is down (connection refused).
       if (
         err.code &&
-        (err.code === "ECONNABORTED" || err.code === "ECONNREFUSED")
+        (err.code === 'ECONNABORTED' || err.code === 'ECONNREFUSED')
       ) {
         return {
           msg:
-            "Network error: Could not communicate with full node or other external service.",
+            'Network error: Could not communicate with full node or other external service.',
           status: 503
         }
       }
 
       return { msg: false, status: 500 }
     } catch (err) {
-      wlogger.error(`unhandled error in route-utils.js/decodeError(): `, err)
+      wlogger.error('unhandled error in route-utils.js/decodeError(): ', err)
       return { msg: false, status: 500 }
     }
   }

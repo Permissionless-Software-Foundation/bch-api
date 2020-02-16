@@ -1,45 +1,45 @@
-"use strict"
+'use strict'
 
-const express = require("express")
+const express = require('express')
 const router = express.Router()
-const axios = require("axios")
+const axios = require('axios')
 
-const routeUtils = require("../route-utils")
-const wlogger = require("../../../util/winston-logging")
+const routeUtils = require('../route-utils')
+const wlogger = require('../../../util/winston-logging')
 
 // Used to convert error messages to strings, to safely pass to users.
-const util = require("util")
+const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-const BitboxHTTP = axios.create({
-  baseURL: process.env.RPC_BASEURL
-})
-const username = process.env.RPC_USERNAME
-const password = process.env.RPC_PASSWORD
+// const BitboxHTTP = axios.create({
+//   baseURL: process.env.RPC_BASEURL
+// })
+// const username = process.env.RPC_USERNAME
+// const password = process.env.RPC_PASSWORD
 
-const requestConfig = {
-  method: "post",
-  auth: {
-    username: username,
-    password: password
-  },
-  data: {
-    jsonrpc: "1.0"
-  }
-}
+// const requestConfig = {
+//   method: 'post',
+//   auth: {
+//     username: username,
+//     password: password
+//   },
+//   data: {
+//     jsonrpc: '1.0'
+//   }
+// }
 
-router.get("/", root)
-router.get("/decodeRawTransaction/:hex", decodeRawTransactionSingle)
-router.post("/decodeRawTransaction", decodeRawTransactionBulk)
-router.get("/decodeScript/:hex", decodeScriptSingle)
-router.post("/decodeScript", decodeScriptBulk)
-router.post("/getRawTransaction", getRawTransactionBulk)
-router.get("/getRawTransaction/:txid", getRawTransactionSingle)
-router.post("/sendRawTransaction", sendRawTransactionBulk)
-router.get("/sendRawTransaction/:hex", sendRawTransactionSingle)
+router.get('/', root)
+router.get('/decodeRawTransaction/:hex', decodeRawTransactionSingle)
+router.post('/decodeRawTransaction', decodeRawTransactionBulk)
+router.get('/decodeScript/:hex', decodeScriptSingle)
+router.post('/decodeScript', decodeScriptBulk)
+router.post('/getRawTransaction', getRawTransactionBulk)
+router.get('/getRawTransaction/:txid', getRawTransactionSingle)
+router.post('/sendRawTransaction', sendRawTransactionBulk)
+router.get('/sendRawTransaction/:hex', sendRawTransactionSingle)
 
-function root(req, res, next) {
-  return res.json({ status: "rawtransactions" })
+function root (req, res, next) {
+  return res.json({ status: 'rawtransactions' })
 }
 
 // Decode transaction hex into a JSON object.
@@ -56,25 +56,25 @@ function root(req, res, next) {
  *
  *
  */
-async function decodeRawTransactionSingle(req, res, next) {
+async function decodeRawTransactionSingle (req, res, next) {
   try {
     const hex = req.params.hex
 
     // Throw an error if hex is empty.
-    if (!hex || hex === "") {
+    if (!hex || hex === '') {
       res.status(400)
-      return res.json({ error: "hex can not be empty" })
+      return res.json({ error: 'hex can not be empty' })
     }
 
     const {
       BitboxHTTP,
-      username,
-      password,
+      // username,
+      // password,
       requestConfig
     } = routeUtils.setEnvVars()
 
-    requestConfig.data.id = "decoderawtransaction"
-    requestConfig.data.method = "decoderawtransaction"
+    requestConfig.data.id = 'decoderawtransaction'
+    requestConfig.data.method = 'decoderawtransaction'
     requestConfig.data.params = [hex]
 
     const response = await BitboxHTTP(requestConfig)
@@ -88,9 +88,9 @@ async function decodeRawTransactionSingle(req, res, next) {
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+    // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
     wlogger.error(
-      `Error in rawtransactions.ts/decodeRawTransactionSingle().`,
+      'Error in rawtransactions.ts/decodeRawTransactionSingle().',
       err
     )
 
@@ -111,50 +111,50 @@ async function decodeRawTransactionSingle(req, res, next) {
  *
  */
 
-async function decodeRawTransactionBulk(req, res, next) {
+async function decodeRawTransactionBulk (req, res, next) {
   try {
     const hexes = req.body.hexes
 
     if (!Array.isArray(hexes)) {
       res.status(400)
-      return res.json({ error: "hexes must be an array" })
+      return res.json({ error: 'hexes must be an array' })
     }
 
     // Enforce array size rate limits
     if (!routeUtils.validateArraySize(req, hexes)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
-        error: `Array too large.`
+        error: 'Array too large.'
       })
     }
 
-    const results = []
+    // const results = []
 
     // Validate each element in the address array.
     for (let i = 0; i < hexes.length; i++) {
       const thisHex = hexes[i]
 
       // Reject if id is empty
-      if (!thisHex || thisHex === "") {
+      if (!thisHex || thisHex === '') {
         res.status(400)
-        return res.json({ error: "Encountered empty hex" })
+        return res.json({ error: 'Encountered empty hex' })
       }
     }
 
     const {
       BitboxHTTP,
-      username,
-      password,
+      // username,
+      // password,
       requestConfig
     } = routeUtils.setEnvVars()
 
     // Loop through each height and creates an array of requests to call in parallel
     const promises = hexes.map(async hex => {
-      requestConfig.data.id = "decoderawtransaction"
-      requestConfig.data.method = "decoderawtransaction"
+      requestConfig.data.id = 'decoderawtransaction'
+      requestConfig.data.method = 'decoderawtransaction'
       requestConfig.data.params = [hex]
 
-      return await BitboxHTTP(requestConfig)
+      return BitboxHTTP(requestConfig)
     })
 
     // Wait for all parallel Insight requests to return.
@@ -210,9 +210,9 @@ async function decodeRawTransactionBulk(req, res, next) {
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/getRawTransaction: `, err)
+    // logger.error(`Error in rawtransactions/getRawTransaction: `, err)
     wlogger.error(
-      `Error in rawtransactions.ts/decodeRawTransactionBulk().`,
+      'Error in rawtransactions.ts/decodeRawTransactionBulk().',
       err
     )
 
@@ -235,25 +235,25 @@ async function decodeRawTransactionBulk(req, res, next) {
  *
  *
  */
-async function decodeScriptSingle(req, res, next) {
+async function decodeScriptSingle (req, res, next) {
   try {
     const hex = req.params.hex
 
     // Throw an error if hex is empty.
-    if (!hex || hex === "") {
+    if (!hex || hex === '') {
       res.status(400)
-      return res.json({ error: "hex can not be empty" })
+      return res.json({ error: 'hex can not be empty' })
     }
 
     const {
       BitboxHTTP,
-      username,
-      password,
+      // username,
+      // password,
       requestConfig
     } = routeUtils.setEnvVars()
 
-    requestConfig.data.id = "decodescript"
-    requestConfig.data.method = "decodescript"
+    requestConfig.data.id = 'decodescript'
+    requestConfig.data.method = 'decodescript'
     requestConfig.data.params = [hex]
 
     const response = await BitboxHTTP(requestConfig)
@@ -267,8 +267,8 @@ async function decodeScriptSingle(req, res, next) {
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeScript: `, err)
-    wlogger.error(`Error in rawtransactions.ts/decodeScriptSingle().`, err)
+    // logger.error(`Error in rawtransactions/decodeScript: `, err)
+    wlogger.error('Error in rawtransactions.ts/decodeScriptSingle().', err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })
@@ -289,21 +289,21 @@ async function decodeScriptSingle(req, res, next) {
  *
  *
  */
-async function decodeScriptBulk(req, res, next) {
+async function decodeScriptBulk (req, res, next) {
   try {
     const hexes = req.body.hexes
 
     // Validation
     if (!Array.isArray(hexes)) {
       res.status(400)
-      return res.json({ error: "hexes must be an array" })
+      return res.json({ error: 'hexes must be an array' })
     }
 
     // Enforce array size rate limits
     if (!routeUtils.validateArraySize(req, hexes)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
-        error: `Array too large.`
+        error: 'Array too large.'
       })
     }
 
@@ -312,23 +312,23 @@ async function decodeScriptBulk(req, res, next) {
       const hex = hexes[i]
 
       // Throw an error if hex is empty.
-      if (!hex || hex === "") {
+      if (!hex || hex === '') {
         res.status(400)
-        return res.json({ error: "Encountered empty hex" })
+        return res.json({ error: 'Encountered empty hex' })
       }
     }
 
     const {
       BitboxHTTP,
-      username,
-      password,
+      // username,
+      // password,
       requestConfig
     } = routeUtils.setEnvVars()
 
     // Loop through each hex and create an array of promises
     const promises = hexes.map(async hex => {
-      requestConfig.data.id = "decodescript"
-      requestConfig.data.method = "decodescript"
+      requestConfig.data.id = 'decodescript'
+      requestConfig.data.method = 'decodescript'
       requestConfig.data.params = [hex]
 
       const response = await BitboxHTTP(requestConfig)
@@ -352,8 +352,8 @@ async function decodeScriptBulk(req, res, next) {
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/decodeScript: `, err)
-    wlogger.error(`Error in rawtransactions.ts/decodeScriptBulk().`, err)
+    // logger.error(`Error in rawtransactions/decodeScript: `, err)
+    wlogger.error('Error in rawtransactions.ts/decodeScriptBulk().', err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })
@@ -362,24 +362,24 @@ async function decodeScriptBulk(req, res, next) {
 
 // Retrieve raw transactions details from the full node.
 
-async function getRawTransactionsFromNode(txid, verbose) {
+async function getRawTransactionsFromNode (txid, verbose) {
   try {
     const {
       BitboxHTTP,
-      username,
-      password,
+      // username,
+      // password,
       requestConfig
     } = routeUtils.setEnvVars()
 
-    requestConfig.data.id = "getrawtransaction"
-    requestConfig.data.method = "getrawtransaction"
+    requestConfig.data.id = 'getrawtransaction'
+    requestConfig.data.method = 'getrawtransaction'
     requestConfig.data.params = [txid, verbose]
 
     const response = await BitboxHTTP(requestConfig)
 
     return response.data.result
   } catch (err) {
-    wlogger.error(`Error in rawtransactions.ts/getRawTransactionsFromNode().`)
+    wlogger.error('Error in rawtransactions.ts/getRawTransactionsFromNode().')
     throw err
   }
 }
@@ -397,7 +397,7 @@ async function getRawTransactionsFromNode(txid, verbose) {
  * curl -X POST "https://mainnet.bchjs.cash/v3/rawtransactions/getRawTransaction" -H "accept: application/json" -H "Content-Type: application/json" -d '{"txids":["a5f972572ee1753e2fd2457dd61ce5f40fa2f8a30173d417e49feef7542c96a1","5165dc531aad05d1149bb0f0d9b7bda99c73e2f05e314bcfb5b4bb9ca5e1af5e"],"verbose":true}'
  *
  */
-async function getRawTransactionBulk(req, res, next) {
+async function getRawTransactionBulk (req, res, next) {
   try {
     let verbose = 0
     if (req.body.verbose) verbose = 1
@@ -405,32 +405,32 @@ async function getRawTransactionBulk(req, res, next) {
     const txids = req.body.txids
     if (!Array.isArray(txids)) {
       res.status(400)
-      return res.json({ error: "txids must be an array" })
+      return res.json({ error: 'txids must be an array' })
     }
 
     // Enforce array size rate limits
     if (!routeUtils.validateArraySize(req, txids)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
-        error: `Array too large.`
+        error: 'Array too large.'
       })
     }
 
     // stub response object
-    const returnResponse = {
-      status: 100,
-      json: {
-        error: ""
-      }
-    }
+    // const returnResponse = {
+    //   status: 100,
+    //   json: {
+    //     error: ''
+    //   }
+    // }
 
     // Validate each txid in the array.
     for (let i = 0; i < txids.length; i++) {
       const txid = txids[i]
 
-      if (!txid || txid === "") {
+      if (!txid || txid === '') {
         res.status(400)
-        return res.json({ error: `Encountered empty TXID` })
+        return res.json({ error: 'Encountered empty TXID' })
       }
 
       if (txid.length !== 64) {
@@ -460,8 +460,8 @@ async function getRawTransactionBulk(req, res, next) {
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/getRawTransaction: `, err)
-    wlogger.error(`Error in rawtransactions.ts/getRawTransactionBulk().`, err)
+    // logger.error(`Error in rawtransactions/getRawTransaction: `, err)
+    wlogger.error('Error in rawtransactions.ts/getRawTransactionBulk().', err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })
@@ -482,15 +482,15 @@ async function getRawTransactionBulk(req, res, next) {
  *
  *
  */
-async function getRawTransactionSingle(req, res, next) {
+async function getRawTransactionSingle (req, res, next) {
   try {
     let verbose = 0
-    if (req.query.verbose === "true") verbose = 1
+    if (req.query.verbose === 'true') verbose = 1
 
     const txid = req.params.txid
-    if (!txid || txid === "") {
+    if (!txid || txid === '') {
       res.status(400)
-      return res.json({ error: "txid can not be empty" })
+      return res.json({ error: 'txid can not be empty' })
     }
 
     const data = await getRawTransactionsFromNode(txid, verbose)
@@ -505,8 +505,8 @@ async function getRawTransactionSingle(req, res, next) {
     }
 
     // Write out error to error log.
-    //logger.error(`Error in rawtransactions/getRawTransaction: `, err)
-    wlogger.error(`Error in rawtransactions.ts/getRawTransactionSingle().`, err)
+    // logger.error(`Error in rawtransactions/getRawTransaction: `, err)
+    wlogger.error('Error in rawtransactions.ts/getRawTransactionSingle().', err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })
@@ -526,7 +526,7 @@ async function getRawTransactionSingle(req, res, next) {
  *
  *
  */
-async function sendRawTransactionBulk(req, res, next) {
+async function sendRawTransactionBulk (req, res, next) {
   try {
     // Validation
     const hexes = req.body.hexes
@@ -534,13 +534,13 @@ async function sendRawTransactionBulk(req, res, next) {
     // Reject if input is not an array
     if (!Array.isArray(hexes)) {
       res.status(400)
-      return res.json({ error: "hex must be an array" })
+      return res.json({ error: 'hex must be an array' })
     }
 
     const {
       BitboxHTTP,
-      username,
-      password,
+      // username,
+      // password,
       requestConfig
     } = routeUtils.setEnvVars()
 
@@ -548,7 +548,7 @@ async function sendRawTransactionBulk(req, res, next) {
     if (!routeUtils.validateArraySize(req, hexes)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
-        error: `Array too large.`
+        error: 'Array too large.'
       })
     }
 
@@ -556,10 +556,10 @@ async function sendRawTransactionBulk(req, res, next) {
     for (let i = 0; i < hexes.length; i++) {
       const hex = hexes[i]
 
-      if (hex === "") {
+      if (hex === '') {
         res.status(400)
         return res.json({
-          error: `Encountered empty hex`
+          error: 'Encountered empty hex'
         })
       }
     }
@@ -594,8 +594,8 @@ async function sendRawTransactionBulk(req, res, next) {
     for (let i = 0; i < hexes.length; i++) {
       const hex = hexes[i]
 
-      requestConfig.data.id = "sendrawtransaction"
-      requestConfig.data.method = "sendrawtransaction"
+      requestConfig.data.id = 'sendrawtransaction'
+      requestConfig.data.method = 'sendrawtransaction'
       requestConfig.data.params = [hex]
 
       const rpcResult = await BitboxHTTP(requestConfig)
@@ -613,7 +613,7 @@ async function sendRawTransactionBulk(req, res, next) {
       return res.json({ error: msg })
     }
 
-    wlogger.error(`Error in rawtransactions.ts/sendRawTransactionBulk().`, err)
+    wlogger.error('Error in rawtransactions.ts/sendRawTransactionBulk().', err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })
@@ -633,34 +633,34 @@ async function sendRawTransactionBulk(req, res, next) {
  *
  *
  */
-async function sendRawTransactionSingle(req, res, next) {
+async function sendRawTransactionSingle (req, res, next) {
   try {
     const hex = req.params.hex // URL parameter
 
     // Reject if input is not an array or a string
-    if (typeof hex !== "string") {
+    if (typeof hex !== 'string') {
       res.status(400)
-      return res.json({ error: "hex must be a string" })
+      return res.json({ error: 'hex must be a string' })
     }
 
     // Validation
-    if (hex === "") {
+    if (hex === '') {
       res.status(400)
       return res.json({
-        error: `Encountered empty hex`
+        error: 'Encountered empty hex'
       })
     }
 
     const {
       BitboxHTTP,
-      username,
-      password,
+      // username,
+      // password,
       requestConfig
     } = routeUtils.setEnvVars()
 
     // RPC call
-    requestConfig.data.id = "sendrawtransaction"
-    requestConfig.data.method = "sendrawtransaction"
+    requestConfig.data.id = 'sendrawtransaction'
+    requestConfig.data.method = 'sendrawtransaction'
     requestConfig.data.params = [hex]
 
     const rpcResult = await BitboxHTTP(requestConfig)
@@ -678,7 +678,7 @@ async function sendRawTransactionSingle(req, res, next) {
     }
 
     wlogger.error(
-      `Error in rawtransactions.ts/sendRawTransactionSingle().`,
+      'Error in rawtransactions.ts/sendRawTransactionSingle().',
       err
     )
 

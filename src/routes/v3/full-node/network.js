@@ -1,10 +1,10 @@
-"use strict"
+'use strict'
 
-const express = require("express")
+const express = require('express')
 const router = express.Router()
 
-router.get("/", async (req, res, next) => {
-  res.json({ status: "network" })
+router.get('/', async (req, res, next) => {
+  res.json({ status: 'network' })
 })
 
 // router.post('/addNode/:node/:command', (req, res, next) => {

@@ -2,27 +2,27 @@
   Contains mocks of Express req and res objects.
 */
 
-"use strict"
+'use strict'
 
-const sinon = require("sinon")
+const sinon = require('sinon')
 
 // Inspect JS Objects.
-const util = require("util")
+const util = require('util')
 util.inspect.defaultOptions = {
   showHidden: true,
   colors: true
 }
 
 // mock for res.send()
-function fakeSend(arg) {
-  //console.log(`res.send: ${util.inspect(arg)}`);
+function fakeSend (arg) {
+  // console.log(`res.send: ${util.inspect(arg)}`);
   mockRes.output = arg
   return arg
 }
 
 // mock for res.json()
-function fakeJson(arg) {
-  //console.log(`res.json: ${util.inspect(arg)}`);
+function fakeJson (arg) {
+  // console.log(`res.json: ${util.inspect(arg)}`);
   mockRes.output = arg
   return arg
 }
@@ -55,7 +55,6 @@ const mockRes = {
   cookie: sinon.stub().returns({}),
   download: sinon.stub().returns({}),
   end: sinon.stub().returns({}),
-  format: {},
   get: sinon.stub().returns({}),
   headersSent: sinon.stub().returns({}),
   json: sinon.stub().callsFake(fakeJson),

@@ -19,45 +19,45 @@
   is set and passed to the route-ratelimits.ts middleware.
 */
 
-"use strict"
+'use strict'
 
-const passport = require("passport")
-const BasicStrategy = require("passport-http").BasicStrategy
-const AnonymousStrategy = require("passport-anonymous")
-const wlogger = require("../util/winston-logging")
+const passport = require('passport')
+const BasicStrategy = require('passport-http').BasicStrategy
+const AnonymousStrategy = require('passport-anonymous')
+const wlogger = require('../util/winston-logging')
 
 // Used for debugging and iterrogating JS objects.
-const util = require("util")
+const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-let _this
+// let _this
 
 // Set default rate limit value for testing
-const PRO_PASSes = process.env.PRO_PASS ? process.env.PRO_PASS : "BITBOX"
+const PRO_PASSES = process.env.PRO_PASS ? process.env.PRO_PASS : 'BITBOX'
 // Convert the pro-tier password string into an array split by ':'.
-const PRO_PASS = PRO_PASSes.split(":")
+const PRO_PASS = PRO_PASSES.split(':')
 
-//wlogger.verbose(`PRO_PASS set to: ${PRO_PASS}`)
+// wlogger.verbose(`PRO_PASS set to: ${PRO_PASS}`)
 
 // Auth Middleware
 class AuthMW {
-  constructor() {
-    _this = this
+  constructor () {
+    // _this = this
 
     // Initialize passport for 'anonymous' authentication.
     passport.use(new AnonymousStrategy())
 
     // Initialize passport for 'basic' authentication.
     passport.use(
-      new BasicStrategy({ passReqToCallback: true }, function(
+      new BasicStrategy({ passReqToCallback: true }, function (
         req,
         username,
         password,
         done
       ) {
-        //console.log(`req: ${util.inspect(req)}`)
-        //console.log(`username: ${username}`)
-        //console.log(`password: ${password}`)
+        // console.log(`req: ${util.inspect(req)}`)
+        // console.log(`username: ${username}`)
+        // console.log(`password: ${password}`)
 
         // Create the req.locals property if it does not yet exist.
         if (!req.locals) {
@@ -72,8 +72,8 @@ class AuthMW {
         req.locals.proLimit = false
 
         // Evaluate the username and password and set the rate limit accordingly.
-        //if (username === "BITBOX" && password === PRO_PASS) {
-        if (username === "BITBOX") {
+        // if (username === "BITBOX" && password === PRO_PASS) {
+        if (username === 'BITBOX') {
           for (let i = 0; i < PRO_PASS.length; i++) {
             const thisPass = PRO_PASS[i]
 
@@ -87,7 +87,7 @@ class AuthMW {
           }
         }
 
-        //console.log(`req.locals: ${util.inspect(req.locals)}`)
+        // console.log(`req.locals: ${util.inspect(req.locals)}`)
 
         return done(null, true)
       })
@@ -95,8 +95,8 @@ class AuthMW {
   }
 
   // Middleware called by the route.
-  mw() {
-    return passport.authenticate(["basic", "anonymous"], {
+  mw () {
+    return passport.authenticate(['basic', 'anonymous'], {
       session: false
     })
   }

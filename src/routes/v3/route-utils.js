@@ -2,15 +2,15 @@
   A private library of utility functions used by several different routes.
 */
 
-"use strict"
+'use strict'
 
-const axios = require("axios")
-const wlogger = require("../../util/winston-logging")
+const axios = require('axios')
+const wlogger = require('../../util/winston-logging')
 
-const util = require("util")
+const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-const BCHJS = require("@chris.troutner/bch-js")
+const BCHJS = require('@chris.troutner/bch-js')
 const bchjs = new BCHJS()
 
 module.exports = {
@@ -25,7 +25,7 @@ module.exports = {
 // The array is then validated against freemium and pro-tier rate limiting
 // requirements. A boolean is returned to indicate if the array size if valid
 // or not.
-function validateArraySize(req, array) {
+function validateArraySize (req, array) {
   const FREEMIUM_INPUT_SIZE = 20
   const PRO_INPUT_SIZE = 20
 
@@ -43,13 +43,13 @@ function validateArraySize(req, array) {
 // This prevent a common user-error issue that is easy to make: passing a
 // testnet address into rest.bitcoin.com or passing a mainnet address into
 // trest.bitcoin.com.
-function validateNetwork(addr) {
+function validateNetwork (addr) {
   try {
     const network = process.env.NETWORK
 
     // Return false if NETWORK is not defined.
-    if (!network || network === "") {
-      console.log(`Warning: NETWORK environment variable is not defined!`)
+    if (!network || network === '') {
+      console.log('Warning: NETWORK environment variable is not defined!')
       return false
     }
 
@@ -59,21 +59,21 @@ function validateNetwork(addr) {
 
     // Return true if the network and address both match testnet
     const addrIsTest = bchjs.Address.isTestnetAddress(cashAddr)
-    if (network === "testnet" && addrIsTest) return true
+    if (network === 'testnet' && addrIsTest) return true
 
     // Return true if the network and address both match mainnet
     const addrIsMain = bchjs.Address.isMainnetAddress(cashAddr)
-    if (network === "mainnet" && addrIsMain) return true
+    if (network === 'mainnet' && addrIsMain) return true
 
     return false
   } catch (err) {
-    logger.error(`Error in validateNetwork()`)
+    wlogger.error('Error in validateNetwork()')
     return false
   }
 }
 
 // Dynamically set these based on env vars. Allows unit testing.
-function setEnvVars() {
+function setEnvVars () {
   const BitboxHTTP = axios.create({
     baseURL: process.env.RPC_BASEURL,
     timeout: 15000
@@ -82,13 +82,13 @@ function setEnvVars() {
   const password = process.env.RPC_PASSWORD
 
   const requestConfig = {
-    method: "post",
+    method: 'post',
     auth: {
       username: username,
       password: password
     },
     data: {
-      jsonrpc: "1.0"
+      jsonrpc: '1.0'
     }
   }
 
@@ -96,9 +96,9 @@ function setEnvVars() {
 }
 
 // Axios options used when calling axios.post() to talk with a full node.
-function getAxiosOptions() {
+function getAxiosOptions () {
   return {
-    method: "post",
+    method: 'post',
     baseURL: process.env.RPC_BASEURL,
     timeout: 15000,
     auth: {
@@ -106,7 +106,7 @@ function getAxiosOptions() {
       password: process.env.RPC_PASSWORD
     },
     data: {
-      jsonrpc: "1.0"
+      jsonrpc: '1.0'
     }
   }
 }
@@ -116,7 +116,7 @@ function getAxiosOptions() {
 // error messages.
 // Returns an object. If successful, obj.msg is a string.
 // If there is a failure, obj.msg is false.
-function decodeError(err) {
+function decodeError (err) {
   try {
     // Attempt to extract the full node error message.
     if (
@@ -124,39 +124,41 @@ function decodeError(err) {
       err.response.data &&
       err.response.data.error &&
       err.response.data.error.message
-    )
+    ) {
       return { msg: err.response.data.error.message, status: 400 }
+    }
 
     // Attempt to extract the Insight error message
-    if (err.response && err.response.data)
+    if (err.response && err.response.data) {
       return { msg: err.response.data, status: err.response.status }
+    }
 
     // console.log(`err.message: ${err.message}`)
     // console.log(`err: `, err)
 
     // Attempt to detect a network connection error.
-    if (err.message && err.message.indexOf("ENOTFOUND") > -1) {
+    if (err.message && err.message.indexOf('ENOTFOUND') > -1) {
       return {
         msg:
-          "Network error: Could not communicate with full node or other external service.",
+          'Network error: Could not communicate with full node or other external service.',
         status: 503
       }
     }
 
     // Different kind of network error
-    if (err.message && err.message.indexOf("ENETUNREACH") > -1) {
+    if (err.message && err.message.indexOf('ENETUNREACH') > -1) {
       return {
         msg:
-          "Network error: Could not communicate with full node or other external service.",
+          'Network error: Could not communicate with full node or other external service.',
         status: 503
       }
     }
 
     // Different kind of network error
-    if (err.message && err.message.indexOf("EAI_AGAIN") > -1) {
+    if (err.message && err.message.indexOf('EAI_AGAIN') > -1) {
       return {
         msg:
-          "Network error: Could not communicate with full node or other external service.",
+          'Network error: Could not communicate with full node or other external service.',
         status: 503
       }
     }
@@ -164,18 +166,18 @@ function decodeError(err) {
     // Axios timeout (aborted) error, or service is down (connection refused).
     if (
       err.code &&
-      (err.code === "ECONNABORTED" || err.code === "ECONNREFUSED")
+      (err.code === 'ECONNABORTED' || err.code === 'ECONNREFUSED')
     ) {
       return {
         msg:
-          "Network error: Could not communicate with full node or other external service.",
+          'Network error: Could not communicate with full node or other external service.',
         status: 503
       }
     }
 
     return { msg: false, status: 500 }
   } catch (err) {
-    wlogger.error(`unhandled error in route-utils.js/decodeError(): `, err)
+    wlogger.error('unhandled error in route-utils.js/decodeError(): ', err)
     return { msg: false, status: 500 }
   }
 }
