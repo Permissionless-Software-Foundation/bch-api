@@ -31,7 +31,7 @@ describe("#BlockchainRouter2", () => {
   let sandbox
 
   // local node will be started in regtest mode on the port 48332
-  //before(panda.runLocalNode)
+  // before(panda.runLocalNode)
 
   before(() => {
     // Save existing environment variables.
@@ -70,7 +70,7 @@ describe("#BlockchainRouter2", () => {
 
   after(() => {
     // otherwise the panda will run forever
-    //process.exit()
+    // process.exit()
 
     // Restore any pre-existing environment variables.
     process.env.BITCOINCOM_BASEURL = originalEnvVars.BITCOINCOM_BASEURL
@@ -153,149 +153,150 @@ describe("#BlockchainRouter2", () => {
       assert.isString(result)
       assert.equal(result.length, 64, "Hash string is fixed length")
     })
+  })
 
-    describe("getBlockchainInfo()", () => {
-      it("should throw 503 when network issues", async () => {
-        // Save the existing RPC URL.
-        const savedUrl2 = process.env.RPC_BASEURL
+  describe("getBlockchainInfo()", () => {
+    it("should throw 503 when network issues", async () => {
+      // Save the existing RPC URL.
+      const savedUrl2 = process.env.RPC_BASEURL
 
-        // Manipulate the URL to cause a 500 network error.
-        process.env.RPC_BASEURL = "http://fakeurl/api/"
+      // Manipulate the URL to cause a 500 network error.
+      process.env.RPC_BASEURL = "http://fakeurl/api/"
 
-        const result = await uut.getBlockchainInfo(req, res)
-        //console.log(`result: ${util.inspect(result)}`)
+      const result = await uut.getBlockchainInfo(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
 
-        // Restore the saved URL.
-        process.env.RPC_BASEURL = savedUrl2
+      // Restore the saved URL.
+      process.env.RPC_BASEURL = savedUrl2
 
-        assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
-        assert.include(
-          result.error,
-          "Could not communicate with full node",
-          "Error message expected"
-        )
-      })
-
-      it("returns proper error when downstream service stalls", async () => {
-        // Mock the timeout error.
-        sandbox.stub(uut.axios, "request").throws({ code: "ECONNABORTED" })
-
-        const result = await uut.getBestBlockHash(req, res)
-        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
-
-        assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
-        assert.include(
-          result.error,
-          "Could not communicate with full node",
-          "Error message expected"
-        )
-      })
-
-      it("returns proper error when downstream service is down", async () => {
-        // Mock the timeout error.
-        sandbox.stub(uut.axios, "request").throws({ code: "ECONNREFUSED" })
-
-        const result = await uut.getBestBlockHash(req, res)
-        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
-
-        assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
-        assert.include(
-          result.error,
-          "Could not communicate with full node",
-          "Error message expected"
-        )
-      })
-
-      it("should GET /getBlockchainInfo", async () => {
-        // Mock the RPC call for unit tests.
-        if (process.env.TEST === "unit") {
-          sandbox
-            .stub(uut.axios, "request")
-            .resolves({ data: { result: mockData.mockBlockchainInfo } })
-        }
-
-        const result = await uut.getBlockchainInfo(req, res)
-        //console.log(`result: ${util.inspect(result)}`)
-
-        assert.hasAnyKeys(result, [
-          "chain",
-          "blocks",
-          "headers",
-          "bestblockhash",
-          "difficulty",
-          "mediantime",
-          "verificationprogress",
-          "chainwork",
-          "pruned",
-          "softforks",
-          "bip9_softforks"
-        ])
-      })
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
+      assert.include(
+        result.error,
+        "Could not communicate with full node",
+        "Error message expected"
+      )
     })
 
-    describe("getBlockCount()", () => {
-      it("should throw 503 when network issues", async () => {
-        // Save the existing RPC URL.
-        const savedUrl2 = process.env.RPC_BASEURL
+    it("returns proper error when downstream service stalls", async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, "request").throws({ code: "ECONNABORTED" })
 
-        // Manipulate the URL to cause a 500 network error.
-        process.env.RPC_BASEURL = "http://fakeurl/api/"
+      const result = await uut.getBestBlockHash(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
-        const result = await uut.getBlockCount(req, res)
-        //console.log(`result: ${util.inspect(result)}`)
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
+      assert.include(
+        result.error,
+        "Could not communicate with full node",
+        "Error message expected"
+      )
+    })
 
-        // Restore the saved URL.
-        process.env.RPC_BASEURL = savedUrl2
+    it("returns proper error when downstream service is down", async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, "request").throws({ code: "ECONNREFUSED" })
 
-        assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
-        assert.include(
-          result.error,
-          "Could not communicate with full node",
-          "Error message expected"
-        )
-      })
-      it("returns proper error when downstream service stalls", async () => {
-        // Mock the timeout error.
-        sandbox.stub(uut.axios, "request").throws({ code: "ECONNABORTED" })
+      const result = await uut.getBestBlockHash(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
-        const result = await uut.getBlockCount(req, res)
-        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
+      assert.include(
+        result.error,
+        "Could not communicate with full node",
+        "Error message expected"
+      )
+    })
 
-        assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
-        assert.include(
-          result.error,
-          "Could not communicate with full node",
-          "Error message expected"
-        )
-      })
-      it("returns proper error when downstream service is down", async () => {
-        // Mock the timeout error.
-        sandbox.stub(uut.axios, "request").throws({ code: "ECONNREFUSED" })
+    it("should GET /getBlockchainInfo", async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === "unit") {
+        sandbox
+          .stub(uut.axios, "request")
+          .resolves({ data: { result: mockData.mockBlockchainInfo } })
+      }
 
-        const result = await uut.getBlockCount(req, res)
-        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      const result = await uut.getBlockchainInfo(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
 
-        assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
-        assert.include(
-          result.error,
-          "Could not communicate with full node",
-          "Error message expected"
-        )
-      })
+      assert.hasAnyKeys(result, [
+        "chain",
+        "blocks",
+        "headers",
+        "bestblockhash",
+        "difficulty",
+        "mediantime",
+        "verificationprogress",
+        "chainwork",
+        "pruned",
+        "softforks",
+        "bip9_softforks"
+      ])
+    })
+  })
 
-      it("should GET /getBlockCount", async () => {
-        // Mock the RPC call for unit tests.
-        if (process.env.TEST === "unit") {
-          sandbox
-            .stub(uut.axios, "request")
-            .resolves({ data: { result: 126769 } })
-        }
+  describe("getBlockCount()", () => {
+    it("should throw 503 when network issues", async () => {
+      // Save the existing RPC URL.
+      const savedUrl2 = process.env.RPC_BASEURL
 
-        const result = await uut.getBlockCount(req, res)
-        //console.log(`result: ${util.inspect(result)}`)
+      // Manipulate the URL to cause a 500 network error.
+      process.env.RPC_BASEURL = "http://fakeurl/api/"
 
-        assert.isNumber(result)
-      })
+      const result = await uut.getBlockCount(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      // Restore the saved URL.
+      process.env.RPC_BASEURL = savedUrl2
+
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
+      assert.include(
+        result.error,
+        "Could not communicate with full node",
+        "Error message expected"
+      )
+    })
+
+    it("returns proper error when downstream service stalls", async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, "request").throws({ code: "ECONNABORTED" })
+
+      const result = await uut.getBlockCount(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
+      assert.include(
+        result.error,
+        "Could not communicate with full node",
+        "Error message expected"
+      )
+    })
+    it("returns proper error when downstream service is down", async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, "request").throws({ code: "ECONNREFUSED" })
+
+      const result = await uut.getBlockCount(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, "HTTP status code 503 expected.")
+      assert.include(
+        result.error,
+        "Could not communicate with full node",
+        "Error message expected"
+      )
+    })
+
+    it("should GET /getBlockCount", async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === "unit") {
+        sandbox
+          .stub(uut.axios, "request")
+          .resolves({ data: { result: 126769 } })
+      }
+
+      const result = await uut.getBlockCount(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.isNumber(result)
     })
   })
 
@@ -318,7 +319,7 @@ describe("#BlockchainRouter2", () => {
         "00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900"
 
       const result = await uut.getBlockHeaderSingle(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
@@ -401,7 +402,7 @@ describe("#BlockchainRouter2", () => {
         "000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0"
 
       const result = await uut.getBlockHeaderSingle(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, [
         "hash",
@@ -459,7 +460,7 @@ describe("#BlockchainRouter2", () => {
       req.body.hashes = testArray
 
       const result = await uut.getBlockHeaderBulk(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
       assert.include(result.error, "Array too large")
@@ -575,7 +576,7 @@ describe("#BlockchainRouter2", () => {
 
       // Call the details API.
       const result = await uut.getBlockHeaderBulk(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Assert that required fields exist in the returned object.
       assert.isArray(result)
@@ -612,7 +613,7 @@ describe("#BlockchainRouter2", () => {
 
       // Call the details API.
       const result = await uut.getBlockHeaderBulk(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
       assert.equal(result.length, 2, "2 outputs for 2 inputs")
@@ -627,7 +628,7 @@ describe("#BlockchainRouter2", () => {
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
       const result = await uut.getChainTips(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
@@ -677,7 +678,7 @@ describe("#BlockchainRouter2", () => {
       }
 
       const result = await uut.getChainTips(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
       assert.hasAnyKeys(result[0], ["height", "hash", "branchlen", "status"])
@@ -692,7 +693,7 @@ describe("#BlockchainRouter2", () => {
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
       const result = await uut.getDifficulty(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
@@ -742,7 +743,7 @@ describe("#BlockchainRouter2", () => {
       }
 
       const result = await uut.getDifficulty(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.isNumber(result)
     })
@@ -756,7 +757,7 @@ describe("#BlockchainRouter2", () => {
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
       const result = await uut.getMempoolInfo(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
@@ -806,7 +807,7 @@ describe("#BlockchainRouter2", () => {
       }
 
       const result = await uut.getMempoolInfo(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAnyKeys(result, [
         "result",
@@ -826,7 +827,7 @@ describe("#BlockchainRouter2", () => {
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
       const result = await uut.getRawMempool(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
@@ -876,7 +877,7 @@ describe("#BlockchainRouter2", () => {
       }
 
       const result = await uut.getRawMempool(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
       // Not sure what other assertions should be made here.
@@ -885,7 +886,7 @@ describe("#BlockchainRouter2", () => {
   describe("getMempoolEntrySingle()", () => {
     it("should throw 400 if txid is empty", async () => {
       const result = await uut.getMempoolEntrySingle(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
       assert.include(result.error, "txid can not be empty")
@@ -898,10 +899,11 @@ describe("#BlockchainRouter2", () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
-      req.params.txid = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+      req.params.txid =
+        "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
 
       const result = await uut.getMempoolEntrySingle(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
@@ -917,7 +919,8 @@ describe("#BlockchainRouter2", () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, "request").throws({ code: "ECONNABORTED" })
 
-      req.params.txid = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+      req.params.txid =
+        "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
 
       const result = await uut.getMempoolEntrySingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -933,7 +936,8 @@ describe("#BlockchainRouter2", () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, "request").throws({ code: "ECONNREFUSED" })
 
-      req.params.txid = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+      req.params.txid =
+        "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
 
       const result = await uut.getMempoolEntrySingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -954,10 +958,11 @@ describe("#BlockchainRouter2", () => {
         })
       }
 
-      req.params.txid = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+      req.params.txid =
+        "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
 
       const result = await uut.getMempoolEntrySingle(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
       assert.isString(result.error)
@@ -979,7 +984,8 @@ describe("#BlockchainRouter2", () => {
     })
 
     it("should error on non-array single txid", async () => {
-      req.body.txids = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+      req.body.txids =
+        "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
 
       const result = await uut.getMempoolEntryBulk(req, res)
 
@@ -998,7 +1004,7 @@ describe("#BlockchainRouter2", () => {
       req.body.txids = testArray
 
       const result = await uut.getMempoolEntryBulk(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
       assert.include(result.error, "Array too large")
@@ -1008,7 +1014,7 @@ describe("#BlockchainRouter2", () => {
       sandbox.stub(uut.axios, "request").throws({ code: "ECONNABORTED" })
 
       req.body.txids = [
-        `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+        "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
       ]
 
       const result = await uut.getMempoolEntryBulk(req, res)
@@ -1026,7 +1032,7 @@ describe("#BlockchainRouter2", () => {
       sandbox.stub(uut.axios, "request").throws({ code: "ECONNREFUSED" })
 
       req.body.txids = [
-        `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+        "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
       ]
 
       const result = await uut.getMempoolEntryBulk(req, res)
@@ -1046,11 +1052,11 @@ describe("#BlockchainRouter2", () => {
       // integration test.
       it("should retrieve single mempool entry", async () => {
         req.body.txids = [
-          `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+          "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
         ]
 
         const result = await uut.getMempoolEntryBulk(req, res)
-        //console.log(`result: ${util.inspect(result)}`)
+        // console.log(`result: ${util.inspect(result)}`)
 
         assert.hasAllKeys(result, ["error"])
         assert.isString(result.error)
@@ -1062,12 +1068,12 @@ describe("#BlockchainRouter2", () => {
       // integration test.
       it("should retrieve multiple mempool entries", async () => {
         req.body.txids = [
-          `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`,
-          `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+          "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde",
+          "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
         ]
 
         const result = await uut.getMempoolEntryBulk(req, res)
-        //console.log(`result: ${util.inspect(result)}`)
+        // console.log(`result: ${util.inspect(result)}`)
 
         assert.hasAllKeys(result, ["error"])
         assert.isString(result.error)
@@ -1078,7 +1084,7 @@ describe("#BlockchainRouter2", () => {
   describe("getMempoolAncestorsSingle()", () => {
     it("should throw 400 if txid is empty", async () => {
       const result = await uut.getMempoolAncestorsSingle(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
       assert.include(result.error, "txid can not be empty")
@@ -1091,10 +1097,11 @@ describe("#BlockchainRouter2", () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
-      req.params.txid = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+      req.params.txid =
+        "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
 
       const result = await uut.getMempoolAncestorsSingle(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
@@ -1110,7 +1117,8 @@ describe("#BlockchainRouter2", () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, "request").throws({ code: "ECONNABORTED" })
 
-      req.params.txid = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+      req.params.txid =
+        "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
 
       const result = await uut.getMempoolAncestorsSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -1126,7 +1134,8 @@ describe("#BlockchainRouter2", () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, "request").throws({ code: "ECONNREFUSED" })
 
-      req.params.txid = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+      req.params.txid =
+        "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
 
       const result = await uut.getMempoolAncestorsSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -1143,7 +1152,8 @@ describe("#BlockchainRouter2", () => {
         .stub(uut.axios, "request")
         .resolves({ data: { result: mockData.mockAncestors } })
 
-      req.params.txid = `bb0d349892d351da2767f8c45f6f7949713ff09bd12838d53e76158ddee3ce93`
+      req.params.txid =
+        "bb0d349892d351da2767f8c45f6f7949713ff09bd12838d53e76158ddee3ce93"
 
       const result = await uut.getMempoolAncestorsSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -1154,16 +1164,16 @@ describe("#BlockchainRouter2", () => {
   describe("getTxOut()", () => {
     it("should throw 400 if txid is empty", async () => {
       const result = await uut.getTxOut(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
       assert.include(result.error, "txid can not be empty")
     })
 
     it("should throw 400 if n is empty", async () => {
-      req.params.txid = `sometxid`
+      req.params.txid = "sometxid"
       const result = await uut.getTxOut(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
       assert.include(result.error, "n can not be empty")
@@ -1176,11 +1186,12 @@ describe("#BlockchainRouter2", () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
-      req.params.txid = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+      req.params.txid =
+        "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
       req.params.n = 0
 
       const result = await uut.getTxOut(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
@@ -1197,7 +1208,8 @@ describe("#BlockchainRouter2", () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, "request").throws({ code: "ECONNABORTED" })
 
-      req.params.txid = `197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d`
+      req.params.txid =
+        "197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d"
       req.params.n = 0
       req.query.include_mempool = "true"
 
@@ -1215,7 +1227,8 @@ describe("#BlockchainRouter2", () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, "request").throws({ code: "ECONNREFUSED" })
 
-      req.params.txid = `197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d`
+      req.params.txid =
+        "197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d"
       req.params.n = 0
       req.query.include_mempool = "true"
 
@@ -1238,7 +1251,8 @@ describe("#BlockchainRouter2", () => {
           .resolves({ data: { result: mockData.mockTxOut } })
       }
 
-      req.params.txid = `197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d`
+      req.params.txid =
+        "197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d"
       req.params.n = 0
       req.query.include_mempool = "true"
 
@@ -1265,7 +1279,7 @@ describe("#BlockchainRouter2", () => {
   describe("getTxOutProofSingle()", () => {
     it("should throw 400 if txid is empty", async () => {
       const result = await uut.getTxOutProofSingle(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
       assert.include(result.error, "txid can not be empty")
@@ -1278,10 +1292,11 @@ describe("#BlockchainRouter2", () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = "http://fakeurl/api/"
 
-      req.params.txid = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+      req.params.txid =
+        "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
 
       const result = await uut.getTxOutProofSingle(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
@@ -1297,7 +1312,8 @@ describe("#BlockchainRouter2", () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, "request").throws({ code: "ECONNABORTED" })
 
-      req.params.txid = `197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d`
+      req.params.txid =
+        "197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d"
       req.params.n = 0
       req.query.include_mempool = "true"
 
@@ -1315,7 +1331,8 @@ describe("#BlockchainRouter2", () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, "request").throws({ code: "ECONNREFUSED" })
 
-      req.params.txid = `197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d`
+      req.params.txid =
+        "197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d"
       req.params.n = 0
       req.query.include_mempool = "true"
 
@@ -1338,7 +1355,8 @@ describe("#BlockchainRouter2", () => {
           .resolves({ data: { result: mockData.mockTxOutProof } })
       }
 
-      req.params.txid = `2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266`
+      req.params.txid =
+        "2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266"
 
       const result = await uut.getTxOutProofSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -1361,7 +1379,8 @@ describe("#BlockchainRouter2", () => {
     })
 
     it("should error on non-array single txid", async () => {
-      req.body.txids = `d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde`
+      req.body.txids =
+        "d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde"
 
       const result = await uut.getTxOutProofBulk(req, res)
 
@@ -1380,7 +1399,7 @@ describe("#BlockchainRouter2", () => {
       req.body.txids = testArray
 
       const result = await uut.getTxOutProofBulk(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
       assert.include(result.error, "Array too large")
@@ -1390,7 +1409,7 @@ describe("#BlockchainRouter2", () => {
       sandbox.stub(uut.axios, "request").throws({ code: "ECONNABORTED" })
 
       req.body.txids = [
-        `2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266`
+        "2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266"
       ]
 
       const result = await uut.getTxOutProofBulk(req, res)
@@ -1408,7 +1427,7 @@ describe("#BlockchainRouter2", () => {
       sandbox.stub(uut.axios, "request").throws({ code: "ECONNREFUSED" })
 
       req.body.txids = [
-        `2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266`
+        "2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266"
       ]
 
       const result = await uut.getTxOutProofBulk(req, res)
@@ -1431,11 +1450,11 @@ describe("#BlockchainRouter2", () => {
       }
 
       req.body.txids = [
-        `2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266`
+        "2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266"
       ]
 
       const result = await uut.getTxOutProofBulk(req, res)
-      //console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isArray(result)
       assert.isString(result[0])
@@ -1450,12 +1469,12 @@ describe("#BlockchainRouter2", () => {
       }
 
       req.body.txids = [
-        `2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266`,
-        `2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266`
+        "2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266",
+        "2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266"
       ]
 
       const result = await uut.getTxOutProofBulk(req, res)
-      //console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isArray(result)
       assert.equal(result.length, 2, "Correct length of returned array")
@@ -1464,7 +1483,7 @@ describe("#BlockchainRouter2", () => {
   describe("verifyTxOutProofSingle()", () => {
     it("should throw 400 if proof is empty", async () => {
       const result = await uut.verifyTxOutProofSingle(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
       assert.include(result.error, "proof can not be empty")
@@ -1480,7 +1499,7 @@ describe("#BlockchainRouter2", () => {
       req.params.proof = mockData.mockTxOutProof
 
       const result = await uut.verifyTxOutProofSingle(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
@@ -1541,7 +1560,7 @@ describe("#BlockchainRouter2", () => {
         "000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c1e000000067139f230701a2819a76795564bd2f67ded7eeae68596f368eddb3dd5bc54e59320e896f71d61cfc3ae3d4a90fca08b1aa35ba91256d8939d2cad11e638c0081f66724abdef55cf7b8b9fed064bce0369171434f8b289c1330ccef765f8e97a2c0d794d81aafb535855f7daa6bb51e40f77c6b59d7af7f62d0eb726a4fc4df82353d56fcbda7c7ea6bd935d61af8fb3b295637e6f323b10231135b3f10a034cfb238f635830c0595e52c6c31247cf677b555f7a287076e20cd0e1d3cc9af7260f02b700"
 
       const result = await uut.verifyTxOutProofSingle(req, res)
-      //console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isArray(result)
       assert.isString(result[0])
@@ -1582,7 +1601,7 @@ describe("#BlockchainRouter2", () => {
       req.body.proofs = testArray
 
       const result = await uut.verifyTxOutProofBulk(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ["error"])
       assert.include(result.error, "Array too large")
@@ -1639,7 +1658,7 @@ describe("#BlockchainRouter2", () => {
       ]
 
       const result = await uut.verifyTxOutProofBulk(req, res)
-      //console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isArray(result)
       assert.isString(result[0])
@@ -1663,7 +1682,7 @@ describe("#BlockchainRouter2", () => {
       ]
 
       const result = await uut.verifyTxOutProofBulk(req, res)
-      //console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isArray(result)
       assert.isString(result[0])

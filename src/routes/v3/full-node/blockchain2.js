@@ -97,7 +97,7 @@ class Blockchain {
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
-      wlogger.error(`Error in blockchain.ts/getBestBlockHash().`, err)
+      wlogger.error("Error in blockchain.ts/getBestBlockHash().", err)
 
       return this.errorHandler(err, res)
     }
@@ -141,7 +141,7 @@ class Blockchain {
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
-      wlogger.error(`Error in blockchain.ts/getBlockchainInfo().`, err)
+      wlogger.error("Error in blockchain.ts/getBlockchainInfo().", err)
 
       return this.errorHandler(err, res)
     }
@@ -171,8 +171,8 @@ class Blockchain {
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
-      //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error(`Error in blockchain.ts/getBlockCount().`, err)
+      // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+      wlogger.error("Error in blockchain.ts/getBlockCount().", err)
 
       return this.errorHandler(err, res)
     }
@@ -231,8 +231,8 @@ class Blockchain {
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
-      //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error(`Error in blockchain.ts/getBlockHeaderSingle().`, err)
+      // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+      wlogger.error("Error in blockchain.ts/getBlockHeaderSingle().", err)
 
       return this.errorHandler(err, res)
     }
@@ -284,12 +284,12 @@ class Blockchain {
       if (!routeUtils.validateArraySize(req, hashes)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: `Array too large.`
+          error: "Array too large."
         })
       }
 
       wlogger.debug(
-        `Executing blockchain/getBlockHeaderBulk with these hashes: `,
+        "Executing blockchain/getBlockHeaderBulk with these hashes: ",
         hashes
       )
 
@@ -324,8 +324,8 @@ class Blockchain {
       return res.json(result)
     } catch (err) {
       // Write out error to error log.
-      //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error(`Error in blockchain.ts/getBlockHeaderBulk().`, err)
+      // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+      wlogger.error("Error in blockchain.ts/getBlockHeaderBulk().", err)
 
       return this.errorHandler(err, res)
     }
@@ -355,8 +355,8 @@ class Blockchain {
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
-      //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error(`Error in blockchain.ts/getChainTips().`, err)
+      // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+      wlogger.error("Error in blockchain.ts/getChainTips().", err)
 
       return this.errorHandler(err, res)
     }
@@ -387,8 +387,8 @@ class Blockchain {
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
-      //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error(`Error in blockchain.ts/getDifficulty().`, err)
+      // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+      wlogger.error("Error in blockchain.ts/getDifficulty().", err)
 
       return this.errorHandler(err, res)
     }
@@ -426,8 +426,8 @@ class Blockchain {
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
-      //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error(`Error in blockchain.ts/getMempoolEntrySingle().`, err)
+      // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+      wlogger.error("Error in blockchain.ts/getMempoolEntrySingle().", err)
 
       return this.errorHandler(err, res)
     }
@@ -457,12 +457,12 @@ class Blockchain {
       if (!routeUtils.validateArraySize(req, txids)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: `Array too large.`
+          error: "Array too large."
         })
       }
 
       wlogger.debug(
-        `Executing blockchain/getMempoolEntry with these txids: `,
+        "Executing blockchain/getMempoolEntry with these txids: ",
         txids
       )
 
@@ -497,8 +497,8 @@ class Blockchain {
       return res.json(result)
     } catch (err) {
       // Write out error to error log.
-      //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error(`Error in blockchain.ts/getMempoolEntryBulk().`, err)
+      // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+      wlogger.error("Error in blockchain.ts/getMempoolEntryBulk().", err)
 
       return this.errorHandler(err, res)
     }
@@ -541,8 +541,8 @@ class Blockchain {
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
-      //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error(`Error in blockchain.ts/getMempoolAncestorsSingle().`, err)
+      // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+      wlogger.error("Error in blockchain.ts/getMempoolAncestorsSingle().", err)
 
       return this.errorHandler(err, res)
     }
@@ -571,8 +571,8 @@ class Blockchain {
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
-      //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error(`Error in blockchain.ts/getMempoolInfo().`, err)
+      // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+      wlogger.error("Error in blockchain.ts/getMempoolInfo().", err)
 
       return this.errorHandler(err, res)
     }
@@ -618,8 +618,8 @@ class Blockchain {
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
-      //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error(`Error in blockchain.ts/getRawMempool().`, err)
+      // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+      wlogger.error("Error in blockchain.ts/getRawMempool().", err)
 
       return this.errorHandler(err, res)
     }
@@ -674,8 +674,8 @@ class Blockchain {
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
-      //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error(`Error in blockchain.ts/getTxOut().`, err)
+      // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+      wlogger.error("Error in blockchain.ts/getTxOut().", err)
 
       return this.errorHandler(err, res)
     }
@@ -714,8 +714,8 @@ class Blockchain {
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
-      //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error(`Error in blockchain.ts/getTxOutProofSingle().`, err)
+      // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+      wlogger.error("Error in blockchain.ts/getTxOutProofSingle().", err)
 
       return this.errorHandler(err, res)
     }
@@ -738,7 +738,7 @@ class Blockchain {
       if (!routeUtils.validateArraySize(req, txids)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: `Array too large.`
+          error: "Array too large."
         })
       }
 
@@ -758,7 +758,7 @@ class Blockchain {
       }
 
       wlogger.debug(
-        `Executing blockchain/getTxOutProof with these txids: `,
+        "Executing blockchain/getTxOutProof with these txids: ",
         txids
       )
 
@@ -781,8 +781,8 @@ class Blockchain {
       return res.json(result)
     } catch (err) {
       // Write out error to error log.
-      //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error(`Error in blockchain.ts/getTxOutProofBulk().`, err)
+      // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+      wlogger.error("Error in blockchain.ts/getTxOutProofBulk().", err)
 
       return this.errorHandler(err, res)
     }
@@ -809,8 +809,8 @@ class Blockchain {
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
-      //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error(`Error in blockchain.ts/verifyTxOutProofSingle().`, err)
+      // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+      wlogger.error("Error in blockchain.ts/verifyTxOutProofSingle().", err)
 
       return this.errorHandler(err, res)
     }
@@ -832,7 +832,7 @@ class Blockchain {
       if (!routeUtils.validateArraySize(req, proofs)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: `Array too large.`
+          error: "Array too large."
         })
       }
 
@@ -850,7 +850,7 @@ class Blockchain {
       }
 
       wlogger.debug(
-        `Executing blockchain/verifyTxOutProof with these proofs: `,
+        "Executing blockchain/verifyTxOutProof with these proofs: ",
         proofs
       )
 
@@ -873,8 +873,8 @@ class Blockchain {
       return res.json(result)
     } catch (err) {
       // Write out error to error log.
-      //logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error(`Error in blockchain.ts/verifyTxOutProofBulk().`, err)
+      // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+      wlogger.error("Error in blockchain.ts/verifyTxOutProofBulk().", err)
 
       return this.errorHandler(err, res)
     }
