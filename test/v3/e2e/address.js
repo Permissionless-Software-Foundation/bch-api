@@ -3,11 +3,11 @@
   These tests assume that the repo is running locally and pointed at TESTNET
 */
 
-"use strict"
+'use strict'
 
-const rp = require("request-promise")
+const rp = require('request-promise')
 
-const rawtransactions = require("../../../dist/routes/v2/address")
+// const rawtransactions = require('../../../dist/routes/v2/address')
 
 /*
   This unconfirmed utxo test needs to be expanded in the future to automatically
@@ -19,19 +19,19 @@ const rawtransactions = require("../../../dist/routes/v2/address")
   3. Run this program with `node address.js`
   4. If successful, it will return the unconfirmed UTXOs.
 */
-const addr1 = "bchtest:qpdcp5pv7qphu5tsjfgwezld9n9aq9ue6swgqpf45c"
-const addr2 = "bchtest:qzpvx999fagau0xqmvu3xvll9evapge7u5hcgeknzv"
+const addr1 = 'bchtest:qpdcp5pv7qphu5tsjfgwezld9n9aq9ue6swgqpf45c'
+const addr2 = 'bchtest:qzpvx999fagau0xqmvu3xvll9evapge7u5hcgeknzv'
 
-async function testSingleUnconfirmed() {
+async function testSingleUnconfirmed () {
   try {
     const options = {
-      method: "GET",
+      method: 'GET',
       uri: `http://localhost:3000/v2/address/unconfirmed/${addr1}`,
       resolveWithFullResponse: true,
       json: true
     }
 
-    const result = await rp(options)
+    await rp(options)
     // console.log(`result.body: ${JSON.stringify(result.body, null, 2)}`)
   } catch (err) {
     // console.log(`Error: `, err)
@@ -39,11 +39,11 @@ async function testSingleUnconfirmed() {
 }
 testSingleUnconfirmed()
 
-async function testDoubleUnconfirmed() {
+async function testDoubleUnconfirmed () {
   try {
     const options = {
-      method: "POST",
-      uri: `http://localhost:3000/v2/address/unconfirmed`,
+      method: 'POST',
+      uri: 'http://localhost:3000/v2/address/unconfirmed',
       resolveWithFullResponse: true,
       json: true,
       body: {
@@ -51,7 +51,7 @@ async function testDoubleUnconfirmed() {
       }
     }
 
-    const result = await rp(options)
+    await rp(options)
     // console.log(`result.body: ${JSON.stringify(result.body, null, 2)}`)
   } catch (err) {
     // console.log(`Error: `, err)

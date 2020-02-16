@@ -2,28 +2,28 @@
   A library for interacting with the Full Node
 */
 
-"use strict"
+'use strict'
 
-const express = require("express")
+const express = require('express')
 const router = express.Router()
 
-const axios = require("axios")
-const wlogger = require("../../../util/winston-logging")
+const axios = require('axios')
+const wlogger = require('../../../util/winston-logging')
 
-const RouteUtils = require("../route-utils2")
+const RouteUtils = require('../route-utils2')
 const routeUtils = new RouteUtils()
 
 // Used to convert error messages to strings, to safely pass to users.
-const util = require("util")
+const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-const BCHJS = require("@chris.troutner/bch-js")
+const BCHJS = require('@chris.troutner/bch-js')
 const bchjs = new BCHJS()
 
 let _this
 
 class Blockchain {
-  constructor() {
+  constructor () {
     _this = this
 
     this.bchjs = bchjs
@@ -31,35 +31,35 @@ class Blockchain {
     this.routeUtils = routeUtils
 
     this.router = router
-    this.router.get("/", this.root)
-    this.router.get("/getBestBlockHash", this.getBestBlockHash)
-    this.router.get("/getBlockchainInfo", this.getBlockchainInfo)
-    this.router.get("/getBlockCount", this.getBlockCount)
-    this.router.get("/getBlockHeader/:hash", this.getBlockHeaderSingle)
-    this.router.post("/getBlockHeader", this.getBlockHeaderBulk)
-    this.router.get("/getChainTips", this.getChainTips)
-    this.router.get("/getDifficulty", this.getDifficulty)
-    this.router.get("/getMempoolEntry/:txid", this.getMempoolEntrySingle)
-    this.router.post("/getMempoolEntry", this.getMempoolEntryBulk)
+    this.router.get('/', this.root)
+    this.router.get('/getBestBlockHash', this.getBestBlockHash)
+    this.router.get('/getBlockchainInfo', this.getBlockchainInfo)
+    this.router.get('/getBlockCount', this.getBlockCount)
+    this.router.get('/getBlockHeader/:hash', this.getBlockHeaderSingle)
+    this.router.post('/getBlockHeader', this.getBlockHeaderBulk)
+    this.router.get('/getChainTips', this.getChainTips)
+    this.router.get('/getDifficulty', this.getDifficulty)
+    this.router.get('/getMempoolEntry/:txid', this.getMempoolEntrySingle)
+    this.router.post('/getMempoolEntry', this.getMempoolEntryBulk)
     this.router.get(
-      "/getMempoolAncestors/:txid",
+      '/getMempoolAncestors/:txid',
       this.getMempoolAncestorsSingle
     )
-    this.router.get("/getMempoolInfo", this.getMempoolInfo)
-    this.router.get("/getRawMempool", this.getRawMempool)
-    this.router.get("/getTxOut/:txid/:n", this.getTxOut)
-    this.router.get("/getTxOutProof/:txid", this.getTxOutProofSingle)
-    this.router.post("/getTxOutProof", this.getTxOutProofBulk)
-    this.router.get("/verifyTxOutProof/:proof", this.verifyTxOutProofSingle)
-    this.router.post("/verifyTxOutProof", this.verifyTxOutProofBulk)
+    this.router.get('/getMempoolInfo', this.getMempoolInfo)
+    this.router.get('/getRawMempool', this.getRawMempool)
+    this.router.get('/getTxOut/:txid/:n', this.getTxOut)
+    this.router.get('/getTxOutProof/:txid', this.getTxOutProofSingle)
+    this.router.post('/getTxOutProof', this.getTxOutProofBulk)
+    this.router.get('/verifyTxOutProof/:proof', this.verifyTxOutProofSingle)
+    this.router.post('/verifyTxOutProof', this.verifyTxOutProofBulk)
   }
 
-  root(req, res, next) {
-    return res.json({ status: "blockchain" })
+  root (req, res, next) {
+    return res.json({ status: 'blockchain' })
   }
 
   // DRY error handler.
-  errorHandler(err, res) {
+  errorHandler (err, res) {
     // Attempt to decode the error message.
     const { msg, status } = _this.routeUtils.decodeError(err)
     if (msg) {
@@ -83,12 +83,12 @@ class Blockchain {
    *
    * @apiSuccess {String}   bestBlockHash           000000000000000002bc884334336d99c9a9c616670a9244c6a8c1fc35aa91a1
    */
-  async getBestBlockHash(req, res, next) {
+  async getBestBlockHash (req, res, next) {
     try {
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
-      options.data.id = "getbestblockhash"
-      options.data.method = "getbestblockhash"
+      options.data.id = 'getbestblockhash'
+      options.data.method = 'getbestblockhash'
       options.data.params = []
 
       const response = await _this.axios.request(options)
@@ -97,7 +97,7 @@ class Blockchain {
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
-      wlogger.error("Error in blockchain.ts/getBestBlockHash().", err)
+      wlogger.error('Error in blockchain.ts/getBestBlockHash().', err)
 
       return _this.errorHandler(err, res)
     }
@@ -128,12 +128,12 @@ class Blockchain {
    * @apiSuccess {Object}   object.softforks.reject
    * @apiSuccess {String}   object.softforks.reject.status true
    */
-  async getBlockchainInfo(req, res, next) {
+  async getBlockchainInfo (req, res, next) {
     try {
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
-      options.data.id = "getblockchaininfo"
-      options.data.method = "getblockchaininfo"
+      options.data.id = 'getblockchaininfo'
+      options.data.method = 'getblockchaininfo'
       options.data.params = []
 
       const response = await _this.axios.request(options)
@@ -141,7 +141,7 @@ class Blockchain {
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
-      wlogger.error("Error in blockchain.ts/getBlockchainInfo().", err)
+      wlogger.error('Error in blockchain.ts/getBlockchainInfo().', err)
 
       return _this.errorHandler(err, res)
     }
@@ -158,12 +158,12 @@ class Blockchain {
    *
    * @apiSuccess {Number} bestBlockCount  587665
    */
-  async getBlockCount(req, res, next) {
+  async getBlockCount (req, res, next) {
     try {
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
-      options.data.id = "getblockcount"
-      options.data.method = "getblockcount"
+      options.data.id = 'getblockcount'
+      options.data.method = 'getblockcount'
       options.data.params = []
 
       const response = await _this.axios.request(options)
@@ -172,7 +172,7 @@ class Blockchain {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error("Error in blockchain.ts/getBlockCount().", err)
+      wlogger.error('Error in blockchain.ts/getBlockCount().', err)
 
       return _this.errorHandler(err, res)
     }
@@ -208,22 +208,23 @@ class Blockchain {
    * @apiSuccess {String}   object.previousblockhash   "0000000000000000043831d6ebb013716f0580287ee5e5687e27d0ed72e6e523"
    * @apiSuccess {String}   object.nextblockhash       "00000000000000000568f0a96bf4348847bc84e455cbfec389f27311037a20f3"
    */
-  async getBlockHeaderSingle(req, res, next) {
+  async getBlockHeaderSingle (req, res, next) {
     try {
       let verbose = false
-      if (req.query.verbose && req.query.verbose.toString() === "true")
+      if (req.query.verbose && req.query.verbose.toString() === 'true') {
         verbose = true
+      }
 
       const hash = req.params.hash
-      if (!hash || hash === "") {
+      if (!hash || hash === '') {
         res.status(400)
-        return res.json({ error: "hash can not be empty" })
+        return res.json({ error: 'hash can not be empty' })
       }
 
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
-      options.data.id = "getblockheader"
-      options.data.method = "getblockheader"
+      options.data.id = 'getblockheader'
+      options.data.method = 'getblockheader'
       options.data.params = [hash, verbose]
 
       const response = await _this.axios.request(options)
@@ -232,7 +233,7 @@ class Blockchain {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error("Error in blockchain.ts/getBlockHeaderSingle().", err)
+      wlogger.error('Error in blockchain.ts/getBlockHeaderSingle().', err)
 
       return _this.errorHandler(err, res)
     }
@@ -268,7 +269,7 @@ class Blockchain {
    * @apiSuccess {String}   object.previousblockhash   "0000000000000000043831d6ebb013716f0580287ee5e5687e27d0ed72e6e523"
    * @apiSuccess {String}   object.nextblockhash       "00000000000000000568f0a96bf4348847bc84e455cbfec389f27311037a20f3"
    */
-  async getBlockHeaderBulk(req, res, next) {
+  async getBlockHeaderBulk (req, res, next) {
     try {
       const hashes = req.body.hashes
       const verbose = req.body.verbose ? req.body.verbose : false
@@ -276,7 +277,7 @@ class Blockchain {
       if (!Array.isArray(hashes)) {
         res.status(400)
         return res.json({
-          error: "hashes needs to be an array. Use GET for single hash."
+          error: 'hashes needs to be an array. Use GET for single hash.'
         })
       }
 
@@ -284,12 +285,12 @@ class Blockchain {
       if (!routeUtils.validateArraySize(req, hashes)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: "Array too large."
+          error: 'Array too large.'
         })
       }
 
       wlogger.debug(
-        "Executing blockchain/getBlockHeaderBulk with these hashes: ",
+        'Executing blockchain/getBlockHeaderBulk with these hashes: ',
         hashes
       )
 
@@ -308,11 +309,11 @@ class Blockchain {
 
       // Loop through each hash and creates an array of requests to call in parallel
       const promises = hashes.map(async hash => {
-        options.data.id = "getblockheader"
-        options.data.method = "getblockheader"
+        options.data.id = 'getblockheader'
+        options.data.method = 'getblockheader'
         options.data.params = [hash, verbose]
 
-        return await _this.axios.request(options)
+        return _this.axios.request(options)
       })
 
       const axiosResult = await _this.axios.all(promises)
@@ -325,7 +326,7 @@ class Blockchain {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error("Error in blockchain.ts/getBlockHeaderBulk().", err)
+      wlogger.error('Error in blockchain.ts/getBlockHeaderBulk().', err)
 
       return _this.errorHandler(err, res)
     }
@@ -342,13 +343,13 @@ class Blockchain {
    * curl -X GET "https://mainnet.bchjs.cash/v3/blockchain/getChainTips" -H "accept: application/json"
    *
    */
-  async getChainTips(req, res, next) {
+  async getChainTips (req, res, next) {
     try {
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
 
-      options.data.id = "getchaintips"
-      options.data.method = "getchaintips"
+      options.data.id = 'getchaintips'
+      options.data.method = 'getchaintips'
       options.data.params = []
 
       const response = await _this.axios.request(options)
@@ -356,7 +357,7 @@ class Blockchain {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error("Error in blockchain.ts/getChainTips().", err)
+      wlogger.error('Error in blockchain.ts/getChainTips().', err)
 
       return _this.errorHandler(err, res)
     }
@@ -373,13 +374,13 @@ class Blockchain {
    * curl -X GET "https://mainnet.bchjs.cash/v3/blockchain/getDifficulty" -H "accept: application/json"
    *
    */
-  async getDifficulty(req, res, next) {
+  async getDifficulty (req, res, next) {
     try {
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
 
-      options.data.id = "getdifficulty"
-      options.data.method = "getdifficulty"
+      options.data.id = 'getdifficulty'
+      options.data.method = 'getdifficulty'
       options.data.params = []
 
       const response = await _this.axios.request(options)
@@ -388,7 +389,7 @@ class Blockchain {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error("Error in blockchain.ts/getDifficulty().", err)
+      wlogger.error('Error in blockchain.ts/getDifficulty().', err)
 
       return _this.errorHandler(err, res)
     }
@@ -405,20 +406,20 @@ class Blockchain {
    * curl -X GET "https://mainnet.bchjs.cash/v3/blockchain/getMempoolEntry/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
    *
    */
-  async getMempoolEntrySingle(req, res, next) {
+  async getMempoolEntrySingle (req, res, next) {
     try {
       // Validate input parameter
       const txid = req.params.txid
-      if (!txid || txid === "") {
+      if (!txid || txid === '') {
         res.status(400)
-        return res.json({ error: "txid can not be empty" })
+        return res.json({ error: 'txid can not be empty' })
       }
 
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
 
-      options.data.id = "getmempoolentry"
-      options.data.method = "getmempoolentry"
+      options.data.id = 'getmempoolentry'
+      options.data.method = 'getmempoolentry'
       options.data.params = [txid]
 
       const response = await _this.axios.request(options)
@@ -427,7 +428,7 @@ class Blockchain {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error("Error in blockchain.ts/getMempoolEntrySingle().", err)
+      wlogger.error('Error in blockchain.ts/getMempoolEntrySingle().', err)
 
       return _this.errorHandler(err, res)
     }
@@ -442,14 +443,14 @@ class Blockchain {
    * @apiExample Example usage:
    * curl -X POST https://mainnet.bchjs.cash/v3/blockchain/getMempoolEntry -H "Content-Type: application/json" -d "{\"txids\":[\"a5f972572ee1753e2fd2457dd61ce5f40fa2f8a30173d417e49feef7542c96a1\",\"5165dc531aad05d1149bb0f0d9b7bda99c73e2f05e314bcfb5b4bb9ca5e1af5e\"]}"
    */
-  async getMempoolEntryBulk(req, res, next) {
+  async getMempoolEntryBulk (req, res, next) {
     try {
       const txids = req.body.txids
 
       if (!Array.isArray(txids)) {
         res.status(400)
         return res.json({
-          error: "txids needs to be an array. Use GET for single txid."
+          error: 'txids needs to be an array. Use GET for single txid.'
         })
       }
 
@@ -457,12 +458,12 @@ class Blockchain {
       if (!routeUtils.validateArraySize(req, txids)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: "Array too large."
+          error: 'Array too large.'
         })
       }
 
       wlogger.debug(
-        "Executing blockchain/getMempoolEntry with these txids: ",
+        'Executing blockchain/getMempoolEntry with these txids: ',
         txids
       )
 
@@ -472,7 +473,7 @@ class Blockchain {
 
         if (txid.length !== 64) {
           res.status(400)
-          return res.json({ error: "This is not a txid" })
+          return res.json({ error: 'This is not a txid' })
         }
       }
 
@@ -481,11 +482,11 @@ class Blockchain {
 
       // Loop through each txid and creates an array of requests to call in parallel
       const promises = txids.map(async txid => {
-        options.data.id = "getmempoolentry"
-        options.data.method = "getmempoolentry"
+        options.data.id = 'getmempoolentry'
+        options.data.method = 'getmempoolentry'
         options.data.params = [txid]
 
-        return await _this.axios.request(options)
+        return _this.axios.request(options)
       })
 
       const axiosResult = await _this.axios.all(promises)
@@ -498,7 +499,7 @@ class Blockchain {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error("Error in blockchain.ts/getMempoolEntryBulk().", err)
+      wlogger.error('Error in blockchain.ts/getMempoolEntryBulk().', err)
 
       return _this.errorHandler(err, res)
     }
@@ -516,13 +517,13 @@ class Blockchain {
    * curl -X GET "https://mainnet.bchjs.cash/v3/blockchain/getMempoolAncestors/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
    *
    */
-  async getMempoolAncestorsSingle(req, res, next) {
+  async getMempoolAncestorsSingle (req, res, next) {
     try {
       // Validate input parameter
       const txid = req.params.txid
-      if (!txid || txid === "") {
+      if (!txid || txid === '') {
         res.status(400)
-        return res.json({ error: "txid can not be empty" })
+        return res.json({ error: 'txid can not be empty' })
       }
 
       let verbose = req.params.verbose
@@ -531,8 +532,8 @@ class Blockchain {
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
 
-      options.data.id = "getmempoolancestors"
-      options.data.method = "getmempoolancestors"
+      options.data.id = 'getmempoolancestors'
+      options.data.method = 'getmempoolancestors'
       options.data.params = [txid, verbose]
 
       const response = await _this.axios.request(options)
@@ -542,7 +543,7 @@ class Blockchain {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error("Error in blockchain.ts/getMempoolAncestorsSingle().", err)
+      wlogger.error('Error in blockchain.ts/getMempoolAncestorsSingle().', err)
 
       return _this.errorHandler(err, res)
     }
@@ -558,13 +559,13 @@ class Blockchain {
    * curl -X GET https://mainnet.bchjs.cash/v3/getMempoolInfo -H "accept: application/json"
    *
    */
-  async getMempoolInfo(req, res, next) {
+  async getMempoolInfo (req, res, next) {
     try {
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
 
-      options.data.id = "getmempoolinfo"
-      options.data.method = "getmempoolinfo"
+      options.data.id = 'getmempoolinfo'
+      options.data.method = 'getmempoolinfo'
       options.data.params = []
 
       const response = await _this.axios.request(options)
@@ -572,7 +573,7 @@ class Blockchain {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error("Error in blockchain.ts/getMempoolInfo().", err)
+      wlogger.error('Error in blockchain.ts/getMempoolInfo().', err)
 
       return _this.errorHandler(err, res)
     }
@@ -602,16 +603,16 @@ class Blockchain {
    * @apiParam {Boolean} verbose Return verbose data
    *
    */
-  async getRawMempool(req, res, next) {
+  async getRawMempool (req, res, next) {
     try {
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
 
       let verbose = false
-      if (req.query.verbose && req.query.verbose === "true") verbose = true
+      if (req.query.verbose && req.query.verbose === 'true') verbose = true
 
-      options.data.id = "getrawmempool"
-      options.data.method = "getrawmempool"
+      options.data.id = 'getrawmempool'
+      options.data.method = 'getrawmempool'
       options.data.params = [verbose]
 
       const response = await _this.axios.request(options)
@@ -620,7 +621,7 @@ class Blockchain {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error("Error in blockchain.ts/getRawMempool().", err)
+      wlogger.error('Error in blockchain.ts/getRawMempool().', err)
 
       return _this.errorHandler(err, res)
     }
@@ -641,32 +642,33 @@ class Blockchain {
    *
    */
   // Returns details about an unspent transaction output.
-  async getTxOut(req, res, next) {
+  async getTxOut (req, res, next) {
     try {
       // Validate input parameter
       const txid = req.params.txid
-      if (!txid || txid === "") {
+      if (!txid || txid === '') {
         res.status(400)
-        return res.json({ error: "txid can not be empty" })
+        return res.json({ error: 'txid can not be empty' })
       }
 
       let n = req.params.n
-      if (n === undefined || n === "") {
+      if (n === undefined || n === '') {
         res.status(400)
-        return res.json({ error: "n can not be empty" })
+        return res.json({ error: 'n can not be empty' })
       }
       n = parseInt(n)
 
-      let include_mempool = false
-      if (req.query.include_mempool && req.query.include_mempool === "true")
-        include_mempool = true
+      let includeMempool = false
+      if (req.query.includeMempool && req.query.includeMempool === 'true') {
+        includeMempool = true
+      }
 
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
 
-      options.data.id = "gettxout"
-      options.data.method = "gettxout"
-      options.data.params = [txid, n, include_mempool]
+      options.data.id = 'gettxout'
+      options.data.method = 'gettxout'
+      options.data.params = [txid, n, includeMempool]
 
       // console.log(`requestConfig: ${JSON.stringify(requestConfig, null, 2)}`)
 
@@ -676,7 +678,7 @@ class Blockchain {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error("Error in blockchain.ts/getTxOut().", err)
+      wlogger.error('Error in blockchain.ts/getTxOut().', err)
 
       return _this.errorHandler(err, res)
     }
@@ -694,20 +696,20 @@ class Blockchain {
    * @apiParam {String} txid Transaction id (required)
    *
    */
-  async getTxOutProofSingle(req, res, next) {
+  async getTxOutProofSingle (req, res, next) {
     try {
       // Validate input parameter
       const txid = req.params.txid
-      if (!txid || txid === "") {
+      if (!txid || txid === '') {
         res.status(400)
-        return res.json({ error: "txid can not be empty" })
+        return res.json({ error: 'txid can not be empty' })
       }
 
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
 
-      options.data.id = "gettxoutproof"
-      options.data.method = "gettxoutproof"
+      options.data.id = 'gettxoutproof'
+      options.data.method = 'gettxoutproof'
       options.data.params = [[txid]]
 
       const response = await _this.axios.request(options)
@@ -716,14 +718,14 @@ class Blockchain {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error("Error in blockchain.ts/getTxOutProofSingle().", err)
+      wlogger.error('Error in blockchain.ts/getTxOutProofSingle().', err)
 
       return _this.errorHandler(err, res)
     }
   }
 
   // Returns a hex-encoded proof that 'txid' was included in a block.
-  async getTxOutProofBulk(req, res, next) {
+  async getTxOutProofBulk (req, res, next) {
     try {
       const txids = req.body.txids
 
@@ -731,7 +733,7 @@ class Blockchain {
       if (!Array.isArray(txids)) {
         res.status(400)
         return res.json({
-          error: "txids needs to be an array. Use GET for single txid."
+          error: 'txids needs to be an array. Use GET for single txid.'
         })
       }
 
@@ -739,7 +741,7 @@ class Blockchain {
       if (!routeUtils.validateArraySize(req, txids)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: "Array too large."
+          error: 'Array too large.'
         })
       }
 
@@ -759,17 +761,17 @@ class Blockchain {
       }
 
       wlogger.debug(
-        "Executing blockchain/getTxOutProof with these txids: ",
+        'Executing blockchain/getTxOutProof with these txids: ',
         txids
       )
 
       // Loop through each txid and creates an array of requests to call in parallel
       const promises = txids.map(async txid => {
-        options.data.id = "gettxoutproof"
-        options.data.method = "gettxoutproof"
+        options.data.id = 'gettxoutproof'
+        options.data.method = 'gettxoutproof'
         options.data.params = [[txid]]
 
-        return await _this.axios.request(options)
+        return _this.axios.request(options)
       })
 
       // Wait for all parallel promisses to resolve.
@@ -783,26 +785,26 @@ class Blockchain {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error("Error in blockchain.ts/getTxOutProofBulk().", err)
+      wlogger.error('Error in blockchain.ts/getTxOutProofBulk().', err)
 
       return _this.errorHandler(err, res)
     }
   }
 
-  async verifyTxOutProofSingle(req, res, next) {
+  async verifyTxOutProofSingle (req, res, next) {
     try {
       // Validate input parameter
       const proof = req.params.proof
-      if (!proof || proof === "") {
+      if (!proof || proof === '') {
         res.status(400)
-        return res.json({ error: "proof can not be empty" })
+        return res.json({ error: 'proof can not be empty' })
       }
 
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
 
-      options.data.id = "verifytxoutproof"
-      options.data.method = "verifytxoutproof"
+      options.data.id = 'verifytxoutproof'
+      options.data.method = 'verifytxoutproof'
       options.data.params = [req.params.proof]
 
       const response = await _this.axios.request(options)
@@ -811,13 +813,13 @@ class Blockchain {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error("Error in blockchain.ts/verifyTxOutProofSingle().", err)
+      wlogger.error('Error in blockchain.ts/verifyTxOutProofSingle().', err)
 
       return _this.errorHandler(err, res)
     }
   }
 
-  async verifyTxOutProofBulk(req, res, next) {
+  async verifyTxOutProofBulk (req, res, next) {
     try {
       const proofs = req.body.proofs
 
@@ -825,7 +827,7 @@ class Blockchain {
       if (!Array.isArray(proofs)) {
         res.status(400)
         return res.json({
-          error: "proofs needs to be an array. Use GET for single proof."
+          error: 'proofs needs to be an array. Use GET for single proof.'
         })
       }
 
@@ -833,7 +835,7 @@ class Blockchain {
       if (!routeUtils.validateArraySize(req, proofs)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: "Array too large."
+          error: 'Array too large.'
         })
       }
 
@@ -844,24 +846,24 @@ class Blockchain {
       for (let i = 0; i < proofs.length; i++) {
         const proof = proofs[i]
 
-        if (!proof || proof === "") {
+        if (!proof || proof === '') {
           res.status(400)
           return res.json({ error: `proof can not be empty: ${proof}` })
         }
       }
 
       wlogger.debug(
-        "Executing blockchain/verifyTxOutProof with these proofs: ",
+        'Executing blockchain/verifyTxOutProof with these proofs: ',
         proofs
       )
 
       // Loop through each proof and creates an array of requests to call in parallel
       const promises = proofs.map(async proof => {
-        options.data.id = "verifytxoutproof"
-        options.data.method = "verifytxoutproof"
+        options.data.id = 'verifytxoutproof'
+        options.data.method = 'verifytxoutproof'
         options.data.params = [proof]
 
-        return await _this.axios.request(options)
+        return _this.axios.request(options)
       })
 
       // Wait for all parallel promisses to resolve.
@@ -875,7 +877,7 @@ class Blockchain {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error("Error in blockchain.ts/verifyTxOutProofBulk().", err)
+      wlogger.error('Error in blockchain.ts/verifyTxOutProofBulk().', err)
 
       return _this.errorHandler(err, res)
     }

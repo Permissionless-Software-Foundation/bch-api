@@ -8,29 +8,29 @@
   Blockbook.
 */
 
-"use strict"
+'use strict'
 
 class BlockbookPath {
-  constructor() {
+  constructor () {
     // defaults
     this.addrPath = `${process.env.BLOCKBOOK_URL}api/v2/address/`
     this.utxoPath = `${process.env.BLOCKBOOK_URL}api/v2/utxo/`
     this.txPath = `${process.env.BLOCKBOOK_URL}api/v2/tx/`
   }
 
-  toOpenBazaar() {
-    if (process.env.NETWORK === "testnet") {
-      this.addrPath = `https://tbch.blockbook.api.openbazaar.org/api/address/`
-      this.utxoPath = `https://tbch.blockbook.api.openbazaar.org/api/utxo/`
-      this.txPath = `https://tbch.blockbook.api.openbazaar.org/api/tx/`
+  toOpenBazaar () {
+    if (process.env.NETWORK === 'testnet') {
+      this.addrPath = 'https://tbch.blockbook.api.openbazaar.org/api/address/'
+      this.utxoPath = 'https://tbch.blockbook.api.openbazaar.org/api/utxo/'
+      this.txPath = 'https://tbch.blockbook.api.openbazaar.org/api/tx/'
     } else {
-      this.addrPath = `https://bch.blockbook.api.openbazaar.org/api/address/`
-      this.utxoPath = `https://bch.blockbook.api.openbazaar.org/api/utxo/`
-      this.txPath = `https://bch.blockbook.api.openbazaar.org/api/tx/`
+      this.addrPath = 'https://bch.blockbook.api.openbazaar.org/api/address/'
+      this.utxoPath = 'https://bch.blockbook.api.openbazaar.org/api/utxo/'
+      this.txPath = 'https://bch.blockbook.api.openbazaar.org/api/tx/'
     }
   }
 
-  toDefault() {
+  toDefault () {
     this.addrPath = `${process.env.BLOCKBOOK_URL}api/v2/address/`
     this.utxoPath = `${process.env.BLOCKBOOK_URL}api/v2/utxo/`
     this.txPath = `${process.env.BLOCKBOOK_URL}api/v2/tx/`

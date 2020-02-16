@@ -2,18 +2,18 @@
   Mocks used for unit tests that interact with slpjs.
 */
 
-"use strict"
+'use strict'
 
-const sinon = require("sinon")
-const proxyquire = require("proxyquire")
-const BigNumber = require("bignumber.js")
-const slpMocks = require("./slp-mocks")
+// const sinon = require('sinon')
+// const proxyquire = require('proxyquire')
+const BigNumber = require('bignumber.js')
+const slpMocks = require('./slp-mocks')
 
 // Mock the BitboxNetwork class.
 class BitboxNetwork {
-  constructor() {}
+  // constructor () {}
 
-  async getAllSlpBalancesAndUtxos(address) {
+  async getAllSlpBalancesAndUtxos (address) {
     return {
       satoshis_available_bch: 9996891,
       satoshis_in_slp_baton: 546,
@@ -21,15 +21,15 @@ class BitboxNetwork {
       satoshis_in_invalid_token_dag: 0,
       satoshis_in_invalid_baton_dag: 0,
       slpTokenBalances: {
-        "7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796": new BigNumber(
+        '7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796': new BigNumber(
           123400000000
         )
       },
       slpTokenUtxos: {
-        "7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796": []
+        '7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796': []
       },
       slpBatonUtxos: {
-        "7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796": []
+        '7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796': []
       },
       nonSlpUtxos: [{}],
       invalidTokenUtxos: [],
@@ -37,15 +37,15 @@ class BitboxNetwork {
     }
   }
 
-  async getTokenInformation(txid) {
+  async getTokenInformation (txid) {
     BigNumber.set({ DECIMAL_PLACES: 8, ROUNDING_MODE: 4 })
 
     const obj = {
       versionType: 1,
       transactionType: 0,
-      symbol: "SLPSDK",
-      name: "SLP SDK example using BITBOX",
-      documentUri: "developer.bitcoin.com",
+      symbol: 'SLPSDK',
+      name: 'SLP SDK example using BITBOX',
+      documentUri: 'developer.bitcoin.com',
       documentSha256: null,
       decimals: 8,
       batonVout: 2,
@@ -56,7 +56,7 @@ class BitboxNetwork {
     return obj
   }
 
-  async getTransactionDetails(txid) {
+  async getTransactionDetails (txid) {
     return slpMocks.mockTx
   }
 }

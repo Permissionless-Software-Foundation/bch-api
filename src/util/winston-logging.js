@@ -4,33 +4,33 @@
   logging library.
 */
 
-"use strict"
+'use strict'
 
-var winston = require("winston")
-require("winston-daily-rotate-file")
+var winston = require('winston')
+require('winston-daily-rotate-file')
 
 var NETWORK = process.env.NETWORK
 
 // Configure daily-rotation transport.
 var transport = new winston.transports.DailyRotateFile({
   filename: `${__dirname}/../../logs/rest-${NETWORK}-%DATE%.log`,
-  datePattern: "YYYY-MM-DD",
+  datePattern: 'YYYY-MM-DD',
   zippedArchive: false,
-  maxSize: "1m",
-  maxFiles: "5d",
+  maxSize: '1m',
+  maxFiles: '5d',
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.json()
   )
 })
 
-transport.on("rotate", function(oldFilename, newFilename) {
-  wlogger.info("Rotating log files")
+transport.on('rotate', function (oldFilename, newFilename) {
+  wlogger.info('Rotating log files')
 })
 
 // This controls what goes into the log FILES
 var wlogger = winston.createLogger({
-  level: "verbose",
+  level: 'verbose',
   format: winston.format.json(),
   transports: [
     //

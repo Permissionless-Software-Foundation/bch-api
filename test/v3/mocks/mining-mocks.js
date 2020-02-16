@@ -2,7 +2,7 @@
   This library contains mocking data for running unit tests on the address route.
 */
 
-"use strict"
+'use strict'
 
 const mockMiningInfo = {
   blocks: 1270185,
@@ -14,7 +14,7 @@ const mockMiningInfo = {
     "Warning: Unknown block versions being mined! It's possible unknown rules are in effect",
   networkhashps: 517410290.9365583,
   pooledtx: 5,
-  chain: "test"
+  chain: 'test'
 }
 
 module.exports = {

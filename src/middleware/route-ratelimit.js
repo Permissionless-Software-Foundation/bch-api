@@ -1,28 +1,28 @@
-"use strict"
+'use strict'
 
-const express = require("express")
-const RateLimit = require("express-rate-limit")
-const axios = require("axios")
+// const express = require('express')
+const RateLimit = require('express-rate-limit')
+const axios = require('axios')
 
-const wlogger = require("../util/winston-logging")
+const wlogger = require('../util/winston-logging')
 
-const jwt = require("jsonwebtoken")
-const KeyEncoder = require("key-encoder").default
-const keyEncoder = new KeyEncoder("secp256k1")
+const jwt = require('jsonwebtoken')
+const KeyEncoder = require('key-encoder').default
+const keyEncoder = new KeyEncoder('secp256k1')
 
 // Redis
 const redisOptions = {
   enableOfflineQueue: false,
   port: process.env.REDIS_PORT ? process.env.REDIS_PORT : 6379,
-  host: process.env.REDIS_HOST ? process.env.REDIS_HOST : "127.0.0.1"
+  host: process.env.REDIS_HOST ? process.env.REDIS_HOST : '127.0.0.1'
 }
 console.log(`redisOptions: ${JSON.stringify(redisOptions, null, 2)}`)
 
-const Redis = require("ioredis")
+const Redis = require('ioredis')
 const redisClient = new Redis(redisOptions)
 
 // Rate limiter middleware lib.
-const { RateLimiterRedis } = require("rate-limiter-flexible")
+const { RateLimiterRedis } = require('rate-limiter-flexible')
 const rateLimitOptions = {
   storeClient: redisClient,
   points: 100, // Number of points
@@ -32,7 +32,7 @@ const rateLimitOptions = {
 // This hard-coded value is temporary. It will be swapped out with an environment
 // variable when moved to production.
 const publicKey =
-  "03e6c358092a459f7da9420de770eef3e16cf3c9c54a3d3d14ac2d7f0b82af4d7d"
+  '03e6c358092a459f7da9420de770eef3e16cf3c9c54a3d3d14ac2d7f0b82af4d7d'
 
 // Set max requests per minute
 const maxRequests = process.env.RATE_LIMIT_MAX_REQUESTS
@@ -48,7 +48,7 @@ const uniqueRateLimits = {}
 let _this
 
 class RateLimits {
-  constructor() {
+  constructor () {
     _this = this
 
     this.jwt = jwt
@@ -57,7 +57,7 @@ class RateLimits {
 
   // Used to disconnect from the Redis DB.
   // Called by unit tests so that node.js thread doesn't live forever.
-  closeRedis() {
+  closeRedis () {
     redisClient.disconnect()
   }
 
@@ -79,7 +79,7 @@ class RateLimits {
     will be downgraded to 0 on-the-fly. Indexer endpoints will effectively be
     downgraded to the anonymous access tier.
   */
-  async routeRateLimit(req, res, next) {
+  async routeRateLimit (req, res, next) {
     // Disable rate limiting if 0 passed from RATE_LIMIT_MAX_REQUESTS
     if (maxRequests === 0) return next()
 
@@ -87,7 +87,7 @@ class RateLimits {
     if (!req.locals) {
       req.locals = {
         // default values
-        jwtToken: "",
+        jwtToken: '',
         proLimit: false,
         apiLevel: 0
       }
@@ -95,9 +95,9 @@ class RateLimits {
 
     // Warn if JWT_AUTH_SERVER env var is not set.
     const authServer = process.env.JWT_AUTH_SERVER
-    if (!authServer || authServer === "") {
+    if (!authServer || authServer === '') {
       console.warn(
-        "JWT_AUTH_SERVER env var is not set. JWT tokens not being evaluated."
+        'JWT_AUTH_SERVER env var is not set. JWT tokens not being evaluated.'
       )
     } else {
       // If a JWT token is passed in, validate it and enable pro-tier rate limits
@@ -129,7 +129,7 @@ class RateLimits {
     }
 
     // Current route
-    const rateLimitTier = req.locals.proLimit ? "PRO" : "BASIC"
+    const rateLimitTier = req.locals.proLimit ? 'PRO' : 'BASIC'
     const path = req.baseUrl + req.path
 
     // Create a unique string as a route identifier.
@@ -138,10 +138,10 @@ class RateLimits {
       req.method +
       req.locals.apiLevel + // Generates new rate limit when user upgrades JWT token.
       path
-        .split("/")
+        .split('/')
         .slice(0, 4)
-        .join("/")
-    //console.log(`route identifier: ${JSON.stringify(route, null, 2)}`)
+        .join('/')
+    // console.log(`route identifier: ${JSON.stringify(route, null, 2)}`)
 
     // console.log(`req.locals: ${JSON.stringify(req.locals, null, 2)}`)
 
@@ -166,8 +166,8 @@ class RateLimits {
           windowMs: 60 * 1000, // 1 minute window
           delayMs: 0, // disable delaying - full speed until the max limit is reached
           max: PRO_RPM, // start blocking after this many requests per minute
-          handler: function(req, res) {
-            //console.log(`pro-tier rate-handler triggered.`)
+          handler: function (req, res) {
+            // console.log(`pro-tier rate-handler triggered.`)
 
             res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
             return res.json({
@@ -188,8 +188,8 @@ class RateLimits {
           windowMs: 60 * 1000, // 1 minute window
           delayMs: 0, // disable delaying - full speed until the max limit is reached
           max: maxRequests, // start blocking after maxRequests
-          handler: function(req, res) {
-            //console.log(`freemium rate-handler triggered.`)
+          handler: function (req, res) {
+            // console.log(`freemium rate-handler triggered.`)
 
             res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
             return res.json({
@@ -200,7 +200,7 @@ class RateLimits {
       }
     }
 
-    //console.log(`calling uniqueRateLimits() on this route: ${route}`)
+    // console.log(`calling uniqueRateLimits() on this route: ${route}`)
 
     // Call rate limit for this route
     uniqueRateLimits[route](req, res, next)
@@ -212,7 +212,7 @@ class RateLimits {
   // It does fine-grane analysis on the data coming from the auth servers and
   // uses its output to adjust rate limits on-the-fly based on the users
   // permission level.
-  evalUserPermissioins(req, authData) {
+  evalUserPermissioins (req, authData) {
     // console.log(`authData: ${JSON.stringify(authData, null, 2)}`)
 
     // Return object with default values
@@ -224,9 +224,9 @@ class RateLimits {
     // if apiLevel = 0 (free tier), then return the default values.
     if (retObj.apiLevel === 0) return retObj
 
-    const level20Routes = ["insight", "bitcore", "blockbook"]
+    const level20Routes = ['insight', 'bitcore', 'blockbook']
 
-    const locals = req.locals
+    // const locals = req.locals
     // console.log(`locals: ${JSON.stringify(locals, null, 2)}`)
     const url = req.url
     // console.log(`url: ${JSON.stringify(url, null, 2)}`)
@@ -249,7 +249,7 @@ class RateLimits {
   // This is the new rate limit function that uses the rate-limiter-flexible npm
   // library. It uses fine-grain rate limiting based on the resources being
   // consumed.
-  async rateLimitByResource(req, res, next) {
+  async rateLimitByResource (req, res, next) {
     try {
       let userId
       let decoded = {}
@@ -258,7 +258,7 @@ class RateLimits {
       if (!req.locals) {
         req.locals = {
           // default values
-          jwtToken: "",
+          jwtToken: '',
           proLimit: false,
           apiLevel: 0
         }
@@ -267,10 +267,10 @@ class RateLimits {
       // Decode the JWT token if one exists.
       if (req.locals.jwtToken) {
         const jwtOptions = {
-          algorithms: ["ES256"]
+          algorithms: ['ES256']
         }
 
-        const pemPublicKey = keyEncoder.encodePublic(publicKey, "raw", "pem")
+        const pemPublicKey = keyEncoder.encodePublic(publicKey, 'raw', 'pem')
 
         // Validate the JWT token.
         decoded = _this.jwt.verify(
@@ -282,7 +282,7 @@ class RateLimits {
 
         userId = decoded.id
       } else {
-        wlogger.debug(`No JWT token found!`)
+        wlogger.debug('No JWT token found!')
       }
 
       // Code here for the rate limiter is adapted from this example:
@@ -292,7 +292,7 @@ class RateLimits {
         const resource = _this.getResource(req.url)
         wlogger.debug(`resource: ${resource}`)
 
-        let key = userId ? userId : req.ip
+        let key = userId || req.ip
 
         // const pointsToConsume = userId ? 1 : 30
         decoded.resource = resource
@@ -316,7 +316,7 @@ class RateLimits {
         })
       }
     } catch (err) {
-      wlogger.error(`Error in route-ratelimit.js/newRateLimit(): `, err)
+      wlogger.error('Error in route-ratelimit.js/newRateLimit(): ', err)
       // throw err
     }
 
@@ -325,7 +325,7 @@ class RateLimits {
 
   // Calculates the points consumed, based on the jwt information and the route
   // requested.
-  calcPoints(jwtInfo) {
+  calcPoints (jwtInfo) {
     let retVal = 30 // By default, use anonymous tier.
 
     try {
@@ -334,8 +334,8 @@ class RateLimits {
       const apiLevel = jwtInfo.apiLevel
       const resource = jwtInfo.resource
 
-      const level30Routes = ["insight", "bitcore", "blockbook"]
-      const level40Routes = ["slp"]
+      const level30Routes = ['insight', 'bitcore', 'blockbook']
+      const level40Routes = ['slp']
 
       wlogger.debug(`apiLevel: ${apiLevel}`)
 
@@ -346,28 +346,25 @@ class RateLimits {
           if (apiLevel >= 40) retVal = 1
           // else if (apiLevel >= 10) retVal = 10
           else retVal = 10
-        }
 
-        // Normal indexer routes
-        else if (level30Routes.includes(resource)) {
+          // Normal indexer routes
+        } else if (level30Routes.includes(resource)) {
           if (apiLevel >= 30) retVal = 1
           else retVal = 10
-        }
 
-        // Full node tier
-        else if (apiLevel >= 20) {
+          // Full node tier
+        } else if (apiLevel >= 20) {
           retVal = 1
-        }
 
-        // Free tier, full node only.
-        else {
+          // Free tier, full node only.
+        } else {
           retVal = 10
         }
       }
 
       return retVal
     } catch (err) {
-      wlogger.error(`Error in route-ratelimit.js/calcPoints()`)
+      wlogger.error('Error in route-ratelimit.js/calcPoints()')
       // throw err
       retVal = 30
     }
@@ -379,16 +376,16 @@ class RateLimits {
   // the user is requesting.
   // This was created as a function so that it can be unit tested. Not sure
   // what kind of variations will be seen in production.
-  getResource(url) {
+  getResource (url) {
     try {
       wlogger.debug(`url: ${JSON.stringify(url, null, 2)}`)
 
-      const splitUrl = url.split("/")
+      const splitUrl = url.split('/')
       const resource = splitUrl[1]
 
       return resource
     } catch (err) {
-      wlogger.error(`Error in getResource().`)
+      wlogger.error('Error in getResource().')
       throw err
     }
   }
@@ -397,7 +394,7 @@ class RateLimits {
   // potentially be used by Bitcoin.com.
   // Rather than using apiLevel, the rateLimit is explicitly recorded in the
   // JWT token.
-  async rateLimitSimple(req, res, next) {
+  async rateLimitSimple (req, res, next) {
     try {
       let userId
       let decoded = {}
@@ -406,7 +403,7 @@ class RateLimits {
       if (!req.locals) {
         req.locals = {
           // default values
-          jwtToken: "",
+          jwtToken: '',
           proLimit: false,
           rateLimit: 3
         }
@@ -415,10 +412,10 @@ class RateLimits {
       // Decode the JWT token if one exists.
       if (req.locals.jwtToken) {
         const jwtOptions = {
-          algorithms: ["ES256"]
+          algorithms: ['ES256']
         }
 
-        const pemPublicKey = keyEncoder.encodePublic(publicKey, "raw", "pem")
+        const pemPublicKey = keyEncoder.encodePublic(publicKey, 'raw', 'pem')
 
         // Validate the JWT token.
         decoded = _this.jwt.verify(
@@ -430,14 +427,14 @@ class RateLimits {
 
         userId = decoded.id
       } else {
-        wlogger.debug(`No JWT token found!`)
+        wlogger.debug('No JWT token found!')
       }
 
       // Code here for the rate limiter is adapted from this example:
       // https://github.com/animir/node-rate-limiter-flexible/wiki/Overall-example#authorized-and-not-authorized-users
       try {
         // Key for Redis key/value pair.
-        const key = userId ? userId : req.ip
+        const key = userId || req.ip
 
         const pointsToConsume = _this.calcPoints2(decoded)
 
@@ -454,7 +451,7 @@ class RateLimits {
         })
       }
     } catch (err) {
-      wlogger.error(`Error in route-ratelimit.js/rateLimitSimple(): `, err)
+      wlogger.error('Error in route-ratelimit.js/rateLimitSimple(): ', err)
       // throw err
     }
 
@@ -463,7 +460,7 @@ class RateLimits {
 
   // Calculates the points consumed, based on the explicit rateLimit defined
   // in the JWT token.
-  calcPoints2(jwtInfo) {
+  calcPoints2 (jwtInfo) {
     let retVal = 30 // By default, use anonymous tier.
 
     try {
@@ -480,7 +477,7 @@ class RateLimits {
         retVal = points
       }
     } catch (err) {
-      wlogger.error(`Error in route-ratelimit.js/calcPoints2()`)
+      wlogger.error('Error in route-ratelimit.js/calcPoints2()')
       // throw err
       retVal = 30
     }

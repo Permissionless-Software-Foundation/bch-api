@@ -7,24 +7,24 @@
 
 */
 
-"use strict"
+'use strict'
 
-const chai = require("chai")
+const chai = require('chai')
 const assert = chai.assert
-const controlRoute = require("../../src/routes/v3/full-node/control")
-const nock = require("nock") // HTTP mocking
+const controlRoute = require('../../src/routes/v3/full-node/control')
+const nock = require('nock') // HTTP mocking
 
 let originalEnvVars // Used during transition from integration to unit tests.
 
 // Mocking data.
-const { mockReq, mockRes } = require("./mocks/express-mocks")
-const mockData = require("./mocks/control-mock")
+const { mockReq, mockRes } = require('./mocks/express-mocks')
+const mockData = require('./mocks/control-mock')
 
 // Used for debugging.
-const util = require("util")
+const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-describe("#ControlRouter", () => {
+describe('#ControlRouter', () => {
   let req, res
 
   before(() => {
@@ -37,12 +37,12 @@ describe("#ControlRouter", () => {
     }
 
     // Set default environment variables for unit tests.
-    if (!process.env.TEST) process.env.TEST = "unit"
-    if (process.env.TEST === "unit") {
-      process.env.BITCOINCOM_BASEURL = "http://fakeurl/api/"
-      process.env.RPC_BASEURL = "http://fakeurl/api"
-      process.env.RPC_USERNAME = "fakeusername"
-      process.env.RPC_PASSWORD = "fakepassword"
+    if (!process.env.TEST) process.env.TEST = 'unit'
+    if (process.env.TEST === 'unit') {
+      process.env.BITCOINCOM_BASEURL = 'http://fakeurl/api/'
+      process.env.RPC_BASEURL = 'http://fakeurl/api'
+      process.env.RPC_USERNAME = 'fakeusername'
+      process.env.RPC_PASSWORD = 'fakepassword'
     }
   })
 
@@ -75,30 +75,30 @@ describe("#ControlRouter", () => {
     process.env.RPC_PASSWORD = originalEnvVars.RPC_PASSWORD
   })
 
-  describe("#root", async () => {
+  describe('#root', async () => {
     // root route handler.
     const root = controlRoute.testableComponents.root
 
-    it("should respond to GET for base route", async () => {
+    it('should respond to GET for base route', async () => {
       const result = root(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(result.status, "control", "Returns static string")
+      assert.equal(result.status, 'control', 'Returns static string')
     })
   })
 
-  describe("#GetNetworkInfo", () => {
+  describe('#GetNetworkInfo', () => {
     const getNetworkInfo = controlRoute.testableComponents.getNetworkInfo
 
-    it("should throw 500 when network issues", async () => {
+    it('should throw 500 when network issues', async () => {
       // Save the existing RPC URL.
       const savedUrl = process.env.RPC_BASEURL
 
       // Manipulate the URL to cause a 500 network error.
-      process.env.RPC_BASEURL = "http://fakeurl/api/"
+      process.env.RPC_BASEURL = 'http://fakeurl/api/'
 
-      const result = await getNetworkInfo(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      await getNetworkInfo(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl
@@ -106,36 +106,36 @@ describe("#ControlRouter", () => {
       assert.isAbove(
         res.statusCode,
         499,
-        "HTTP status code 500 or greater expected."
+        'HTTP status code 500 or greater expected.'
       )
-      //assert.include(result.error, "ENOTFOUND", "Error message expected")
+      // assert.include(result.error, "ENOTFOUND", "Error message expected")
     })
 
-    it("should get info on the full node", async () => {
+    it('should get info on the full node', async () => {
       // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
+      if (process.env.TEST === 'unit') {
         nock(`${process.env.RPC_BASEURL}`)
-          .post(uri => uri.includes("/"))
+          .post(uri => uri.includes('/'))
           .reply(200, { result: mockData.mockGetNetworkInfo })
       }
 
       const result = await getNetworkInfo(req, res)
-      //console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAnyKeys(result, [
-        "version",
-        "subversion",
-        "protocolversion",
-        "localservices",
-        "localrelay",
-        "timeoffset",
-        "networkactive",
-        "connections",
-        "networks",
-        "relayfee",
-        "excessutxocharge",
-        "localaddresses",
-        "warnings"
+        'version',
+        'subversion',
+        'protocolversion',
+        'localservices',
+        'localrelay',
+        'timeoffset',
+        'networkactive',
+        'connections',
+        'networks',
+        'relayfee',
+        'excessutxocharge',
+        'localaddresses',
+        'warnings'
       ])
     })
   })

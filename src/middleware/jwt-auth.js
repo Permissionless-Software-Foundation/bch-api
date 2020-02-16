@@ -5,7 +5,7 @@
   If found, will populate req.locals.jwtToken with the JWT token.
 */
 
-"use strict"
+'use strict'
 
 // This function searches the header for the a JWT token in the authorization header.
 // If one is found, this middleware passes the JWT token through the
@@ -18,8 +18,8 @@ const getTokenFromHeaders = (req, res, next) => {
       const authStr = req.headers.authorization
 
       // If the header is proceeded by the word 'Token'
-      if (authStr.split(" ")[0] === "Token") {
-        const token = authStr.split(" ")[1]
+      if (authStr.split(' ')[0] === 'Token') {
+        const token = authStr.split(' ')[1]
 
         // console.log(`JWT found: ${token}`)
 
@@ -36,7 +36,7 @@ const getTokenFromHeaders = (req, res, next) => {
       }
     }
   } catch (err) {
-    console.log(`Error in getTokenFromHeaders: `, err)
+    console.log('Error in getTokenFromHeaders: ', err)
   }
 
   next()

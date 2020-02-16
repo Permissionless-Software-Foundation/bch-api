@@ -2,49 +2,49 @@
   Blockbook API route
 */
 
-"use strict"
+'use strict'
 
-const express = require("express")
-const axios = require("axios")
-const routeUtils = require("./route-utils")
-const wlogger = require("../../util/winston-logging")
+const express = require('express')
+const axios = require('axios')
+const routeUtils = require('./route-utils')
+const wlogger = require('../../util/winston-logging')
 
 // Library for easily switching the API paths to use different instances of
 // Blockbook.
-const BlockbookPath = require("../../util/blockbook-path")
+const BlockbookPath = require('../../util/blockbook-path')
 const BLOCKBOOKPATH = new BlockbookPath()
 // BLOCKBOOKPATH.toOpenBazaar()
 
 const router = express.Router()
 
 // Used for processing error messages before sending them to the user.
-const util = require("util")
+const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-const BCHJS = require("@chris.troutner/bch-js")
+const BCHJS = require('@chris.troutner/bch-js')
 const bchjs = new BCHJS()
 
-//const BLOCKBOOK_URL = process.env.BLOCKBOOK_URL
+// const BLOCKBOOK_URL = process.env.BLOCKBOOK_URL
 
 // Connect the route endpoints to their handler functions.
-router.get("/", root)
-router.get("/balance/:address", balanceSingle)
-router.post("/balance", balanceBulk)
-router.get("/utxos/:address", utxosSingle)
-router.post("/utxos", utxosBulk)
-router.get("/tx/:txid", txSingle)
-router.post("/tx", txBulk)
+router.get('/', root)
+router.get('/balance/:address', balanceSingle)
+router.post('/balance', balanceBulk)
+router.get('/utxos/:address', utxosSingle)
+router.post('/utxos', utxosBulk)
+router.get('/tx/:txid', txSingle)
+router.post('/tx', txBulk)
 
 // Root API endpoint. Simply acknowledges that it exists.
-function root(req, res, next) {
-  return res.json({ status: "address" })
+function root (req, res, next) {
+  return res.json({ status: 'address' })
 }
 
 // Query the Blockbook Node API for a balance on a single BCH address.
 // Returns a Promise.
-async function balanceFromBlockbook(thisAddress) {
+async function balanceFromBlockbook (thisAddress) {
   try {
-    //console.log(`BLOCKBOOK_URL: ${BLOCKBOOK_URL}`)
+    // console.log(`BLOCKBOOK_URL: ${BLOCKBOOK_URL}`)
 
     // Convert the address to a cashaddr without a prefix.
     const addr = bchjs.Address.toCashAddress(thisAddress)
@@ -55,12 +55,13 @@ async function balanceFromBlockbook(thisAddress) {
     // Query the Blockbook Node API.
     const axiosResponse = await axios.get(path)
     const retData = axiosResponse.data
-    //console.log(`retData: ${util.inspect(retData)}`)
+    // console.log(`retData: ${util.inspect(retData)}`)
 
     return retData
   } catch (err) {
     // Dev Note: Do not log error messages here. Throw them instead and let the
     // parent function handle it.
+    wlogger.debug('Error in blockbook.js/balanceFromBlockbook()')
     throw err
   }
 }
@@ -77,31 +78,32 @@ async function balanceFromBlockbook(thisAddress) {
  *
  */
 // GET handler for single balance
-async function balanceSingle(req, res, next) {
+async function balanceSingle (req, res, next) {
   try {
     const address = req.params.address
 
-    if (!address || address === "") {
+    if (!address || address === '') {
       res.status(400)
-      return res.json({ error: "address can not be empty" })
+      return res.json({ error: 'address can not be empty' })
     }
 
     // Reject if address is an array.
     if (Array.isArray(address)) {
       res.status(400)
       return res.json({
-        error: "address can not be an array. Use POST for bulk upload."
+        error: 'address can not be an array. Use POST for bulk upload.'
       })
     }
 
     wlogger.debug(
-      `Executing blockbook/balanceSingle with this address: `,
+      'Executing blockbook/balanceSingle with this address: ',
       address
     )
 
     // Ensure the input is a valid BCH address.
     try {
-      const legacyAddr = bchjs.Address.toLegacyAddress(address)
+      // const legacyAddr = bchjs.Address.toLegacyAddress(address)
+      bchjs.Address.toLegacyAddress(address)
     } catch (err) {
       res.status(400)
       return res.json({
@@ -114,7 +116,7 @@ async function balanceSingle(req, res, next) {
     if (!networkIsValid) {
       res.status(400)
       return res.json({
-        error: `Invalid network. Trying to use a testnet address on mainnet, or vice versa.`
+        error: 'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
       })
     }
 
@@ -133,7 +135,7 @@ async function balanceSingle(req, res, next) {
     }
 
     // Write out error to error log.
-    wlogger.error(`Error in blockbook.js/balanceSingle().`, err)
+    wlogger.error('Error in blockbook.js/balanceSingle().', err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })
@@ -153,16 +155,16 @@ async function balanceSingle(req, res, next) {
  *
  */
 // POST handler for bulk queries on address details
-async function balanceBulk(req, res, next) {
+async function balanceBulk (req, res, next) {
   try {
     let addresses = req.body.addresses
-    const currentPage = req.body.page ? parseInt(req.body.page, 10) : 0
+    // const currentPage = req.body.page ? parseInt(req.body.page, 10) : 0
 
     // Reject if addresses is not an array.
     if (!Array.isArray(addresses)) {
       res.status(400)
       return res.json({
-        error: "addresses needs to be an array. Use GET for single address."
+        error: 'addresses needs to be an array. Use GET for single address.'
       })
     }
 
@@ -170,12 +172,12 @@ async function balanceBulk(req, res, next) {
     if (!routeUtils.validateArraySize(req, addresses)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
-        error: `Array too large.`
+        error: 'Array too large.'
       })
     }
 
     wlogger.debug(
-      `Executing blockbook.js/balanceBulk with these addresses: `,
+      'Executing blockbook.js/balanceBulk with these addresses: ',
       addresses
     )
 
@@ -206,7 +208,7 @@ async function balanceBulk(req, res, next) {
     // Loops through each address and creates an array of Promises, querying
     // Insight API in parallel.
     addresses = addresses.map(async (address, index) =>
-      //console.log(`address: ${address}`)
+      // console.log(`address: ${address}`)
       balanceFromBlockbook(address)
     )
 
@@ -224,7 +226,7 @@ async function balanceBulk(req, res, next) {
       return res.json({ error: msg })
     }
 
-    wlogger.error(`Error in blockbook.js/balanceBulk().`, err)
+    wlogger.error('Error in blockbook.js/balanceBulk().', err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })
@@ -233,9 +235,9 @@ async function balanceBulk(req, res, next) {
 
 // Query the Blockbook API for utxos associated with a BCH address.
 // Returns a Promise.
-async function utxosFromBlockbook(thisAddress) {
+async function utxosFromBlockbook (thisAddress) {
   try {
-    //console.log(`BLOCKBOOK_URL: ${BLOCKBOOK_URL}`)
+    // console.log(`BLOCKBOOK_URL: ${BLOCKBOOK_URL}`)
 
     // Convert the address to a cashaddr without a prefix.
     const addr = bchjs.Address.toCashAddress(thisAddress)
@@ -249,13 +251,13 @@ async function utxosFromBlockbook(thisAddress) {
     // console.log(`retData: ${util.inspect(retData)}`)
 
     // Add the satoshis property to each UTXO.
-    for (let i = 0; i < retData.length; i++)
-      retData[i].satoshis = Number(retData[i].value)
+    for (let i = 0; i < retData.length; i++) { retData[i].satoshis = Number(retData[i].value) }
 
     return retData
   } catch (err) {
     // Dev Note: Do not log error messages here. Throw them instead and let the
     // parent function handle it.
+    wlogger.debug('Error in blockbook.js/utxosFromBlockbook()')
     throw err
   }
 }
@@ -272,31 +274,32 @@ async function utxosFromBlockbook(thisAddress) {
  *
  */
 // GET handler for single balance
-async function utxosSingle(req, res, next) {
+async function utxosSingle (req, res, next) {
   try {
     const address = req.params.address
 
-    if (!address || address === "") {
+    if (!address || address === '') {
       res.status(400)
-      return res.json({ error: "address can not be empty" })
+      return res.json({ error: 'address can not be empty' })
     }
 
     // Reject if address is an array.
     if (Array.isArray(address)) {
       res.status(400)
       return res.json({
-        error: "address can not be an array. Use POST for bulk upload."
+        error: 'address can not be an array. Use POST for bulk upload.'
       })
     }
 
     wlogger.debug(
-      `Executing blockbook/utxosSingle with this address: `,
+      'Executing blockbook/utxosSingle with this address: ',
       address
     )
 
     // Ensure the input is a valid BCH address.
     try {
-      const legacyAddr = bchjs.Address.toLegacyAddress(address)
+      // const legacyAddr = bchjs.Address.toLegacyAddress(address)
+      bchjs.Address.toLegacyAddress(address)
     } catch (err) {
       res.status(400)
       return res.json({
@@ -309,7 +312,7 @@ async function utxosSingle(req, res, next) {
     if (!networkIsValid) {
       res.status(400)
       return res.json({
-        error: `Invalid network. Trying to use a testnet address on mainnet, or vice versa.`
+        error: 'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
       })
     }
 
@@ -328,7 +331,7 @@ async function utxosSingle(req, res, next) {
     }
 
     // Write out error to error log.
-    wlogger.error(`Error in blockbook.js/utxosSingle().`, err)
+    wlogger.error('Error in blockbook.js/utxosSingle().', err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })
@@ -348,16 +351,16 @@ async function utxosSingle(req, res, next) {
  *
  */
 // POST handler for bulk queries on address utxos
-async function utxosBulk(req, res, next) {
+async function utxosBulk (req, res, next) {
   try {
     let addresses = req.body.addresses
-    const currentPage = req.body.page ? parseInt(req.body.page, 10) : 0
+    // const currentPage = req.body.page ? parseInt(req.body.page, 10) : 0
 
     // Reject if addresses is not an array.
     if (!Array.isArray(addresses)) {
       res.status(400)
       return res.json({
-        error: "addresses needs to be an array. Use GET for single address."
+        error: 'addresses needs to be an array. Use GET for single address.'
       })
     }
 
@@ -365,12 +368,12 @@ async function utxosBulk(req, res, next) {
     if (!routeUtils.validateArraySize(req, addresses)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
-        error: `Array too large.`
+        error: 'Array too large.'
       })
     }
 
     wlogger.debug(
-      `Executing blockbook.js/utxosBulk with these addresses: `,
+      'Executing blockbook.js/utxosBulk with these addresses: ',
       addresses
     )
 
@@ -401,7 +404,7 @@ async function utxosBulk(req, res, next) {
     // Loops through each address and creates an array of Promises, querying
     // Insight API in parallel.
     addresses = addresses.map(async (address, index) =>
-      //console.log(`address: ${address}`)
+      // console.log(`address: ${address}`)
       utxosFromBlockbook(address)
     )
 
@@ -419,7 +422,7 @@ async function utxosBulk(req, res, next) {
       return res.json({ error: msg })
     }
 
-    wlogger.error(`Error in blockbook.js/utxosBulk().`, err)
+    wlogger.error('Error in blockbook.js/utxosBulk().', err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })
@@ -428,9 +431,9 @@ async function utxosBulk(req, res, next) {
 
 // Query the Blockbook Node API for transactions on a single TXID.
 // Returns a Promise.
-async function transactionsFromBlockbook(txid) {
+async function transactionsFromBlockbook (txid) {
   try {
-    //console.log(`BLOCKBOOK_URL: ${BLOCKBOOK_URL}`)
+    // console.log(`BLOCKBOOK_URL: ${BLOCKBOOK_URL}`)
 
     const path = `${BLOCKBOOKPATH.txPath}${txid}`
     // console.log(`path: ${path}`)
@@ -438,12 +441,13 @@ async function transactionsFromBlockbook(txid) {
     // Query the Blockbook Node API.
     const axiosResponse = await axios.get(path)
     const retPromise = axiosResponse.data
-    //console.log(`retData: ${util.inspect(retData)}`)
+    // console.log(`retData: ${util.inspect(retData)}`)
 
     return retPromise
   } catch (err) {
     // Dev Note: Do not log error messages here. Throw them instead and let the
     // parent function handle it.
+    wlogger.debug('Error in blockbook.js/transactionsFromBlockbook()')
     throw err
   }
 }
@@ -460,20 +464,20 @@ async function transactionsFromBlockbook(txid) {
  *
  */
 // GET handler for single transaction details.
-async function txSingle(req, res, next) {
+async function txSingle (req, res, next) {
   try {
     const txid = req.params.txid
 
-    if (!txid || txid === "") {
+    if (!txid || txid === '') {
       res.status(400)
-      return res.json({ error: "txid can not be empty" })
+      return res.json({ error: 'txid can not be empty' })
     }
 
     // Reject if address is an array.
     if (Array.isArray(txid)) {
       res.status(400)
       return res.json({
-        error: "txid can not be an array. Use POST for bulk upload."
+        error: 'txid can not be an array. Use POST for bulk upload.'
       })
     }
 
@@ -485,7 +489,7 @@ async function txSingle(req, res, next) {
       })
     }
 
-    wlogger.debug(`Executing blockbook/txSingle with this txid: `, txid)
+    wlogger.debug('Executing blockbook/txSingle with this txid: ', txid)
 
     // Query the Blockbook Node API.
     const retData = await transactionsFromBlockbook(txid)
@@ -502,7 +506,7 @@ async function txSingle(req, res, next) {
     }
 
     // Write out error to error log.
-    wlogger.error(`Error in blockbook.js/txSingle().`, err)
+    wlogger.error('Error in blockbook.js/txSingle().', err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })
@@ -522,16 +526,16 @@ async function txSingle(req, res, next) {
  *
  */
 // POST handler for bulk queries on tx details
-async function txBulk(req, res, next) {
+async function txBulk (req, res, next) {
   try {
     let txids = req.body.txids
-    const currentPage = req.body.page ? parseInt(req.body.page, 10) : 0
+    // const currentPage = req.body.page ? parseInt(req.body.page, 10) : 0
 
     // Reject if txids is not an array.
     if (!Array.isArray(txids)) {
       res.status(400)
       return res.json({
-        error: "txids need to be an array. Use GET for single address."
+        error: 'txids need to be an array. Use GET for single address.'
       })
     }
 
@@ -539,19 +543,19 @@ async function txBulk(req, res, next) {
     if (!routeUtils.validateArraySize(req, txids)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
-        error: `Array too large.`
+        error: 'Array too large.'
       })
     }
 
-    wlogger.debug(`Executing blockbook.js/txBulk with these txids: `, txids)
+    wlogger.debug('Executing blockbook.js/txBulk with these txids: ', txids)
 
     // Validate each element in the txids array.
     for (let i = 0; i < txids.length; i++) {
       const thisTxid = txids[i]
 
-      if (!thisTxid || thisTxid === "") {
+      if (!thisTxid || thisTxid === '') {
         res.status(400)
-        return res.json({ error: "txid can not be empty" })
+        return res.json({ error: 'txid can not be empty' })
       }
 
       // TODO: Add regex comparison of txid to ensure it's valid.
@@ -566,7 +570,7 @@ async function txBulk(req, res, next) {
     // Loops through each address and creates an array of Promises, querying
     // Insight API in parallel.
     txids = txids.map(async (txid, index) =>
-      //console.log(`address: ${address}`)
+      // console.log(`address: ${address}`)
       transactionsFromBlockbook(txid)
     )
 
@@ -584,7 +588,7 @@ async function txBulk(req, res, next) {
       return res.json({ error: msg })
     }
 
-    wlogger.error(`Error in blockbook.js/txBulk().`, err)
+    wlogger.error('Error in blockbook.js/txBulk().', err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })

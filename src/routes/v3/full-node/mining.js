@@ -1,39 +1,39 @@
-"use strict"
+'use strict'
 
-const express = require("express")
+const express = require('express')
 const router = express.Router()
-const axios = require("axios")
+// const axios = require('axios')
 
-const routeUtils = require("../route-utils")
-const wlogger = require("../../../util/winston-logging")
+const routeUtils = require('../route-utils')
+const wlogger = require('../../../util/winston-logging')
 
 // Used to convert error messages to strings, to safely pass to users.
-const util = require("util")
+const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-const BitboxHTTP = axios.create({
-  baseURL: process.env.RPC_BASEURL
-})
-const username = process.env.RPC_USERNAME
-const password = process.env.RPC_PASSWORD
+// const BitboxHTTP = axios.create({
+//   baseURL: process.env.RPC_BASEURL
+// })
+// const username = process.env.RPC_USERNAME
+// const password = process.env.RPC_PASSWORD
 
-const requestConfig = {
-  method: "post",
-  auth: {
-    username: username,
-    password: password
-  },
-  data: {
-    jsonrpc: "1.0"
-  }
-}
+// const requestConfig = {
+//   method: 'post',
+//   auth: {
+//     username: username,
+//     password: password
+//   },
+//   data: {
+//     jsonrpc: '1.0'
+//   }
+// }
 
-router.get("/", root)
-router.get("/getMiningInfo", getMiningInfo)
-router.get("/getNetworkHashps", getNetworkHashPS)
+router.get('/', root)
+router.get('/getMiningInfo', getMiningInfo)
+router.get('/getNetworkHashps', getNetworkHashPS)
 
-function root(req, res, next) {
-  return res.json({ status: "mining" })
+function root (req, res, next) {
+  return res.json({ status: 'mining' })
 }
 
 //
@@ -72,17 +72,17 @@ function root(req, res, next) {
  *
  *
  */
-async function getMiningInfo(req, res, next) {
+async function getMiningInfo (req, res, next) {
   try {
     const {
       BitboxHTTP,
-      username,
-      password,
+      // username,
+      // password,
       requestConfig
     } = routeUtils.setEnvVars()
 
-    requestConfig.data.id = "getmininginfo"
-    requestConfig.data.method = "getmininginfo"
+    requestConfig.data.id = 'getmininginfo'
+    requestConfig.data.method = 'getmininginfo'
     requestConfig.data.params = []
 
     const response = await BitboxHTTP(requestConfig)
@@ -96,7 +96,7 @@ async function getMiningInfo(req, res, next) {
       return res.json({ error: msg })
     }
 
-    wlogger.error(`Error in mining.ts/getMiningInfo().`, err)
+    wlogger.error('Error in mining.ts/getMiningInfo().', err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })
@@ -114,7 +114,7 @@ async function getMiningInfo(req, res, next) {
  *
  *
  */
-async function getNetworkHashPS(req, res, next) {
+async function getNetworkHashPS (req, res, next) {
   try {
     let nblocks = 120 // Default
     let height = -1 // Default
@@ -123,13 +123,13 @@ async function getNetworkHashPS(req, res, next) {
 
     const {
       BitboxHTTP,
-      username,
-      password,
+      // username,
+      // password,
       requestConfig
     } = routeUtils.setEnvVars()
 
-    requestConfig.data.id = "getnetworkhashps"
-    requestConfig.data.method = "getnetworkhashps"
+    requestConfig.data.id = 'getnetworkhashps'
+    requestConfig.data.method = 'getnetworkhashps'
     requestConfig.data.params = [nblocks, height]
 
     const response = await BitboxHTTP(requestConfig)
@@ -143,7 +143,7 @@ async function getNetworkHashPS(req, res, next) {
       return res.json({ error: msg })
     }
 
-    wlogger.error(`Error in mining.ts/getNetworkHashPS().`, err)
+    wlogger.error('Error in mining.ts/getNetworkHashPS().', err)
 
     res.status(500)
     return res.json({ error: util.inspect(err) })
