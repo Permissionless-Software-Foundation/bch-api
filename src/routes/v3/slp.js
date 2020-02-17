@@ -390,11 +390,52 @@ async function balancesForAddress (req, res, next) {
     const query = {
       v: 3,
       q: {
-        db: ['a'],
-        find: {
-          address: bchjs.SLP.Address.toSLPAddress(address),
-          token_balance: { $gte: 0 }
-        },
+        db: ['g'],
+        aggregate: [
+          {
+            $match: {
+              'graphTxn.outputs': {
+                $elemMatch: {
+                  address: bchjs.SLP.Address.toSLPAddress(address),
+                  status: 'UNSPENT',
+                  slpAmount: { $gte: 0 }
+                }
+              }
+            }
+          },
+          {
+            $unwind: '$graphTxn.outputs'
+          },
+          {
+            $match: {
+              'graphTxn.outputs.address': bchjs.SLP.Address.toSLPAddress(
+                address
+              ),
+              'graphTxn.outputs.status': 'UNSPENT',
+              'graphTxn.outputs.slpAmount': { $gte: 0 }
+            }
+          },
+          {
+            $project: {
+              amount: '$graphTxn.outputs.slpAmount',
+              address: '$graphTxn.outputs.address',
+              txid: '$graphTxn.txid',
+              vout: '$graphTxn.outputs.vout',
+              tokenId: '$tokenDetails.tokenIdHex'
+            }
+          },
+          {
+            $group: {
+              _id: '$tokenId',
+              balanceString: {
+                $sum: '$amount'
+              },
+              slpAddress: {
+                $first: '$address'
+              }
+            }
+          }
+        ],
         limit: 10000
       }
     }
@@ -404,19 +445,17 @@ async function balancesForAddress (req, res, next) {
     const url = `${process.env.SLPDB_URL}q/${b64}`
 
     const tokenRes = await axios.get(url)
+    // console.log(`tokenRes.data.g: ${JSON.stringify(tokenRes.data.g, null, 2)}`)
 
     const tokenIds = []
-    if (tokenRes.data.a.length > 0) {
-      tokenRes.data.a = tokenRes.data.a.map(token => {
-        token.tokenId = token.tokenDetails.tokenIdHex
+    if (tokenRes.data.g.length > 0) {
+      tokenRes.data.g = tokenRes.data.g.map(token => {
+        token.tokenId = token._id
         tokenIds.push(token.tokenId)
-        token.balance = parseFloat(token.token_balance)
-        token.slpAddress = token.address
-        delete token.tokenDetails
-        delete token.satoshis_balance
-        delete token.token_balance
+        token.balance = parseFloat(token.balanceString)
+
         delete token._id
-        delete token.address
+
         return token
       })
 
@@ -444,11 +483,14 @@ async function balancesForAddress (req, res, next) {
         const url2 = `${process.env.SLPDB_URL}q/${b642}`
 
         const tokenRes2 = await axios.get(url2)
+        // console.log(`tokenRes2.data: ${JSON.stringify(tokenRes2.data, null, 2)}`)
+
         return tokenRes2.data
       })
 
       const details = await axios.all(promises)
-      tokenRes.data.a = tokenRes.data.a.map(token => {
+
+      tokenRes.data.g = tokenRes.data.g.map(token => {
         details.forEach(detail => {
           if (detail.t[0].tokenDetails.tokenIdHex === token.tokenId) {
             token.decimalCount = detail.t[0].tokenDetails.decimals
@@ -457,8 +499,9 @@ async function balancesForAddress (req, res, next) {
         return token
       })
 
-      return res.json(tokenRes.data.a)
+      return res.json(tokenRes.data.g)
     }
+
     return res.json('No balance for this address')
   } catch (err) {
     wlogger.error('Error in slp.ts/balancesForAddress().', err)

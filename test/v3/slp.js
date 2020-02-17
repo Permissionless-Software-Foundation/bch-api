@@ -505,12 +505,15 @@ describe('#SLP', () => {
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
-      assert.hasAllKeys(result[0], [
-        'tokenId',
-        'balance',
-        'slpAddress',
-        'decimalCount'
-      ])
+
+      assert.property(result[0], 'tokenId')
+      assert.property(result[0], 'balanceString')
+      assert.property(result[0], 'slpAddress')
+      assert.property(result[0], 'balance')
+      assert.property(result[0], 'decimalCount')
+
+      assert.isNumber(result[0].balance)
+      assert.isNumber(result[0].decimalCount)
     })
   })
 
