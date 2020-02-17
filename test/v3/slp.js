@@ -505,12 +505,15 @@ describe('#SLP', () => {
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
-      assert.hasAllKeys(result[0], [
-        'tokenId',
-        'balance',
-        'slpAddress',
-        'decimalCount'
-      ])
+
+      assert.property(result[0], 'tokenId')
+      assert.property(result[0], 'balanceString')
+      assert.property(result[0], 'slpAddress')
+      assert.property(result[0], 'balance')
+      assert.property(result[0], 'decimalCount')
+
+      assert.isNumber(result[0].balance)
+      assert.isNumber(result[0].decimalCount)
     })
   })
 
@@ -972,7 +975,7 @@ describe('#SLP', () => {
         nock(`${process.env.SLPDB_URL}`)
           .get(uri => uri.includes('/'))
           .reply(200, {
-            a: [mockData.mockBalance]
+            g: [mockData.mockBalance]
           })
       }
 
@@ -982,7 +985,10 @@ describe('#SLP', () => {
       const result = await balancesForTokenSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result[0], ['tokenId', 'slpAddress', 'tokenBalance'])
+      assert.isArray(result)
+      assert.property(result[0], 'tokenId')
+      assert.property(result[0], 'slpAddress')
+      assert.property(result[0], 'tokenBalanceString')
     })
   })
 

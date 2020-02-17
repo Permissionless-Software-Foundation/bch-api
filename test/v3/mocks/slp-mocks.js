@@ -71,48 +71,19 @@ const mockSingleTokenError = {
 }
 
 const mockSingleAddress = {
-  a: [
+  g: [
     {
-      _id: '5c93ed62a19119333d1595bc',
-      tokenDetails: {
-        tokenIdHex:
-          '6b081fcd1f78b187be1464313dac8ff257251b727a42b613552a4040870aeb29'
-      },
-      address: 'slptest:pz0qcslrqn7hr44hsszwl4lw5r6udkg6zqv7sq3kk7',
-      satoshis_balance: 546,
-      token_balance: '4616984'
+      _id: 'f05faf13a29c7f5e54ab921750aafb6afaa953db863bd2cf432e918661d4132f',
+      balanceString: '0.002382',
+      slpAddress: 'simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn'
     }
   ],
   t: [
     {
       tokenDetails: {
-        decimals: 8,
+        decimals: 6,
         tokenIdHex:
-          '6b081fcd1f78b187be1464313dac8ff257251b727a42b613552a4040870aeb29',
-        timestamp: '2019-02-25 10:05',
-        transactionType: 'GENESIS',
-        versionType: 1,
-        documentUri: 'https://developer.bitcoin.com',
-        documentSha256Hex: '',
-        symbol: 'DEV',
-        name: 'DEVCOIN',
-        batonVout: 2,
-        containsBaton: true,
-        genesisOrMintQuantity: '500000000',
-        sendOutputs: null
-      },
-      tokenStats: {
-        block_created: 571272,
-        block_last_active_send: 574758,
-        block_last_active_mint: 571272,
-        qty_valid_txns_since_genesis: 172,
-        qty_valid_token_utxos: 170,
-        qty_valid_token_addresses: 170,
-        qty_token_minted: '1000000000',
-        qty_token_burned: '4.99999995',
-        qty_token_circulating_supply: '999999995.00000005',
-        qty_satoshis_locked_up: 92820,
-        minting_baton_status: 'ALIVE'
+          'f05faf13a29c7f5e54ab921750aafb6afaa953db863bd2cf432e918661d4132f'
       }
     }
   ]
@@ -274,8 +245,7 @@ const mockTokenStats = {
 }
 
 const mockBalance = {
-  slpAddress: 'simpleledger:qp9d8mn8ypryfvea2mev0ggc3wg6plpn4suuaeuss3',
-  satoshis_balance: 546,
+  _id: 'simpleledger:qp9d8mn8ypryfvea2mev0ggc3wg6plpn4suuaeuss3',
   token_balance: '1000'
 }
 
