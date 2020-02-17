@@ -975,7 +975,7 @@ describe('#SLP', () => {
         nock(`${process.env.SLPDB_URL}`)
           .get(uri => uri.includes('/'))
           .reply(200, {
-            a: [mockData.mockBalance]
+            g: [mockData.mockBalance]
           })
       }
 
@@ -985,7 +985,10 @@ describe('#SLP', () => {
       const result = await balancesForTokenSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result[0], ['tokenId', 'slpAddress', 'tokenBalance'])
+      assert.isArray(result)
+      assert.property(result[0], 'tokenId')
+      assert.property(result[0], 'slpAddress')
+      assert.property(result[0], 'tokenBalanceString')
     })
   })
 

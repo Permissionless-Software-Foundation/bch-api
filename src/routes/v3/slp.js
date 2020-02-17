@@ -444,7 +444,9 @@ async function balancesForAddress (req, res, next) {
     const b64 = Buffer.from(s).toString('base64')
     const url = `${process.env.SLPDB_URL}q/${b64}`
 
-    const tokenRes = await axios.get(url)
+    const options = generateCredentials()
+
+    const tokenRes = await axios.get(url, options)
     // console.log(`tokenRes.data.g: ${JSON.stringify(tokenRes.data.g, null, 2)}`)
 
     const tokenIds = []
@@ -482,7 +484,7 @@ async function balancesForAddress (req, res, next) {
         const b642 = Buffer.from(s2).toString('base64')
         const url2 = `${process.env.SLPDB_URL}q/${b642}`
 
-        const tokenRes2 = await axios.get(url2)
+        const tokenRes2 = await axios.get(url2, options)
         // console.log(`tokenRes2.data: ${JSON.stringify(tokenRes2.data, null, 2)}`)
 
         return tokenRes2.data
@@ -587,17 +589,60 @@ async function balancesForAddressBulk (req, res, next) {
       }
     }
 
+    const options = generateCredentials()
+
     // Collect an array of promises, one for each request to slpserve.
     // This is a nested array of promises.
     const balancesPromises = addresses.map(async address => {
       const query = {
         v: 3,
         q: {
-          db: ['a'],
-          find: {
-            address: bchjs.SLP.Address.toSLPAddress(address),
-            token_balance: { $gte: 0 }
-          },
+          db: ['g'],
+          aggregate: [
+            {
+              $match: {
+                'graphTxn.outputs': {
+                  $elemMatch: {
+                    address: bchjs.SLP.Address.toSLPAddress(address),
+                    status: 'UNSPENT',
+                    slpAmount: { $gte: 0 }
+                  }
+                }
+              }
+            },
+            {
+              $unwind: '$graphTxn.outputs'
+            },
+            {
+              $match: {
+                'graphTxn.outputs.address': bchjs.SLP.Address.toSLPAddress(
+                  address
+                ),
+                'graphTxn.outputs.status': 'UNSPENT',
+                'graphTxn.outputs.slpAmount': { $gte: 0 }
+              }
+            },
+            {
+              $project: {
+                amount: '$graphTxn.outputs.slpAmount',
+                address: '$graphTxn.outputs.address',
+                txid: '$graphTxn.txid',
+                vout: '$graphTxn.outputs.vout',
+                tokenId: '$tokenDetails.tokenIdHex'
+              }
+            },
+            {
+              $group: {
+                _id: '$tokenId',
+                balanceString: {
+                  $sum: '$amount'
+                },
+                slpAddress: {
+                  $first: '$address'
+                }
+              }
+            }
+          ],
           limit: 10000
         }
       }
@@ -606,22 +651,17 @@ async function balancesForAddressBulk (req, res, next) {
       const b64 = Buffer.from(s).toString('base64')
       const url = `${process.env.SLPDB_URL}q/${b64}`
 
-      const tokenRes = await axios.get(url)
+      const tokenRes = await axios.get(url, options)
+      // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
 
       const tokenIds = []
 
-      if (tokenRes.data.a.length > 0) {
-        tokenRes.data.a = tokenRes.data.a.map(token => {
-          token.tokenId = token.tokenDetails.tokenIdHex
+      if (tokenRes.data.g.length > 0) {
+        tokenRes.data.g = tokenRes.data.g.map(token => {
+          token.tokenId = token._id
           tokenIds.push(token.tokenId)
-          token.balance = parseFloat(token.token_balance)
-          token.balanceString = token.token_balance
-          token.slpAddress = token.address
-          delete token.tokenDetails
-          delete token.satoshis_balance
-          delete token.token_balance
+          token.balance = parseFloat(token.balanceString)
           delete token._id
-          delete token.address
           return token
         })
       }
@@ -650,23 +690,26 @@ async function balancesForAddressBulk (req, res, next) {
         const b642 = Buffer.from(s2).toString('base64')
         const url2 = `${process.env.SLPDB_URL}q/${b642}`
 
-        const tokenRes2 = await axios.get(url2)
+        const tokenRes2 = await axios.get(url2, options)
+        // console.log(`tokenRes2.data: ${JSON.stringify(tokenRes2.data, null, 2)}`)
+
         return tokenRes2.data
       })
 
       // Wait for all the promises to resolve.
-      const details = await axios.all(promises)
+      const details = await Promise.all(promises)
 
-      tokenRes.data.a = tokenRes.data.a.map(token => {
+      tokenRes.data.g = tokenRes.data.g.map(token => {
         details.forEach(detail => {
           if (detail.t[0].tokenDetails.tokenIdHex === token.tokenId) {
             token.decimalCount = detail.t[0].tokenDetails.decimals
           }
         })
+
         return token
       })
 
-      return tokenRes.data.a
+      return tokenRes.data.g
     })
 
     // Wait for all the promises to resolve.
@@ -715,12 +758,48 @@ async function balancesForTokenSingle (req, res, next) {
     const query = {
       v: 3,
       q: {
-        find: {
-          'tokenDetails.tokenIdHex': tokenId,
-          token_balance: { $gte: 0 }
-        },
-        limit: 10000,
-        project: { address: 1, satoshis_balance: 1, token_balance: 1, _id: 0 }
+        db: ['g'],
+        aggregate: [
+          {
+            $match: {
+              'graphTxn.outputs': {
+                $elemMatch: {
+                  status: 'UNSPENT',
+                  slpAmount: { $gte: 0 }
+                }
+              },
+              'tokenDetails.tokenIdHex': tokenId
+            }
+          },
+          {
+            $unwind: '$graphTxn.outputs'
+          },
+          {
+            $match: {
+              'graphTxn.outputs.status': 'UNSPENT',
+              'graphTxn.outputs.slpAmount': { $gte: 0 },
+              'tokenDetails.tokenIdHex': tokenId
+            }
+          },
+          {
+            $project: {
+              token_balance: '$graphTxn.outputs.slpAmount',
+              address: '$graphTxn.outputs.address',
+              txid: '$graphTxn.txid',
+              vout: '$graphTxn.outputs.vout',
+              tokenId: '$tokenDetails.tokenIdHex'
+            }
+          },
+          {
+            $group: {
+              _id: '$address',
+              token_balance: {
+                $sum: '$token_balance'
+              }
+            }
+          }
+        ],
+        limit: 10000
       }
     }
 
@@ -728,17 +807,23 @@ async function balancesForTokenSingle (req, res, next) {
     const b64 = Buffer.from(s).toString('base64')
     const url = `${process.env.SLPDB_URL}q/${b64}`
 
+    const options = generateCredentials()
+
     // Get data from SLPDB.
-    const tokenRes = await axios.get(url)
-    const resBalances = tokenRes.data.a.map((addy, index) => {
+    const tokenRes = await axios.get(url, options)
+    // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
+
+    const resBalances = tokenRes.data.g.map((addy, index) => {
       delete addy.satoshis_balance
-      addy.tokenBalance = parseFloat(addy.token_balance)
-      addy.slpAddress = addy.address
+      addy.tokenBalanceString = addy.token_balance
+      addy.slpAddress = addy._id
       addy.tokenId = tokenId
-      delete addy.address
+      delete addy._id
       delete addy.token_balance
+
       return addy
     })
+
     return res.json(resBalances)
   } catch (err) {
     wlogger.error('Error in slp.ts/balancesForTokenSingle().', err)
@@ -812,43 +897,98 @@ async function balancesForAddressByTokenID (req, res, next) {
     const query = {
       v: 3,
       q: {
-        db: ['a'],
-        find: {
-          address: slpAddr,
-          token_balance: { $gte: 0 }
-        },
-        limit: 10
+        db: ['g'],
+        aggregate: [
+          {
+            $match: {
+              'graphTxn.outputs': {
+                $elemMatch: {
+                  address: slpAddr,
+                  status: 'UNSPENT',
+                  slpAmount: { $gte: 0 }
+                }
+              }
+            }
+          },
+          {
+            $unwind: '$graphTxn.outputs'
+          },
+          {
+            $match: {
+              'graphTxn.outputs.address': slpAddr,
+              'graphTxn.outputs.status': 'UNSPENT',
+              'graphTxn.outputs.slpAmount': { $gte: 0 }
+            }
+          },
+          {
+            $project: {
+              amount: '$graphTxn.outputs.slpAmount',
+              address: '$graphTxn.outputs.address',
+              txid: '$graphTxn.txid',
+              vout: '$graphTxn.outputs.vout',
+              tokenId: '$tokenDetails.tokenIdHex'
+            }
+          },
+          {
+            $group: {
+              _id: '$tokenId',
+              balanceString: {
+                $sum: '$amount'
+              },
+              slpAddress: {
+                $first: '$address'
+              }
+            }
+          }
+        ],
+        limit: 10000
       }
     }
+
+    const options = generateCredentials()
 
     const s = JSON.stringify(query)
     const b64 = Buffer.from(s).toString('base64')
     const url = `${process.env.SLPDB_URL}q/${b64}`
 
     // Get data from SLPDB.
-    const tokenRes = await axios.get(url)
-    let resVal
-    res.status(200)
-    if (tokenRes.data.a.length > 0) {
-      tokenRes.data.a.forEach(async token => {
-        if (token.tokenDetails.tokenIdHex === tokenId) {
+    const tokenRes = await axios.get(url, options)
+    console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
+
+    let resVal = {
+      cashAddress: bchjs.SLP.Address.toCashAddress(slpAddr),
+      legacyAddress: bchjs.SLP.Address.toLegacyAddress(slpAddr),
+      slpAddress: slpAddr,
+      tokenId: tokenId,
+      balance: 0,
+      balanceString: '0'
+    }
+
+    if (tokenRes.data.g.length > 0) {
+      tokenRes.data.g.forEach(async token => {
+        if (token._id === tokenId) {
           resVal = {
-            tokenId: tokenRes.data.a[0].tokenDetails.tokenIdHex,
-            balance: parseFloat(tokenRes.data.a[0].token_balance)
-          }
-        } else {
-          resVal = {
-            tokenId: tokenId,
-            balance: 0
+            cashAddress: bchjs.SLP.Address.toCashAddress(slpAddr),
+            legacyAddress: bchjs.SLP.Address.toLegacyAddress(slpAddr),
+            slpAddress: slpAddr,
+            tokenId: token._id,
+            balance: parseFloat(token.balanceString),
+            balanceString: token.balanceString
           }
         }
       })
     } else {
       resVal = {
+        cashAddress: bchjs.SLP.Address.toCashAddress(slpAddr),
+        legacyAddress: bchjs.SLP.Address.toLegacyAddress(slpAddr),
+        slpAddress: slpAddr,
         tokenId: tokenId,
-        balance: 0
+        balance: 0,
+        balanceString: '0'
       }
     }
+
+    res.status(200)
     return res.json(resVal)
   } catch (err) {
     wlogger.error('Error in slp.ts/balancesForAddressByTokenID().', err)
@@ -1431,7 +1571,8 @@ function generateCredentials () {
   const options = {
     headers: {
       authorization: readyCredential
-    }
+    },
+    timeout: 15000
   }
 
   return options
