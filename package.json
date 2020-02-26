@@ -7,6 +7,10 @@
     "Gabriel Cardona <gabriel@bitcoin.com>"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/christroutner/bch-api.git"
+  },
   "scripts": {
     "start": "node ./src/app.js",
     "dev": "nodemon ./dist/app.js",
