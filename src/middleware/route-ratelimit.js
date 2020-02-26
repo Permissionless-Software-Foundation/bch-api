@@ -171,7 +171,7 @@ class RateLimits {
 
             res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
             return res.json({
-              error: `Too many requests. Limits are ${PRO_RPM} requests per minute. Increase rate limits at https://account.bchjs.cash`
+              error: `Too many requests. Limits are ${PRO_RPM} requests per minute. Increase rate limits at https://fullstack.cash`
             })
           }
         })
@@ -193,7 +193,7 @@ class RateLimits {
 
             res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
             return res.json({
-              error: `Too many requests. Your limits are currently ${maxRequests} requests per minute. Increase rate limits at https://account.bchjs.cash`
+              error: `Too many requests. Your limits are currently ${maxRequests} requests per minute. Increase rate limits at https://fullstack.cash`
             })
           }
         })
@@ -312,7 +312,7 @@ class RateLimits {
         // Rate limited was triggered
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: `Too many requests. Your limits are currently ${maxRequests} requests per minute. Increase rate limits at https://account.bchjs.cash`
+          error: `Too many requests. Your limits are currently ${maxRequests} requests per minute. Increase rate limits at https://fullstack.cash`
         })
       }
     } catch (err) {
@@ -447,7 +447,7 @@ class RateLimits {
         // Rate limited was triggered
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: `Too many requests. Your limits are currently ${maxRequests} requests per minute. Increase rate limits at https://account.bchjs.cash`
+          error: `Too many requests. Your limits are currently ${maxRequests} requests per minute. Increase rate limits at https://fullstack.cash`
         })
       }
     } catch (err) {
