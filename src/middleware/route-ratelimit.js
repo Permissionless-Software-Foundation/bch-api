@@ -26,7 +26,7 @@ const { RateLimiterRedis } = require('rate-limiter-flexible')
 const rateLimitOptions = {
   storeClient: redisClient,
   points: 100, // Number of points
-  duration: 1 // Per second
+  duration: 60 // Per second
 }
 
 // This hard-coded value is temporary. It will be swapped out with an environment
