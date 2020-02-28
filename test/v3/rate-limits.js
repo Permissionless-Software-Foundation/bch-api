@@ -94,6 +94,8 @@ describe('#route-ratelimits & jwt-auth', () => {
     let routeRateLimit = rateLimitMiddleware.routeRateLimit
     // const getInfo = controlRoute.testableComponents.getInfo
 
+    // NOTE: this test will fail if you run multiple integration tests in a
+    // short period. Because it talks to the Redis DB.
     it('should pass through rate-limit middleware', async () => {
       req.baseUrl = '/v3'
       req.path = '/control/getNetworkInfo'
@@ -433,6 +435,8 @@ describe('#route-ratelimits & jwt-auth', () => {
   })
 
   describe('#rateLimitByResource', () => {
+    // NOTE: this test will fail if you run multiple integration tests in a
+    // short period. Because it talks to the Redis DB.
     it('should pass through rate-limit middleware', async () => {
       req.baseUrl = '/v3'
       req.path = '/control/getNetworkInfo'
