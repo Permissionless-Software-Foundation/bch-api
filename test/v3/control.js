@@ -11,8 +11,9 @@
 
 const chai = require('chai')
 const assert = chai.assert
-const controlRoute = require('../../src/routes/v3/full-node/control')
-const nock = require('nock') // HTTP mocking
+const ControlRoute = require('../../src/routes/v3/full-node/control')
+const uut = new ControlRoute()
+const sinon = require('sinon')
 
 let originalEnvVars // Used during transition from integration to unit tests.
 
@@ -26,6 +27,7 @@ util.inspect.defaultOptions = { depth: 1 }
 
 describe('#ControlRouter', () => {
   let req, res
+  let sandbox
 
   before(() => {
     // Save existing environment variables.
@@ -37,13 +39,6 @@ describe('#ControlRouter', () => {
     }
 
     // Set default environment variables for unit tests.
-    if (!process.env.TEST) process.env.TEST = 'unit'
-    if (process.env.TEST === 'unit') {
-      process.env.BITCOINCOM_BASEURL = 'http://fakeurl/api/'
-      process.env.RPC_BASEURL = 'http://fakeurl/api'
-      process.env.RPC_USERNAME = 'fakeusername'
-      process.env.RPC_PASSWORD = 'fakepassword'
-    }
   })
 
   // Setup the mocks before each test.
@@ -57,14 +52,12 @@ describe('#ControlRouter', () => {
     req.body = {}
     req.query = {}
 
-    // Activate nock if it's inactive.
-    if (!nock.isActive()) nock.activate()
+    sandbox = sinon.createSandbox()
   })
 
   afterEach(() => {
-    // Clean up HTTP mocks.
-    nock.cleanAll() // clear interceptor list.
-    nock.restore()
+    // Restore Sandbox
+    sandbox.restore()
   })
 
   after(() => {
@@ -77,10 +70,10 @@ describe('#ControlRouter', () => {
 
   describe('#root', async () => {
     // root route handler.
-    const root = controlRoute.testableComponents.root
+    // const root = controlRoute.testableComponents.root
 
     it('should respond to GET for base route', async () => {
-      const result = root(req, res)
+      const result = uut.root(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(result.status, 'control', 'Returns static string')
@@ -88,7 +81,7 @@ describe('#ControlRouter', () => {
   })
 
   describe('#GetNetworkInfo', () => {
-    const getNetworkInfo = controlRoute.testableComponents.getNetworkInfo
+    // const getNetworkInfo = controlRoute.testableComponents.getNetworkInfo
 
     it('should throw 500 when network issues', async () => {
       // Save the existing RPC URL.
@@ -97,7 +90,7 @@ describe('#ControlRouter', () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = 'http://fakeurl/api/'
 
-      await getNetworkInfo(req, res)
+      await uut.getNetworkInfo(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -110,16 +103,45 @@ describe('#ControlRouter', () => {
       )
       // assert.include(result.error, "ENOTFOUND", "Error message expected")
     })
+    it('returns proper error when downstream service stalls', async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
+
+      const result = await uut.getNetworkInfo(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+
+    it('returns proper error when downstream service is down', async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
+
+      const result = await uut.getNetworkInfo(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
 
     it('should get info on the full node', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        nock(`${process.env.RPC_BASEURL}`)
-          .post(uri => uri.includes('/'))
-          .reply(200, { result: mockData.mockGetNetworkInfo })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockGetNetworkInfo } })
       }
 
-      const result = await getNetworkInfo(req, res)
+      const result = await uut.getNetworkInfo(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAnyKeys(result, [

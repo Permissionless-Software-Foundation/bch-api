@@ -25,10 +25,10 @@ const jwtAuth = require('./middleware/jwt-auth')
 // v3
 const healthCheckV3 = require('./routes/v3/health-check')
 const BlockchainV3 = require('./routes/v3/full-node/blockchain')
-const controlV3 = require('./routes/v3/full-node/control')
-const miningV3 = require('./routes/v3/full-node/mining')
+const ControlV3 = require('./routes/v3/full-node/control')
+const MiningV3 = require('./routes/v3/full-node/mining')
 const networkV3 = require('./routes/v3/full-node/network')
-const rawtransactionsV3 = require('./routes/v3/full-node/rawtransactions')
+const RawtransactionsV3 = require('./routes/v3/full-node/rawtransactions')
 const utilV3 = require('./routes/v3/util')
 const slpV3 = require('./routes/v3/slp')
 const xpubV3 = require('./routes/v3/xpub')
@@ -39,6 +39,9 @@ require('dotenv').config()
 
 // Instantiate route libraries.
 const blockchainV3 = new BlockchainV3()
+const controlV3 = new ControlV3()
+const miningV3 = new MiningV3()
+const rawtransactionsV3 = new RawtransactionsV3()
 
 const app = express()
 

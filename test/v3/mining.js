@@ -10,8 +10,11 @@
 
 const chai = require('chai')
 const assert = chai.assert
-const miningRoute = require('../../src/routes/v3/full-node/mining')
-const nock = require('nock') // HTTP mocking
+const MiningRoute = require('../../src/routes/v3/full-node/mining')
+const uut = new MiningRoute()
+
+// const nock = require('nock') // HTTP mocking
+const sinon = require('sinon')
 
 let originalEnvVars // Used during transition from integration to unit tests.
 
@@ -25,7 +28,7 @@ util.inspect.defaultOptions = { depth: 1 }
 
 describe('#Mining', () => {
   let req, res
-
+  let sandbox
   before(() => {
     // Save existing environment variables.
     originalEnvVars = {
@@ -56,14 +59,12 @@ describe('#Mining', () => {
     req.body = {}
     req.query = {}
 
-    // Activate nock if it's inactive.
-    if (!nock.isActive()) nock.activate()
+    sandbox = sinon.createSandbox()
   })
 
   afterEach(() => {
-    // Clean up HTTP mocks.
-    nock.cleanAll() // clear interceptor list.
-    nock.restore()
+    // Restore Sandbox
+    sandbox.restore()
   })
 
   after(() => {
@@ -76,10 +77,8 @@ describe('#Mining', () => {
 
   describe('#root', async () => {
     // root route handler.
-    const root = miningRoute.testableComponents.root
-
     it('should respond to GET for base route', async () => {
-      const result = root(req, res)
+      const result = uut.root(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(result.status, 'mining', 'Returns static string')
@@ -87,8 +86,6 @@ describe('#Mining', () => {
   })
 
   describe('#getMiningInfo', async () => {
-    const getMiningInfo = miningRoute.testableComponents.getMiningInfo
-
     it('should throw 503 when network issues', async () => {
       // Save the existing RPC URL.
       const savedUrl2 = process.env.RPC_BASEURL
@@ -96,7 +93,7 @@ describe('#Mining', () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = 'http://fakeurl/api/'
 
-      await getMiningInfo(req, res)
+      await uut.getMiningInfo(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -109,16 +106,45 @@ describe('#Mining', () => {
       )
       // assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
     })
+    it('returns proper error when downstream service stalls', async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
+
+      const result = await uut.getMiningInfo(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+
+    it('returns proper error when downstream service is down', async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
+
+      const result = await uut.getMiningInfo(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
 
     it('should GET mining information', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        nock(`${process.env.RPC_BASEURL}`)
-          .post(uri => uri.includes('/'))
-          .reply(200, { result: mockData.mockMiningInfo })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockMiningInfo } })
       }
 
-      const result = await getMiningInfo(req, res)
+      const result = await uut.getMiningInfo(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, [
@@ -136,8 +162,6 @@ describe('#Mining', () => {
   })
 
   describe('#getNetworkHashPS', async () => {
-    const getNetworkHashPS = miningRoute.testableComponents.getNetworkHashPS
-
     it('should throw 503 when network issues', async () => {
       // Save the existing RPC URL.
       const savedUrl2 = process.env.RPC_BASEURL
@@ -145,7 +169,7 @@ describe('#Mining', () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = 'http://fakeurl/api/'
 
-      await getNetworkHashPS(req, res)
+      await uut.getNetworkHashPS(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
@@ -158,16 +182,45 @@ describe('#Mining', () => {
       )
       // assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
     })
+    it('returns proper error when downstream service stalls', async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
+
+      const result = await uut.getNetworkHashPS(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+
+    it('returns proper error when downstream service is down', async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
+
+      const result = await uut.getNetworkHashPS(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
 
     it('should GET Network Hash per second', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        nock(`${process.env.RPC_BASEURL}`)
-          .post(uri => uri.includes('/'))
-          .reply(200, { result: 517604755.6648782 })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: 517604755.6648782 } })
       }
 
-      const result = await getNetworkHashPS(req, res)
+      const result = await uut.getNetworkHashPS(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.isNumber(result)
