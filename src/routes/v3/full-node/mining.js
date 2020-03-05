@@ -68,17 +68,17 @@ class Mining {
   // });
 
   /**
-  * @api {get} /mining/getMiningInfo  Get Mining Info.
-  * @apiName Mining info.
-  * @apiGroup Mining
-  * @apiDescription Returns a json object containing mining-related information.
-  *
-  *
-  * @apiExample Example usage:
-  * curl -X GET "https://mainnet.bchjs.cash/v3/mining/getMiningInfo" -H "accept: application/json"
-  *
-  *
-  */
+   * @api {get} /mining/getMiningInfo  Get Mining Info.
+   * @apiName Mining info.
+   * @apiGroup Mining
+   * @apiDescription Returns a json object containing mining-related information.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://mainnet.bchjs.cash/v3/mining/getMiningInfo" -H "accept: application/json"
+   *
+   *
+   */
   async getMiningInfo (req, res, next) {
     try {
       const options = _this.routeUtils.getAxiosOptions()
@@ -98,17 +98,17 @@ class Mining {
   }
 
   /**
- * @api {get} /mining/getNetworkHashps?nblocks=&height=  Get Estimated network hashes per second.
- * @apiName Estimated network hashes per second.
- * @apiGroup Mining
- * @apiDescription Returns the estimated network hashes per second based on the last n blocks. Pass in [blocks] to override # of blocks, -1 specifies since last difficulty change. Pass in [height] to estimate the network speed at the time when a certain block was found.
- *
- *
- * @apiExample Example usage:
- * curl -X GET "https://mainnet.bchjs.cash/v3/mining/getNetworkHashps?nblocks=120&height=-1" -H "accept: application/json"
- *
- *
- */
+   * @api {get} /mining/getNetworkHashps?nblocks=&height=  Get Estimated network hashes per second.
+   * @apiName Estimated network hashes per second.
+   * @apiGroup Mining
+   * @apiDescription Returns the estimated network hashes per second based on the last n blocks. Pass in [blocks] to override # of blocks, -1 specifies since last difficulty change. Pass in [height] to estimate the network speed at the time when a certain block was found.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://mainnet.bchjs.cash/v3/mining/getNetworkHashps?nblocks=120&height=-1" -H "accept: application/json"
+   *
+   *
+   */
 
   async getNetworkHashPS (req, res, next) {
     try {

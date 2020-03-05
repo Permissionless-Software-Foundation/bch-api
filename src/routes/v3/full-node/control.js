@@ -46,15 +46,15 @@ class Control {
   }
 
   /**
-  * @api {get} /control/getnetworkinfo Get Network Info
-  * @apiName GetNetworkInfo
-  * @apiGroup Control
-  * @apiDescription RPC call which gets basic full node information.
-  *
-  * @apiExample Example usage:
-  * curl -X GET "https://mainnet.bchjs.cash/v3/control/getnetworkinfo" -H "accept: application/json"
-  *
-  */
+   * @api {get} /control/getnetworkinfo Get Network Info
+   * @apiName GetNetworkInfo
+   * @apiGroup Control
+   * @apiDescription RPC call which gets basic full node information.
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://mainnet.bchjs.cash/v3/control/getnetworkinfo" -H "accept: application/json"
+   *
+   */
   async getNetworkInfo (req, res, next) {
     // Axios options
     const options = _this.routeUtils.getAxiosOptions()
