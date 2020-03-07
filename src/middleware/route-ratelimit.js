@@ -61,6 +61,10 @@ class RateLimits {
     redisClient.disconnect()
   }
 
+  async wipeRedis () {
+    await redisClient.flushdb()
+  }
+
   // CT 2/7/20: Older rate-limiting code that does not scale well.
   /*
     This function controls the tierd request-per-minute (RPM) rate limits.

@@ -395,6 +395,13 @@ class RawTransactions {
         return res.json({ error: 'txid can not be empty' })
       }
 
+      if (txid.length !== 64) {
+        res.status(400)
+        return res.json({
+          error: `parameter 1 must be of length 64 (not ${txid.length})`
+        })
+      }
+
       const data = await _this.getRawTransactionsFromNode(txid, verbose)
 
       return res.json(data)
