@@ -17,9 +17,12 @@ let _this
 class RawTransactions {
   constructor () {
     _this = this
+
+    // Encapsulate external dependencies.
     this.axios = axios
     this.routeUtils = routeUtils
 
+    // Define Express routes.
     this.router = router
     this.router.get('/', this.root)
     this.router.get(
@@ -88,7 +91,7 @@ class RawTransactions {
         'Error in rawtransactions.ts/decodeRawTransactionSingle().',
         err
       )
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -160,7 +163,7 @@ class RawTransactions {
         'Error in rawtransactions.ts/decodeRawTransactionBulk().',
         err
       )
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -201,7 +204,7 @@ class RawTransactions {
       // logger.error(`Error in rawtransactions/decodeScript: `, err)
       wlogger.error('Error in rawtransactions.ts/decodeScriptSingle().', err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -272,7 +275,7 @@ class RawTransactions {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeScript: `, err)
       wlogger.error('Error in rawtransactions.ts/decodeScriptBulk().', err)
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -366,7 +369,7 @@ class RawTransactions {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/getRawTransaction: `, err)
       wlogger.error('Error in rawtransactions.ts/getRawTransactionBulk().', err)
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -413,7 +416,7 @@ class RawTransactions {
         err
       )
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -506,7 +509,7 @@ class RawTransactions {
         'Error in rawtransactions.ts/sendRawTransactionBulk().',
         err
       )
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -559,7 +562,7 @@ class RawTransactions {
         'Error in rawtransactions.ts/sendRawTransactionSingle().',
         err
       )
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 }
