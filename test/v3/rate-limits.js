@@ -29,7 +29,7 @@ const jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkYWRlM2Y1NzM5ZTZjMG
 describe('#route-ratelimits & jwt-auth', () => {
   let sandbox
 
-  before(() => {
+  before(async () => {
     // Save existing environment variables.
     // originalEnvVars = {
     //   BITCOINCOM_BASEURL: process.env.BITCOINCOM_BASEURL,
@@ -39,6 +39,10 @@ describe('#route-ratelimits & jwt-auth', () => {
     // }
 
     if (!process.env.JWT_AUTH_SERVER) { process.env.JWT_AUTH_SERVER = 'http://fakeurl.com/' }
+
+    // Wipe the Redis DB, which prevents false negatives when running integration
+    // tests back-to-back.
+    await rateLimits.wipeRedis()
   })
 
   // Setup the mocks before each test.
