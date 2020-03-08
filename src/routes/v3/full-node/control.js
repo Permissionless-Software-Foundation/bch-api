@@ -71,7 +71,7 @@ class Control {
     } catch (error) {
       wlogger.error('Error in control.ts/getNetworkInfo().', error)
 
-      return this.errorHandler(error, res)
+      return _this.errorHandler(error, res)
     }
   }
   // router.get('/getMemoryInfo', (req, res, next) => {
