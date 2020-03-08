@@ -10,6 +10,8 @@ test-remote-server.sh
 start-bitcoincom-testnet.sh
 start-local-server.sh
 start-local-testnet-server.sh
+start-local-mainnet.sh
+start-local-testnet.sh
 
 coverage
 start-my-infra
