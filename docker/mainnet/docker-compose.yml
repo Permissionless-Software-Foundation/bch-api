@@ -14,4 +14,4 @@ redis-main:
   container_name: redis-main
   restart: always
   ports:
-    - "6379:6379"
+    - "172.17.0.1:6379:6379"
