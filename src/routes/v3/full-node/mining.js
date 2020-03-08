@@ -14,6 +14,7 @@ const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
 let _this
+
 class Mining {
   constructor () {
     _this = this
@@ -93,7 +94,7 @@ class Mining {
     } catch (err) {
       wlogger.error('Error in mining.ts/getMiningInfo().', err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -129,7 +130,7 @@ class Mining {
     } catch (err) {
       wlogger.error('Error in mining.ts/getNetworkHashPS().', err)
 
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
