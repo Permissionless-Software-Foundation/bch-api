@@ -18,13 +18,14 @@ let _this
 class Mining {
   constructor () {
     _this = this
-    this.axios = axios
-    this.routeUtils = routeUtils
 
-    this.router = router
-    this.router.get('/', this.root)
-    this.router.get('/getMiningInfo', this.getMiningInfo)
-    this.router.get('/getNetworkHashPS', this.getNetworkHashPS)
+    _this.axios = axios
+    _this.routeUtils = routeUtils
+
+    _this.router = router
+    _this.router.get('/', _this.root)
+    _this.router.get('/getMiningInfo', _this.getMiningInfo)
+    _this.router.get('/getNetworkHashPS', _this.getNetworkHashPS)
   }
 
   root (req, res, next) {
@@ -124,7 +125,7 @@ class Mining {
       options.data.method = 'getnetworkhashps'
       options.data.params = [nblocks, height]
 
-      const response = await this.axios.request(options)
+      const response = await _this.axios.request(options)
 
       return res.json(response.data.result)
     } catch (err) {

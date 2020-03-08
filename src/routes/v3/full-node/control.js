@@ -20,12 +20,13 @@ let _this
 class Control {
   constructor () {
     _this = this
-    this.axios = axios
-    this.routeUtils = routeUtils
 
-    this.router = router
-    this.router.get('/', this.root)
-    this.router.get('/getNetworkInfo', this.getNetworkInfo)
+    _this.axios = axios
+    _this.routeUtils = routeUtils
+
+    _this.router = router
+    _this.router.get('/', _this.root)
+    _this.router.get('/getNetworkInfo', _this.getNetworkInfo)
   }
 
   root (req, res, next) {
@@ -65,7 +66,7 @@ class Control {
 
     try {
       // const response = await BitboxHTTP(requestConfig)
-      const response = await this.axios.request(options)
+      const response = await _this.axios.request(options)
 
       return res.json(response.data.result)
     } catch (error) {
