@@ -5,7 +5,7 @@
 'use strict'
 
 const axios = require('axios')
-const wlogger = require('../../util/winston-logging')
+const wlogger = require('./winston-logging')
 
 const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }

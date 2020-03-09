@@ -8,7 +8,7 @@ const axios = require('axios')
 // const routeUtils = require('../route-utils')
 const wlogger = require('../../../util/winston-logging')
 
-const RouteUtils = require('../route-utils2')
+const RouteUtils = require('../../../util/route-utils')
 const routeUtils = new RouteUtils()
 
 // Used for processing error messages before sending them to the user.
