@@ -6,7 +6,8 @@ const axios = require('axios')
 
 const routeUtils = require('./route-utils')
 const wlogger = require('../../util/winston-logging')
-const blockbook = require('./blockbook')
+const Blockbook = require('./blockbook')
+const blockbook = new Blockbook()
 
 const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
@@ -242,7 +243,7 @@ class UtilRoute {
       const fromAddr = bchjs.ECPair.toCashAddress(ecPair)
 
       // Get a balance on the public address
-      const balances = await _this.blockbook.testableComponents.balanceFromBlockbook(
+      const balances = await _this.blockbook.balanceFromBlockbook(
         fromAddr
       )
       // console.log(`balances: ${JSON.stringify(balances, null, 2)}`)
@@ -264,7 +265,7 @@ class UtilRoute {
       }
 
       // Get all UTXOs help by the address.
-      const utxos = await _this.blockbook.testableComponents.utxosFromBlockbook(
+      const utxos = await _this.blockbook.utxosFromBlockbook(
         fromAddr
       )
       // console.log(`utxos: ${JSON.stringify(utxos, null, 2)}`)
