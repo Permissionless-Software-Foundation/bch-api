@@ -12,20 +12,20 @@
 
 const chai = require('chai')
 const assert = chai.assert
-const nock = require('nock') // HTTP mocking
 
-let originalUrl, mockServerUrl // Used during transition from integration to unit tests.
-// originalUrl = process.env.BLOCKBOOK_URL
+const sinon = require('sinon')
+
+let originalUrl // Used during transition from integration to unit tests.
 
 // Set default environment variables for unit tests.
 if (!process.env.TEST) process.env.TEST = 'unit'
 if (process.env.TEST === 'unit') {
   process.env.BLOCKBOOK_URL = 'http://fakeurl/api/'
-  mockServerUrl = 'http://fakeurl'
 }
 
 // Only load blockbook library after setting BLOCKBOOK_URL env var.
-const blockbookRoute = require('../../src/routes/v3/blockbook')
+const BlockbookRoute = require('../../src/routes/v3/blockbook')
+const blockbookRoute = new BlockbookRoute()
 
 // Mocking data.
 const { mockReq, mockRes } = require('./mocks/express-mocks')
@@ -37,7 +37,7 @@ util.inspect.defaultOptions = { depth: 1 }
 
 describe('#Blockbook Router', () => {
   let req, res
-
+  let sandbox
   before(() => {
     // console.log(`Testing type is: ${process.env.TEST}`)
 
@@ -55,14 +55,11 @@ describe('#Blockbook Router', () => {
     req.body = {}
     req.query = {}
 
-    // Activate nock if it's inactive.
-    if (!nock.isActive()) nock.activate()
+    sandbox = sinon.createSandbox()
   })
 
   afterEach(() => {
-    // Clean up HTTP mocks.
-    nock.cleanAll() // clear interceptor list.
-    nock.restore()
+    sandbox.restore()
   })
 
   after(() => {
@@ -71,7 +68,7 @@ describe('#Blockbook Router', () => {
 
   describe('#root', () => {
     // root route handler.
-    const root = blockbookRoute.testableComponents.root
+    const root = blockbookRoute.root
 
     it('should respond to GET for base route', async () => {
       const result = root(req, res)
@@ -82,10 +79,10 @@ describe('#Blockbook Router', () => {
 
   describe('#Balance Single', () => {
     // details route handler.
-    const balanceSingle = blockbookRoute.testableComponents.balanceSingle
+    // const balanceSingle = blockbookRoute.balanceSingle
 
     it('should throw 400 if address is empty', async () => {
-      const result = await balanceSingle(req, res)
+      const result = await blockbookRoute.balanceSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ['error'])
@@ -95,7 +92,7 @@ describe('#Blockbook Router', () => {
     it('should error on an array', async () => {
       req.params.address = ['qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c']
 
-      const result = await balanceSingle(req, res)
+      const result = await blockbookRoute.balanceSingle(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
       assert.include(
@@ -106,9 +103,10 @@ describe('#Blockbook Router', () => {
     })
 
     it('should throw an error for an invalid address', async () => {
-      req.params.address = '02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
+      req.params.address =
+        '02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
 
-      const result = await balanceSingle(req, res)
+      const result = await blockbookRoute.balanceSingle(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
       assert.include(
@@ -119,9 +117,10 @@ describe('#Blockbook Router', () => {
     })
 
     it('should detect a network mismatch', async () => {
-      req.params.address = 'bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'
+      req.params.address =
+        'bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'
 
-      const result = await balanceSingle(req, res)
+      const result = await blockbookRoute.balanceSingle(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
       assert.include(result.error, 'Invalid network', 'Proper error message')
@@ -136,7 +135,7 @@ describe('#Blockbook Router', () => {
         // Switch the Insight URL to something that will error out.
         process.env.BLOCKBOOK_URL = 'http://fakeurl/api/'
 
-        const result = await balanceSingle(req, res)
+        const result = await blockbookRoute.balanceSingle(req, res)
 
         // Restore the saved URL.
         process.env.BLOCKBOOK_URL = savedUrl
@@ -148,21 +147,60 @@ describe('#Blockbook Router', () => {
         process.env.BLOCKBOOK_URL = savedUrl
       }
     })
+    it('returns proper error when downstream service stalls', async () => {
+      req.params.address =
+        'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+
+      // Mock the timeout error.
+      sandbox.stub(blockbookRoute.axios, 'request').throws({
+        code: 'ECONNABORTED'
+      })
+
+      const result = await blockbookRoute.balanceSingle(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+    it('returns proper error when downstream service is down', async () => {
+      req.params.address =
+        'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+
+      // Mock the timeout error.
+      sandbox.stub(blockbookRoute.axios, 'request').throws({
+        code: 'ECONNREFUSED'
+      })
+
+      const result = await blockbookRoute.balanceSingle(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
 
     it('should get balance for a single address', async () => {
-      req.params.address = 'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+      req.params.address =
+        'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
 
       // console.log(`process.env.BLOCKBOOK_URL: ${process.env.BLOCKBOOK_URL}`)
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
-        nock(`${process.env.BLOCKBOOK_URL}`)
-          .get(uri => uri.includes('/'))
-          .reply(200, mockData.mockBalance)
+        sandbox.stub(blockbookRoute.axios, 'request').resolves({
+          data: mockData.mockBalance
+        })
       }
 
       // Call the details API.
-      const result = await balanceSingle(req, res)
+      const result = await blockbookRoute.balanceSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAnyKeys(result, [
@@ -184,7 +222,7 @@ describe('#Blockbook Router', () => {
 
   describe('#Balance Bulk', () => {
     // details route handler.
-    const balanceBulk = blockbookRoute.testableComponents.balanceBulk
+    const balanceBulk = blockbookRoute.balanceBulk
 
     it('should throw an error for an empty body', async () => {
       req.body = {}
@@ -284,7 +322,44 @@ describe('#Blockbook Router', () => {
         process.env.BLOCKBOOK_URL = savedUrl
       }
     })
+    it('returns proper error when downstream service stalls', async () => {
+      req.body = {
+        addresses: ['bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf']
+      }
+      // Mock the timeout error.
+      sandbox.stub(blockbookRoute.axios, 'request').throws({
+        code: 'ECONNABORTED'
+      })
 
+      const result = await balanceBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+    it('returns proper error when downstream service is down', async () => {
+      req.body = {
+        addresses: ['bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf']
+      }
+      // Mock the timeout error.
+      sandbox.stub(blockbookRoute.axios, 'request').throws({
+        code: 'ECONNREFUSED'
+      })
+
+      const result = await balanceBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
     it('should get details for a single address', async () => {
       req.body = {
         addresses: ['bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf']
@@ -292,9 +367,9 @@ describe('#Blockbook Router', () => {
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
-        nock(mockServerUrl)
-          .get(uri => uri.includes('/'))
-          .reply(200, mockData.mockBalance)
+        sandbox.stub(blockbookRoute.axios, 'request').resolves({
+          data: mockData.mockBalance
+        })
       }
 
       // Call the details API.
@@ -328,10 +403,9 @@ describe('#Blockbook Router', () => {
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
-        nock(mockServerUrl)
-          .get(uri => uri.includes('/'))
-          .times(2)
-          .reply(200, mockData.mockBalance)
+        sandbox.stub(blockbookRoute.axios, 'request').resolves({
+          data: mockData.mockBalance
+        })
       }
 
       // Call the details API.
@@ -345,7 +419,7 @@ describe('#Blockbook Router', () => {
 
   describe('#UTXOs Single', () => {
     // details route handler.
-    const utxosSingle = blockbookRoute.testableComponents.utxosSingle
+    const utxosSingle = blockbookRoute.utxosSingle
 
     it('should throw 400 if address is empty', async () => {
       const result = await utxosSingle(req, res)
@@ -382,7 +456,8 @@ describe('#Blockbook Router', () => {
     })
 
     it('should detect a network mismatch', async () => {
-      req.params.address = 'bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'
+      req.params.address =
+        'bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'
 
       const result = await utxosSingle(req, res)
 
@@ -411,21 +486,58 @@ describe('#Blockbook Router', () => {
         process.env.BLOCKBOOK_URL = savedUrl
       }
     })
+    it('returns proper error when downstream service stalls', async () => {
+      req.params.address =
+        'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
 
+      // Mock the timeout error.
+      sandbox.stub(blockbookRoute.axios, 'request').throws({
+        code: 'ECONNABORTED'
+      })
+
+      const result = await utxosSingle(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+    it('returns proper error when downstream service is down', async () => {
+      req.params.address =
+        'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
+
+      // Mock the timeout error.
+      sandbox.stub(blockbookRoute.axios, 'request').throws({
+        code: 'ECONNREFUSED'
+      })
+
+      const result = await utxosSingle(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
     it('should get utxos for a single address', async () => {
       req.params.address =
         'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
-        nock(`${process.env.BLOCKBOOK_URL}`)
-          .get(uri => uri.includes('/'))
-          .reply(200, mockData.mockUtxos)
+        sandbox.stub(blockbookRoute.axios, 'request').resolves({
+          data: mockData.mockUtxos
+        })
       }
 
       // Call the details API.
       const result = await utxosSingle(req, res)
-      // console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result utxosSingle: ${util.inspect(result)}`)
 
       assert.isArray(result)
       assert.hasAnyKeys(result[0], [
@@ -440,7 +552,7 @@ describe('#Blockbook Router', () => {
 
   describe('#UTXO Bulk', () => {
     // details route handler.
-    const utxosBulk = blockbookRoute.testableComponents.utxosBulk
+    const utxosBulk = blockbookRoute.utxosBulk
 
     it('should throw an error for an empty body', async () => {
       req.body = {}
@@ -540,7 +652,46 @@ describe('#Blockbook Router', () => {
         process.env.BLOCKBOOK_URL = savedUrl
       }
     })
+    it('returns proper error when downstream service stalls', async () => {
+      req.body = {
+        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7']
+      }
 
+      // Mock the timeout error.
+      sandbox.stub(blockbookRoute.axios, 'request').throws({
+        code: 'ECONNABORTED'
+      })
+
+      const result = await utxosBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+    it('returns proper error when downstream service is down', async () => {
+      req.body = {
+        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7']
+      }
+
+      // Mock the timeout error.
+      sandbox.stub(blockbookRoute.axios, 'request').throws({
+        code: 'ECONNREFUSED'
+      })
+
+      const result = await utxosBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
     it('should get details for a single address', async () => {
       req.body = {
         addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7']
@@ -548,9 +699,9 @@ describe('#Blockbook Router', () => {
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
-        nock(mockServerUrl)
-          .get(uri => uri.includes('/'))
-          .reply(200, mockData.mockUtxos)
+        sandbox.stub(blockbookRoute.axios, 'request').resolves({
+          data: mockData.mockUtxos
+        })
       }
 
       // Call the details API.
@@ -578,10 +729,9 @@ describe('#Blockbook Router', () => {
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
-        nock(mockServerUrl)
-          .get(uri => uri.includes('/'))
-          .times(2)
-          .reply(200, mockData.mockUtxos)
+        sandbox.stub(blockbookRoute.axios, 'request').resolves({
+          data: mockData.mockUtxos
+        })
       }
 
       // Call the details API.
@@ -596,7 +746,7 @@ describe('#Blockbook Router', () => {
 
   describe('#txSingle', () => {
     // route handler
-    const txSingle = blockbookRoute.testableComponents.txSingle
+    const txSingle = blockbookRoute.txSingle
 
     it('should throw 400 if txid is empty', async () => {
       const result = await txSingle(req, res)
@@ -652,15 +802,54 @@ describe('#Blockbook Router', () => {
         process.env.BLOCKBOOK_URL = savedUrl
       }
     })
+    it('returns proper error when downstream service stalls', async () => {
+      req.params.txid =
+        '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
+
+      // Mock the timeout error.
+      sandbox.stub(blockbookRoute.axios, 'request').throws({
+        code: 'ECONNABORTED'
+      })
+
+      const result = await txSingle(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+    it('returns proper error when downstream service is down', async () => {
+      req.params.txid =
+        '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
+
+      // Mock the timeout error.
+      sandbox.stub(blockbookRoute.axios, 'request').throws({
+        code: 'ECONNREFUSED'
+      })
+
+      const result = await txSingle(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
 
     it('should get tx details for a single txid', async () => {
-      req.params.txid = '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
+      req.params.txid =
+        '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
-        nock(`${process.env.BLOCKBOOK_URL}`)
-          .get(uri => uri.includes('/'))
-          .reply(200, mockData.mockTx)
+        sandbox.stub(blockbookRoute.axios, 'request').resolves({
+          data: mockData.mockTx
+        })
       }
 
       // process.env.BLOCKBOOK_URL = `https://157.230.178.198:19131/`
@@ -710,7 +899,7 @@ describe('#Blockbook Router', () => {
 
   describe('#txBulk', () => {
     // route handler
-    const txBulk = blockbookRoute.testableComponents.txBulk
+    const txBulk = blockbookRoute.txBulk
 
     it('should throw an error for an empty body', async () => {
       req.body = {}
@@ -727,7 +916,8 @@ describe('#Blockbook Router', () => {
     })
 
     it('should error on non-array single address', async () => {
-      req.body.txids = '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
+      req.body.txids =
+        '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
 
       const result = await txBulk(req, res)
 
@@ -801,7 +991,50 @@ describe('#Blockbook Router', () => {
         process.env.BLOCKBOOK_URL = savedUrl
       }
     })
+    it('returns proper error when downstream service stalls', async () => {
+      req.body = {
+        txids: [
+          '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
+        ]
+      }
 
+      // Mock the timeout error.
+      sandbox.stub(blockbookRoute.axios, 'request').throws({
+        code: 'ECONNABORTED'
+      })
+
+      const result = await txBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+    it('returns proper error when downstream service is down', async () => {
+      req.body = {
+        txids: [
+          '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
+        ]
+      }
+
+      // Mock the timeout error.
+      sandbox.stub(blockbookRoute.axios, 'request').throws({
+        code: 'ECONNREFUSED'
+      })
+
+      const result = await txBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
     it('should get details for a single txid', async () => {
       req.body = {
         txids: [
@@ -811,9 +1044,9 @@ describe('#Blockbook Router', () => {
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
-        nock(mockServerUrl)
-          .get(uri => uri.includes('/'))
-          .reply(200, mockData.mockTx)
+        sandbox.stub(blockbookRoute.axios, 'request').resolves({
+          data: mockData.mockTx
+        })
       }
 
       // Call the details API.
@@ -868,10 +1101,9 @@ describe('#Blockbook Router', () => {
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
-        nock(mockServerUrl)
-          .get(uri => uri.includes('/'))
-          .times(2)
-          .reply(200, mockData.mockTx)
+        sandbox.stub(blockbookRoute.axios, 'request').resolves({
+          data: mockData.mockTx
+        })
       }
 
       // Call the details API.

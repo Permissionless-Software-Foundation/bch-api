@@ -357,14 +357,14 @@ describe('#Util', () => {
 
         sandbox
           .stub(
-            utilRouteInst.blockbook.testableComponents,
+            utilRouteInst.blockbook,
             'balanceFromBlockbook'
           )
           .resolves(mockData.mockBalance)
 
         sandbox
           .stub(
-            utilRouteInst.blockbook.testableComponents,
+            utilRouteInst.blockbook,
             'utxosFromBlockbook'
           )
           .resolves(mockData.mockUtxos)
@@ -396,7 +396,7 @@ describe('#Util', () => {
       if (process.env.TEST === 'unit') {
         sandbox
           .stub(
-            utilRouteInst.blockbook.testableComponents,
+            utilRouteInst.blockbook,
             'balanceFromBlockbook'
           )
           .resolves(mockData.mockBalance)
@@ -424,14 +424,14 @@ describe('#Util', () => {
       it('should generate transaction for valid BCH-only sweep', async () => {
         sandbox
           .stub(
-            utilRouteInst.blockbook.testableComponents,
+            utilRouteInst.blockbook,
             'balanceFromBlockbook'
           )
           .resolves(mockData.mockBalance)
 
         sandbox
           .stub(
-            utilRouteInst.blockbook.testableComponents,
+            utilRouteInst.blockbook,
             'utxosFromBlockbook'
           )
           .resolves(mockData.mockUtxos)
@@ -461,14 +461,14 @@ describe('#Util', () => {
       it('should throw 422 error if no non-token UTXOs', async () => {
         sandbox
           .stub(
-            utilRouteInst.blockbook.testableComponents,
+            utilRouteInst.blockbook,
             'balanceFromBlockbook'
           )
           .resolves(mockData.mockBalance)
 
         sandbox
           .stub(
-            utilRouteInst.blockbook.testableComponents,
+            utilRouteInst.blockbook,
             'utxosFromBlockbook'
           )
           .resolves(mockData.mockUtxos)
@@ -503,14 +503,14 @@ describe('#Util', () => {
       it('should detect and throw error for multiple token classes', async () => {
         sandbox
           .stub(
-            utilRouteInst.blockbook.testableComponents,
+            utilRouteInst.blockbook,
             'balanceFromBlockbook'
           )
           .resolves(mockData.mockBalance)
 
         sandbox
           .stub(
-            utilRouteInst.blockbook.testableComponents,
+            utilRouteInst.blockbook,
             'utxosFromBlockbook'
           )
           .resolves(mockData.mockThreeUtxos)

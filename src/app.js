@@ -32,7 +32,7 @@ const RawtransactionsV3 = require('./routes/v3/full-node/rawtransactions')
 const utilV3 = require('./routes/v3/util')
 const slpV3 = require('./routes/v3/slp')
 const xpubV3 = require('./routes/v3/xpub')
-const blockbookV3 = require('./routes/v3/blockbook')
+const BlockbookV3 = require('./routes/v3/blockbook')
 const Ninsight = require('./routes/v3/ninsight')
 
 require('dotenv').config()
@@ -42,6 +42,7 @@ const blockchainV3 = new BlockchainV3()
 const controlV3 = new ControlV3()
 const miningV3 = new MiningV3()
 const rawtransactionsV3 = new RawtransactionsV3()
+const blockbookV3 = new BlockbookV3()
 
 const app = express()
 
