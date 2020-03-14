@@ -243,9 +243,7 @@ class UtilRoute {
       const fromAddr = bchjs.ECPair.toCashAddress(ecPair)
 
       // Get a balance on the public address
-      const balances = await _this.blockbook.balanceFromBlockbook(
-        fromAddr
-      )
+      const balances = await _this.blockbook.balanceFromBlockbook(fromAddr)
       // console.log(`balances: ${JSON.stringify(balances, null, 2)}`)
 
       // Total balance is the sum of the confirmed and unconfirmed balance.
@@ -265,9 +263,7 @@ class UtilRoute {
       }
 
       // Get all UTXOs help by the address.
-      const utxos = await _this.blockbook.utxosFromBlockbook(
-        fromAddr
-      )
+      const utxos = await _this.blockbook.utxosFromBlockbook(fromAddr)
       // console.log(`utxos: ${JSON.stringify(utxos, null, 2)}`)
 
       const tokenUtxos = []
