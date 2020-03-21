@@ -12,6 +12,7 @@ start-local-server.sh
 start-local-testnet-server.sh
 start-local-mainnet.sh
 start-local-testnet.sh
+test-fullstack-main.sh
 
 coverage
 start-my-infra
