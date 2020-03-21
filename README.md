@@ -7,7 +7,7 @@
 This is a fork and alternative implementation of
 the [rest.bitcoin.com](https://github.com/Bitcoin-com/rest.bitcoin.com) repository.
 The purpose of this code is to create a REST API server that provides a common
-interface for working with a Bitcoin Cash full node and various indexers.
+interface for working with a Bitcoin Cash full node and various indexers. See [this article](https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer) to learn about the 'Cash Stack'. Visit [FullStack.cash](https://fullstack.cash), sign up for a free account, and use this REST API right away with the [bch-js](https://github.com/christroutner/bch-js) JavaScript library.
 
 This repository is intended to be paired with [bch-js](https://github.com/christroutner/bch-js),
 an npm JavaScript library, and an alternative implementation
