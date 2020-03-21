@@ -220,8 +220,7 @@ describe('#SLP', () => {
   })
 
   describe('balancesForAddressBulk()', () => {
-    const balancesForAddressBulk =
-      slpRoute.balancesForAddressBulk
+    const balancesForAddressBulk = slpRoute.balancesForAddressBulk
 
     it('should throw 400 if addresses is empty', async () => {
       const result = await balancesForAddressBulk(req, res)
@@ -411,7 +410,7 @@ describe('#SLP', () => {
       ]
 
       const result = await validateBulk(req, res)
-      console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
       assert.hasAllKeys(result[0], ['txid', 'valid'])
@@ -555,8 +554,7 @@ describe('#SLP', () => {
   })
 
   describe('balancesForTokenSingle()', () => {
-    const balancesForTokenSingle =
-      slpRoute.balancesForTokenSingle
+    const balancesForTokenSingle = slpRoute.balancesForTokenSingle
 
     it('should throw 400 if tokenID is empty', async () => {
       req.params.tokenId = ''
@@ -664,7 +662,7 @@ describe('#SLP', () => {
       sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNABORTED' })
 
       req.params.txid =
-      '57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b94578223333'
+        '57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b94578223333'
 
       const result = await txDetails(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -681,7 +679,7 @@ describe('#SLP', () => {
       sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
       req.params.txid =
-          '57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b94578223333'
+        '57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b94578223333'
 
       const result = await txDetails(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -716,8 +714,7 @@ describe('#SLP', () => {
   })
 
   describe('txsTokenIdAddressSingle()', () => {
-    const txsTokenIdAddressSingle =
-      slpRoute.txsTokenIdAddressSingle
+    const txsTokenIdAddressSingle = slpRoute.txsTokenIdAddressSingle
 
     it('should throw 400 if tokenId is empty', async () => {
       req.params.tokenId = ''
@@ -738,6 +735,7 @@ describe('#SLP', () => {
       assert.hasAllKeys(result, ['error'])
       assert.include(result.error, 'address can not be empty')
     })
+
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNABORTED' })
@@ -778,58 +776,6 @@ describe('#SLP', () => {
 })
 
 /*
-  describe("list()", () => {
-    // list route handler
-    const list = slpRoute.testableComponents.list
-
-    it("should throw 500 when network issues", async () => {
-      // Save the existing SLPDB_URL.
-      const savedUrl2 = process.env.SLPDB_URL
-
-      // Manipulate the URL to cause a 500 network error.
-      process.env.SLPDB_URL = "http://fakeurl/api/"
-
-      const result = await list(req, res)
-      // console.log(`result: ${util.inspect(result)}`)
-
-      // Restore the saved URL.
-      process.env.SLPDB_URL = savedUrl2
-
-      assert.isAbove(
-        res.statusCode,
-        499,
-        "HTTP status code 500 or greater expected."
-      )
-      //assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
-    })
-
-    it("should GET list", async () => {
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === "unit") {
-        const b64 = `eyJ2IjozLCJxIjp7ImRiIjpbInQiXSwiZmluZCI6eyIkcXVlcnkiOnt9fSwicHJvamVjdCI6eyJ0b2tlbkRldGFpbHMiOjEsInRva2VuU3RhdHMiOjEsIl9pZCI6MH0sImxpbWl0IjoxMDB9fQ==`
-
-        nock(process.env.SLPDB_URL)
-          .get(uri => uri.includes("/"))
-          .reply(200, mockData.mockList)
-      }
-
-      const result = await list(req, res)
-      // console.log(`test result: ${util.inspect(result)}`)
-
-      assert.isArray(result)
-      assert.hasAnyKeys(result[0], [
-        "id",
-        "timestamp",
-        "symbol",
-        "name",
-        "documentUri",
-        "documentHash",
-        "decimals",
-        "initialTokenQty"
-      ])
-    })
-  })
-
   describe("listSingleToken()", () => {
     const listSingleToken = slpRoute.testableComponents.listSingleToken
 

@@ -54,7 +54,7 @@ class Slp {
     _this.router = router
 
     _this.router.get('/', _this.root)
-    _this.router.get('/list', _this.list)
+    // _this.router.get('/list', _this.list)
     _this.router.get('/list/:tokenId', _this.listSingleToken)
     _this.router.post('/list', _this.listBulkToken)
     _this.router.get('/balancesForAddress/:address', _this.balancesForAddress)
@@ -120,64 +120,6 @@ class Slp {
 
   root (req, res, next) {
     return res.json({ status: 'slp' })
-  }
-
-  /**
-  * @api {get} /slp/list  List all SLP tokens.
-  * @apiName List all SLP tokens.
-  * @apiGroup SLP
-  * @apiDescription Returns list all SLP tokens.
-  *
-  *
-  * @apiExample Example usage:
-  * curl -X GET "https://mainnet.bchjs.cash/v3/slp/list" -H "accept:application/json"
-  *
-  *
-  */
-  async list (req, res, next) {
-    try {
-      const query = {
-        v: 3,
-        q: {
-          db: ['t'],
-          find: {
-            $query: {}
-          },
-          project: { tokenDetails: 1, tokenStats: 1, _id: 0 },
-          sort: { 'tokenStats.block_created': -1 },
-          limit: 10000
-        }
-      }
-
-      const s = JSON.stringify(query)
-      const b64 = Buffer.from(s).toString('base64')
-      const url = `${process.env.SLPDB_URL}q/${b64}`
-
-      // Request options
-      const opt = {
-        method: 'get',
-        baseURL: url
-      }
-      // Get data from SLPDB.
-      const tokenRes = await _this.axios.request(opt)
-
-      const formattedTokens = []
-
-      if (tokenRes.data.t.length) {
-        tokenRes.data.t.forEach(token => {
-          token = _this.formatTokenOutput(token)
-          formattedTokens.push(token.tokenDetails)
-        })
-      }
-
-      res.status(200)
-      return res.json(formattedTokens)
-    } catch (err) {
-      wlogger.error('Error in slp.ts/list().', err)
-      return _this.errorHandler(err, res)
-
-      // return res.json({ error: `Error in /list: ${err.message}` })
-    }
   }
 
   /**

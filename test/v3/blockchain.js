@@ -418,7 +418,8 @@ describe('#BlockchainRouter', () => {
         'difficulty',
         'chainwork',
         'previousblockhash',
-        'nextblockhash'
+        'nextblockhash',
+        'nTx'
       ])
     })
   })
@@ -594,7 +595,8 @@ describe('#BlockchainRouter', () => {
         'difficulty',
         'chainwork',
         'previousblockhash',
-        'nextblockhash'
+        'nextblockhash',
+        'nTx'
       ])
     })
 

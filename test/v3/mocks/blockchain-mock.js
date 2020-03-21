@@ -237,7 +237,8 @@ const mockBlockHeader = {
   previousblockhash:
     '0000000000003e467ebcb7e906645676c2f71b9ac520d6508bea45789b7c217d',
   nextblockhash:
-    '00000000000006899041cdfd6c0b73a97730c362346dde479b77414ad7f25ace'
+    '00000000000006899041cdfd6c0b73a97730c362346dde479b77414ad7f25ace',
+  nTx: 'some value'
 }
 
 const mockTxOut = {
