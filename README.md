@@ -17,9 +17,8 @@ Both bch-api and bch-js are part of the
 [full stack of BCH software](https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer).
 
 - [API Documentation](https://api.bchjs.cash/docs/)
-- Video: [Basic Concepts](https://www.youtube.com/watch?v=o0FfW5rZPFs)
-- Video: [Application Stack](https://youtu.be/8w0CpQ8oydA)
-- [bchjs.cash](https://bchjs.cash): Buy a turn-key REST API microserver.
+- [BCH Example Applications](https://github.com/Permissionless-Software-Foundation/bch-js-examples)
+- [slp-cli-wallet](https://github.com/christroutner/slp-cli-wallet): a hacker-friendly, command-line BCH and SLP token wallet using this REST API.
 
 Have questions? Need help? Join our community support
 [Telegram channel](https://t.me/bch_js_toolkit)
@@ -31,7 +30,7 @@ The following features set this repository apart from rest.bitcoin.com:
 indexer instead of Insight.
 - Fine grain access is controlled with a JWT token using
 [this back end auth server](https://github.com/Permissionless-Software-Foundation/jwt-bch-api) and [this front end](https://github.com/Permissionless-Software-Foundation/jwt-bch-frontend).
-- Default rate limits are set to 3 RPM for anonymous connections, up to 100 RPM for a full-access JWT token is used.
+- Default rate limits are set to 3 RPM for anonymous connections, 10 RPM for [free accounts](https://fullstack.cash/pricing), up to 100 RPM if a full-access JWT token is used.
 - Typescript removed and ES8 JavaScript used instead.
 - npm audit run on all dependencies.
 - [Greenkeeper](https://greenkeeper.io/) implemented for automatic dependency management
@@ -40,20 +39,19 @@ and security updates.
 ## Live Demo
 You can test a live demo of the REST API by running the
 [bch-js examples](https://github.com/Permissionless-Software-Foundation/bch-js-examples).
-Rate limits are 3 requests per minute, but you can increase them to 10 with a free
-account at [account.bchjs.cash](https://account.bchjs.cash).
+Rate limits are 3 requests per minute, but you can increase them to 10 with a [free account](https://fullstack.cash/pricing).
 This is fast enough to try out the examples
 but these servers are not intended as a freemium service. You can run your own
 REST server by purchasing the hard drive at [bchjs.cash](https://bchjs.cash).
 
-- Mainnet REST API server: https://api.bchjs.cash/v3/
-- Testnet REST API server: https://tapi.bchjs.cash/v3/
-- Check server status: https://metrics.bchjs.cash
+- Mainnet REST API server: https://api.fullstack.cash/v3/
+- Testnet REST API server: https://tapi.fullstack.cash/v3/
+- Check server status: https://metrics.fullstack.cash
 
 ## Installation
 There are two installation paths, depending if you want a *development* or
 *production* environment. You'll also need to set up the underlying infrastructure
-described [this page](https://bchjs.cash/bch-api-stack/).
+described [this page](https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer).
 
 This code targets the Ubuntu 18.04 LTS Linux OS.
 
