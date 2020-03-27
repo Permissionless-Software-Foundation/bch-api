@@ -5,10 +5,9 @@ const RateLimit = require('express-rate-limit')
 const axios = require('axios')
 
 const wlogger = require('../util/winston-logging')
+const config = require('../../config')
 
 const jwt = require('jsonwebtoken')
-const KeyEncoder = require('key-encoder').default
-const keyEncoder = new KeyEncoder('secp256k1')
 
 // Redis
 const redisOptions = {
@@ -31,8 +30,8 @@ const rateLimitOptions = {
 
 // This hard-coded value is temporary. It will be swapped out with an environment
 // variable when moved to production.
-const publicKey =
-  '03e6c358092a459f7da9420de770eef3e16cf3c9c54a3d3d14ac2d7f0b82af4d7d'
+// const publicKey =
+//   '03e6c358092a459f7da9420de770eef3e16cf3c9c54a3d3d14ac2d7f0b82af4d7d'
 
 // Set max requests per minute
 const maxRequests = process.env.RATE_LIMIT_MAX_REQUESTS
@@ -270,18 +269,19 @@ class RateLimits {
 
       // Decode the JWT token if one exists.
       if (req.locals.jwtToken) {
-        const jwtOptions = {
-          algorithms: ['ES256']
-        }
+        // const jwtOptions = {
+        //   algorithms: ['ES256']
+        // }
 
-        const pemPublicKey = keyEncoder.encodePublic(publicKey, 'raw', 'pem')
+        // const pemPublicKey = keyEncoder.encodePublic(publicKey, 'raw', 'pem')
 
         // Validate the JWT token.
-        decoded = _this.jwt.verify(
-          req.locals.jwtToken,
-          pemPublicKey,
-          jwtOptions
-        )
+        // decoded = _this.jwt.verify(
+        //   req.locals.jwtToken,
+        //   pemPublicKey,
+        //   jwtOptions
+        // )
+        decoded = _this.jwt.verify(req.locals.jwtToken, config.apiTokenSecret)
         // console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
 
         userId = decoded.id
@@ -398,69 +398,69 @@ class RateLimits {
   // potentially be used by Bitcoin.com.
   // Rather than using apiLevel, the rateLimit is explicitly recorded in the
   // JWT token.
-  async rateLimitSimple (req, res, next) {
-    try {
-      let userId
-      let decoded = {}
-
-      // Create a res.locals object if not passed in.
-      if (!req.locals) {
-        req.locals = {
-          // default values
-          jwtToken: '',
-          proLimit: false,
-          rateLimit: 3
-        }
-      }
-
-      // Decode the JWT token if one exists.
-      if (req.locals.jwtToken) {
-        const jwtOptions = {
-          algorithms: ['ES256']
-        }
-
-        const pemPublicKey = keyEncoder.encodePublic(publicKey, 'raw', 'pem')
-
-        // Validate the JWT token.
-        decoded = _this.jwt.verify(
-          req.locals.jwtToken,
-          pemPublicKey,
-          jwtOptions
-        )
-        // console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
-
-        userId = decoded.id
-      } else {
-        wlogger.debug('No JWT token found!')
-      }
-
-      // Code here for the rate limiter is adapted from this example:
-      // https://github.com/animir/node-rate-limiter-flexible/wiki/Overall-example#authorized-and-not-authorized-users
-      try {
-        // Key for Redis key/value pair.
-        const key = userId || req.ip
-
-        const pointsToConsume = _this.calcPoints2(decoded)
-
-        wlogger.debug(`User ${key} consuming ${pointsToConsume}.`)
-
-        await _this.rateLimiter.consume(key, pointsToConsume)
-      } catch (err) {
-        // console.log(`err: `, err)
-
-        // Rate limited was triggered
-        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
-        return res.json({
-          error: `Too many requests. Your limits are currently ${maxRequests} requests per minute. Increase rate limits at https://fullstack.cash`
-        })
-      }
-    } catch (err) {
-      wlogger.error('Error in route-ratelimit.js/rateLimitSimple(): ', err)
-      // throw err
-    }
-
-    next()
-  }
+  // async rateLimitSimple (req, res, next) {
+  //   try {
+  //     let userId
+  //     let decoded = {}
+  //
+  //     // Create a res.locals object if not passed in.
+  //     if (!req.locals) {
+  //       req.locals = {
+  //         // default values
+  //         jwtToken: '',
+  //         proLimit: false,
+  //         rateLimit: 3
+  //       }
+  //     }
+  //
+  //     // Decode the JWT token if one exists.
+  //     if (req.locals.jwtToken) {
+  //       const jwtOptions = {
+  //         algorithms: ['ES256']
+  //       }
+  //
+  //       const pemPublicKey = keyEncoder.encodePublic(publicKey, 'raw', 'pem')
+  //
+  //       // Validate the JWT token.
+  //       decoded = _this.jwt.verify(
+  //         req.locals.jwtToken,
+  //         pemPublicKey,
+  //         jwtOptions
+  //       )
+  //       // console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
+  //
+  //       userId = decoded.id
+  //     } else {
+  //       wlogger.debug('No JWT token found!')
+  //     }
+  //
+  //     // Code here for the rate limiter is adapted from this example:
+  //     // https://github.com/animir/node-rate-limiter-flexible/wiki/Overall-example#authorized-and-not-authorized-users
+  //     try {
+  //       // Key for Redis key/value pair.
+  //       const key = userId || req.ip
+  //
+  //       const pointsToConsume = _this.calcPoints2(decoded)
+  //
+  //       wlogger.debug(`User ${key} consuming ${pointsToConsume}.`)
+  //
+  //       await _this.rateLimiter.consume(key, pointsToConsume)
+  //     } catch (err) {
+  //       // console.log(`err: `, err)
+  //
+  //       // Rate limited was triggered
+  //       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+  //       return res.json({
+  //         error: `Too many requests. Your limits are currently ${maxRequests} requests per minute. Increase rate limits at https://fullstack.cash`
+  //       })
+  //     }
+  //   } catch (err) {
+  //     wlogger.error('Error in route-ratelimit.js/rateLimitSimple(): ', err)
+  //     // throw err
+  //   }
+  //
+  //   next()
+  // }
 
   // Calculates the points consumed, based on the explicit rateLimit defined
   // in the JWT token.
