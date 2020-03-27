@@ -3,8 +3,8 @@ node_modules/
 #.env
 start-local-server
 test-local-server
-start-decatur-main
-start-decatur-test
+start-decatur-main.sh
+start-decatur-test.sh
 start-bitcoincom.sh
 test-remote-server.sh
 start-bitcoincom-testnet.sh
@@ -24,4 +24,3 @@ nohup.out
 slp-tx-db/
 logs/
 docs/*
-
