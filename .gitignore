@@ -22,5 +22,7 @@ dist/routes/**
 test-v1
 nohup.out
 slp-tx-db/
-logs/
+logs/*
 docs/*
+
+!logs/README.md
