@@ -22,5 +22,10 @@ dist/routes/**
 test-v1
 nohup.out
 slp-tx-db/
-logs/
+logs/*
 docs/*
+docker/mainnet/start-local-mainnet.sh
+docker/testnet/start-local-testnet.sh
+
+
+!logs/README.md

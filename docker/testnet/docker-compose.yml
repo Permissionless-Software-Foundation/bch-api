@@ -6,7 +6,9 @@ bch-api-test:
   links:
     - redis-test
   ports:
-    - "13400:3000"
+    - "4000:3000"
+  volumes:
+    - ../../logs:/home/safeuser/bch-api/logs    
   restart: always
 
 redis-test:
