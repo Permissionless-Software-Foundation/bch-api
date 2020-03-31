@@ -6,8 +6,8 @@ bch-api-main:
   links:
     - redis-main
   ports:
-    - "12400:3000"
-  volume:
+    - "3000:3000"
+  volumes:
     - ../../logs:/home/safeuser/bch-api/logs
   restart: always
 
