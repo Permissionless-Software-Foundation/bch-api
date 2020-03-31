@@ -1,1 +1,2 @@
-test
+# Logs
+This directory holds logs.
