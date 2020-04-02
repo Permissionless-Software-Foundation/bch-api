@@ -22,6 +22,9 @@ const cors = require('cors')
 const AuthMW = require('./middleware/auth')
 const jwtAuth = require('./middleware/jwt-auth')
 
+// Logging for API requests.
+const logReqInfo = require('./middleware/req-logging')
+
 // v3
 const healthCheckV3 = require('./routes/v3/health-check')
 const BlockchainV3 = require('./routes/v3/full-node/blockchain')
@@ -81,6 +84,9 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
+
+// Log requests for later analysis.
+app.use('/', logReqInfo)
 
 // const v2prefix = "v2"
 const v3prefix = 'v3'
