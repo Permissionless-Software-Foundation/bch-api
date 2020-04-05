@@ -424,6 +424,26 @@ describe('#route-ratelimits & jwt-auth', () => {
         'next should NOT be called if rate limit was triggered.'
       )
     })
+
+    it('should handle misconfigured token secret', async () => {
+      // Create a new instance of the rate limit so we start with zeroed tracking.
+      rateLimits = new RateLimits()
+
+      req.baseUrl = '/v3'
+      req.path = '/control/getNetworkInfo'
+      req.url = req.path
+      req.method = 'GET'
+
+      req.locals.jwtToken = 'some-token'
+
+      next.reset() // reset the stubbed next() function.
+
+      await rateLimits.rateLimitByResource(req, res, next)
+
+      // Issues with token secret should treat incoming requests as anonymous
+      // calls with 30 points or 3 RPM.
+      assert.equal(res.locals.pointsToConsume, 30)
+    })
   })
 })
 

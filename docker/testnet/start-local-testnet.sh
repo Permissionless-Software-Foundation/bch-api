@@ -14,10 +14,11 @@ export BLOCKBOOK_URL=https://172.17.0.1:19131/
 # Allow node.js to make network calls to https using self-signed certificate.
 export NODE_TLS_REJECT_UNAUTHORIZED=0
 
-export JWT_AUTH_SERVER=http://172.17.0.1:5001/
-
 # Redis DB
 export REDIS_PORT=6380
 export REDIS_HOST=172.17.0.1
+
+# JWT Token Secret
+export TOKENSECRET=somelongsecretvalue
 
 npm start
