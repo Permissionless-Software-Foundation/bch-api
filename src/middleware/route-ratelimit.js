@@ -76,6 +76,8 @@ class RateLimits {
         //   pemPublicKey,
         //   jwtOptions
         // )
+
+        wlogger.info(`Last three letters of token secret: ${config.apiTokenSecret.slice(-3)}`)
         decoded = _this.jwt.verify(req.locals.jwtToken, config.apiTokenSecret)
         // console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
 
