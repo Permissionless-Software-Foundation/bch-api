@@ -32,6 +32,7 @@ class RateLimits {
 
     this.jwt = jwt
     this.rateLimiter = new RateLimiterRedis(rateLimitOptions)
+    this.config = config
   }
 
   // Used to disconnect from the Redis DB.
@@ -52,7 +53,7 @@ class RateLimits {
       let userId
       let decoded = {}
 
-      // Create a res.locals object if not passed in.
+      // Create a req.locals object if not passed in.
       if (!req.locals) {
         req.locals = {
           // default values
@@ -62,26 +63,34 @@ class RateLimits {
         }
       }
 
+      // Create a res.locals object if it does not exist. This is used for
+      // debugging.
+      if (!res.locals) {
+        res.locals = {
+          rateLimitTriggered: false
+        }
+      }
+
       // Decode the JWT token if one exists.
       if (req.locals.jwtToken) {
-        // const jwtOptions = {
-        //   algorithms: ['ES256']
-        // }
+        try {
+          decoded = _this.jwt.verify(req.locals.jwtToken, _this.config.apiTokenSecret)
+          // console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
 
-        // const pemPublicKey = keyEncoder.encodePublic(publicKey, 'raw', 'pem')
-
-        // Validate the JWT token.
-        // decoded = _this.jwt.verify(
-        //   req.locals.jwtToken,
-        //   pemPublicKey,
-        //   jwtOptions
-        // )
-
-        wlogger.info(`Last three letters of token secret: ${config.apiTokenSecret.slice(-3)}`)
-        decoded = _this.jwt.verify(req.locals.jwtToken, config.apiTokenSecret)
-        // console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
-
-        userId = decoded.id
+          userId = decoded.id
+        } catch (err) {
+          // This handler will be triggered if the JWT token does not match the
+          // token secret.
+          wlogger.error(
+            `Last three letters of token secret: ${_this.config.apiTokenSecret.slice(
+              -3
+            )}`
+          )
+          wlogger.error(
+            'Error trying to decode JWT token in route-ratelimit.js/newRateLimit(): ',
+            err
+          )
+        }
       } else {
         wlogger.debug('No JWT token found!')
       }
@@ -97,10 +106,12 @@ class RateLimits {
         wlogger.debug(`resource: ${resource}`)
 
         let key = userId || req.ip
+        res.locals.key = key // Feedback for tests.
 
         // const pointsToConsume = userId ? 1 : 30
         decoded.resource = resource
         const pointsToConsume = _this.calcPoints(decoded)
+        res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
 
         wlogger.info(
           `User ${key} consuming ${pointsToConsume} point for resource ${resource}.`
@@ -113,7 +124,11 @@ class RateLimits {
 
         await _this.rateLimiter.consume(key, pointsToConsume)
       } catch (err) {
-        // console.log(`err: `, err)
+        // console.log('err: ', err)
+
+        // Used for returning data for tests.
+        res.locals.rateLimitTriggered = true
+        // console.log('res.locals: ', res.locals)
 
         // Rate limited was triggered
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
