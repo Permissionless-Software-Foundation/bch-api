@@ -5,17 +5,15 @@
 'use strict'
 
 const express = require('express')
+const router = express.Router()
 const axios = require('axios')
+const util = require('util')
+const bitcore = require('bitcore-lib-cash')
+
 const wlogger = require('../../util/winston-logging')
 
 const RouteUtils = require('../../util/route-utils')
 const routeUtils = new RouteUtils()
-
-const router = express.Router()
-
-// Used for processing error messages before sending them to the user.
-const util = require('util')
-util.inspect.defaultOptions = { depth: 1 }
 
 const BCHJS = require('@chris.troutner/bch-js')
 const bchjs = new BCHJS()
@@ -29,6 +27,7 @@ class Electrum {
     _this.axios = axios
     _this.routeUtils = routeUtils
     _this.bchjs = bchjs
+    _this.bitcore = bitcore
 
     _this.router = router
     _this.router.get('/', _this.root)
@@ -55,7 +54,7 @@ class Electrum {
 
   // Root API endpoint. Simply acknowledges that it exists.
   root (req, res, next) {
-    return res.json({ status: 'address' })
+    return res.json({ status: 'electrumx' })
   }
 
   // Query the Blockbook Node API for a balance on a single BCH address.
@@ -90,7 +89,7 @@ class Electrum {
   }
 
   /**
-   * @api {get} /blockbook/balance/{addr} Get balance for a single address.
+   * @api {get} /electrumx/balance/{addr} Get balance for a single address.
    * @apiName Balance for a single address
    * @apiGroup Blockbook
    * @apiDescription Returns an object with balance and details about an address.
@@ -155,6 +154,69 @@ class Electrum {
       wlogger.error('Error in blockbook.js/balanceSingle().', err)
 
       return _this.errorHandler(err, res)
+    }
+  }
+
+  async getUtxos (req, res, next) {
+    try {
+      let scripthash = '' // Default value
+
+      scripthash = _this.addressToScripthash(req.params.address)
+
+      res.status(200)
+      return res.json(scripthash)
+    } catch (err) {
+      // Write out error to error log.
+      wlogger.error('Error in elecrumx.js/getUtxos().', err)
+
+      return _this.errorHandler(err, res)
+    }
+
+    // try {
+    //   var electrumResponse = await electrum.request(
+    //     'blockchain.scripthash.listunspent',
+    //     scripthash
+    //   )
+    // } catch (e) {
+    //   return res.status(500).send({
+    //     success: false,
+    //     message: e.message
+    //   })
+    // }
+    //
+    // if (electrumResponse.hasOwnProperty('code')) {
+    //   return res.status(400).send({
+    //     success: false,
+    //     message: electrumResponse.message
+    //   })
+    // }
+    //
+    // return res.send({
+    //   success: true,
+    //   utxos: electrumResponse
+    // })
+  }
+
+  // Convert a 'bitcoincash:...' address to a script hash used by ElectrumX.
+  addressToScripthash (addrStr) {
+    try {
+      // console.log(`addrStr: ${addrStr}`)
+
+      const address = _this.bitcore.Address.fromString(addrStr)
+      // console.log(`address: ${address}`)
+
+      const script = _this.bitcore.Script.buildPublicKeyHashOut(address)
+      // console.log(`script: ${script}`)
+
+      const scripthash = _this.bitcore.crypto.Hash.sha256(script.toBuffer())
+        .reverse()
+        .toString('hex')
+      // console.log(`scripthash: ${scripthash}`)
+
+      return scripthash
+    } catch (err) {
+      wlogger.error('Error in electrumx.js/addressToScripthash()')
+      throw err
     }
   }
 }
