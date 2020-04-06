@@ -53,7 +53,7 @@ class Control {
    * @apiDescription RPC call which gets basic full node information.
    *
    * @apiExample Example usage:
-   * curl -X GET "https://mainnet.bchjs.cash/v3/control/getnetworkinfo" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v3/control/getnetworkinfo" -H "accept: application/json"
    *
    */
   async getNetworkInfo (req, res, next) {

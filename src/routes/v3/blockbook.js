@@ -104,7 +104,7 @@ class Blockbook {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://mainnet.bchjs.cash/v3/blockbook/balance/bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v3/blockbook/balance/bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf" -H "accept: application/json"
    *
    */
   // GET handler for single balance
@@ -173,7 +173,7 @@ class Blockbook {
    * Limited to 20 items per request.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://mainnet.bchjs.cash/v3/blockbook/balance" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
+   * curl -X POST "https://api.fullstack.cash/v3/blockbook/balance" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
    *
    *
    */
@@ -292,7 +292,7 @@ class Blockbook {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://mainnet.bchjs.cash/v3/blockbook/utxos/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v3/blockbook/utxos/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
    *
    */
   // GET handler for single balance
@@ -360,7 +360,7 @@ class Blockbook {
    * Limited to 20 items per request.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://mainnet.bchjs.cash/v3/blockbook/utxos" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3","bitcoincash:qzy8wnj0dz927eu6kvh8v2pqsr5w8jh33ys757tdtq"]}'
+   * curl -X POST "https://api.fullstack.cash/v3/blockbook/utxos" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3","bitcoincash:qzy8wnj0dz927eu6kvh8v2pqsr5w8jh33ys757tdtq"]}'
    *
    *
    */
@@ -469,7 +469,7 @@ class Blockbook {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://mainnet.bchjs.cash/v3/blockbook/tx/6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v3/blockbook/tx/6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d" -H "accept: application/json"
    *
    */
   // GET handler for single transaction details.
@@ -522,7 +522,7 @@ class Blockbook {
    * Limited to 20 items per request.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://mainnet.bchjs.cash/v3/blockbook/tx" -H "accept: application/json" -H "Content-Type: application/json" -d '{"txids":["6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d","6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d"]}'
+   * curl -X POST "https://api.fullstack.cash/v3/blockbook/tx" -H "accept: application/json" -H "Content-Type: application/json" -d '{"txids":["6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d","6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d"]}'
    *
    *
    */

@@ -130,7 +130,7 @@ class Slp {
   *
   *
   * @apiExample Example usage:
-  * curl -X GET "https://mainnet.bchjs.cash/v3/slp/list/259908ae44f46ef585edef4bcc1e50dc06e4c391ac4be929fae27235b8158cf1" -H "accept:application/json"
+  * curl -X GET "https://api.fullstack.cash/v3/slp/list/259908ae44f46ef585edef4bcc1e50dc06e4c391ac4be929fae27235b8158cf1" -H "accept:application/json"
   *
   *
   */
@@ -163,7 +163,7 @@ class Slp {
   *
   *
   * @apiExample Example usage:
-  * curl -X POST "https://mainnet.bchjs.cash/v3/slp/list" -H "accept:application/json" -H "Content-Type: application/json" -d '{"tokenIds":["7380843cd1089a1a01783f86af37734dc99667a1cdc577391b5f6ea42fc1bfb4","9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0"]}'
+  * curl -X POST "https://api.fullstack.cash/v3/slp/list" -H "accept:application/json" -H "Content-Type: application/json" -d '{"tokenIds":["7380843cd1089a1a01783f86af37734dc99667a1cdc577391b5f6ea42fc1bfb4","9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0"]}'
   *
   *
   */
@@ -311,7 +311,7 @@ class Slp {
   *
   *
   * @apiExample Example usage:
-  * curl -X GET "https://mainnet.bchjs.cash/v3/slp/balancesForAddress/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m" -H "accept:application/json"
+  * curl -X GET "https://api.fullstack.cash/v3/slp/balancesForAddress/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m" -H "accept:application/json"
   *
   *
   */
@@ -496,7 +496,7 @@ class Slp {
   *
   *
   * @apiExample Example usage:
-  * curl -X POST "https://mainnet.bchjs.cash/v3/slp/balancesForAddress" -d "{\"addresses\":[\"simpleledger:qqss4zp80hn6szsa4jg2s9fupe7g5tcg5ucdyl3r57\"]}" -H "accept:application/json"
+  * curl -X POST "https://api.fullstack.cash/v3/slp/balancesForAddress" -d "{\"addresses\":[\"simpleledger:qqss4zp80hn6szsa4jg2s9fupe7g5tcg5ucdyl3r57\"]}" -H "accept:application/json"
   *
   *
   */
@@ -713,7 +713,7 @@ class Slp {
   *
   *
   * @apiExample Example usage:
-  * curl -X GET "https://mainnet.bchjs.cash/v3/slp/balancesForToken/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0" -H "accept:application/json"
+  * curl -X GET "https://api.fullstack.cash/v3/slp/balancesForToken/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0" -H "accept:application/json"
   *
   *
   */
@@ -821,7 +821,7 @@ class Slp {
   *
   *
   * @apiExample Example usage:
-  * curl -X GET "https://mainnet.bchjs.cash/v3/slp/balance/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m/1cda254d0a995c713b7955298ed246822bee487458cd9747a91d9e81d9d28125" -H "accept:application/json"
+  * curl -X GET "https://api.fullstack.cash/v3/slp/balance/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m/1cda254d0a995c713b7955298ed246822bee487458cd9747a91d9e81d9d28125" -H "accept:application/json"
   *
   *
   */
@@ -986,7 +986,7 @@ class Slp {
   *
   *
   * @apiExample Example usage:
-  * curl -X GET "https://mainnet.bchjs.cash/v3/slp/convert/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m" -H "accept:application/json"
+  * curl -X GET "https://api.fullstack.cash/v3/slp/convert/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m" -H "accept:application/json"
   *
   *
   */
@@ -1030,7 +1030,7 @@ class Slp {
   *
   *
   * @apiExample Example usage:
-  * curl -X POST "https://mainnet.bchjs.cash/v3/slp/convert" -H "accept:application/json" -H "Content-Type: application/json" -d '{"addresses":["simpleledger:qrxa0unrn67rtn85v7asfddhhth43ecnxua0antk2l"]}'
+  * curl -X POST "https://api.fullstack.cash/v3/slp/convert" -H "accept:application/json" -H "Content-Type: application/json" -d '{"addresses":["simpleledger:qrxa0unrn67rtn85v7asfddhhth43ecnxua0antk2l"]}'
   *
   *
   */
@@ -1090,7 +1090,7 @@ class Slp {
   *
   *
   * @apiExample Example usage:
-  * curl -X POST "https://mainnet.bchjs.cash/v3/slp/validateTxid" -H "accept:application/json" -H "Content-Type: application/json" -d '{"txids":["f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a","fb0eeaa501a6e1acb721669c62a3f70741f48ae0fd7f4b8e1d72088785c51952"]}'
+  * curl -X POST "https://api.fullstack.cash/v3/slp/validateTxid" -H "accept:application/json" -H "Content-Type: application/json" -d '{"txids":["f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a","fb0eeaa501a6e1acb721669c62a3f70741f48ae0fd7f4b8e1d72088785c51952"]}'
   *
   *
   */
@@ -1211,7 +1211,7 @@ class Slp {
   *
   *
   * @apiExample Example usage:
-  * curl -X GET "https://mainnet.bchjs.cash/v3/slp/validateTxid/f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a" -H "accept:application/json"
+  * curl -X GET "https://api.fullstack.cash/v3/slp/validateTxid/f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a" -H "accept:application/json"
   *
   *
   */
@@ -1293,7 +1293,7 @@ class Slp {
   *
   *
   * @apiExample Example usage:
-  * curl -X GET "https://mainnet.bchjs.cash/v3/slp/txDetails/8ab4ac5dea3f9024e3954ee5b61452955d659a34561f79ef62ac44e133d0980e" -H "accept:application/json"
+  * curl -X GET "https://api.fullstack.cash/v3/slp/txDetails/8ab4ac5dea3f9024e3954ee5b61452955d659a34561f79ef62ac44e133d0980e" -H "accept:application/json"
   *
   *
   */
@@ -1381,7 +1381,7 @@ class Slp {
   *
   *
   * @apiExample Example usage:
-  * curl -X GET "https://mainnet.bchjs.cash/v3/slp/tokenStats/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0" -H "accept:application/json"
+  * curl -X GET "https://api.fullstack.cash/v3/slp/tokenStats/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0" -H "accept:application/json"
   *
   *
   */
@@ -1443,7 +1443,7 @@ class Slp {
   *
   *
   * @apiExample Example usage:
-  * curl -X GET "https://mainnet.bchjs.cash/v3/slp/transactions/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0/simpleledger:qrxa0unrn67rtn85v7asfddhhth43ecnxua0antk2l" -H "accept:application/json"
+  * curl -X GET "https://api.fullstack.cash/v3/slp/transactions/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0/simpleledger:qrxa0unrn67rtn85v7asfddhhth43ecnxua0antk2l" -H "accept:application/json"
   *
   *
   */
