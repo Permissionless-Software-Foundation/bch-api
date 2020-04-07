@@ -52,12 +52,7 @@ class Electrum {
 
     _this.router = router
     _this.router.get('/', _this.root)
-    // _this.router.get('/balance/:address', _this.balanceSingle)
-    // _this.router.post('/balance', _this.balanceBulk)
-    // _this.router.get('/utxos/:address', _this.utxosSingle)
-    // _this.router.post('/utxos', _this.utxosBulk)
-    // _this.router.get('/tx/:txid', _this.txSingle)
-    // _this.router.post('/tx', _this.txBulk)
+    _this.router.get('/utxos/:address', _this.getUtxos)
   }
 
   // Initializes a connection to electrum servers.
@@ -113,6 +108,13 @@ class Electrum {
       return res.json({ error: msg })
     }
 
+    // Handle error patterns specific to this route.
+    if (err.message) {
+      res.status(400)
+      return res.json({ success: false, error: err.message })
+    }
+
+    // If error can be handled, return the stack trace
     res.status(500)
     return res.json({ error: util.inspect(err) })
   }
@@ -122,114 +124,36 @@ class Electrum {
     return res.json({ status: 'electrumx' })
   }
 
-  // Query the Blockbook Node API for a balance on a single BCH address.
-  // Returns a Promise.
-  async balanceFromBlockbook (thisAddress) {
-    try {
-      // console.log(`BLOCKBOOK_URL: ${BLOCKBOOK_URL}`)
-
-      // Convert the address to a cashaddr without a prefix.
-      const addr = _this.bchjs.Address.toCashAddress(thisAddress)
-
-      const path = `${_this.BLOCKBOOKPATH.addrPath}${addr}`
-      // console.log(`path: ${path}`)
-
-      // Query the Blockbook Node API.
-      const options = {
-        method: 'get',
-        baseURL: path
-      }
-
-      const axiosResponse = await _this.axios.request(options)
-      const retData = axiosResponse.data
-      // console.log(`retData: ${util.inspect(retData)}`)
-
-      return retData
-    } catch (err) {
-      // Dev Note: Do not log error messages here. Throw them instead and let the
-      // parent function handle it.
-      wlogger.debug('Error in blockbook.js/balanceFromBlockbook()')
-      throw err
-    }
-  }
-
-  /**
-   * @api {get} /electrumx/balance/{addr} Get balance for a single address.
-   * @apiName Balance for a single address
-   * @apiGroup Blockbook
-   * @apiDescription Returns an object with balance and details about an address.
-   *
-   *
-   * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v3/blockbook/balance/bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf" -H "accept: application/json"
-   *
-   */
-  // GET handler for single balance
-  async balanceSingle (req, res, next) {
+  async getUtxos (req, res, next) {
     try {
       const address = req.params.address
-
-      if (!address || address === '') {
-        res.status(400)
-        return res.json({ error: 'address can not be empty' })
-      }
 
       // Reject if address is an array.
       if (Array.isArray(address)) {
         res.status(400)
         return res.json({
+          success: false,
           error: 'address can not be an array. Use POST for bulk upload.'
         })
       }
 
-      wlogger.debug(
-        'Executing blockbook/balanceSingle with this address: ',
-        address
-      )
-
-      // Ensure the input is a valid BCH address.
-      try {
-        // const legacyAddr = bchjs.Address.toLegacyAddress(address)
-        _this.bchjs.Address.toLegacyAddress(address)
-      } catch (err) {
-        res.status(400)
-        return res.json({
-          error: `Invalid BCH address. Double check your address is valid: ${address}`
-        })
-      }
+      const cashAddr = _this.bchjs.Address.toCashAddress(address)
 
       // Prevent a common user error. Ensure they are using the correct network address.
-      const networkIsValid = _this.routeUtils.validateNetwork(address)
+      const networkIsValid = _this.routeUtils.validateNetwork(cashAddr)
       if (!networkIsValid) {
         res.status(400)
         return res.json({
+          success: false,
           error:
             'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
         })
       }
 
-      // Query the Blockbook Node API.
-      const retData = await _this.balanceFromBlockbook(address)
-
-      // Return the retrieved address information.
-      res.status(200)
-      return res.json(retData)
-    } catch (err) {
-      // Write out error to error log.
-      wlogger.error('Error in blockbook.js/balanceSingle().', err)
-
-      return _this.errorHandler(err, res)
-    }
-  }
-
-  async getUtxos (req, res, next) {
-    try {
-      const address = _this.bchjs.Address.toCashAddress(req.params.address)
-
       wlogger.debug('Executing electrumx/getUtxos with this address: ', address)
 
       // Convert the address to a scripthash.
-      const scripthash = _this.addressToScripthash(address)
+      const scripthash = _this.addressToScripthash(cashAddr)
 
       if (!_this.isReady) {
         throw new Error(

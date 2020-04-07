@@ -106,53 +106,65 @@ describe('#ElectrumX Router', () => {
   })
 
   describe('#UTXO', () => {
-    // details route handler.
-    // const balanceSingle = blockbookRoute.balanceSingle
+    it('should throw 400 if address is empty', async () => {
+      const result = await electrumxRoute.getUtxos(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
 
-    // it('should throw 400 if address is empty', async () => {
-    //   const result = await blockbookRoute.balanceSingle(req, res)
-    //   // console.log(`result: ${util.inspect(result)}`)
-    //
-    //   assert.hasAllKeys(result, ['error'])
-    //   assert.include(result.error, 'address can not be empty')
-    // })
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
 
-    // it('should error on an array', async () => {
-    //   req.params.address = ['qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c']
-    //
-    //   const result = await blockbookRoute.balanceSingle(req, res)
-    //
-    //   assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-    //   assert.include(
-    //     result.error,
-    //     'address can not be an array',
-    //     'Proper error message'
-    //   )
-    // })
+      assert.property(result, 'error')
+      assert.include(result.error, 'Unsupported address format')
 
-    // it('should throw an error for an invalid address', async () => {
-    //   req.params.address =
-    //     '02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
-    //
-    //   const result = await blockbookRoute.balanceSingle(req, res)
-    //
-    //   assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-    //   assert.include(
-    //     result.error,
-    //     'Invalid BCH address',
-    //     'Proper error message'
-    //   )
-    // })
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
 
-    // it('should detect a network mismatch', async () => {
-    //   req.params.address =
-    //     'bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'
-    //
-    //   const result = await blockbookRoute.balanceSingle(req, res)
-    //
-    //   assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-    //   assert.include(result.error, 'Invalid network', 'Proper error message')
-    // })
+    it('should throw 400 on array input', async () => {
+      req.params.address = ['qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c']
+
+      const result = await electrumxRoute.getUtxos(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'address can not be an array')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw an error for an invalid address', async () => {
+      req.params.address =
+        '02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
+
+      const result = await electrumxRoute.getUtxos(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Unsupported address format')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should detect a network mismatch', async () => {
+      req.params.address =
+        'bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'
+
+      const result = await electrumxRoute.getUtxos(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Invalid network', 'Proper error message')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
 
     // it('should throw 500 when network issues', async () => {
     //   const savedUrl = process.env.BLOCKBOOK_URL

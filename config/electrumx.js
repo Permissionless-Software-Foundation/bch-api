@@ -18,6 +18,7 @@ const config = {
     //   'electron.jochen-hoenicke.de:51002'
     // ]
     serverUrl: 'fulcrum.fountainhead.cash',
+    // serverUrl: 'badurl.com',
     serverPort: '50002'
   },
   ratelimit: {
