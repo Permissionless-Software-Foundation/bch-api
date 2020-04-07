@@ -2,6 +2,11 @@
   Common configuration settings.
 */
 
-module.exports = {
-  apiTokenSecret: process.env.TOKENSECRET ? process.env.TOKENSECRET : 'secret-jwt-token'
+const electrumxConfig = require('./electrumx')
+
+const config = {
+  apiTokenSecret: process.env.TOKENSECRET ? process.env.TOKENSECRET : 'secret-jwt-token',
+  electrumx: electrumxConfig
 }
+
+module.exports = config
