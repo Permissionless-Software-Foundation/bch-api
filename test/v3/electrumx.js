@@ -29,19 +29,34 @@ const electrumxRoute = new ElecrumxRoute()
 
 // Mocking data.
 const { mockReq, mockRes } = require('./mocks/express-mocks')
-// const mockData = require('./mocks/blockbook-mock')
+const mockData = require('./mocks/electrumx-mock')
 
 // Used for debugging.
 const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-describe('#Blockbook Router', () => {
+describe('#ElectrumX Router', () => {
   let req, res
   let sandbox
-  before(() => {
+
+  before(async () => {
     // console.log(`Testing type is: ${process.env.TEST}`)
 
     if (!process.env.NETWORK) process.env.NETWORK = 'testnet'
+
+    // Connect to electrumx servers if this is an integration test.
+    if (process.env.TEST === 'integration') {
+      await electrumxRoute.connect()
+      console.log('Connected to ElectrumX server')
+    }
+  })
+
+  after(async () => {
+    // Disconnect from the electrumx server if this is an integration test.
+    if (process.env.TEST === 'integration') {
+      await electrumxRoute.disconnect()
+      console.log('Disconnected from ElectrumX server')
+    }
   })
 
   // Setup the mocks before each test.
@@ -83,7 +98,8 @@ describe('#Blockbook Router', () => {
 
       const scripthash = electrumxRoute.addressToScripthash(addr)
 
-      const expectedOutput = 'bce4d5f2803bd1ed7c1ba00dcb3edffcbba50524af7c879d6bb918d04f138965'
+      const expectedOutput =
+        'bce4d5f2803bd1ed7c1ba00dcb3edffcbba50524af7c879d6bb918d04f138965'
 
       assert.equal(scripthash, expectedOutput)
     })
@@ -204,18 +220,29 @@ describe('#Blockbook Router', () => {
       req.params.address =
         'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
 
-      // console.log(`process.env.BLOCKBOOK_URL: ${process.env.BLOCKBOOK_URL}`)
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
 
-      // Mock the Insight URL for unit tests.
-      // if (process.env.TEST === 'unit') {
-      //   sandbox.stub(blockbookRoute.axios, 'request').resolves({
-      //     data: mockData.mockBalance
-      //   })
-      // }
+        sandbox
+          .stub(electrumxRoute.electrumx, 'request')
+          .resolves(mockData.utxos)
+      }
 
       // Call the details API.
       const result = await electrumxRoute.getUtxos(req, res)
-      console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'utxos')
+      assert.isArray(result.utxos)
+
+      assert.property(result.utxos[0], 'height')
+      assert.property(result.utxos[0], 'tx_hash')
+      assert.property(result.utxos[0], 'tx_pos')
+      assert.property(result.utxos[0], 'value')
     })
   })
 })

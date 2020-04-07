@@ -9,8 +9,10 @@ const router = express.Router()
 const axios = require('axios')
 const util = require('util')
 const bitcore = require('bitcore-lib-cash')
+const ElectrumCash = require('electrum-cash').Client
 
 const wlogger = require('../../util/winston-logging')
+const config = require('../../../config')
 
 const RouteUtils = require('../../util/route-utils')
 const routeUtils = new RouteUtils()
@@ -24,10 +26,29 @@ class Electrum {
   constructor () {
     _this = this
 
+    _this.config = config
     _this.axios = axios
     _this.routeUtils = routeUtils
     _this.bchjs = bchjs
     _this.bitcore = bitcore
+
+    // Configure the ElectrumX/Fulcrum server.
+    // _this.electrumx = new ElectrumCash(
+    //   config.electrumx.application,
+    //   config.electrumx.version,
+    //   config.electrumx.confidence,
+    //   config.electrumx.distribution,
+    //   ElectrumCash.ORDER.PRIORITY
+    // )
+    _this.electrumx = new ElectrumCash(
+      config.electrumx.electrum.application,
+      config.electrumx.electrum.version,
+      config.electrumx.electrum.serverUrl,
+      config.electrumx.electrum.serverPort
+    )
+
+    _this.isReady = false
+    // _this.connectToServers()
 
     _this.router = router
     _this.router.get('/', _this.root)
@@ -37,6 +58,50 @@ class Electrum {
     // _this.router.post('/utxos', _this.utxosBulk)
     // _this.router.get('/tx/:txid', _this.txSingle)
     // _this.router.post('/tx', _this.txBulk)
+  }
+
+  // Initializes a connection to electrum servers.
+  async connect () {
+    try {
+      console.log('Entering connectToServers()')
+
+      // Return immediately if a connection has already been established.
+      if (_this.isReady) return true
+
+      // Connect to the server.
+      await _this.electrumx.connect()
+
+      // Set the connection flag.
+      _this.isReady = true
+
+      // console.log(`_this.isReady: ${_this.isReady}`)
+      return _this.isReady
+    } catch (err) {
+      // console.log(`err: `, err)
+      wlogger.error('Error in electrumx.js/connect()')
+      throw err
+    }
+  }
+
+  // Disconnect from the ElectrumX server.
+  async disconnect () {
+    try {
+      // Return immediately if the isReady flag is false.
+      if (!_this.isReady) return true
+
+      // Disconnect from the server.
+      await _this.electrumx.disconnect()
+
+      // Clear the isReady flag.
+      _this.isReady = false
+
+      // Return true to signal that the disconnection happened successfully.
+      return true
+    } catch (err) {
+      // console.log(`err: `, err)
+      wlogger.error('Error in electrumx.js/disconnect()')
+      throw err
+    }
   }
 
   // DRY error handler.
@@ -159,42 +224,48 @@ class Electrum {
 
   async getUtxos (req, res, next) {
     try {
-      let scripthash = '' // Default value
+      const address = _this.bchjs.Address.toCashAddress(req.params.address)
 
-      scripthash = _this.addressToScripthash(req.params.address)
+      wlogger.debug('Executing electrumx/getUtxos with this address: ', address)
+
+      // Convert the address to a scripthash.
+      const scripthash = _this.addressToScripthash(address)
+
+      if (!_this.isReady) {
+        throw new Error(
+          'ElectrumX server connection is not ready. Call await connectToServer() first.'
+        )
+      }
+
+      // Query the utxos from the ElectrumX server.
+      var electrumResponse = await _this.electrumx.request(
+        'blockchain.scripthash.listunspent',
+        scripthash
+      )
+      // console.log(
+      //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
+      // )
+
+      // Pass the error message if ElectrumX reports an error.
+      if (Object.prototype.hasOwnProperty.call(electrumResponse, 'code')) {
+        res.status(400)
+        return res.json({
+          success: false,
+          message: electrumResponse.message
+        })
+      }
 
       res.status(200)
-      return res.json(scripthash)
+      return res.json({
+        success: true,
+        utxos: electrumResponse
+      })
     } catch (err) {
       // Write out error to error log.
       wlogger.error('Error in elecrumx.js/getUtxos().', err)
 
       return _this.errorHandler(err, res)
     }
-
-    // try {
-    //   var electrumResponse = await electrum.request(
-    //     'blockchain.scripthash.listunspent',
-    //     scripthash
-    //   )
-    // } catch (e) {
-    //   return res.status(500).send({
-    //     success: false,
-    //     message: e.message
-    //   })
-    // }
-    //
-    // if (electrumResponse.hasOwnProperty('code')) {
-    //   return res.status(400).send({
-    //     success: false,
-    //     message: electrumResponse.message
-    //   })
-    // }
-    //
-    // return res.send({
-    //   success: true,
-    //   utxos: electrumResponse
-    // })
   }
 
   // Convert a 'bitcoincash:...' address to a script hash used by ElectrumX.
