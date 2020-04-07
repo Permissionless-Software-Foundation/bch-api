@@ -37,6 +37,7 @@ const SlpV3 = require('./routes/v3/slp')
 const xpubV3 = require('./routes/v3/xpub')
 const BlockbookV3 = require('./routes/v3/blockbook')
 const Ninsight = require('./routes/v3/ninsight')
+const ElectrumXV3 = require('./routes/v3/electrumx')
 
 require('dotenv').config()
 
@@ -47,6 +48,8 @@ const miningV3 = new MiningV3()
 const rawtransactionsV3 = new RawtransactionsV3()
 const slpV3 = new SlpV3()
 const blockbookV3 = new BlockbookV3()
+const electrumxv3 = new ElectrumXV3()
+electrumxv3.connect()
 
 const app = express()
 
@@ -114,6 +117,7 @@ app.use(`/${v3prefix}/` + 'util', utilV3.router)
 app.use(`/${v3prefix}/` + 'slp', slpV3.router)
 app.use(`/${v3prefix}/` + 'xpub', xpubV3.router)
 app.use(`/${v3prefix}/` + 'blockbook', blockbookV3.router)
+app.use(`/${v3prefix}/` + 'electrumx', electrumxv3.router)
 
 const ninsight = new Ninsight()
 app.use(`/${v3prefix}/` + 'ninsight', ninsight.router)
