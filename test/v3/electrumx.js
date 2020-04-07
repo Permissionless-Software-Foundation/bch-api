@@ -243,7 +243,7 @@ describe('#ElectrumX Router', () => {
 
       // Call the details API.
       const result = await electrumxRoute.getUtxos(req, res)
-      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.property(result, 'success')
       assert.equal(result.success, true)

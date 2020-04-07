@@ -124,6 +124,18 @@ class Electrum {
     return res.json({ status: 'electrumx' })
   }
 
+  /**
+   * @api {get} /electrumx/utxos/{addr} Get utxos for a single address.
+   * @apiName UTXOs for a single address
+   * @apiGroup ElectrumX / Fulcrum
+   * @apiDescription Returns an object with UTXOs associated with an address.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/electrumx/utxos/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
+   *
+   */
+  // GET handler for single balance
   async getUtxos (req, res, next) {
     try {
       const address = req.params.address
