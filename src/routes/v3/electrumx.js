@@ -32,14 +32,6 @@ class Electrum {
     _this.bchjs = bchjs
     _this.bitcore = bitcore
 
-    // Configure the ElectrumX/Fulcrum server.
-    // _this.electrumx = new ElectrumCash(
-    //   config.electrumx.application,
-    //   config.electrumx.version,
-    //   config.electrumx.confidence,
-    //   config.electrumx.distribution,
-    //   ElectrumCash.ORDER.PRIORITY
-    // )
     _this.electrumx = new ElectrumCash(
       config.electrumx.electrum.application,
       config.electrumx.electrum.version,
@@ -58,7 +50,7 @@ class Electrum {
   // Initializes a connection to electrum servers.
   async connect () {
     try {
-      console.log('Entering connectToServers()')
+      console.log('Attempting to connect to ElectrumX server...)')
 
       // Return immediately if a connection has already been established.
       if (_this.isReady) return true
@@ -69,12 +61,14 @@ class Electrum {
       // Set the connection flag.
       _this.isReady = true
 
+      console.log(`...Successfully connected to ElectrumX server.`)
+
       // console.log(`_this.isReady: ${_this.isReady}`)
       return _this.isReady
     } catch (err) {
-      // console.log(`err: `, err)
-      wlogger.error('Error in electrumx.js/connect()')
-      throw err
+      console.log(`err: `, err)
+      wlogger.error('Error in electrumx.js/connect(): ', err)
+      // throw err
     }
   }
 
@@ -122,6 +116,14 @@ class Electrum {
   // Root API endpoint. Simply acknowledges that it exists.
   root (req, res, next) {
     return res.json({ status: 'electrumx' })
+  }
+
+  async utxosFromElectrumx (address) {
+    try {
+
+    } catch (err) {
+
+    }
   }
 
   /**

@@ -27,4 +27,9 @@ const config = {
   }
 }
 
+if (process.env.NETWORK === 'testnet') {
+  config.electrum.serverUrl = 'blackie.c3-soft.com'
+  config.electrum.serverPort = '60002'
+}
+
 module.exports = config
