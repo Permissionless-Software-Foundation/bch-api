@@ -18,7 +18,6 @@ const config = {
     //   'electron.jochen-hoenicke.de:51002'
     // ]
     serverUrl: 'fulcrum.fountainhead.cash',
-    // serverUrl: 'badurl.com',
     serverPort: '50002'
   },
   ratelimit: {
@@ -30,6 +29,9 @@ const config = {
 if (process.env.NETWORK === 'testnet') {
   config.electrum.serverUrl = 'blackie.c3-soft.com'
   config.electrum.serverPort = '60002'
+
+  // config.electrum.serverUrl = '192.168.0.6'
+  // config.electrum.serverPort = '50001'
 }
 
 module.exports = config

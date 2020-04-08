@@ -50,7 +50,7 @@ class Electrum {
   // Initializes a connection to electrum servers.
   async connect () {
     try {
-      console.log('Attempting to connect to ElectrumX server...)')
+      console.log('Attempting to connect to ElectrumX server...')
 
       // Return immediately if a connection has already been established.
       if (_this.isReady) return true
