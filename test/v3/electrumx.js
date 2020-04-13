@@ -163,22 +163,31 @@ describe('#ElectrumX Router', () => {
       assert.property(result, 'success')
       assert.equal(result.success, false)
     })
-  })
 
-  describe('#_utxosFromElectrumx', () => {
-    // Unit test only.
-    if (process.env.TEST === 'unit') {
-      it('should pass errors from ElectrumX to user', async () => {
-        req.params.address =
-          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+    it('should pass errors from ElectrumX to user', async () => {
+      // Address has invalid checksum.
+      req.params.address =
+        'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
 
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
         sandbox
           .stub(electrumxRoute.electrumx, 'request')
           .resolves(mockData.utxos)
-      })
-    }
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.getUtxos(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Unsupported address format')
+    })
 
     it('should get balance for a single address', async () => {
       req.params.address =
@@ -195,7 +204,7 @@ describe('#ElectrumX Router', () => {
 
       // Call the details API.
       const result = await electrumxRoute.getUtxos(req, res)
-      console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.property(result, 'success')
       assert.equal(result.success, true)
@@ -207,6 +216,67 @@ describe('#ElectrumX Router', () => {
       assert.property(result.utxos[0], 'tx_hash')
       assert.property(result.utxos[0], 'tx_pos')
       assert.property(result.utxos[0], 'value')
+    })
+  })
+
+  describe('#_utxosFromElectrumx', () => {
+    it('should throw error for invalid address', async () => {
+      try {
+        // Address has invalid checksum.
+        const address = 'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
+
+        // Call the details API.
+        await electrumxRoute._utxosFromElectrumx(address)
+
+        assert.equal(true, false, 'Unexpected code path')
+      } catch (err) {
+        assert.include(err.message, 'Invalid checksum')
+      }
+    })
+
+    it('should return empty array for address with no utxos', async () => {
+      // Address has invalid checksum.
+      const address =
+        'bchtest:qqtmlpspjakqlvywae226esrcdrj9auynuwadh55uf'
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.electrumx, 'request')
+          .resolves([])
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute._utxosFromElectrumx(address)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isArray(result)
+      assert.equal(result.length, 0)
+    })
+
+    it('should get balance for a single address', async () => {
+      const address = 'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.electrumx, 'request')
+          .resolves(mockData.utxos)
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute._utxosFromElectrumx(address)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isArray(result)
+      assert.property(result[0], 'height')
+      assert.property(result[0], 'tx_hash')
+      assert.property(result[0], 'tx_pos')
+      assert.property(result[0], 'value')
     })
   })
 })

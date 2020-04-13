@@ -120,7 +120,7 @@ class Electrum {
 
   // Returns a promise that resolves to UTXO data for an address. Expects input
   // to be a cash address, and input validation to have already been done by
-  // calling function.
+  // parent, calling function.
   async _utxosFromElectrumx (address) {
     try {
       // Convert the address to a scripthash.
@@ -143,8 +143,10 @@ class Electrum {
 
       return electrumResponse
     } catch (err) {
+      // console.log('err: ', err)
+
       // Write out error to error log.
-      wlogger.error('Error in elecrumx.js/_utxosFromElectrumx().')
+      wlogger.error('Error in elecrumx.js/_utxosFromElectrumx(): ', err)
       throw err
     }
   }
@@ -191,7 +193,7 @@ class Electrum {
 
       // Get data from ElectrumX server.
       const electrumResponse = await _this._utxosFromElectrumx(cashAddr)
-      console.log(`electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`)
+      // console.log(`electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`)
 
       // Pass the error message if ElectrumX reports an error.
       if (Object.prototype.hasOwnProperty.call(electrumResponse, 'code')) {
