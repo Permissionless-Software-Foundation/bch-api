@@ -33,10 +33,10 @@ class Electrum {
     _this.bitcore = bitcore
 
     _this.electrumx = new ElectrumCash(
-      config.electrumx.electrum.application,
-      config.electrumx.electrum.version,
-      config.electrumx.electrum.serverUrl,
-      config.electrumx.electrum.serverPort
+      'bch-api',
+      '1.4.1',
+      process.env.FULCRUM_URL,
+      process.env.FULCRUM_PORT
     )
 
     _this.isReady = false
@@ -61,12 +61,12 @@ class Electrum {
       // Set the connection flag.
       _this.isReady = true
 
-      console.log(`...Successfully connected to ElectrumX server.`)
+      console.log('...Successfully connected to ElectrumX server.')
 
       // console.log(`_this.isReady: ${_this.isReady}`)
       return _this.isReady
     } catch (err) {
-      console.log(`err: `, err)
+      console.log('err: ', err)
       wlogger.error('Error in electrumx.js/connect(): ', err)
       // throw err
     }
@@ -118,11 +118,34 @@ class Electrum {
     return res.json({ status: 'electrumx' })
   }
 
-  async utxosFromElectrumx (address) {
+  // Returns a promise that resolves to UTXO data for an address. Expects input
+  // to be a cash address, and input validation to have already been done by
+  // calling function.
+  async _utxosFromElectrumx (address) {
     try {
+      // Convert the address to a scripthash.
+      const scripthash = _this.addressToScripthash(address)
 
+      if (!_this.isReady) {
+        throw new Error(
+          'ElectrumX server connection is not ready. Call await connectToServer() first.'
+        )
+      }
+
+      // Query the utxos from the ElectrumX server.
+      const electrumResponse = await _this.electrumx.request(
+        'blockchain.scripthash.listunspent',
+        scripthash
+      )
+      // console.log(
+      //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
+      // )
+
+      return electrumResponse
     } catch (err) {
-
+      // Write out error to error log.
+      wlogger.error('Error in elecrumx.js/_utxosFromElectrumx().')
+      throw err
     }
   }
 
@@ -164,25 +187,11 @@ class Electrum {
         })
       }
 
-      wlogger.debug('Executing electrumx/getUtxos with this address: ', address)
+      wlogger.debug('Executing electrumx/getUtxos with this address: ', cashAddr)
 
-      // Convert the address to a scripthash.
-      const scripthash = _this.addressToScripthash(cashAddr)
-
-      if (!_this.isReady) {
-        throw new Error(
-          'ElectrumX server connection is not ready. Call await connectToServer() first.'
-        )
-      }
-
-      // Query the utxos from the ElectrumX server.
-      var electrumResponse = await _this.electrumx.request(
-        'blockchain.scripthash.listunspent',
-        scripthash
-      )
-      // console.log(
-      //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
-      // )
+      // Get data from ElectrumX server.
+      const electrumResponse = await _this._utxosFromElectrumx(cashAddr)
+      console.log(`electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`)
 
       // Pass the error message if ElectrumX reports an error.
       if (Object.prototype.hasOwnProperty.call(electrumResponse, 'code')) {

@@ -135,8 +135,7 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should throw an error for an invalid address', async () => {
-      req.params.address =
-        '02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
+      req.params.address = '02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
 
       const result = await electrumxRoute.getUtxos(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -151,8 +150,7 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should detect a network mismatch', async () => {
-      req.params.address =
-        'bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'
+      req.params.address = 'bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'
 
       const result = await electrumxRoute.getUtxos(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -165,68 +163,22 @@ describe('#ElectrumX Router', () => {
       assert.property(result, 'success')
       assert.equal(result.success, false)
     })
+  })
 
-    // it('should throw 500 when network issues', async () => {
-    //   const savedUrl = process.env.BLOCKBOOK_URL
-    //
-    //   try {
-    //     req.params.address = 'qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
-    //
-    //     // Switch the Insight URL to something that will error out.
-    //     process.env.BLOCKBOOK_URL = 'http://fakeurl/api/'
-    //
-    //     const result = await blockbookRoute.balanceSingle(req, res)
-    //
-    //     // Restore the saved URL.
-    //     process.env.BLOCKBOOK_URL = savedUrl
-    //
-    //     assert.equal(res.statusCode, 500, 'HTTP status code 500 expected.')
-    //     assert.include(result.error, 'ENOTFOUND', 'Error message expected')
-    //   } catch (err) {
-    //     // Restore the saved URL.
-    //     process.env.BLOCKBOOK_URL = savedUrl
-    //   }
-    // })
+  describe('#_utxosFromElectrumx', () => {
+    // Unit test only.
+    if (process.env.TEST === 'unit') {
+      it('should pass errors from ElectrumX to user', async () => {
+        req.params.address =
+          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
 
-    // it('returns proper error when downstream service stalls', async () => {
-    //   req.params.address =
-    //     'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
-    //
-    //   // Mock the timeout error.
-    //   sandbox.stub(blockbookRoute.axios, 'request').throws({
-    //     code: 'ECONNABORTED'
-    //   })
-    //
-    //   const result = await blockbookRoute.balanceSingle(req, res)
-    //   // console.log(`result: ${JSON.stringify(result, null, 2)}`)
-    //
-    //   assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-    //   assert.include(
-    //     result.error,
-    //     'Could not communicate with full node',
-    //     'Error message expected'
-    //   )
-    // })
+        electrumxRoute.isReady = true // Force flag.
 
-    // it('returns proper error when downstream service is down', async () => {
-    //   req.params.address =
-    //     'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
-    //
-    //   // Mock the timeout error.
-    //   sandbox.stub(blockbookRoute.axios, 'request').throws({
-    //     code: 'ECONNREFUSED'
-    //   })
-    //
-    //   const result = await blockbookRoute.balanceSingle(req, res)
-    //   // console.log(`result: ${JSON.stringify(result, null, 2)}`)
-    //
-    //   assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-    //   assert.include(
-    //     result.error,
-    //     'Could not communicate with full node',
-    //     'Error message expected'
-    //   )
-    // })
+        sandbox
+          .stub(electrumxRoute.electrumx, 'request')
+          .resolves(mockData.utxos)
+      })
+    }
 
     it('should get balance for a single address', async () => {
       req.params.address =

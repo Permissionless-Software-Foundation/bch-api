@@ -16,7 +16,7 @@
     "dev": "nodemon ./dist/app.js",
     "test": "npm run lint && npm run test-v3",
     "lint": "standard --env mocha --fix",
-    "test-v3": "export NETWORK=mainnet && nyc --reporter=text mocha --timeout 60000 test/v3/",
+    "test-v3": "export NETWORK=mainnet && nyc --reporter=text mocha --timeout 60000 test/v3/electrumx.js",
     "test:temp": "export NETWORK=mainnet && mocha --timeout 25000 test/v3/blockchain.js",
     "test:integration": "mocha test/v3/integration",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
