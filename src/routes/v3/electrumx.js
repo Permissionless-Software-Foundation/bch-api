@@ -9,7 +9,9 @@ const router = express.Router()
 const axios = require('axios')
 const util = require('util')
 const bitcore = require('bitcore-lib-cash')
+
 const ElectrumCash = require('electrum-cash').Client
+// const ElectrumCash = require('/home/trout/work/personal/electrum-cash/electrum.js').Client // eslint-disable-line
 
 const wlogger = require('../../util/winston-logging')
 const config = require('../../../config')
@@ -37,6 +39,8 @@ class Electrum {
       '1.4.1',
       process.env.FULCRUM_URL,
       process.env.FULCRUM_PORT
+      // '192.168.0.6',
+      // '50002'
     )
 
     _this.isReady = false
@@ -51,6 +55,8 @@ class Electrum {
   async connect () {
     try {
       console.log('Attempting to connect to ElectrumX server...')
+
+      // console.log('_this.electrumx: ', _this.electrumx)
 
       // Return immediately if a connection has already been established.
       if (_this.isReady) return true

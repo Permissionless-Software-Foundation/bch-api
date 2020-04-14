@@ -1,6 +1,11 @@
 /*
   TESTS FOR THE ELECTRUMX.JS LIBRARY
 
+  Named with a01 prefix so that these tests are run first. Something about running
+  the Blcokbook and Blockchain tests screws up these tests. Spend a couple hours
+  debugging and couldn't isolate the source of the issue, but renaming the file
+  was an easy fix.
+
   This test file uses the environment variable TEST to switch between unit
   and integration tests. By default, TEST is set to 'unit'. Set this variable
   to 'integration' to run the tests against BCH mainnet.
@@ -15,15 +20,6 @@ const assert = chai.assert
 
 const sinon = require('sinon')
 
-let originalUrl // Used during transition from integration to unit tests.
-
-// Set default environment variables for unit tests.
-if (!process.env.TEST) process.env.TEST = 'unit'
-if (process.env.TEST === 'unit') {
-  process.env.BLOCKBOOK_URL = 'http://fakeurl/api/'
-}
-
-// Only load blockbook library after setting BLOCKBOOK_URL env var.
 const ElecrumxRoute = require('../../src/routes/v3/electrumx')
 const electrumxRoute = new ElecrumxRoute()
 
@@ -52,6 +48,8 @@ describe('#ElectrumX Router', () => {
   })
 
   after(async () => {
+    // console.log(`electrumxRoute.electrumx: `, electrumxRoute.electrumx)
+
     // Disconnect from the electrumx server if this is an integration test.
     if (process.env.TEST === 'integration') {
       await electrumxRoute.disconnect()
@@ -78,7 +76,7 @@ describe('#ElectrumX Router', () => {
   })
 
   after(() => {
-    process.env.BLOCKBOOK_URL = originalUrl
+    //
   })
 
   describe('#root', () => {
@@ -236,16 +234,13 @@ describe('#ElectrumX Router', () => {
 
     it('should return empty array for address with no utxos', async () => {
       // Address has invalid checksum.
-      const address =
-        'bchtest:qqtmlpspjakqlvywae226esrcdrj9auynuwadh55uf'
+      const address = 'bchtest:qqtmlpspjakqlvywae226esrcdrj9auynuwadh55uf'
 
       // Mock unit tests to prevent live network calls.
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute.electrumx, 'request')
-          .resolves([])
+        sandbox.stub(electrumxRoute.electrumx, 'request').resolves([])
       }
 
       // Call the details API.

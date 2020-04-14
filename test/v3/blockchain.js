@@ -499,6 +499,7 @@ describe('#BlockchainRouter', () => {
         process.env.BITCOINCOM_BASEURL = savedUrl
       }
     })
+
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })

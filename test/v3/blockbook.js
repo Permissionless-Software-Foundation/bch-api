@@ -15,7 +15,9 @@ const assert = chai.assert
 
 const sinon = require('sinon')
 
-let originalUrl // Used during transition from integration to unit tests.
+// Used during transition from integration to unit tests.
+// let originalUrl
+const originalUrl = process.env.BLOCKBOOK_URL
 
 // Set default environment variables for unit tests.
 if (!process.env.TEST) process.env.TEST = 'unit'
