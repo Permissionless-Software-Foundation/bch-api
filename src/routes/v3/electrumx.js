@@ -195,11 +195,14 @@ class Electrum {
         })
       }
 
-      wlogger.debug('Executing electrumx/getUtxos with this address: ', cashAddr)
+      wlogger.debug(
+        'Executing electrumx/getUtxos with this address: ',
+        cashAddr
+      )
 
       // Get data from ElectrumX server.
       const electrumResponse = await _this._utxosFromElectrumx(cashAddr)
-      // console.log(`electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`)
+      // console.log(`_utxosFromElectrumx(): ${JSON.stringify(electrumResponse, null, 2)}`)
 
       // Pass the error message if ElectrumX reports an error.
       if (Object.prototype.hasOwnProperty.call(electrumResponse, 'code')) {
@@ -242,6 +245,39 @@ class Electrum {
       return scripthash
     } catch (err) {
       wlogger.error('Error in electrumx.js/addressToScripthash()')
+      throw err
+    }
+  }
+
+  // Returns a promise that resolves to a balance for an address. Expects input
+  // to be a cash address, and input validation to have already been done by
+  // parent, calling function.
+  async _balanceFromElectrumx (address) {
+    try {
+      // Convert the address to a scripthash.
+      const scripthash = _this.addressToScripthash(address)
+
+      if (!_this.isReady) {
+        throw new Error(
+          'ElectrumX server connection is not ready. Call await connectToServer() first.'
+        )
+      }
+
+      // Query the address balance from the ElectrumX server.
+      const electrumResponse = await _this.electrumx.request(
+        'blockchain.scripthash.get_balance',
+        scripthash
+      )
+      console.log(
+        `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
+      )
+
+      return electrumResponse
+    } catch (err) {
+      // console.log('err1: ', err)
+
+      // Write out error to error log.
+      wlogger.error('Error in elecrumx.js/_utxosFromElectrumx(): ', err)
       throw err
     }
   }

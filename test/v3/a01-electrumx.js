@@ -21,7 +21,6 @@ const assert = chai.assert
 const sinon = require('sinon')
 
 const ElecrumxRoute = require('../../src/routes/v3/electrumx')
-const electrumxRoute = new ElecrumxRoute()
 
 // Mocking data.
 const { mockReq, mockRes } = require('./mocks/express-mocks')
@@ -34,9 +33,11 @@ util.inspect.defaultOptions = { depth: 1 }
 describe('#ElectrumX Router', () => {
   let req, res
   let sandbox
+  const electrumxRoute = new ElecrumxRoute()
 
   before(async () => {
-    // console.log(`Testing type is: ${process.env.TEST}`)
+    if (!process.env.TEST) process.env.TEST = 'unit'
+    console.log(`Testing type is: ${process.env.TEST}`)
 
     if (!process.env.NETWORK) process.env.NETWORK = 'testnet'
 
@@ -69,6 +70,8 @@ describe('#ElectrumX Router', () => {
     req.query = {}
 
     sandbox = sinon.createSandbox()
+
+    // electrumxRoute = new ElecrumxRoute()
   })
 
   afterEach(() => {
@@ -103,7 +106,7 @@ describe('#ElectrumX Router', () => {
     })
   })
 
-  describe('#UTXO', () => {
+  describe('#getUtxos', () => {
     it('should throw 400 if address is empty', async () => {
       const result = await electrumxRoute.getUtxos(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -196,7 +199,7 @@ describe('#ElectrumX Router', () => {
         electrumxRoute.isReady = true // Force flag.
 
         sandbox
-          .stub(electrumxRoute.electrumx, 'request')
+          .stub(electrumxRoute, '_utxosFromElectrumx')
           .resolves(mockData.utxos)
       }
 
@@ -272,6 +275,52 @@ describe('#ElectrumX Router', () => {
       assert.property(result[0], 'tx_hash')
       assert.property(result[0], 'tx_pos')
       assert.property(result[0], 'value')
+    })
+  })
+
+  describe('#_balanceFromElectrumx', () => {
+    it('should throw error for invalid address', async () => {
+      try {
+        // Address has invalid checksum.
+        const address = 'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
+
+        // Mock unit tests to prevent live network calls.
+        // if (process.env.TEST === 'unit') {
+        //   electrumxRoute.isReady = true // Force flag.
+        //
+        //   sandbox
+        //     .stub(electrumxRoute.electrumx, 'request')
+        //     .throws('Invalid Argument: Invalid checksum:')
+        // }
+
+        // Call the details API.
+        await electrumxRoute._balanceFromElectrumx(address)
+
+        assert.equal(true, false, 'Unexpected code path')
+      } catch (err) {
+        // console.log('err2: ', err)
+        assert.include(err.message, 'Invalid checksum')
+      }
+    })
+
+    it('should get balance for a single address', async () => {
+      const address = 'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.electrumx, 'request')
+          .resolves(mockData.balance)
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute._balanceFromElectrumx(address)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'confirmed')
+      assert.property(result, 'unconfirmed')
     })
   })
 })
