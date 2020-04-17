@@ -255,7 +255,7 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should get balance for a single address', async () => {
-      const address = 'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+      const address = 'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
 
       // Mock unit tests to prevent live network calls.
       if (process.env.TEST === 'unit') {
@@ -304,7 +304,7 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should get balance for a single address', async () => {
-      const address = 'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+      const address = 'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
 
       // Mock unit tests to prevent live network calls.
       if (process.env.TEST === 'unit') {
@@ -321,6 +321,84 @@ describe('#ElectrumX Router', () => {
 
       assert.property(result, 'confirmed')
       assert.property(result, 'unconfirmed')
+    })
+
+    it('should get balance for an address with no transaction history', async () => {
+      const address = 'bitcoincash:qp2ew6pvrs22jtsvtjyumjgas6jkvgn2hy3ad4wpw8'
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.electrumx, 'request')
+          .resolves(mockData.balance)
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute._balanceFromElectrumx(address)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'confirmed')
+      assert.property(result, 'unconfirmed')
+    })
+  })
+
+  describe('#_transactionsFromElectrumx', () => {
+    it('should throw error for invalid address', async () => {
+      try {
+        // Address has invalid checksum.
+        const address = 'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
+
+        // Call the details API.
+        await electrumxRoute._transactionsFromElectrumx(address)
+
+        assert.equal(true, false, 'Unexpected code path')
+      } catch (err) {
+        // console.log('err2: ', err)
+        assert.include(err.message, 'Invalid checksum')
+      }
+    })
+
+    it('should get transaction history for a single address', async () => {
+      const address = 'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.electrumx, 'request')
+          .resolves(mockData.txHistory)
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute._transactionsFromElectrumx(address)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isArray(result)
+      assert.property(result[0], 'height')
+      assert.property(result[0], 'tx_hash')
+    })
+
+    it('should get history for an address with no transaction history', async () => {
+      const address = 'bitcoincash:qp2ew6pvrs22jtsvtjyumjgas6jkvgn2hy3ad4wpw8'
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.electrumx, 'request')
+          .resolves([])
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute._transactionsFromElectrumx(address)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isArray(result)
+      assert.equal(result.length, 0)
     })
   })
 })

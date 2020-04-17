@@ -268,9 +268,9 @@ class Electrum {
         'blockchain.scripthash.get_balance',
         scripthash
       )
-      console.log(
-        `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
-      )
+      // console.log(
+      //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
+      // )
 
       return electrumResponse
     } catch (err) {
@@ -278,6 +278,39 @@ class Electrum {
 
       // Write out error to error log.
       wlogger.error('Error in elecrumx.js/_utxosFromElectrumx(): ', err)
+      throw err
+    }
+  }
+
+  // Returns a promise that resolves an array of transaction history for an
+  // address. Expects input to be a cash address, and input validation to have
+  // already been done by parent, calling function.
+  async _transactionsFromElectrumx (address) {
+    try {
+      // Convert the address to a scripthash.
+      const scripthash = _this.addressToScripthash(address)
+
+      if (!_this.isReady) {
+        throw new Error(
+          'ElectrumX server connection is not ready. Call await connectToServer() first.'
+        )
+      }
+
+      // Query the address transaction history from the ElectrumX server.
+      const electrumResponse = await _this.electrumx.request(
+        'blockchain.scripthash.get_history',
+        scripthash
+      )
+      // console.log(
+      //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
+      // )
+
+      return electrumResponse
+    } catch (err) {
+      // console.log('err1: ', err)
+
+      // Write out error to error log.
+      wlogger.error('Error in elecrumx.js/_transactionsFromElectrumx(): ', err)
       throw err
     }
   }

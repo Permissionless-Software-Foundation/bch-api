@@ -24,7 +24,15 @@ const balance = {
   unconfirmed: 0
 }
 
+const txHistory = [
+  {
+    height: 601861,
+    tx_hash: '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
+  }
+]
+
 module.exports = {
   utxos,
-  balance
+  balance,
+  txHistory
 }
