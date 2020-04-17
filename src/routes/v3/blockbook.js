@@ -192,7 +192,7 @@ class Blockbook {
       }
 
       // Enforce array size rate limits
-      if (!routeUtils.validateArraySize(req, addresses)) {
+      if (!_this.routeUtils.validateArraySize(req, addresses)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
           error: 'Array too large.'

@@ -14,4 +14,10 @@ export BLOCKBOOK_URL=https://<Blockbook IP>:9131/
 # Allow node.js to make network calls to https using self-signed certificate.
 export NODE_TLS_REJECT_UNAUTHORIZED=0
 
+# Mainnet Fulcrum / ElectrumX
+export FULCRUM_URL=192.168.0.6
+export FULCRUM_PORT=50002
+
+export TOKENSECRET=somelongpassword
+
 npm start
