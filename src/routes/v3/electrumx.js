@@ -53,6 +53,7 @@ class Electrum {
     _this.router.get('/balance/:address', _this.getBalance)
     _this.router.post('/balance', _this.balanceBulk)
     _this.router.get('/transactions/:address', _this.getTransactions)
+    _this.router.post('/transactions', _this.transactionsBulk)
   }
 
   // Initializes a connection to electrum servers.
@@ -612,6 +613,96 @@ class Electrum {
     } catch (err) {
       // Write out error to error log.
       wlogger.error('Error in elecrumx.js/getTransactions().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  /**
+   * @api {post} /electrumx/transactions Get the transaction history for an array of addresses.
+   * @apiName  Transactions for an array of addresses
+   * @apiGroup ElectrumX / Fulcrum
+   * @apiDescription Returns an array of transactions associated with an array of address.
+   * Limited to 20 items per request.
+   *
+   * @apiExample Example usage:
+   * curl -X POST "https://api.fullstack.cash/v3/electrumx/transactions" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
+   *
+   *
+   */
+  // POST handler for bulk queries on transaction histories for addresses.
+  async transactionsBulk (req, res, next) {
+    try {
+      let addresses = req.body.addresses
+
+      // Reject if addresses is not an array.
+      if (!Array.isArray(addresses)) {
+        res.status(400)
+        return res.json({
+          error: 'addresses needs to be an array. Use GET for single address.'
+        })
+      }
+
+      // Enforce array size rate limits
+      if (!_this.routeUtils.validateArraySize(req, addresses)) {
+        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        return res.json({
+          error: 'Array too large.'
+        })
+      }
+
+      wlogger.debug(
+        'Executing electrumx.js/transactionsBulk with these addresses: ',
+        addresses
+      )
+
+      // Validate each element in the address array.
+      for (let i = 0; i < addresses.length; i++) {
+        const thisAddress = addresses[i]
+
+        // Ensure the input is a valid BCH address.
+        try {
+          _this.bchjs.Address.toLegacyAddress(thisAddress)
+        } catch (err) {
+          res.status(400)
+          return res.json({
+            error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`
+          })
+        }
+
+        // Prevent a common user error. Ensure they are using the correct network address.
+        const networkIsValid = _this.routeUtils.validateNetwork(thisAddress)
+        if (!networkIsValid) {
+          res.status(400)
+          return res.json({
+            error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`
+          })
+        }
+      }
+
+      // Loops through each address and creates an array of Promises, querying
+      // ElectrumX API in parallel.
+      addresses = addresses.map(async (address, index) => {
+        // console.log(`address: ${address}`)
+        const transactions = await _this._transactionsFromElectrumx(address)
+
+        return {
+          transactions,
+          address
+        }
+      })
+
+      // Wait for all parallel Insight requests to return.
+      const result = await Promise.all(addresses)
+
+      // Return the array of retrieved address information.
+      res.status(200)
+      return res.json({
+        success: true,
+        transactions: result
+      })
+    } catch (err) {
+      wlogger.error('Error in electrumx.js/transactionsBulk().', err)
 
       return _this.errorHandler(err, res)
     }
