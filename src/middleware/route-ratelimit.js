@@ -155,7 +155,7 @@ class RateLimits {
       const apiLevel = jwtInfo.apiLevel
       const resource = jwtInfo.resource
 
-      const level30Routes = ['insight', 'bitcore', 'blockbook']
+      const level30Routes = ['insight', 'bitcore', 'blockbook', 'electrumx']
       const level40Routes = ['slp']
 
       wlogger.debug(`apiLevel: ${apiLevel}`)
