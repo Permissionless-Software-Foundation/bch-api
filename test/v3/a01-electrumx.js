@@ -278,6 +278,140 @@ describe('#ElectrumX Router', () => {
     })
   })
 
+  describe('#utxosBulk', () => {
+    it('should throw an error for an empty body', async () => {
+      req.body = {}
+
+      const result = await electrumxRoute.utxosBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
+      assert.include(
+        result.error,
+        'addresses needs to be an array',
+        'Proper error message'
+      )
+    })
+
+    it('should error on non-array single address', async () => {
+      req.body = {
+        address: 'qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
+      }
+
+      const result = await electrumxRoute.utxosBulk(req, res)
+
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
+      assert.include(
+        result.error,
+        'addresses needs to be an array',
+        'Proper error message'
+      )
+    })
+
+    it('should throw an error for an invalid address', async () => {
+      req.body = {
+        addresses: ['02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c']
+      }
+
+      const result = await electrumxRoute.utxosBulk(req, res)
+
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
+      assert.include(
+        result.error,
+        'Invalid BCH address',
+        'Proper error message'
+      )
+    })
+
+    it('should throw 400 error if addresses array is too large', async () => {
+      const testArray = []
+      for (var i = 0; i < 25; i++) testArray.push('')
+
+      req.body.addresses = testArray
+
+      const result = await electrumxRoute.utxosBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'Array too large')
+    })
+
+    it('should detect a network mismatch', async () => {
+      req.body = {
+        addresses: ['bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4']
+      }
+
+      const result = await electrumxRoute.utxosBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
+      assert.include(result.error, 'Invalid network', 'Proper error message')
+    })
+
+    it('should get details for a single address', async () => {
+      req.body = {
+        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7']
+      }
+
+      // Mock the Insight URL for unit tests.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute, '_utxosFromElectrumx')
+          .resolves(mockData.utxos)
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.utxosBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'utxos')
+      assert.isArray(result.utxos)
+
+      assert.property(result.utxos[0], 'address')
+      assert.property(result.utxos[0], 'utxos')
+
+      assert.isArray(result.utxos[0].utxos)
+      assert.property(result.utxos[0].utxos[0], 'height')
+      assert.property(result.utxos[0].utxos[0], 'tx_hash')
+      assert.property(result.utxos[0].utxos[0], 'tx_pos')
+      assert.property(result.utxos[0].utxos[0], 'value')
+    })
+
+    it('should get utxos for multiple addresses', async () => {
+      req.body = {
+        addresses: [
+          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf',
+          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+        ]
+      }
+
+      // Mock the Insight URL for unit tests.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute, '_utxosFromElectrumx')
+          .resolves(mockData.utxos)
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.utxosBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.isArray(result.utxos)
+      assert.isArray(result.utxos[0].utxos)
+      assert.equal(result.utxos.length, 2, '2 outputs for 2 inputs')
+    })
+  })
+
   describe('#_balanceFromElectrumx', () => {
     it('should throw error for invalid address', async () => {
       try {
