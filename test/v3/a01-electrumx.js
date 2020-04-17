@@ -403,19 +403,10 @@ describe('#ElectrumX Router', () => {
       assert.equal(result.success, false)
     })
 
-    it('should pass errors from ElectrumX to user', async () => {
+    it('should pass errors from electrum-cash to user', async () => {
       // Address has invalid checksum.
       req.params.address =
         'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
-
-      // Mock unit tests to prevent live network calls.
-      if (process.env.TEST === 'unit') {
-        electrumxRoute.isReady = true // Force flag.
-
-        sandbox
-          .stub(electrumxRoute.electrumx, 'request')
-          .resolves(mockData.balance)
-      }
 
       // Call the details API.
       const result = await electrumxRoute.getBalance(req, res)
@@ -509,6 +500,108 @@ describe('#ElectrumX Router', () => {
 
       assert.isArray(result)
       assert.equal(result.length, 0)
+    })
+  })
+
+  describe('#getTransactions', () => {
+    it('should throw 400 if address is empty', async () => {
+      const result = await electrumxRoute.getTransactions(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Unsupported address format')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw 400 on array input', async () => {
+      req.params.address = ['qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c']
+
+      const result = await electrumxRoute.getTransactions(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'address can not be an array')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw an error for an invalid address', async () => {
+      req.params.address = '02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
+
+      const result = await electrumxRoute.getTransactions(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Unsupported address format')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should detect a network mismatch', async () => {
+      req.params.address = 'bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'
+
+      const result = await electrumxRoute.getTransactions(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Invalid network', 'Proper error message')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should pass errors from ElectrumX to user', async () => {
+      // Address has invalid checksum.
+      req.params.address =
+        'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
+
+      // Call the details API.
+      const result = await electrumxRoute.getTransactions(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Unsupported address format')
+    })
+
+    it('should get transactions for a single address', async () => {
+      req.params.address =
+        'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute, '_transactionsFromElectrumx')
+          .resolves(mockData.txHistory)
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.getTransactions(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'transactions')
+      assert.isArray(result.transactions)
+      assert.property(result.transactions[0], 'height')
+      assert.property(result.transactions[0], 'tx_hash')
     })
   })
 })

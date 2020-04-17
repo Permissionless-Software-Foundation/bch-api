@@ -50,6 +50,7 @@ class Electrum {
     _this.router.get('/', _this.root)
     _this.router.get('/utxos/:address', _this.getUtxos)
     _this.router.get('/balance/:address', _this.getBalance)
+    _this.router.get('/transactions/:address', _this.getTransactions)
   }
 
   // Initializes a connection to electrum servers.
@@ -125,6 +126,39 @@ class Electrum {
     return res.json({ status: 'electrumx' })
   }
 
+  // Returns a promise that resolves to UTXO data for an address. Expects input
+  // to be a cash address, and input validation to have already been done by
+  // parent, calling function.
+  async _utxosFromElectrumx (address) {
+    try {
+      // Convert the address to a scripthash.
+      const scripthash = _this.addressToScripthash(address)
+
+      if (!_this.isReady) {
+        throw new Error(
+          'ElectrumX server connection is not ready. Call await connectToServer() first.'
+        )
+      }
+
+      // Query the utxos from the ElectrumX server.
+      const electrumResponse = await _this.electrumx.request(
+        'blockchain.scripthash.listunspent',
+        scripthash
+      )
+      // console.log(
+      //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
+      // )
+
+      return electrumResponse
+    } catch (err) {
+      // console.log('err: ', err)
+
+      // Write out error to error log.
+      wlogger.error('Error in elecrumx.js/_utxosFromElectrumx(): ', err)
+      throw err
+    }
+  }
+
   /**
    * @api {get} /electrumx/utxos/{addr} Get utxos for a single address.
    * @apiName UTXOs for a single address
@@ -191,6 +225,39 @@ class Electrum {
       wlogger.error('Error in elecrumx.js/getUtxos().', err)
 
       return _this.errorHandler(err, res)
+    }
+  }
+
+  // Returns a promise that resolves to a balance for an address. Expects input
+  // to be a cash address, and input validation to have already been done by
+  // parent, calling function.
+  async _balanceFromElectrumx (address) {
+    try {
+      // Convert the address to a scripthash.
+      const scripthash = _this.addressToScripthash(address)
+
+      if (!_this.isReady) {
+        throw new Error(
+          'ElectrumX server connection is not ready. Call await connectToServer() first.'
+        )
+      }
+
+      // Query the address balance from the ElectrumX server.
+      const electrumResponse = await _this.electrumx.request(
+        'blockchain.scripthash.get_balance',
+        scripthash
+      )
+      // console.log(
+      //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
+      // )
+
+      return electrumResponse
+    } catch (err) {
+      // console.log('err1: ', err)
+
+      // Write out error to error log.
+      wlogger.error('Error in elecrumx.js/_utxosFromElectrumx(): ', err)
+      throw err
     }
   }
 
@@ -264,39 +331,6 @@ class Electrum {
     }
   }
 
-  // Returns a promise that resolves to UTXO data for an address. Expects input
-  // to be a cash address, and input validation to have already been done by
-  // parent, calling function.
-  async _utxosFromElectrumx (address) {
-    try {
-      // Convert the address to a scripthash.
-      const scripthash = _this.addressToScripthash(address)
-
-      if (!_this.isReady) {
-        throw new Error(
-          'ElectrumX server connection is not ready. Call await connectToServer() first.'
-        )
-      }
-
-      // Query the utxos from the ElectrumX server.
-      const electrumResponse = await _this.electrumx.request(
-        'blockchain.scripthash.listunspent',
-        scripthash
-      )
-      // console.log(
-      //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
-      // )
-
-      return electrumResponse
-    } catch (err) {
-      // console.log('err: ', err)
-
-      // Write out error to error log.
-      wlogger.error('Error in elecrumx.js/_utxosFromElectrumx(): ', err)
-      throw err
-    }
-  }
-
   // Convert a 'bitcoincash:...' address to a script hash used by ElectrumX.
   addressToScripthash (addrStr) {
     try {
@@ -316,39 +350,6 @@ class Electrum {
       return scripthash
     } catch (err) {
       wlogger.error('Error in electrumx.js/addressToScripthash()')
-      throw err
-    }
-  }
-
-  // Returns a promise that resolves to a balance for an address. Expects input
-  // to be a cash address, and input validation to have already been done by
-  // parent, calling function.
-  async _balanceFromElectrumx (address) {
-    try {
-      // Convert the address to a scripthash.
-      const scripthash = _this.addressToScripthash(address)
-
-      if (!_this.isReady) {
-        throw new Error(
-          'ElectrumX server connection is not ready. Call await connectToServer() first.'
-        )
-      }
-
-      // Query the address balance from the ElectrumX server.
-      const electrumResponse = await _this.electrumx.request(
-        'blockchain.scripthash.get_balance',
-        scripthash
-      )
-      // console.log(
-      //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
-      // )
-
-      return electrumResponse
-    } catch (err) {
-      // console.log('err1: ', err)
-
-      // Write out error to error log.
-      wlogger.error('Error in elecrumx.js/_utxosFromElectrumx(): ', err)
       throw err
     }
   }
@@ -383,6 +384,76 @@ class Electrum {
       // Write out error to error log.
       wlogger.error('Error in elecrumx.js/_transactionsFromElectrumx(): ', err)
       throw err
+    }
+  }
+
+  /**
+   * @api {get} /electrumx/transactions/{addr} Get transaction history for a single address.
+   * @apiName Transaction history for a single address
+   * @apiGroup ElectrumX / Fulcrum
+   * @apiDescription Returns an array of historical transactions associated with an address.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/electrumx/transactions/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
+   *
+   */
+  // GET handler for single balance
+  async getTransactions (req, res, next) {
+    try {
+      const address = req.params.address
+
+      // Reject if address is an array.
+      if (Array.isArray(address)) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'address can not be an array. Use POST for bulk upload.'
+        })
+      }
+
+      // Ensure the address is in cash address format.
+      const cashAddr = _this.bchjs.Address.toCashAddress(address)
+
+      // Prevent a common user error. Ensure they are using the correct network address.
+      const networkIsValid = _this.routeUtils.validateNetwork(cashAddr)
+      if (!networkIsValid) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error:
+            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+        })
+      }
+
+      wlogger.debug(
+        'Executing electrumx/getTransactions with this address: ',
+        cashAddr
+      )
+
+      // Get data from ElectrumX server.
+      const electrumResponse = await _this._transactionsFromElectrumx(cashAddr)
+      // console.log(`_utxosFromElectrumx(): ${JSON.stringify(electrumResponse, null, 2)}`)
+
+      // Pass the error message if ElectrumX reports an error.
+      if (Object.prototype.hasOwnProperty.call(electrumResponse, 'code')) {
+        res.status(400)
+        return res.json({
+          success: false,
+          message: electrumResponse.message
+        })
+      }
+
+      res.status(200)
+      return res.json({
+        success: true,
+        transactions: electrumResponse
+      })
+    } catch (err) {
+      // Write out error to error log.
+      wlogger.error('Error in elecrumx.js/getTransactions().', err)
+
+      return _this.errorHandler(err, res)
     }
   }
 }
