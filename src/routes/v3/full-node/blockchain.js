@@ -48,6 +48,7 @@ class Blockchain {
     this.router.get('/getMempoolInfo', this.getMempoolInfo)
     this.router.get('/getRawMempool', this.getRawMempool)
     this.router.get('/getTxOut/:txid/:n', this.getTxOut)
+    this.router.post('/getTxOut', this.getTxOutPost)
     this.router.get('/getTxOutProof/:txid', this.getTxOutProofSingle)
     this.router.post('/getTxOutProof', this.getTxOutProofBulk)
     this.router.get('/verifyTxOutProof/:proof', this.verifyTxOutProofSingle)
@@ -248,7 +249,7 @@ class Blockchain {
    * returns an Object with information about blockheader hash.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://rest.bitcoin.com/v3/blockchain/getBlockHeader" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"hashes\":[\"000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201\",\"00000000000000000568f0a96bf4348847bc84e455cbfec389f27311037a20f3\"],\"verbose\":true}"
+   * curl -X POST "https://api.fullstack.cash/v3/blockchain/getBlockHeader" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"hashes\":[\"000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201\",\"00000000000000000568f0a96bf4348847bc84e455cbfec389f27311037a20f3\"],\"verbose\":true}"
    *
    * @apiParam {String} hash block hash
    * @apiParam {Boolean} verbose Return verbose data
@@ -283,7 +284,7 @@ class Blockchain {
 
       // Enforce array size rate limits
       if (!routeUtils.validateArraySize(req, hashes)) {
-        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(429) // https://github.com/Bitcoin-com/api.fullstack.cash/issues/330
         return res.json({
           error: 'Array too large.'
         })
@@ -308,7 +309,7 @@ class Blockchain {
       const options = _this.routeUtils.getAxiosOptions()
 
       // Loop through each hash and creates an array of requests to call in parallel
-      const promises = hashes.map(async hash => {
+      const promises = hashes.map(async (hash) => {
         options.data.id = 'getblockheader'
         options.data.method = 'getblockheader'
         options.data.params = [hash, verbose]
@@ -319,7 +320,7 @@ class Blockchain {
       const axiosResult = await _this.axios.all(promises)
 
       // Extract the data component from the axios response.
-      const result = axiosResult.map(x => x.data.result)
+      const result = axiosResult.map((x) => x.data.result)
 
       res.status(200)
       return res.json(result)
@@ -456,7 +457,7 @@ class Blockchain {
 
       // Enforce array size rate limits
       if (!routeUtils.validateArraySize(req, txids)) {
-        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(429) // https://github.com/Bitcoin-com/api.fullstack.cash/issues/330
         return res.json({
           error: 'Array too large.'
         })
@@ -481,7 +482,7 @@ class Blockchain {
       const options = _this.routeUtils.getAxiosOptions()
 
       // Loop through each txid and creates an array of requests to call in parallel
-      const promises = txids.map(async txid => {
+      const promises = txids.map(async (txid) => {
         options.data.id = 'getmempoolentry'
         options.data.method = 'getmempoolentry'
         options.data.params = [txid]
@@ -492,7 +493,7 @@ class Blockchain {
       const axiosResult = await _this.axios.all(promises)
 
       // Extract the data component from the axios response.
-      const result = axiosResult.map(x => x.data.result)
+      const result = axiosResult.map((x) => x.data.result)
 
       res.status(200)
       return res.json(result)
@@ -685,6 +686,60 @@ class Blockchain {
   }
 
   /**
+   * @api {post} /blockchain/getTxOut Validate a UTXO
+   * @apiName getTxOut
+   * @apiGroup Blockchain
+   * @apiDescription Returns details about an unspent transaction output (UTXO).
+   *
+   * @apiExample Example usage:
+   * curl -X POST "https://api.fullstack.cash/v3/blockchain/getTxOut" -H "Content-Type: application/json" -d '{"txid":"a402836c7ced7d7ad2df26d7ee5235f2605d59d65c5c567a750f9eaf186ebb47","vout": 0, "mempool": true}'
+   *
+   * @apiParam {String} txid Transaction id (required)
+   * @apiParam {Number} vout of transaction (required)
+   * @apiParam {Boolean} mempool Check mempool or not (optional)
+   *
+   */
+  // Returns details about an unspent transaction output.
+  async getTxOutPost (req, res, next) {
+    try {
+      const txid = req.body.txid
+      let n = req.body.vout
+      const mempool = req.body.mempool ? req.body.mempool : true
+
+      // Validate input parameter
+      if (!txid || txid === '') {
+        res.status(400)
+        return res.json({ error: 'txid can not be empty' })
+      }
+
+      if (n === undefined || n === '') {
+        res.status(400)
+        return res.json({ error: 'vout can not be empty' })
+      }
+      n = parseInt(n)
+
+      // Axios options
+      const options = _this.routeUtils.getAxiosOptions()
+
+      options.data.id = 'gettxout'
+      options.data.method = 'gettxout'
+      options.data.params = [txid, n, mempool]
+
+      // console.log(`requestConfig: ${JSON.stringify(requestConfig, null, 2)}`)
+
+      const response = await _this.axios.request(options)
+
+      return res.json(response.data.result)
+    } catch (err) {
+      // Write out error to error log.
+      // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+      wlogger.error('Error in blockchain.ts/getTxOutPost().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  /**
    * @api {get} /blockchain/getTxOutProofSingle/:txid Get Tx Out Proof
    * @apiName getTxOutProofSingle
    * @apiGroup Blockchain
@@ -739,7 +794,7 @@ class Blockchain {
 
       // Enforce array size rate limits
       if (!routeUtils.validateArraySize(req, txids)) {
-        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(429) // https://github.com/Bitcoin-com/api.fullstack.cash/issues/330
         return res.json({
           error: 'Array too large.'
         })
@@ -766,7 +821,7 @@ class Blockchain {
       )
 
       // Loop through each txid and creates an array of requests to call in parallel
-      const promises = txids.map(async txid => {
+      const promises = txids.map(async (txid) => {
         options.data.id = 'gettxoutproof'
         options.data.method = 'gettxoutproof'
         options.data.params = [[txid]]
@@ -778,7 +833,7 @@ class Blockchain {
       const axiosResult = await _this.axios.all(promises)
 
       // Extract the data component from the axios response.
-      const result = axiosResult.map(x => x.data.result)
+      const result = axiosResult.map((x) => x.data.result)
 
       res.status(200)
       return res.json(result)
@@ -833,7 +888,7 @@ class Blockchain {
 
       // Enforce array size rate limits
       if (!routeUtils.validateArraySize(req, proofs)) {
-        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(429) // https://github.com/Bitcoin-com/api.fullstack.cash/issues/330
         return res.json({
           error: 'Array too large.'
         })
@@ -858,7 +913,7 @@ class Blockchain {
       )
 
       // Loop through each proof and creates an array of requests to call in parallel
-      const promises = proofs.map(async proof => {
+      const promises = proofs.map(async (proof) => {
         options.data.id = 'verifytxoutproof'
         options.data.method = 'verifytxoutproof'
         options.data.params = [proof]
@@ -870,7 +925,7 @@ class Blockchain {
       const axiosResult = await _this.axios.all(promises)
 
       // Extract the data component from the axios response.
-      const result = axiosResult.map(x => x.data.result[0])
+      const result = axiosResult.map((x) => x.data.result[0])
 
       res.status(200)
       return res.json(result)
