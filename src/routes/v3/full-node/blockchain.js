@@ -692,7 +692,7 @@ class Blockchain {
    * @apiDescription Returns details about an unspent transaction output (UTXO).
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v3/blockchain/getTxOut" -H "Content-Type: application/json" -d '{"txid":"a402836c7ced7d7ad2df26d7ee5235f2605d59d65c5c567a750f9eaf186ebb47","vout": 0, "mempool": true}'
+   * curl -X POST "https://tapi.fullstack.cash/v3/blockchain/getTxOut" -H "Content-Type: application/json" -d '{"txid":"a402836c7ced7d7ad2df26d7ee5235f2605d59d65c5c567a750f9eaf186ebb47","vout": 0, "mempool": true}'
    *
    * @apiParam {String} txid Transaction id (required)
    * @apiParam {Number} vout of transaction (required)
