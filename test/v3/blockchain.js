@@ -1164,6 +1164,7 @@ describe('#BlockchainRouter', () => {
       assert.isArray(result)
     })
   })
+
   describe('getTxOut()', () => {
     it('should throw 400 if txid is empty', async () => {
       const result = await uut.getTxOut(req, res)
@@ -1226,6 +1227,7 @@ describe('#BlockchainRouter', () => {
         'Error message expected'
       )
     })
+
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
@@ -1245,6 +1247,7 @@ describe('#BlockchainRouter', () => {
         'Error message expected'
       )
     })
+
     // This test can only run for unit tests. See TODO at the top of this file.
     it('should GET /getTxOut', async () => {
       // Mock the RPC call for unit tests.
@@ -1279,6 +1282,124 @@ describe('#BlockchainRouter', () => {
       assert.isArray(result.scriptPubKey.addresses)
     })
   })
+
+  describe('getTxOutPost()', () => {
+    it('should throw 400 if txid is empty', async () => {
+      const result = await uut.getTxOutPost(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'txid can not be empty')
+    })
+
+    it('should throw 400 if n is empty', async () => {
+      req.body.txid = 'sometxid'
+      const result = await uut.getTxOutPost(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'vout can not be empty')
+    })
+
+    it('should throw 503 when network issues', async () => {
+      // Save the existing RPC URL.
+      const savedUrl2 = process.env.RPC_BASEURL
+
+      // Manipulate the URL to cause a 500 network error.
+      process.env.RPC_BASEURL = 'http://fakeurl/api/'
+
+      req.body.txid =
+        'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
+      req.body.vout = 0
+
+      const result = await uut.getTxOutPost(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      // Restore the saved URL.
+      process.env.RPC_BASEURL = savedUrl2
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+
+    it('returns proper error when downstream service stalls', async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
+
+      req.body.txid =
+        '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
+      req.body.vout = 0
+      req.body.mempool = true
+
+      const result = await uut.getTxOutPost(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+
+    it('returns proper error when downstream service is down', async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
+
+      req.body.txid =
+        '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
+      req.body.vout = 0
+      req.body.mempool = true
+
+      const result = await uut.getTxOutPost(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+
+    it('should POST /getTxOut', async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === 'unit') {
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockTxOut } })
+      }
+
+      req.body.txid =
+        '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
+      req.body.vout = 0
+      req.body.mempool = true
+
+      const result = await uut.getTxOutPost(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.hasAllKeys(result, [
+        'bestblock',
+        'confirmations',
+        'value',
+        'scriptPubKey',
+        'coinbase'
+      ])
+      assert.hasAllKeys(result.scriptPubKey, [
+        'asm',
+        'hex',
+        'reqSigs',
+        'type',
+        'addresses'
+      ])
+      assert.isArray(result.scriptPubKey.addresses)
+    })
+  })
+
   describe('getTxOutProofSingle()', () => {
     it('should throw 400 if txid is empty', async () => {
       const result = await uut.getTxOutProofSingle(req, res)
@@ -1311,6 +1432,7 @@ describe('#BlockchainRouter', () => {
         'Error message expected'
       )
     })
+
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
@@ -1330,6 +1452,7 @@ describe('#BlockchainRouter', () => {
         'Error message expected'
       )
     })
+
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
@@ -1367,6 +1490,7 @@ describe('#BlockchainRouter', () => {
       assert.isString(result)
     })
   })
+
   describe('#getTxOutProofBulk', () => {
     it('should throw an error for an empty body', async () => {
       req.body = {}
@@ -1407,6 +1531,7 @@ describe('#BlockchainRouter', () => {
       assert.hasAllKeys(result, ['error'])
       assert.include(result.error, 'Array too large')
     })
+
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
@@ -1425,6 +1550,7 @@ describe('#BlockchainRouter', () => {
         'Error message expected'
       )
     })
+
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
