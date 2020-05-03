@@ -147,6 +147,7 @@ describe('#Blockbook Router', () => {
         process.env.BLOCKBOOK_URL = savedUrl
       }
     })
+
     it('returns proper error when downstream service stalls', async () => {
       req.params.address =
         'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
@@ -166,6 +167,7 @@ describe('#Blockbook Router', () => {
         'Error message expected'
       )
     })
+
     it('returns proper error when downstream service is down', async () => {
       req.params.address =
         'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'

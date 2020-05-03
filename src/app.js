@@ -38,6 +38,7 @@ const xpubV3 = require('./routes/v3/xpub')
 const BlockbookV3 = require('./routes/v3/blockbook')
 const Ninsight = require('./routes/v3/ninsight')
 const ElectrumXV3 = require('./routes/v3/electrumx')
+const EncryptionV3 = require('./routes/v3/encryption')
 
 require('dotenv').config()
 
@@ -50,6 +51,7 @@ const slpV3 = new SlpV3()
 const blockbookV3 = new BlockbookV3()
 const electrumxv3 = new ElectrumXV3()
 electrumxv3.connect()
+const encryptionv3 = new EncryptionV3()
 
 const app = express()
 
@@ -118,6 +120,7 @@ app.use(`/${v3prefix}/` + 'slp', slpV3.router)
 app.use(`/${v3prefix}/` + 'xpub', xpubV3.router)
 app.use(`/${v3prefix}/` + 'blockbook', blockbookV3.router)
 app.use(`/${v3prefix}/` + 'electrumx', electrumxv3.router)
+app.use(`/${v3prefix}/` + 'encryption', encryptionv3.router)
 
 const ninsight = new Ninsight()
 app.use(`/${v3prefix}/` + 'ninsight', ninsight.router)

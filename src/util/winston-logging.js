@@ -48,7 +48,7 @@ var wlogger = winston.createLogger({
 wlogger.add(
   new winston.transports.Console({
     format: winston.format.simple(),
-    level: "info"
+    level: 'info'
   })
 )
 */
