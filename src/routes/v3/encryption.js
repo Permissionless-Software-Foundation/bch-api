@@ -75,7 +75,9 @@ class Encryption {
    * @api {get} /encryption/publickey/{addr} Get public key for a BCH address.
    * @apiName Get encryption key for bch address
    * @apiGroup Encryption
-   * @apiDescription Searches the blockchain for a public key associated with a BCH address.
+   * @apiDescription Searches the blockchain for a public key associated with a
+   * BCH address. Returns an object. If successful, the publicKey property will
+   * contain a hexidecimal representation of the public key.
    *
    *
    * @apiExample Example usage:
