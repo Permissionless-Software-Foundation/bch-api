@@ -77,10 +77,6 @@ describe('#Encryption Router', () => {
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
-        // sandbox.stub(blockbookRoute.axios, 'request').resolves({
-        //   data: mockData.mockBalance
-        // })
-
         sandbox
           .stub(encryptionRoute.blockbook, 'balanceFromBlockbook')
           .resolves(mockData.mockBalance)
@@ -96,7 +92,55 @@ describe('#Encryption Router', () => {
       assert.equal(result.success, true)
 
       assert.property(result, 'publicKey')
-      assert.equal(result.publicKey, '044eb40b025df18409f2a5197b010dd62a9e65d9a74e415e5b10367721a9c4baa7ebfee22d14b8ece1c9bd70c0d9e5e8b00b61b81b88a1b5ce6f24eac6b8a34b2c')
+      assert.equal(
+        result.publicKey,
+        '044eb40b025df18409f2a5197b010dd62a9e65d9a74e415e5b10367721a9c4baa7ebfee22d14b8ece1c9bd70c0d9e5e8b00b61b81b88a1b5ce6f24eac6b8a34b2c'
+      )
+    })
+
+    it('should return false for address with no tx history', async () => {
+      req.params.address =
+        'bitcoincash:qqwfpk04ecf69wuprj9yjys9rla5mk7rj5j8uthqel'
+
+      // Mock the Insight URL for unit tests.
+      if (process.env.TEST === 'unit') {
+        sandbox
+          .stub(encryptionRoute.blockbook, 'balanceFromBlockbook')
+          .resolves(mockData.mockNoTxHistory)
+      }
+
+      const result = await encryptionRoute.getPublicKey(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'No transaction history')
+    })
+
+    it('should return false for address with no send history', async () => {
+      req.params.address =
+        'bitcoincash:qq78nwj5x97yh6wtlfd27dtlwjuh70vkjc59h8tgtg'
+
+      // Mock the Insight URL for unit tests.
+      if (process.env.TEST === 'unit') {
+        sandbox
+          .stub(encryptionRoute.blockbook, 'balanceFromBlockbook')
+          .resolves(mockData.mockNoSendBalance)
+        sandbox
+          .stub(encryptionRoute.rawTransactions, 'getRawTransactionsFromNode')
+          .resolves(mockData.mockNoSendTx)
+      }
+
+      const result = await encryptionRoute.getPublicKey(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+
+      assert.property(result, 'publicKey')
+      assert.include(result.publicKey, 'not found')
     })
   })
 })

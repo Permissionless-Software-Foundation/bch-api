@@ -93,7 +93,87 @@ const mockTxDetails = {
   blocktime: 1545564654
 }
 
+const mockNoTxHistory = {
+  page: 1,
+  totalPages: 1,
+  itemsOnPage: 1000,
+  address: 'bitcoincash:qqwfpk04ecf69wuprj9yjys9rla5mk7rj5j8uthqel',
+  balance: '0',
+  totalReceived: '0',
+  totalSent: '0',
+  unconfirmedBalance: '0',
+  unconfirmedTxs: 0,
+  txs: 0
+}
+
+const mockNoSendBalance = {
+  page: 1,
+  totalPages: 1,
+  itemsOnPage: 1000,
+  address: 'bitcoincash:qq78nwj5x97yh6wtlfd27dtlwjuh70vkjc59h8tgtg',
+  balance: '0',
+  totalReceived: '0',
+  totalSent: '0',
+  unconfirmedBalance: '600',
+  unconfirmedTxs: 1,
+  txs: 0,
+  txids: [
+    'a3b62cd4f4c56ba52139179db14bffd4ab22a2e077f3c62bd5cf0541bfcaf023'
+  ]
+}
+
+const mockNoSendTx = {
+  txid: 'a3b62cd4f4c56ba52139179db14bffd4ab22a2e077f3c62bd5cf0541bfcaf023',
+  hash: 'a3b62cd4f4c56ba52139179db14bffd4ab22a2e077f3c62bd5cf0541bfcaf023',
+  version: 2,
+  size: 226,
+  locktime: 0,
+  vin: [
+    {
+      txid: '681cc1d392975a7e78cbd490b8a940d7eb029c554f2cee332e3a7119d77fb189',
+      vout: 1,
+      scriptSig: {
+        asm: '30450221008a7c86ce3a9f5765573440143a00631bb5afa9a58b24674a7fa794bb11ffffc30220397dd4c672c3e0dbe0c4eb6390b5727c5fdc3a42cf3ae275ac13b44d27bb234f[ALL|FORKID] 02bc9fc26ae2bd9a9a14e9baeda4b4fdd95a00bcbf375732c647488b3ce82a2fd7',
+        hex: '4830450221008a7c86ce3a9f5765573440143a00631bb5afa9a58b24674a7fa794bb11ffffc30220397dd4c672c3e0dbe0c4eb6390b5727c5fdc3a42cf3ae275ac13b44d27bb234f412102bc9fc26ae2bd9a9a14e9baeda4b4fdd95a00bcbf375732c647488b3ce82a2fd7'
+      },
+      sequence: 4294967295
+    }
+  ],
+  vout: [
+    {
+      value: 0.000006,
+      n: 0,
+      scriptPubKey: {
+        asm: 'OP_DUP OP_HASH160 3c79ba54317c4be9cbfa5aaf357f74b97f3d9696 OP_EQUALVERIFY OP_CHECKSIG',
+        hex: '76a9143c79ba54317c4be9cbfa5aaf357f74b97f3d969688ac',
+        reqSigs: 1,
+        type: 'pubkeyhash',
+        addresses: [
+          'bitcoincash:qq78nwj5x97yh6wtlfd27dtlwjuh70vkjc59h8tgtg'
+        ]
+      }
+    },
+    {
+      value: 0.00003664,
+      n: 1,
+      scriptPubKey: {
+        asm: 'OP_DUP OP_HASH160 58502a73888e0a386fc69b44850af4b2a86ac9a6 OP_EQUALVERIFY OP_CHECKSIG',
+        hex: '76a91458502a73888e0a386fc69b44850af4b2a86ac9a688ac',
+        reqSigs: 1,
+        type: 'pubkeyhash',
+        addresses: [
+          'bitcoincash:qpv9q2nn3z8q5wr0c6d5fpg27je2s6kf5cavp4ney0'
+        ]
+      }
+    }
+  ],
+  hex: '020000000189b17fd719713a2e33ee2c4f559c02ebd740a9b890d4cb787e5a9792d3c11c68010000006b4830450221008a7c86ce3a9f5765573440143a00631bb5afa9a58b24674a7fa794bb11ffffc30220397dd4c672c3e0dbe0c4eb6390b5727c5fdc3a42cf3ae275ac13b44d27bb234f412102bc9fc26ae2bd9a9a14e9baeda4b4fdd95a00bcbf375732c647488b3ce82a2fd7ffffffff0258020000000000001976a9143c79ba54317c4be9cbfa5aaf357f74b97f3d969688ac500e0000000000001976a91458502a73888e0a386fc69b44850af4b2a86ac9a688ac00000000'
+}
+
 module.exports = {
   mockBalance,
-  mockTxDetails
+  mockTxDetails,
+  mockNoTxHistory,
+  mockNoSendBalance,
+  mockNoSendTx
 }

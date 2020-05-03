@@ -120,7 +120,8 @@ class Encryption {
       const txHistory = balance.txids
       // console.log(`txHistory: ${JSON.stringify(txHistory, null, 2)}`)
 
-      if (txHistory.length === 0) {
+      // throw error if there is no transaction history.
+      if (!txHistory || txHistory.length === 0) {
         throw new Error('No transaction history.')
       }
 
