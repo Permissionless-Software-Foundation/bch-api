@@ -89,6 +89,6 @@
   },
   "apidoc": {
     "title": "bch-api",
-    "url": "localhost:3000"
+    "url": "https://api.fullstack.cash/v3/"
   }
 }

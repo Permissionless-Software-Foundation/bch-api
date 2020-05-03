@@ -24,7 +24,7 @@ const encryptionRoute = new EncryptionRoute()
 
 // Mocking data.
 const { mockReq, mockRes } = require('./mocks/express-mocks')
-// const mockData = require('./mocks/blockbook-mock')
+const mockData = require('./mocks/encryption-mocks')
 
 // Used for debugging.
 const util = require('util')
@@ -67,6 +67,36 @@ describe('#Encryption Router', () => {
       const result = root(req, res)
 
       assert.equal(result.status, 'encryption', 'Returns static string')
+    })
+  })
+
+  describe('#getPublicKey', () => {
+    it('should get public key from blockchain', async () => {
+      req.params.address =
+        'bitcoincash:qrehqueqhw629p6e57994436w730t4rzasnly00ht0'
+
+      // Mock the Insight URL for unit tests.
+      if (process.env.TEST === 'unit') {
+        // sandbox.stub(blockbookRoute.axios, 'request').resolves({
+        //   data: mockData.mockBalance
+        // })
+
+        sandbox
+          .stub(encryptionRoute.blockbook, 'balanceFromBlockbook')
+          .resolves(mockData.mockBalance)
+        sandbox
+          .stub(encryptionRoute.rawTransactions, 'getRawTransactionsFromNode')
+          .resolves(mockData.mockTxDetails)
+      }
+
+      const result = await encryptionRoute.getPublicKey(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'publicKey')
+      assert.equal(result.publicKey, '044eb40b025df18409f2a5197b010dd62a9e65d9a74e415e5b10367721a9c4baa7ebfee22d14b8ece1c9bd70c0d9e5e8b00b61b81b88a1b5ce6f24eac6b8a34b2c')
     })
   })
 })
