@@ -341,6 +341,183 @@ const mockTwoRedundentTxid = {
   u: []
 }
 
+const mockTxHistory = [
+  {
+    tx: {
+      h: '3a7646b3976a8745928c7192c8dde989bfa275fa6d7bce950180ab8002cf6cef'
+    },
+    in: [
+      {
+        i: 0,
+        e: {
+          h: '7bdd586ebd1e5f3dfd5295ab6e896c48b25855ab77a72c035ce1e7aacc965c2d',
+          i: 1,
+          s: 'RzBEAiAsu5o9EnxgZChjxKygxhGLhlfxJJbQfd4PP/vp2od3fAIgPpMqg+Sp4YpiInQZ6weJwELq8LEIrHXJpueBz7yF5gRBIQLsyL3809mRphc/+tPAcTQO5bi0kqZRFKpKIHXE3qN8Rw==',
+          a: 'simpleledger:qrrrpqmdkggpnw0czwg0jgcjd7yhu25jy5zxh2gqdq'
+        }
+      },
+      {
+        i: 1,
+        e: {
+          h: 'df49feff24dc34a10a44a0cbd7c908d964801ec7218512c84574fbce698535f0',
+          i: 3,
+          s: 'SDBFAiEAhW3zbKTlPrOXD2E2oEcNof6vCMPGYIg8vOVSE9c8IakCIFLg/gxydG9eL8HMAzkScGElKWJRnfhVMpMHU3evNcrZQSEDRS7F+pSC8OxSldsT4FctJLZBU7f2+FDiE05ae1xqtN0=',
+          a: 'simpleledger:qpkpeqfslejw5pptzcy25h2jxhsc9k0vts43n26up0'
+        }
+      }
+    ],
+    out: [
+      {
+        e: {
+          v: 0,
+          i: 0,
+          s: 'agRTTFAAAQEEU0VORCA46XxdfTWFosvz+VgMgsozmF+csIRdTcziIMtwn5U4sAgAAAAAAJiWgAgAAAAAJHfU+g=='
+        }
+      },
+      {
+        e: {
+          v: 546,
+          i: 1,
+          s: 'dqkUqo4lVohqOK6rDd7nIIkFQ6Uf41aIrA==',
+          a: 'simpleledger:qz4guf2k3p4r3t4tph0wwgyfq4p628lr2c0cvqplza'
+        }
+      },
+      {
+        e: {
+          v: 546,
+          i: 2,
+          s: 'dqkUgYSfxf90wVkERCiOMyh16iB4d92IrA==',
+          a: 'simpleledger:qzqcf879la6vzkgygs5guvegwh4zq7rhm5nu0pljjl'
+        }
+      },
+      {
+        e: {
+          v: 21849,
+          i: 3,
+          s: 'dqkUxjCDbbIQGbn4E5D5IxJviX4qkiWIrA==',
+          a: 'simpleledger:qrrrpqmdkggpnw0czwg0jgcjd7yhu25jy5zxh2gqdq'
+        }
+      }
+    ],
+    slp: {
+      detail: {
+        decimals: 8,
+        tokenIdHex: '38e97c5d7d3585a2cbf3f9580c82ca33985f9cb0845d4dcce220cb709f9538b0',
+        transactionType: 'SEND',
+        versionType: 1,
+        documentUri: 'psfoundation.cash',
+        documentSha256Hex: null,
+        symbol: 'PSF',
+        name: 'Permissionless Software Foundation',
+        txnBatonVout: null,
+        txnContainsBaton: false,
+        outputs: [
+          {
+            address: 'simpleledger:qz4guf2k3p4r3t4tph0wwgyfq4p628lr2c0cvqplza',
+            amount: '0.1'
+          },
+          {
+            address: 'simpleledger:qzqcf879la6vzkgygs5guvegwh4zq7rhm5nu0pljjl',
+            amount: '6.11833082'
+          }
+        ]
+      }
+    },
+    blk: {
+      h: '000000000000000001a47bf337ca211c1e7218234d0d70117c64d6f213f5dacb',
+      i: 634833,
+      t: 1589300214
+    }
+  },
+  {
+    tx: {
+      h: '3b11b48cab1e7c8384facf482b3f6bfe659a58245ab4aa4147b42b5cb2a5fac5'
+    },
+    in: [
+      {
+        i: 0,
+        e: {
+          h: 'e4e1e1f6b502cbd42f69b919634cea3e37fc8595e6ca800e0a7d8f6dcdfb249e',
+          i: 3,
+          s: 'SDBFAiEAjCGRmU28x24LMTwg5XqC+fLf3zGhTYCsSWpmF8Eshq0CIAJhxAKMbwKWC4ASmjWzplpno2ch+hGNUD6HNWOdbd4SQSECeRsZo5Fl29g0A9bfJo1E/WIdowWBsLblyxWnEB7ViFE=',
+          a: 'simpleledger:qpvsg9vl9a5mlf37a7n3yce6pktdctn73qznkmw3s7'
+        }
+      },
+      {
+        i: 1,
+        e: {
+          h: '438420345dd8b7fb4ea74aaf2e3090f44899bf3c71662243946a441de6dae720',
+          i: 2,
+          s: 'SDBFAiEAhmLYL4QY3mvZo3/i0XG9PJAYMruw3MaGOLJ3Z4si7hwCIAaaGwRnj/cZK3L/KKFBoMtItpGRZ10GowNN//vgn6PKQSECeRsZo5Fl29g0A9bfJo1E/WIdowWBsLblyxWnEB7ViFE=',
+          a: 'simpleledger:qpvsg9vl9a5mlf37a7n3yce6pktdctn73qznkmw3s7'
+        }
+      }
+    ],
+    out: [
+      {
+        e: {
+          v: 0,
+          i: 0,
+          s: 'agRTTFAAAQEEU0VORCCk+1wtoaoGTiUBikP5FlBABx2emEuhkMIip/WQU6+EsggAAAAAAA9CQAgAAAAXQnHEwA=='
+        }
+      },
+      {
+        e: {
+          v: 546,
+          i: 1,
+          s: 'dqkUqo4lVohqOK6rDd7nIIkFQ6Uf41aIrA==',
+          a: 'simpleledger:qz4guf2k3p4r3t4tph0wwgyfq4p628lr2c0cvqplza'
+        }
+      },
+      {
+        e: {
+          v: 546,
+          i: 2,
+          s: 'dqkUWQQVny9pv6Y+76cSYzoNltwufoiIrA==',
+          a: 'simpleledger:qpvsg9vl9a5mlf37a7n3yce6pktdctn73qznkmw3s7'
+        }
+      },
+      {
+        e: {
+          v: 43074,
+          i: 3,
+          s: 'dqkUWQQVny9pv6Y+76cSYzoNltwufoiIrA==',
+          a: 'simpleledger:qpvsg9vl9a5mlf37a7n3yce6pktdctn73qznkmw3s7'
+        }
+      }
+    ],
+    slp: {
+      detail: {
+        decimals: 2,
+        tokenIdHex: 'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2',
+        transactionType: 'SEND',
+        versionType: 1,
+        documentUri: 'troutsblog.com',
+        documentSha256Hex: null,
+        symbol: 'TROUT',
+        name: "Trout's test token",
+        txnBatonVout: null,
+        txnContainsBaton: false,
+        outputs: [
+          {
+            address: 'simpleledger:qz4guf2k3p4r3t4tph0wwgyfq4p628lr2c0cvqplza',
+            amount: '10000'
+          },
+          {
+            address: 'simpleledger:qpvsg9vl9a5mlf37a7n3yce6pktdctn73qznkmw3s7',
+            amount: '998990000'
+          }
+        ]
+      }
+    },
+    blk: {
+      h: '000000000000000002a4ee2ed6fe8a764ffef0b2556f545ca0b3ef39ecd2b7c4',
+      i: 634832,
+      t: 1589297145
+    }
+  }
+]
+
 module.exports = {
   mockList,
   mockSingleToken,
@@ -355,5 +532,6 @@ module.exports = {
   mockFoobar,
   mockSingleValidTxid,
   mockTwoValidTxid,
-  mockTwoRedundentTxid
+  mockTwoRedundentTxid,
+  mockTxHistory
 }

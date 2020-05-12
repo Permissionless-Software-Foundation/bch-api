@@ -397,6 +397,7 @@ describe('#SLP', () => {
         'Error message expected'
       )
     })
+
     it('should validate array with single element', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
@@ -806,8 +807,7 @@ describe('#SLP', () => {
     })
 
     it('should throw 400 if address network mismatch', async () => {
-      req.params.address =
-        'slptest:qr83cu3p7yg9yac7qthwm0nul2ev2kukvsqmes3vl0'
+      req.params.address = 'slptest:qr83cu3p7yg9yac7qthwm0nul2ev2kukvsqmes3vl0'
 
       const result = await txsByAddressSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -817,25 +817,18 @@ describe('#SLP', () => {
     })
 
     it('should get tx history', async () => {
-      // if (process.env.TEST === "unit") {
-      //   // nock(`${process.env.SLPDB_URL}`)
-      //   //   .get(uri => uri.includes("/"))
-      //   //   .reply(200, {
-      //   //     c: mockData.mockTransactions
-      //   //   })
-      //   slpRoute.
-      // }
+      if (process.env.TEST === 'unit') {
+        sandbox
+          .stub(slpRoute.slpdb, 'getHistoricalSlpTransactions')
+          .resolves(mockData.mockTxHistory)
+      }
 
       // req.params.address = 'simpleledger:qr5agtachyxvrwxu76vzszan5pnvuzy8duhv4lxrsk'
-      req.params.address = 'simpleledger:qz4guf2k3p4r3t4tph0wwgyfq4p628lr2c0cvqplza'
+      req.params.address =
+        'simpleledger:qz4guf2k3p4r3t4tph0wwgyfq4p628lr2c0cvqplza'
 
       const result = await slpRoute.txsByAddressSingle(req, res)
-      console.log(`result: ${JSON.stringify(result, null, 2)}`)
-
-      // for(let i=0; i < result.length; i++) {
-      //   const entry = result[i]
-      //
-      // }
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isArray(result)
     })

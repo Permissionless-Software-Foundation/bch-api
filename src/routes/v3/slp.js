@@ -1624,6 +1624,7 @@ class Slp {
       const transactions = await _this.slpdb.getHistoricalSlpTransactions([
         address
       ])
+      // console.log(`transactions: ${JSON.stringify(transactions, null, 2)}`)
 
       res.status(200)
       return res.json(transactions)
