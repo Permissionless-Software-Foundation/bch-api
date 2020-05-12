@@ -461,17 +461,18 @@ describe('#SLP', () => {
     })
   })
 
-  describe('tokenStatsSingle()', () => {
-    const tokenStatsSingle = slpRoute.tokenStats
+  describe('tokenStats()', () => {
+    const tokenStats = slpRoute.tokenStats
 
     it('should throw 400 if tokenID is empty', async () => {
       req.params.tokenId = ''
-      const result = await tokenStatsSingle(req, res)
+      const result = await tokenStats(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ['error'])
       assert.include(result.error, 'tokenId can not be empty')
     })
+
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNABORTED' })
@@ -479,7 +480,7 @@ describe('#SLP', () => {
       req.params.tokenId =
         '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
 
-      const result = await tokenStatsSingle(req, res)
+      const result = await tokenStats(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
@@ -497,7 +498,7 @@ describe('#SLP', () => {
       req.params.tokenId =
         '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
 
-      const result = await tokenStatsSingle(req, res)
+      const result = await tokenStats(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
@@ -507,7 +508,7 @@ describe('#SLP', () => {
         'Error message expected'
       )
     })
-    //
+
     it('should get token stats for tokenId', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
@@ -526,7 +527,7 @@ describe('#SLP', () => {
       req.params.tokenId =
         '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
 
-      const result = await tokenStatsSingle(req, res)
+      const result = await tokenStats(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAnyKeys(result, [

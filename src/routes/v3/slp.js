@@ -7,6 +7,9 @@ const BigNumber = require('bignumber.js')
 
 const RouteUtils = require('../../util/route-utils')
 const routeUtils = new RouteUtils()
+
+const Slpdb = require('./services/slpdb')
+
 // const strftime = require('strftime')
 const wlogger = require('../../util/winston-logging')
 
@@ -50,6 +53,7 @@ class Slp {
     _this.BigNumber = BigNumber
     _this.bchjs = bchjs
     _this.rawTransactions = rawTransactions
+    _this.slpdb = new Slpdb()
 
     _this.router = router
 
@@ -1410,10 +1414,17 @@ class Slp {
       const s = JSON.stringify(query)
       const b64 = Buffer.from(s).toString('base64')
       const url = `${process.env.SLPDB_URL}q/${b64}`
+
+      const options = _this.generateCredentials()
+
+      // Request options
       const opt = {
         method: 'get',
-        baseURL: url
+        baseURL: url,
+        headers: options.headers,
+        timeout: options.timeout
       }
+
       // Get data from BitDB.
       const tokenRes = await _this.axios.request(opt)
 
