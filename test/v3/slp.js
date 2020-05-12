@@ -68,7 +68,7 @@ describe('#SLP', () => {
     res = mockRes
 
     // Explicitly reset the parmas and body.
-    // req.params = {}
+    req.params = {}
     req.body = {}
     req.query = {}
     req.locals = {}
@@ -772,6 +772,72 @@ describe('#SLP', () => {
         'Could not communicate with full node',
         'Error message expected'
       )
+    })
+  })
+
+  describe('txsByAddressSingle()', () => {
+    const txsByAddressSingle = slpRoute.txsByAddressSingle
+
+    it('should throw 400 if address is missing', async () => {
+      const result = await txsByAddressSingle(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'address can not be empty')
+    })
+
+    it('should throw 400 if address is empty', async () => {
+      req.params.address = ''
+      const result = await txsByAddressSingle(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'address can not be empty')
+    })
+
+    it('should throw 400 if address is invalid', async () => {
+      req.params.address = 'badAddress'
+
+      const result = await txsByAddressSingle(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'Invalid BCH address.')
+    })
+
+    it('should throw 400 if address network mismatch', async () => {
+      req.params.address =
+        'slptest:qr83cu3p7yg9yac7qthwm0nul2ev2kukvsqmes3vl0'
+
+      const result = await txsByAddressSingle(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'Invalid')
+    })
+
+    it('should get tx history', async () => {
+      // if (process.env.TEST === "unit") {
+      //   // nock(`${process.env.SLPDB_URL}`)
+      //   //   .get(uri => uri.includes("/"))
+      //   //   .reply(200, {
+      //   //     c: mockData.mockTransactions
+      //   //   })
+      //   slpRoute.
+      // }
+
+      // req.params.address = 'simpleledger:qr5agtachyxvrwxu76vzszan5pnvuzy8duhv4lxrsk'
+      req.params.address = 'simpleledger:qz4guf2k3p4r3t4tph0wwgyfq4p628lr2c0cvqplza'
+
+      const result = await slpRoute.txsByAddressSingle(req, res)
+      console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      // for(let i=0; i < result.length; i++) {
+      //   const entry = result[i]
+      //
+      // }
+
+      assert.isArray(result)
     })
   })
 })

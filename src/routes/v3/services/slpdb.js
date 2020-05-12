@@ -4,12 +4,14 @@ const SLPSDK = require('@chris.troutner/bch-js')
 const SLP = new SLPSDK()
 
 class Slpdb {
-  async getHistoricalSlpTransactions (addressList, fromBlock) {
+  // Gets transaction history for all tokens for an address. Can also specify
+  // block height, but defaults to 0.
+  async getHistoricalSlpTransactions (addressList, fromBlock = 0) {
     // Build SLPDB or query from addressList
     const orQueryArray = []
     for (const address of addressList) {
-      const cashAddress = SLP.Address.toCashAddress(address)
-      const slpAddress = SLP.Address.toSLPAddress(address)
+      const cashAddress = SLP.SLP.Address.toCashAddress(address)
+      const slpAddress = SLP.SLP.Address.toSLPAddress(address)
 
       const cashQuery = {
         'in.e.a': cashAddress.slice(12)
@@ -55,11 +57,16 @@ class Slpdb {
     }
 
     const result = await this.runQuery(query)
+    // console.log(`result.data: ${JSON.stringify(result.data, null, 2)}`)
 
     let transactions = []
+
+    // Add confirmed transactions
     if (result.data && result.data.c) {
       transactions = transactions.concat(result.data.c)
     }
+
+    // Add unconfirmed transactions
     if (result.data && result.data.u) {
       transactions = transactions.concat(result.data.u)
     }
