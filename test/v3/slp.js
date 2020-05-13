@@ -68,7 +68,7 @@ describe('#SLP', () => {
     res = mockRes
 
     // Explicitly reset the parmas and body.
-    // req.params = {}
+    req.params = {}
     req.body = {}
     req.query = {}
     req.locals = {}
@@ -397,6 +397,7 @@ describe('#SLP', () => {
         'Error message expected'
       )
     })
+
     it('should validate array with single element', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
@@ -461,25 +462,24 @@ describe('#SLP', () => {
     })
   })
 
-  describe('tokenStatsSingle()', () => {
-    const tokenStatsSingle = slpRoute.tokenStats
-
+  describe('tokenStats()', () => {
     it('should throw 400 if tokenID is empty', async () => {
       req.params.tokenId = ''
-      const result = await tokenStatsSingle(req, res)
+      const result = await slpRoute.tokenStats(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ['error'])
       assert.include(result.error, 'tokenId can not be empty')
     })
+
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
-      sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNABORTED' })
+      sandbox.stub(slpRoute.slpdb, 'getTokenStats').throws({ code: 'ECONNABORTED' })
 
       req.params.tokenId =
         '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
 
-      const result = await tokenStatsSingle(req, res)
+      const result = await slpRoute.tokenStats(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
@@ -492,12 +492,12 @@ describe('#SLP', () => {
 
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
-      sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNREFUSED' })
+      sandbox.stub(slpRoute.slpdb, 'getTokenStats').throws({ code: 'ECONNREFUSED' })
 
       req.params.tokenId =
         '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
 
-      const result = await tokenStatsSingle(req, res)
+      const result = await slpRoute.tokenStats(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
@@ -506,50 +506,6 @@ describe('#SLP', () => {
         'Could not communicate with full node',
         'Error message expected'
       )
-    })
-    //
-    it('should get token stats for tokenId', async () => {
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === 'unit') {
-        sandbox.stub(slpRoute.axios, 'request').resolves({
-          data: {
-            t: [
-              {
-                tokenDetails: mockData.mockTokenDetails,
-                tokenStats: mockData.mockTokenStats
-              }
-            ]
-          }
-        })
-      }
-
-      req.params.tokenId =
-        '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
-
-      const result = await tokenStatsSingle(req, res)
-      // console.log(`result: ${util.inspect(result)}`)
-
-      assert.hasAnyKeys(result, [
-        'blockCreated',
-        'blockLastActiveMint',
-        'blockLastActiveSend',
-        'containsBaton',
-        'initialTokenQty',
-        'mintingBatonStatus',
-        'circulatingSupply',
-        'decimals',
-        'documentHash',
-        'versionType',
-        'timestamp',
-        'documentUri',
-        'name',
-        'symbol',
-        'id',
-        'totalBurned',
-        'totalMinted',
-        'txnsSinceGenesis',
-        'validAddresses'
-      ])
     })
   })
 
@@ -771,6 +727,64 @@ describe('#SLP', () => {
         'Could not communicate with full node',
         'Error message expected'
       )
+    })
+  })
+
+  describe('txsByAddressSingle()', () => {
+    const txsByAddressSingle = slpRoute.txsByAddressSingle
+
+    it('should throw 400 if address is missing', async () => {
+      const result = await txsByAddressSingle(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'address can not be empty')
+    })
+
+    it('should throw 400 if address is empty', async () => {
+      req.params.address = ''
+      const result = await txsByAddressSingle(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'address can not be empty')
+    })
+
+    it('should throw 400 if address is invalid', async () => {
+      req.params.address = 'badAddress'
+
+      const result = await txsByAddressSingle(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'Invalid BCH address.')
+    })
+
+    it('should throw 400 if address network mismatch', async () => {
+      req.params.address = 'slptest:qr83cu3p7yg9yac7qthwm0nul2ev2kukvsqmes3vl0'
+
+      const result = await txsByAddressSingle(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'Invalid')
+    })
+
+    it('should get tx history', async () => {
+      if (process.env.TEST === 'unit') {
+        sandbox
+          .stub(slpRoute.slpdb, 'getHistoricalSlpTransactions')
+          .resolves(mockData.mockTxHistory)
+      }
+
+      // req.params.address = 'simpleledger:qr5agtachyxvrwxu76vzszan5pnvuzy8duhv4lxrsk'
+      req.params.address =
+        'simpleledger:qz4guf2k3p4r3t4tph0wwgyfq4p628lr2c0cvqplza'
+
+      const result = await slpRoute.txsByAddressSingle(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isArray(result)
     })
   })
 })

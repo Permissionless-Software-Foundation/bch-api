@@ -7,6 +7,9 @@ const BigNumber = require('bignumber.js')
 
 const RouteUtils = require('../../util/route-utils')
 const routeUtils = new RouteUtils()
+
+const Slpdb = require('./services/slpdb')
+
 // const strftime = require('strftime')
 const wlogger = require('../../util/winston-logging')
 
@@ -50,6 +53,7 @@ class Slp {
     _this.BigNumber = BigNumber
     _this.bchjs = bchjs
     _this.rawTransactions = rawTransactions
+    _this.slpdb = new Slpdb()
 
     _this.router = router
 
@@ -60,14 +64,24 @@ class Slp {
     _this.router.get('/balancesForAddress/:address', _this.balancesForAddress)
     _this.router.post('/balancesForAddress', _this.balancesForAddressBulk)
     _this.router.get('/balancesForToken/:tokenId', _this.balancesForTokenSingle)
-    _this.router.get('/balance/:address/:tokenId', _this.balancesForAddressByTokenID)
+    _this.router.get(
+      '/balance/:address/:tokenId',
+      _this.balancesForAddressByTokenID
+    )
     _this.router.get('/convert/:address', _this.convertAddressSingle)
     _this.router.post('/convert', _this.convertAddressBulk)
     _this.router.post('/validateTxid', _this.validateBulk)
     _this.router.get('/validateTxid/:txid', _this.validateSingle)
     _this.router.get('/txDetails/:txid', _this.txDetails)
     _this.router.get('/tokenStats/:tokenId', _this.tokenStats)
-    _this.router.get('/transactions/:tokenId/:address', _this.txsTokenIdAddressSingle)
+    _this.router.get(
+      '/transactions/:tokenId/:address',
+      _this.txsTokenIdAddressSingle
+    )
+    _this.router.get(
+      '/transactionHistoryAllTokens/:address',
+      _this.txsByAddressSingle
+    )
   }
 
   // DRY error handler.
@@ -98,18 +112,24 @@ class Slp {
 
     token.tokenDetails.blockCreated = token.tokenStats.block_created
     token.tokenDetails.blockLastActiveSend =
-     token.tokenStats.block_last_active_send
+      token.tokenStats.block_last_active_send
     token.tokenDetails.blockLastActiveMint =
-     token.tokenStats.block_last_active_mint
+      token.tokenStats.block_last_active_mint
     token.tokenDetails.txnsSinceGenesis =
-     token.tokenStats.qty_valid_txns_since_genesis
-    token.tokenDetails.validAddresses = token.tokenStats.qty_valid_token_addresses
-    token.tokenDetails.totalMinted = parseFloat(token.tokenStats.qty_token_minted)
-    token.tokenDetails.totalBurned = parseFloat(token.tokenStats.qty_token_burned)
+      token.tokenStats.qty_valid_txns_since_genesis
+    token.tokenDetails.validAddresses =
+      token.tokenStats.qty_valid_token_addresses
+    token.tokenDetails.totalMinted = parseFloat(
+      token.tokenStats.qty_token_minted
+    )
+    token.tokenDetails.totalBurned = parseFloat(
+      token.tokenStats.qty_token_burned
+    )
     token.tokenDetails.circulatingSupply = parseFloat(
       token.tokenStats.qty_token_circulating_supply
     )
-    token.tokenDetails.mintingBatonStatus = token.tokenStats.minting_baton_status
+    token.tokenDetails.mintingBatonStatus =
+      token.tokenStats.minting_baton_status
 
     delete token.tokenStats.block_last_active_send
     delete token.tokenStats.block_last_active_mint
@@ -123,17 +143,17 @@ class Slp {
   }
 
   /**
-  * @api {get} /slp/list/{tokenId}  List single SLP token by id.
-  * @apiName List single SLP token by id.
-  * @apiGroup SLP
-  * @apiDescription Returns the list single SLP token by id.
-  *
-  *
-  * @apiExample Example usage:
-  * curl -X GET "https://api.fullstack.cash/v3/slp/list/259908ae44f46ef585edef4bcc1e50dc06e4c391ac4be929fae27235b8158cf1" -H "accept:application/json"
-  *
-  *
-  */
+   * @api {get} /slp/list/{tokenId}  List single SLP token by id.
+   * @apiName List single SLP token by id.
+   * @apiGroup SLP
+   * @apiDescription Returns the list single SLP token by id.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/slp/list/259908ae44f46ef585edef4bcc1e50dc06e4c391ac4be929fae27235b8158cf1" -H "accept:application/json"
+   *
+   *
+   */
   async listSingleToken (req, res, next) {
     try {
       const tokenId = req.params.tokenId
@@ -156,17 +176,17 @@ class Slp {
   }
 
   /**
-  * @api {post} /slp/list/  List Bulk SLP token .
-  * @apiName List Bulk SLP token.
-  * @apiGroup SLP
-  * @apiDescription Returns the list bulk SLP token by id.
-  *
-  *
-  * @apiExample Example usage:
-  * curl -X POST "https://api.fullstack.cash/v3/slp/list" -H "accept:application/json" -H "Content-Type: application/json" -d '{"tokenIds":["7380843cd1089a1a01783f86af37734dc99667a1cdc577391b5f6ea42fc1bfb4","9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0"]}'
-  *
-  *
-  */
+   * @api {post} /slp/list/  List Bulk SLP token .
+   * @apiName List Bulk SLP token.
+   * @apiGroup SLP
+   * @apiDescription Returns the list bulk SLP token by id.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X POST "https://api.fullstack.cash/v3/slp/list" -H "accept:application/json" -H "Content-Type: application/json" -d '{"tokenIds":["7380843cd1089a1a01783f86af37734dc99667a1cdc577391b5f6ea42fc1bfb4","9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0"]}'
+   *
+   *
+   */
   async listBulkToken (req, res, next) {
     try {
       const tokenIds = req.body.tokenIds
@@ -216,14 +236,14 @@ class Slp {
       const txids = []
 
       if (tokenRes.data.t.length) {
-        tokenRes.data.t.forEach(token => {
+        tokenRes.data.t.forEach((token) => {
           txids.push(token.tokenDetails.tokenIdHex)
           token = _this.formatTokenOutput(token)
           formattedTokens.push(token.tokenDetails)
         })
       }
 
-      tokenIds.forEach(tokenId => {
+      tokenIds.forEach((tokenId) => {
         if (!txids.includes(tokenId)) {
           formattedTokens.push({
             id: tokenId,
@@ -277,14 +297,14 @@ class Slp {
       const formattedTokens = []
 
       if (tokenRes.data.t.length) {
-        tokenRes.data.t.forEach(token => {
+        tokenRes.data.t.forEach((token) => {
           token = _this.formatTokenOutput(token)
           formattedTokens.push(token.tokenDetails)
         })
       }
 
       let t
-      formattedTokens.forEach(token => {
+      formattedTokens.forEach((token) => {
         if (token.id === tokenId) t = token
       })
 
@@ -304,17 +324,17 @@ class Slp {
   }
 
   /**
-  * @api {get} /slp/balancesForAddress/{address}  List  SLP  balance for address.
-  * @apiName List SLP  balance for address.
-  * @apiGroup SLP
-  * @apiDescription Returns List  SLP  balance for address.
-  *
-  *
-  * @apiExample Example usage:
-  * curl -X GET "https://api.fullstack.cash/v3/slp/balancesForAddress/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m" -H "accept:application/json"
-  *
-  *
-  */
+   * @api {get} /slp/balancesForAddress/{address}  List  SLP  balance for address.
+   * @apiName List SLP  balance for address.
+   * @apiGroup SLP
+   * @apiDescription Returns List  SLP  balance for address.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/slp/balancesForAddress/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m" -H "accept:application/json"
+   *
+   *
+   */
   // Retrieve token balances for all tokens for a single address.
   async balancesForAddress (req, res, next) {
     try {
@@ -342,7 +362,7 @@ class Slp {
         res.status(400)
         return res.json({
           error:
-           'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
         })
       }
 
@@ -416,7 +436,7 @@ class Slp {
 
       const tokenIds = []
       if (tokenRes.data.g.length > 0) {
-        tokenRes.data.g = tokenRes.data.g.map(token => {
+        tokenRes.data.g = tokenRes.data.g.map((token) => {
           token.tokenId = token._id
           tokenIds.push(token.tokenId)
           token.balance = parseFloat(token.balanceString)
@@ -426,7 +446,7 @@ class Slp {
           return token
         })
 
-        const promises = tokenIds.map(async tokenId => {
+        const promises = tokenIds.map(async (tokenId) => {
           const query2 = {
             v: 3,
             q: {
@@ -454,7 +474,6 @@ class Slp {
             baseURL: url2,
             headers: options.headers,
             timeout: options.timeout
-
           }
           const tokenRes2 = await _this.axios.request(opt)
           // console.log(`tokenRes2.data: ${JSON.stringify(tokenRes2.data, null, 2)}`)
@@ -464,8 +483,8 @@ class Slp {
 
         const details = await _this.axios.all(promises)
 
-        tokenRes.data.g = tokenRes.data.g.map(token => {
-          details.forEach(detail => {
+        tokenRes.data.g = tokenRes.data.g.map((token) => {
+          details.forEach((detail) => {
             if (detail.t[0].tokenDetails.tokenIdHex === token.tokenId) {
               token.decimalCount = detail.t[0].tokenDetails.decimals
             }
@@ -489,17 +508,17 @@ class Slp {
   }
 
   /**
-  * @api {post} /slp/balancesForAddress  List SLP balances for an array of addresses.
-  * @apiName List SLP balances for an array of addresses.
-  * @apiGroup SLP
-  * @apiDescription Returns SLP balances for an array of addresses.
-  *
-  *
-  * @apiExample Example usage:
-  * curl -X POST "https://api.fullstack.cash/v3/slp/balancesForAddress" -d "{\"addresses\":[\"simpleledger:qqss4zp80hn6szsa4jg2s9fupe7g5tcg5ucdyl3r57\"]}" -H "accept:application/json"
-  *
-  *
-  */
+   * @api {post} /slp/balancesForAddress  List SLP balances for an array of addresses.
+   * @apiName List SLP balances for an array of addresses.
+   * @apiGroup SLP
+   * @apiDescription Returns SLP balances for an array of addresses.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X POST "https://api.fullstack.cash/v3/slp/balancesForAddress" -d "{\"addresses\":[\"simpleledger:qqss4zp80hn6szsa4jg2s9fupe7g5tcg5ucdyl3r57\"]}" -H "accept:application/json"
+   *
+   *
+   */
   async balancesForAddressBulk (req, res, next) {
     try {
       const addresses = req.body.addresses
@@ -550,7 +569,7 @@ class Slp {
           res.status(400)
           return res.json({
             error:
-             'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+              'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
           })
         }
       }
@@ -559,7 +578,7 @@ class Slp {
 
       // Collect an array of promises, one for each request to slpserve.
       // This is a nested array of promises.
-      const balancesPromises = addresses.map(async address => {
+      const balancesPromises = addresses.map(async (address) => {
         const query = {
           v: 3,
           q: {
@@ -622,7 +641,6 @@ class Slp {
           baseURL: url,
           headers: options.headers,
           timeout: options.timeout
-
         }
         const tokenRes = await _this.axios.request(opt)
         // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
@@ -630,7 +648,7 @@ class Slp {
         const tokenIds = []
 
         if (tokenRes.data.g.length > 0) {
-          tokenRes.data.g = tokenRes.data.g.map(token => {
+          tokenRes.data.g = tokenRes.data.g.map((token) => {
             token.tokenId = token._id
             tokenIds.push(token.tokenId)
             token.balance = parseFloat(token.balanceString)
@@ -640,7 +658,7 @@ class Slp {
         }
 
         // Collect another array of promises.
-        const promises = tokenIds.map(async tokenId => {
+        const promises = tokenIds.map(async (tokenId) => {
           const query2 = {
             v: 3,
             q: {
@@ -667,7 +685,6 @@ class Slp {
             baseURL: url2,
             headers: options.headers,
             timeout: options.timeout
-
           }
           const tokenRes2 = await _this.axios.request(opt)
           // console.log(`tokenRes2.data: ${JSON.stringify(tokenRes2.data, null, 2)}`)
@@ -678,8 +695,8 @@ class Slp {
         // Wait for all the promises to resolve.
         const details = await Promise.all(promises)
 
-        tokenRes.data.g = tokenRes.data.g.map(token => {
-          details.forEach(detail => {
+        tokenRes.data.g = tokenRes.data.g.map((token) => {
+          details.forEach((detail) => {
             if (detail.t[0].tokenDetails.tokenIdHex === token.tokenId) {
               token.decimalCount = detail.t[0].tokenDetails.decimals
             }
@@ -706,17 +723,17 @@ class Slp {
   }
 
   /**
-  * @api {get} /slp/balancesForToken/{TokenId}  List SLP addresses and balances for tokenId.
-  * @apiName List SLP addresses and balances for tokenId.
-  * @apiGroup SLP
-  * @apiDescription Returns List SLP addresses and balances for tokenId.
-  *
-  *
-  * @apiExample Example usage:
-  * curl -X GET "https://api.fullstack.cash/v3/slp/balancesForToken/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0" -H "accept:application/json"
-  *
-  *
-  */
+   * @api {get} /slp/balancesForToken/{TokenId}  List SLP addresses and balances for tokenId.
+   * @apiName List SLP addresses and balances for tokenId.
+   * @apiGroup SLP
+   * @apiDescription Returns List SLP addresses and balances for tokenId.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/slp/balancesForToken/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0" -H "accept:application/json"
+   *
+   *
+   */
   // Retrieve token balances for all addresses by single tokenId.
   async balancesForTokenSingle (req, res, next) {
     try {
@@ -785,7 +802,6 @@ class Slp {
         baseURL: url,
         headers: options.headers,
         timeout: options.timeout
-
       }
       // Get data from SLPDB.
       const tokenRes = await _this.axios.request(opt)
@@ -814,17 +830,17 @@ class Slp {
   }
 
   /**
-  * @api {get} /slp/balance/{address}/{TokenId}  List single slp token balance for address.
-  * @apiName List single slp token balance for address.
-  * @apiGroup SLP
-  * @apiDescription Returns List single slp token balance for address.
-  *
-  *
-  * @apiExample Example usage:
-  * curl -X GET "https://api.fullstack.cash/v3/slp/balance/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m/1cda254d0a995c713b7955298ed246822bee487458cd9747a91d9e81d9d28125" -H "accept:application/json"
-  *
-  *
-  */
+   * @api {get} /slp/balance/{address}/{TokenId}  List single slp token balance for address.
+   * @apiName List single slp token balance for address.
+   * @apiGroup SLP
+   * @apiDescription Returns List single slp token balance for address.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/slp/balance/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m/1cda254d0a995c713b7955298ed246822bee487458cd9747a91d9e81d9d28125" -H "accept:application/json"
+   *
+   *
+   */
   // Retrieve token balances for a single token class, for a single address.
   async balancesForAddressByTokenID (req, res, next) {
     try {
@@ -858,7 +874,7 @@ class Slp {
         res.status(400)
         return res.json({
           error:
-           'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
         })
       }
 
@@ -928,7 +944,6 @@ class Slp {
         baseURL: url,
         headers: options.headers,
         timeout: options.timeout
-
       }
       const tokenRes = await _this.axios.request(opt)
       console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
@@ -943,7 +958,7 @@ class Slp {
       }
 
       if (tokenRes.data.g.length > 0) {
-        tokenRes.data.g.forEach(async token => {
+        tokenRes.data.g.forEach(async (token) => {
           if (token._id === tokenId) {
             resVal = {
               cashAddress: _this.bchjs.SLP.Address.toCashAddress(slpAddr),
@@ -979,17 +994,17 @@ class Slp {
   }
 
   /**
-  * @api {get} /slp/convert/{address}  Convert address to slpAddr, cashAddr and legacy.
-  * @apiName Convert address to slpAddr, cashAddr and legacy.
-  * @apiGroup SLP
-  * @apiDescription Convert address to slpAddr, cashAddr and legacy.
-  *
-  *
-  * @apiExample Example usage:
-  * curl -X GET "https://api.fullstack.cash/v3/slp/convert/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m" -H "accept:application/json"
-  *
-  *
-  */
+   * @api {get} /slp/convert/{address}  Convert address to slpAddr, cashAddr and legacy.
+   * @apiName Convert address to slpAddr, cashAddr and legacy.
+   * @apiGroup SLP
+   * @apiDescription Convert address to slpAddr, cashAddr and legacy.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/slp/convert/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m" -H "accept:application/json"
+   *
+   *
+   */
   async convertAddressSingle (req, res, next) {
     try {
       const address = req.params.address
@@ -1009,7 +1024,9 @@ class Slp {
       }
       obj.slpAddress = slpAddr
       obj.cashAddress = _this.bchjs.SLP.Address.toCashAddress(slpAddr)
-      obj.legacyAddress = _this.bchjs.SLP.Address.toLegacyAddress(obj.cashAddress)
+      obj.legacyAddress = _this.bchjs.SLP.Address.toLegacyAddress(
+        obj.cashAddress
+      )
 
       res.status(200)
       return res.json(obj)
@@ -1023,17 +1040,17 @@ class Slp {
   }
 
   /**
-  * @api {post} /slp/convert/  Convert multiple addresses to cash, legacy and simpleledger format.
-  * @apiName Convert multiple addresses to cash, legacy and simpleledger format.
-  * @apiGroup SLP
-  * @apiDescription Convert multiple addresses to cash, legacy and simpleledger format.
-  *
-  *
-  * @apiExample Example usage:
-  * curl -X POST "https://api.fullstack.cash/v3/slp/convert" -H "accept:application/json" -H "Content-Type: application/json" -d '{"addresses":["simpleledger:qrxa0unrn67rtn85v7asfddhhth43ecnxua0antk2l"]}'
-  *
-  *
-  */
+   * @api {post} /slp/convert/  Convert multiple addresses to cash, legacy and simpleledger format.
+   * @apiName Convert multiple addresses to cash, legacy and simpleledger format.
+   * @apiGroup SLP
+   * @apiDescription Convert multiple addresses to cash, legacy and simpleledger format.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X POST "https://api.fullstack.cash/v3/slp/convert" -H "accept:application/json" -H "Content-Type: application/json" -d '{"addresses":["simpleledger:qrxa0unrn67rtn85v7asfddhhth43ecnxua0antk2l"]}'
+   *
+   *
+   */
   async convertAddressBulk (req, res, next) {
     const addresses = req.body.addresses
 
@@ -1073,7 +1090,9 @@ class Slp {
       }
       obj.slpAddress = slpAddr
       obj.cashAddress = _this.bchjs.SLP.Address.toCashAddress(slpAddr)
-      obj.legacyAddress = _this.bchjs.SLP.Address.toLegacyAddress(obj.cashAddress)
+      obj.legacyAddress = _this.bchjs.SLP.Address.toLegacyAddress(
+        obj.cashAddress
+      )
 
       convertedAddresses.push(obj)
     }
@@ -1083,17 +1102,17 @@ class Slp {
   }
 
   /**
-  * @api {post} /slp/validateTxid/  Validate multiple SLP transactions by txid.
-  * @apiName Validate multiple SLP transactions by txid.
-  * @apiGroup SLP
-  * @apiDescription Validate multiple SLP transactions by txid.
-  *
-  *
-  * @apiExample Example usage:
-  * curl -X POST "https://api.fullstack.cash/v3/slp/validateTxid" -H "accept:application/json" -H "Content-Type: application/json" -d '{"txids":["f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a","fb0eeaa501a6e1acb721669c62a3f70741f48ae0fd7f4b8e1d72088785c51952"]}'
-  *
-  *
-  */
+   * @api {post} /slp/validateTxid/  Validate multiple SLP transactions by txid.
+   * @apiName Validate multiple SLP transactions by txid.
+   * @apiGroup SLP
+   * @apiDescription Validate multiple SLP transactions by txid.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X POST "https://api.fullstack.cash/v3/slp/validateTxid" -H "accept:application/json" -H "Content-Type: application/json" -d '{"txids":["f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a","fb0eeaa501a6e1acb721669c62a3f70741f48ae0fd7f4b8e1d72088785c51952"]}'
+   *
+   *
+   */
   async validateBulk (req, res, next) {
     try {
       const txids = req.body.txids
@@ -1137,7 +1156,6 @@ class Slp {
         baseURL: url,
         headers: options.headers,
         timeout: options.timeout
-
       }
       const tokenRes = await _this.axios.request(opt)
       // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
@@ -1149,7 +1167,7 @@ class Slp {
 
       const tokenIds = []
       if (concatArray.length > 0) {
-        concatArray.forEach(token => {
+        concatArray.forEach((token) => {
           tokenIds.push(token.tx.h) // txid
 
           const validationResult = {
@@ -1167,7 +1185,7 @@ class Slp {
 
         // If a user-provided txid doesn't exist in the data, add it with
         // valid:false property.
-        txids.forEach(txid => {
+        txids.forEach((txid) => {
           if (!tokenIds.includes(txid)) {
             formattedTokens.push({
               txid: txid,
@@ -1185,7 +1203,7 @@ class Slp {
           const thisTxid = txids[i]
 
           // Find the element that matches the current txid.
-          const elem = formattedTokens.filter(x => x.txid === thisTxid)
+          const elem = formattedTokens.filter((x) => x.txid === thisTxid)
 
           newOutput.push(elem[0])
         }
@@ -1204,17 +1222,17 @@ class Slp {
   }
 
   /**
-  * @api {get} /slp/validateTxid/{txid}  Validate single SLP transaction by txid.
-  * @apiName Validate single SLP transaction by txid.
-  * @apiGroup SLP
-  * @apiDescription Validate single SLP transaction by txid.
-  *
-  *
-  * @apiExample Example usage:
-  * curl -X GET "https://api.fullstack.cash/v3/slp/validateTxid/f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a" -H "accept:application/json"
-  *
-  *
-  */
+   * @api {get} /slp/validateTxid/{txid}  Validate single SLP transaction by txid.
+   * @apiName Validate single SLP transaction by txid.
+   * @apiGroup SLP
+   * @apiDescription Validate single SLP transaction by txid.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/slp/validateTxid/f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a" -H "accept:application/json"
+   *
+   *
+   */
   async validateSingle (req, res, next) {
     try {
       const txid = req.params.txid
@@ -1249,7 +1267,6 @@ class Slp {
         baseURL: url,
         headers: options.headers,
         timeout: options.timeout
-
       }
       // Get data from SLPDB.
       const tokenRes = await _this.axios.request(opt)
@@ -1267,7 +1284,9 @@ class Slp {
           txid: concatArray[0].tx.h,
           valid: concatArray[0].slp.valid
         }
-        if (!result.valid) result.invalidReason = concatArray[0].slp.invalidReason
+        if (!result.valid) {
+          result.invalidReason = concatArray[0].slp.invalidReason
+        }
       }
 
       res.status(200)
@@ -1286,17 +1305,17 @@ class Slp {
   // }
 
   /**
-  * @api {get} /slp/txDetails/{txid}  SLP transaction details.
-  * @apiName SLP transaction details.
-  * @apiGroup SLP
-  * @apiDescription Transaction details on a token transfer.
-  *
-  *
-  * @apiExample Example usage:
-  * curl -X GET "https://api.fullstack.cash/v3/slp/txDetails/8ab4ac5dea3f9024e3954ee5b61452955d659a34561f79ef62ac44e133d0980e" -H "accept:application/json"
-  *
-  *
-  */
+   * @api {get} /slp/txDetails/{txid}  SLP transaction details.
+   * @apiName SLP transaction details.
+   * @apiGroup SLP
+   * @apiDescription Transaction details on a token transfer.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/slp/txDetails/8ab4ac5dea3f9024e3954ee5b61452955d659a34561f79ef62ac44e133d0980e" -H "accept:application/json"
+   *
+   *
+   */
   async txDetails (req, res, next) {
     try {
       // Validate input parameter
@@ -1332,7 +1351,6 @@ class Slp {
         baseURL: url,
         headers: options.headers,
         timeout: options.timeout
-
       }
       // Get token data from SLPDB
       const tokenRes = await _this.axios.request(opt)
@@ -1349,7 +1367,10 @@ class Slp {
 
       // Get information on the transaction from Insight API.
       // const retData = await transactions.transactionsFromInsight(txid)
-      const retData = await _this.rawTransactions.getRawTransactionsFromNode(txid, true)
+      const retData = await _this.rawTransactions.getRawTransactionsFromNode(
+        txid,
+        true
+      )
       // console.log(`retData: ${JSON.stringify(retData, null, 2)}`)
 
       // Return both the tx data from Insight and the formatted token information.
@@ -1374,60 +1395,29 @@ class Slp {
   }
 
   /**
-  * @api {get} /slp/tokenStats/{tokenId}  List stats for a single slp token.
-  * @apiName List stats for a single slp token.
-  * @apiGroup SLP
-  * @apiDescription Return list stats for a single slp token.
-  *
-  *
-  * @apiExample Example usage:
-  * curl -X GET "https://api.fullstack.cash/v3/slp/tokenStats/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0" -H "accept:application/json"
-  *
-  *
-  */
+   * @api {get} /slp/tokenStats/{tokenId}  List stats for a single slp token.
+   * @apiName List stats for a single slp token.
+   * @apiGroup SLP
+   * @apiDescription Return list stats for a single slp token.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/slp/tokenStats/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0" -H "accept:application/json"
+   *
+   *
+   */
   async tokenStats (req, res, next) {
-    const tokenId = req.params.tokenId
-    if (!tokenId || tokenId === '') {
-      res.status(400)
-      return res.json({ error: 'tokenId can not be empty' })
-    }
-
     try {
-      const query = {
-        v: 3,
-        q: {
-          db: ['t'],
-          find: {
-            $query: {
-              'tokenDetails.tokenIdHex': tokenId
-            }
-          },
-          project: { tokenDetails: 1, tokenStats: 1, _id: 0 },
-          limit: 10
-        }
+      const tokenId = req.params.tokenId
+      if (!tokenId || tokenId === '') {
+        res.status(400)
+        return res.json({ error: 'tokenId can not be empty' })
       }
 
-      const s = JSON.stringify(query)
-      const b64 = Buffer.from(s).toString('base64')
-      const url = `${process.env.SLPDB_URL}q/${b64}`
-      const opt = {
-        method: 'get',
-        baseURL: url
-      }
-      // Get data from BitDB.
-      const tokenRes = await _this.axios.request(opt)
-
-      const formattedTokens = []
-
-      if (tokenRes.data.t.length) {
-        tokenRes.data.t.forEach(token => {
-          token = _this.formatTokenOutput(token)
-          formattedTokens.push(token.tokenDetails)
-        })
-      }
+      const tokenStats = await _this.slpdb.getTokenStats(tokenId)
 
       res.status(200)
-      return res.json(formattedTokens[0])
+      return res.json(tokenStats)
     } catch (err) {
       wlogger.error('Error in slp.ts/tokenStats().', err)
       return _this.errorHandler(err, res)
@@ -1436,17 +1426,17 @@ class Slp {
   }
 
   /**
-  * @api {get} /slp/transactions/{tokenId}/{address}  SLP transactions by tokenId and address.
-  * @apiName SLP transactions by tokenId and address.
-  * @apiGroup SLP
-  * @apiDescription Transactions by tokenId and address.
-  *
-  *
-  * @apiExample Example usage:
-  * curl -X GET "https://api.fullstack.cash/v3/slp/transactions/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0/simpleledger:qrxa0unrn67rtn85v7asfddhhth43ecnxua0antk2l" -H "accept:application/json"
-  *
-  *
-  */
+   * @api {get} /slp/transactions/{tokenId}/{address}  SLP transactions by tokenId and address.
+   * @apiName SLP transactions by tokenId and address.
+   * @apiGroup SLP
+   * @apiDescription Transactions by tokenId and address.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/slp/transactions/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0/simpleledger:qrxa0unrn67rtn85v7asfddhhth43ecnxua0antk2l" -H "accept:application/json"
+   *
+   *
+   */
   // Retrieve transactions by tokenId and address.
   async txsTokenIdAddressSingle (req, res, next) {
     try {
@@ -1547,7 +1537,7 @@ class Slp {
     const tokenOutputs = transaction.slp.detail.outputs
 
     const sendOutputs = ['0']
-    tokenOutputs.map(x => {
+    tokenOutputs.map((x) => {
       const string = parseFloat(x.amount) * 100000000
       sendOutputs.push(string.toString())
     })
@@ -1563,6 +1553,61 @@ class Slp {
     }
 
     return obj
+  }
+
+  // Retrieve transactions by address.
+  async txsByAddressSingle (req, res, next) {
+    try {
+      // Validate the input data.
+      const address = req.params.address
+      if (!address || address === '') {
+        res.status(400)
+        return res.json({ error: 'address can not be empty' })
+      }
+
+      // Ensure the input is a valid BCH address.
+      try {
+        _this.bchjs.SLP.Address.toCashAddress(address)
+      } catch (err) {
+        res.status(400)
+        return res.json({
+          error: `Invalid BCH address. Double check your address is valid: ${address}`
+        })
+      }
+
+      // Ensure it is using the correct network.
+      const cashAddr = _this.bchjs.SLP.Address.toCashAddress(address)
+      const networkIsValid = routeUtils.validateNetwork(cashAddr)
+      if (!networkIsValid) {
+        res.status(400)
+        return res.json({
+          error:
+            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+        })
+      }
+
+      const transactions = await _this.slpdb.getHistoricalSlpTransactions([
+        address
+      ])
+      // console.log(`transactions: ${JSON.stringify(transactions, null, 2)}`)
+
+      res.status(200)
+      return res.json(transactions)
+    } catch (err) {
+      wlogger.error('Error in slp.ts/txsByAddressSingle().', err)
+
+      // Decode the error message.
+      const { msg, status } = routeUtils.decodeError(err)
+      if (msg) {
+        res.status(status)
+        return res.json({ error: msg })
+      }
+
+      res.status(500)
+      return res.json({
+        error: `Error in /transactionHistoryAllTokens/:address: ${err.message}`
+      })
+    }
   }
 }
 
