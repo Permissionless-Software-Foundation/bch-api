@@ -75,16 +75,24 @@ class Slpdb {
   }
 
   async getTokenStats (tokenId) {
-    const [totalMinted, totalBurned, tokenDetails] = await Promise.all([
+    const [
+      totalMinted,
+      totalBurned,
+      tokenDetails,
+      circulatingSupply
+    ] = await Promise.all([
       this.getTotalMinted(tokenId),
       this.getTotalBurned(tokenId),
-      this.getTokenDetails(tokenId)
+      this.getTokenDetails(tokenId),
+      this.getTotalCirculating(tokenId)
     ])
 
     tokenDetails.totalMinted = tokenDetails.initialTokenQty + totalMinted
     tokenDetails.totalBurned = totalBurned
-    tokenDetails.circulatingSupply =
-      tokenDetails.totalMinted - tokenDetails.totalBurned
+
+    // tokenDetails.circulatingSupply =
+    //   tokenDetails.totalMinted - tokenDetails.totalBurned
+    tokenDetails.circulatingSupply = circulatingSupply
 
     return tokenDetails
   }
@@ -162,6 +170,53 @@ class Slpdb {
     }
 
     return parseFloat(result.data.g[0].count)
+  }
+
+  async getTotalCirculating (tokenId) {
+    const query = {
+      v: 3,
+      q: {
+        db: ['g'],
+        aggregate: [
+          {
+            $match: {
+              'tokenDetails.tokenIdHex': tokenId,
+              'graphTxn.outputs': {
+                $elemMatch: {
+                  status: 'UNSPENT',
+                  slpAmount: { $gte: 0 }
+                }
+              }
+            }
+          },
+          { $unwind: '$graphTxn.outputs' },
+          {
+            $match: {
+              'graphTxn.outputs.status': 'UNSPENT',
+              'graphTxn.outputs.slpAmount': { $gte: 0 }
+            }
+          },
+          {
+            $group: {
+              _id: null,
+              circulating_supply: {
+                $sum: '$graphTxn.outputs.slpAmount'
+              }
+            }
+          }
+        ],
+        limit: 100000
+      }
+    }
+
+    const result = await this.runQuery(query)
+    // console.log(`result.data: ${JSON.stringify(result.data, null, 2)}`)
+
+    if (!result.data.g.length) {
+      return 0
+    }
+
+    return parseFloat(result.data.g[0].circulating_supply)
   }
 
   async getTotalBurned (tokenId) {
@@ -255,6 +310,8 @@ class Slpdb {
   }
 
   formatTokenOutput (token) {
+    // console.log(`token: ${JSON.stringify(token, null, 2)}`)
+
     token.tokenDetails.id = token.tokenDetails.tokenIdHex
     delete token.tokenDetails.tokenIdHex
     token.tokenDetails.documentHash = token.tokenDetails.documentSha256Hex
@@ -286,6 +343,7 @@ class Slpdb {
 
     token.tokenDetails.timestampUnix = token.tokenDetails.timestamp_unix
     delete token.tokenDetails.timestamp_unix
+
     return token.tokenDetails
   }
 }

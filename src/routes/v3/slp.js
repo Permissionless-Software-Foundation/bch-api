@@ -1284,7 +1284,9 @@ class Slp {
           txid: concatArray[0].tx.h,
           valid: concatArray[0].slp.valid
         }
-        if (!result.valid) { result.invalidReason = concatArray[0].slp.invalidReason }
+        if (!result.valid) {
+          result.invalidReason = concatArray[0].slp.invalidReason
+        }
       }
 
       res.status(200)
@@ -1405,55 +1407,17 @@ class Slp {
    *
    */
   async tokenStats (req, res, next) {
-    const tokenId = req.params.tokenId
-    if (!tokenId || tokenId === '') {
-      res.status(400)
-      return res.json({ error: 'tokenId can not be empty' })
-    }
-
     try {
-      const query = {
-        v: 3,
-        q: {
-          db: ['t'],
-          find: {
-            $query: {
-              'tokenDetails.tokenIdHex': tokenId
-            }
-          },
-          project: { tokenDetails: 1, tokenStats: 1, _id: 0 },
-          limit: 10
-        }
+      const tokenId = req.params.tokenId
+      if (!tokenId || tokenId === '') {
+        res.status(400)
+        return res.json({ error: 'tokenId can not be empty' })
       }
 
-      const s = JSON.stringify(query)
-      const b64 = Buffer.from(s).toString('base64')
-      const url = `${process.env.SLPDB_URL}q/${b64}`
-
-      const options = _this.generateCredentials()
-
-      // Request options
-      const opt = {
-        method: 'get',
-        baseURL: url,
-        headers: options.headers,
-        timeout: options.timeout
-      }
-
-      // Get data from BitDB.
-      const tokenRes = await _this.axios.request(opt)
-
-      const formattedTokens = []
-
-      if (tokenRes.data.t.length) {
-        tokenRes.data.t.forEach((token) => {
-          token = _this.formatTokenOutput(token)
-          formattedTokens.push(token.tokenDetails)
-        })
-      }
+      const tokenStats = await _this.slpdb.getTokenStats(tokenId)
 
       res.status(200)
-      return res.json(formattedTokens[0])
+      return res.json(tokenStats)
     } catch (err) {
       wlogger.error('Error in slp.ts/tokenStats().', err)
       return _this.errorHandler(err, res)
@@ -1617,7 +1581,8 @@ class Slp {
       if (!networkIsValid) {
         res.status(400)
         return res.json({
-          error: 'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+          error:
+            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
         })
       }
 

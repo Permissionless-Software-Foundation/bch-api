@@ -463,11 +463,9 @@ describe('#SLP', () => {
   })
 
   describe('tokenStats()', () => {
-    const tokenStats = slpRoute.tokenStats
-
     it('should throw 400 if tokenID is empty', async () => {
       req.params.tokenId = ''
-      const result = await tokenStats(req, res)
+      const result = await slpRoute.tokenStats(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ['error'])
@@ -476,12 +474,12 @@ describe('#SLP', () => {
 
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
-      sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNABORTED' })
+      sandbox.stub(slpRoute.slpdb, 'getTokenStats').throws({ code: 'ECONNABORTED' })
 
       req.params.tokenId =
         '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
 
-      const result = await tokenStats(req, res)
+      const result = await slpRoute.tokenStats(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
@@ -494,12 +492,12 @@ describe('#SLP', () => {
 
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
-      sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNREFUSED' })
+      sandbox.stub(slpRoute.slpdb, 'getTokenStats').throws({ code: 'ECONNREFUSED' })
 
       req.params.tokenId =
         '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
 
-      const result = await tokenStats(req, res)
+      const result = await slpRoute.tokenStats(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
@@ -508,50 +506,6 @@ describe('#SLP', () => {
         'Could not communicate with full node',
         'Error message expected'
       )
-    })
-
-    it('should get token stats for tokenId', async () => {
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === 'unit') {
-        sandbox.stub(slpRoute.axios, 'request').resolves({
-          data: {
-            t: [
-              {
-                tokenDetails: mockData.mockTokenDetails,
-                tokenStats: mockData.mockTokenStats
-              }
-            ]
-          }
-        })
-      }
-
-      req.params.tokenId =
-        '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
-
-      const result = await tokenStats(req, res)
-      // console.log(`result: ${util.inspect(result)}`)
-
-      assert.hasAnyKeys(result, [
-        'blockCreated',
-        'blockLastActiveMint',
-        'blockLastActiveSend',
-        'containsBaton',
-        'initialTokenQty',
-        'mintingBatonStatus',
-        'circulatingSupply',
-        'decimals',
-        'documentHash',
-        'versionType',
-        'timestamp',
-        'documentUri',
-        'name',
-        'symbol',
-        'id',
-        'totalBurned',
-        'totalMinted',
-        'txnsSinceGenesis',
-        'validAddresses'
-      ])
     })
   })
 
