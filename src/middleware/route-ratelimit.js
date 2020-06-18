@@ -122,6 +122,10 @@ class RateLimits {
         // Update the key so that rate limits track both the user and the resource.
         key = `${key}-${resource}`
 
+        const host = req.get('host')
+        const origin = req.get('origin')
+        console.log(`host: ${host}, origin: ${origin}`)
+
         await _this.rateLimiter.consume(key, pointsToConsume)
       } catch (err) {
         // console.log('err: ', err)
