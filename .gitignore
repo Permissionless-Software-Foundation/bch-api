@@ -5,6 +5,7 @@ start-local-server
 test-local-server
 start-decatur-main.sh
 start-decatur-test.sh
+test-decatur-main.sh
 start-bitcoincom.sh
 test-remote-server.sh
 start-bitcoincom-testnet.sh

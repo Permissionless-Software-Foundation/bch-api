@@ -38,7 +38,7 @@ describe('#slp', () => {
         // 'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
 
       const result = await slp.tokenStats(req, res)
-      console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Assert that expected properties exist.
       assert.property(result, 'decimals')
@@ -71,7 +71,7 @@ describe('#slp', () => {
         'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
 
       const result = await slp.tokenStats(req, res)
-      console.log(`result: ${util.inspect(result)}`)
+      // console.log(`result: ${util.inspect(result)}`)
 
       // Assert that expected properties exist.
       assert.property(result, 'decimals')
