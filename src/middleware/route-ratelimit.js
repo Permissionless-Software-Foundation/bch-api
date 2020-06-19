@@ -74,7 +74,10 @@ class RateLimits {
       // Decode the JWT token if one exists.
       if (req.locals.jwtToken) {
         try {
-          decoded = _this.jwt.verify(req.locals.jwtToken, _this.config.apiTokenSecret)
+          decoded = _this.jwt.verify(
+            req.locals.jwtToken,
+            _this.config.apiTokenSecret
+          )
           // console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
 
           userId = decoded.id
@@ -110,8 +113,19 @@ class RateLimits {
 
         // const pointsToConsume = userId ? 1 : 30
         decoded.resource = resource
-        const pointsToConsume = _this.calcPoints(decoded)
+        let pointsToConsume = _this.calcPoints(decoded)
         res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
+
+        // If the request originates from one of the approved wallet apps, then
+        // apply paid-access rate limits.
+        const origin = req.get('origin')
+        if (
+          origin.toString().indexOf('wallet.fullstack.cash') > -1 ||
+          origin.toString().indexOf('sandbox.fullstack.cash') > -1
+        ) {
+          pointsToConsume = 1
+          res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
+        }
 
         wlogger.info(
           `User ${key} consuming ${pointsToConsume} point for resource ${resource}.`
@@ -121,10 +135,6 @@ class RateLimits {
 
         // Update the key so that rate limits track both the user and the resource.
         key = `${key}-${resource}`
-
-        const host = req.get('host')
-        const origin = req.get('origin')
-        console.log(`host: ${host}, origin: ${origin}`)
 
         await _this.rateLimiter.consume(key, pointsToConsume)
       } catch (err) {
