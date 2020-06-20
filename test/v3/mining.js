@@ -147,16 +147,12 @@ describe('#Mining', () => {
       const result = await uut.getMiningInfo(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, [
-        'blocks',
-        'currentblocksize',
-        'currentblocktx',
-        'difficulty',
-        'warnings',
-        'networkhashps',
-        'pooledtx',
-        'chain'
-      ])
+      assert.property(result, 'blocks')
+      assert.property(result, 'difficulty')
+      assert.property(result, 'networkhashps')
+      assert.property(result, 'pooledtx')
+      assert.property(result, 'chain')
+      assert.property(result, 'warnings')
     })
   })
 
