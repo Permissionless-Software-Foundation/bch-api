@@ -120,8 +120,9 @@ class RateLimits {
         // apply paid-access rate limits.
         const origin = req.get('origin')
         if (
-          origin.toString().indexOf('wallet.fullstack.cash') > -1 ||
-          origin.toString().indexOf('sandbox.fullstack.cash') > -1
+          origin &&
+          (origin.toString().indexOf('wallet.fullstack.cash') > -1 ||
+            origin.toString().indexOf('sandbox.fullstack.cash') > -1)
         ) {
           pointsToConsume = 1
           res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
