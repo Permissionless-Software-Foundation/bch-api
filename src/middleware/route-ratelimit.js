@@ -99,7 +99,7 @@ class RateLimits {
       }
 
       // Used for displaying error message. Default value is 3.
-      let rateLimit = 3
+      let rateLimit = 50
 
       // Code here for the rate limiter is adapted from this example:
       // https://github.com/animir/node-rate-limiter-flexible/wiki/Overall-example#authorized-and-not-authorized-users
@@ -162,7 +162,7 @@ class RateLimits {
   // Calculates the points consumed, based on the jwt information and the route
   // requested.
   calcPoints (jwtInfo) {
-    let retVal = 30 // By default, use anonymous tier.
+    let retVal = 2 // By default, use anonymous tier.
 
     try {
       // console.log(`jwtInfo: ${JSON.stringify(jwtInfo, null, 2)}`)
@@ -179,22 +179,22 @@ class RateLimits {
       if (jwtInfo.id) {
         // SLP indexer routes
         if (level40Routes.includes(resource)) {
-          if (apiLevel >= 40) retVal = 1
+          if (apiLevel >= 40) retVal = 2
           // else if (apiLevel >= 10) retVal = 10
-          else retVal = 10
+          else retVal = 2
 
           // Normal indexer routes
         } else if (level30Routes.includes(resource)) {
-          if (apiLevel >= 30) retVal = 1
-          else retVal = 10
+          if (apiLevel >= 30) retVal = 2
+          else retVal = 2
 
           // Full node tier
         } else if (apiLevel >= 20) {
-          retVal = 1
+          retVal = 2
 
           // Free tier, full node only.
         } else {
-          retVal = 10
+          retVal = 2
         }
       }
 
@@ -202,7 +202,7 @@ class RateLimits {
     } catch (err) {
       wlogger.error('Error in route-ratelimit.js/calcPoints()')
       // throw err
-      retVal = 30
+      retVal = 2
     }
 
     return retVal
