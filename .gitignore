@@ -17,6 +17,8 @@ test-fullstack-main.sh
 start-fullstack-main.sh
 start-fullstack-test.sh
 start-free-main.sh
+free-bch-api-main.sh
+free-bch-api-test.sh
 
 coverage
 start-my-infra
