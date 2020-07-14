@@ -82,6 +82,7 @@ class Slp {
       '/transactionHistoryAllTokens/:address',
       _this.txsByAddressSingle
     )
+    _this.router.post('/generateSendOpReturn', _this.generateSendOpReturn)
   }
 
   // DRY error handler.
@@ -1606,6 +1607,60 @@ class Slp {
       res.status(500)
       return res.json({
         error: `Error in /transactionHistoryAllTokens/:address: ${err.message}`
+      })
+    }
+  }
+
+  // Get OP_RETURN script and outputs
+  async generateSendOpReturn (req, res, next) {
+    try {
+      const tokenUtxos = req.body.tokenUtxos
+
+      const _sendQty = req.body.sendQty
+      const sendQty = Number(_sendQty)
+
+      // Reject if tokenUtxos is not an array.
+      if (!Array.isArray(tokenUtxos)) {
+        res.status(400)
+        return res.json({
+          error: 'tokenUtxos needs to be an array.'
+        })
+      }
+
+      // Reject if tokenUtxos array is empty.
+      if (!tokenUtxos.length) {
+        res.status(400)
+        return res.json({
+          error: 'tokenUtxos array can not be empty.'
+        })
+      }
+
+      // Reject if sendQty is not an number.
+      if (!sendQty) {
+        res.status(400)
+        return res.json({
+          error: 'sendQty must be a number.'
+        })
+      }
+
+      const opReturn = await _this.bchjs.SLP.TokenType1.generateSendOpReturn(
+        tokenUtxos,
+        sendQty
+      )
+      return opReturn
+    } catch (err) {
+      wlogger.error('Error in slp.js/generateSendOpReturn().', err)
+
+      // Decode the error message.
+      const { msg, status } = routeUtils.decodeError(err)
+      if (msg) {
+        res.status(status)
+        return res.json({ error: msg })
+      }
+
+      res.status(500)
+      return res.json({
+        error: 'Error in /generateSendOpReturn()'
       })
     }
   }

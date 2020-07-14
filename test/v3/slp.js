@@ -787,6 +787,98 @@ describe('#SLP', () => {
       assert.isArray(result)
     })
   })
+
+  describe('generateSendOpReturn()', () => {
+    const generateSendOpReturn = slpRoute.generateSendOpReturn
+    // Validate tokenUtxos input
+    it('should throw 400 if tokenUtxos is missing', async () => {
+      const result = await generateSendOpReturn(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'tokenUtxos needs to be an array.')
+    })
+
+    it('should throw 400 if tokenUtxos is empty', async () => {
+      req.body.tokenUtxos = ''
+      const result = await generateSendOpReturn(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'tokenUtxos needs to be an array.')
+    })
+
+    it('should throw 400 if tokenUtxos is not array', async () => {
+      req.body.tokenUtxos = 'tokenUtxos'
+
+      const result = await generateSendOpReturn(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'tokenUtxos needs to be an array.')
+    })
+    it('should throw 400 if tokenUtxos is empty array', async () => {
+      req.body.tokenUtxos = []
+
+      const result = await generateSendOpReturn(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'tokenUtxos array can not be empty.')
+    })
+    // Validate sendQty input
+    it('should throw 400 if sendQty is missing', async () => {
+      req.body.tokenUtxos = [{}, {}, {}]
+      const result = await generateSendOpReturn(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'sendQty must be a number')
+    })
+
+    it('should throw 400 if sendQty is empty', async () => {
+      req.body.tokenUtxos = [{}, {}, {}]
+      req.body.sendQty = ''
+
+      const result = await generateSendOpReturn(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'sendQty must be a number')
+    })
+    it('should throw 400 if sendQty is not a number', async () => {
+      req.body.tokenUtxos = [{}, {}, {}]
+      req.body.sendQty = 'sendQty'
+
+      const result = await generateSendOpReturn(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'sendQty must be a number')
+    })
+    it('should return OP_RETURN script', async () => {
+      req.body.tokenUtxos = [
+        {
+          tokenId: '0a321bff9761f28e06a268b14711274bb77617410a16807bd0437ef234a072b1',
+          decimals: 0,
+          tokenQty: 2
+        }
+      ]
+      req.body.sendQty = 1.5
+
+      if (process.env.TEST === 'unit') {
+        sandbox
+          .stub(slpRoute.bchjs.SLP.TokenType1, 'generateSendOpReturn')
+          .resolves({ script: '<Buffer ', outputs: 2 })
+      }
+
+      const result = await generateSendOpReturn(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['script', 'outputs'])
+      assert.isNumber(result.outputs)
+    })
+  })
 })
 
 /*
