@@ -474,7 +474,9 @@ describe('#SLP', () => {
 
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
-      sandbox.stub(slpRoute.slpdb, 'getTokenStats').throws({ code: 'ECONNABORTED' })
+      sandbox
+        .stub(slpRoute.slpdb, 'getTokenStats')
+        .throws({ code: 'ECONNABORTED' })
 
       req.params.tokenId =
         '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
@@ -492,7 +494,9 @@ describe('#SLP', () => {
 
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
-      sandbox.stub(slpRoute.slpdb, 'getTokenStats').throws({ code: 'ECONNREFUSED' })
+      sandbox
+        .stub(slpRoute.slpdb, 'getTokenStats')
+        .throws({ code: 'ECONNREFUSED' })
 
       req.params.tokenId =
         '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
@@ -817,6 +821,7 @@ describe('#SLP', () => {
       assert.hasAllKeys(result, ['error'])
       assert.include(result.error, 'tokenUtxos needs to be an array.')
     })
+
     it('should throw 400 if tokenUtxos is empty array', async () => {
       req.body.tokenUtxos = []
 
@@ -826,6 +831,7 @@ describe('#SLP', () => {
       assert.hasAllKeys(result, ['error'])
       assert.include(result.error, 'tokenUtxos array can not be empty.')
     })
+
     // Validate sendQty input
     it('should throw 400 if sendQty is missing', async () => {
       req.body.tokenUtxos = [{}, {}, {}]
@@ -846,6 +852,7 @@ describe('#SLP', () => {
       assert.hasAllKeys(result, ['error'])
       assert.include(result.error, 'sendQty must be a number')
     })
+
     it('should throw 400 if sendQty is not a number', async () => {
       req.body.tokenUtxos = [{}, {}, {}]
       req.body.sendQty = 'sendQty'
@@ -856,10 +863,12 @@ describe('#SLP', () => {
       assert.hasAllKeys(result, ['error'])
       assert.include(result.error, 'sendQty must be a number')
     })
+
     it('should return OP_RETURN script', async () => {
       req.body.tokenUtxos = [
         {
-          tokenId: '0a321bff9761f28e06a268b14711274bb77617410a16807bd0437ef234a072b1',
+          tokenId:
+            '0a321bff9761f28e06a268b14711274bb77617410a16807bd0437ef234a072b1',
           decimals: 0,
           tokenQty: 2
         }

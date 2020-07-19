@@ -1611,13 +1611,31 @@ class Slp {
     }
   }
 
+  /**
+   * @api {post} /slp/generateSendOpReturn/ generateSendOpReturn
+   * @apiName SLP generateSendOpReturn
+   * @apiGroup SLP
+   * @apiDescription Generate the hex required for a SLP Send OP_RETURN.
+   *
+   * This will return a hexidecimal representation of the OP_RETURN code that
+   * can be used to generate an SLP Send transaction. The number of outputs
+   * (1 or 2) will also be returned.
+   *
+   * @apiExample Example usage:
+   * curl -X POST "https://api.fullstack.cash/v3/slp/generateSendOpReturn" -H "accept:application/json" -H "Content-Type: application/json" -d '{"tokenUtxos":[{"tokenId": "0a321bff9761f28e06a268b14711274bb77617410a16807bd0437ef234a072b1","decimals": 0, "tokenQty": 2}], "sendQty": 1.5}'
+   *
+   *
+   */
   // Get OP_RETURN script and outputs
   async generateSendOpReturn (req, res, next) {
     try {
       const tokenUtxos = req.body.tokenUtxos
+      // console.log(`tokenUtxos: `, tokenUtxos)
 
       const _sendQty = req.body.sendQty
       const sendQty = Number(_sendQty)
+
+      // console.log(`sendQty: `, sendQty)
 
       // Reject if tokenUtxos is not an array.
       if (!Array.isArray(tokenUtxos)) {
@@ -1647,7 +1665,12 @@ class Slp {
         tokenUtxos,
         sendQty
       )
-      return res.json(opReturn)
+
+      const script = opReturn.script.toString('hex')
+      // console.log(`script: ${script}`)
+
+      res.status(200)
+      return res.json({ script, outputs: opReturn.outputs })
     } catch (err) {
       wlogger.error('Error in slp.js/generateSendOpReturn().', err)
 
