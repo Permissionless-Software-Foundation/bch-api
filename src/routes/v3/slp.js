@@ -1647,6 +1647,7 @@ class Slp {
         tokenUtxos,
         sendQty
       )
+
       return res.json(opReturn)
     } catch (err) {
       wlogger.error('Error in slp.js/generateSendOpReturn().', err)

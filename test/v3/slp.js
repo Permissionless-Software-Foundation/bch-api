@@ -817,6 +817,7 @@ describe('#SLP', () => {
       assert.hasAllKeys(result, ['error'])
       assert.include(result.error, 'tokenUtxos needs to be an array.')
     })
+
     it('should throw 400 if tokenUtxos is empty array', async () => {
       req.body.tokenUtxos = []
 
@@ -826,6 +827,7 @@ describe('#SLP', () => {
       assert.hasAllKeys(result, ['error'])
       assert.include(result.error, 'tokenUtxos array can not be empty.')
     })
+
     // Validate sendQty input
     it('should throw 400 if sendQty is missing', async () => {
       req.body.tokenUtxos = [{}, {}, {}]
@@ -846,6 +848,7 @@ describe('#SLP', () => {
       assert.hasAllKeys(result, ['error'])
       assert.include(result.error, 'sendQty must be a number')
     })
+
     it('should throw 400 if sendQty is not a number', async () => {
       req.body.tokenUtxos = [{}, {}, {}]
       req.body.sendQty = 'sendQty'
@@ -856,6 +859,7 @@ describe('#SLP', () => {
       assert.hasAllKeys(result, ['error'])
       assert.include(result.error, 'sendQty must be a number')
     })
+
     it('should return OP_RETURN script', async () => {
       req.body.tokenUtxos = [
         {
