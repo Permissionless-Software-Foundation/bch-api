@@ -14,7 +14,9 @@ util.inspect.defaultOptions = { depth: 1 }
 
 // Exit if SLPDB URL is not defined.
 if (!process.env.SLPDB_URL) {
-  throw new Error('SLPDB_URL and SLPDB_PASS must be defined in order to run these tests.')
+  throw new Error(
+    'SLPDB_URL and SLPDB_PASS must be defined in order to run these tests.'
+  )
 }
 
 const SLP = require('../../../src/routes/v3/slp')
@@ -35,7 +37,7 @@ describe('#slp', () => {
     it('should get token stats for token with no mint baton', async () => {
       req.params.tokenId =
         '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
-        // 'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
+      // 'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
 
       const result = await slp.tokenStats(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -97,6 +99,26 @@ describe('#slp', () => {
 
       // baton was created.
       assert.equal(result.containsBaton, true)
+    })
+  })
+
+  describe('generateSendOpReturn', () => {
+    it('should return OP_RETURN script', async () => {
+      req.body.tokenUtxos = [
+        {
+          tokenId:
+            '0a321bff9761f28e06a268b14711274bb77617410a16807bd0437ef234a072b1',
+          decimals: 0,
+          tokenQty: 2
+        }
+      ]
+      req.body.sendQty = 1.5
+
+      const result = await slp.generateSendOpReturn(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['script', 'outputs'])
+      assert.isNumber(result.outputs)
     })
   })
 })
