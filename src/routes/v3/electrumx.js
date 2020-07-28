@@ -708,6 +708,199 @@ class Electrum {
     }
   }
 
+  // Returns a promise that resolves to unconfirmed UTXO data (mempool) for an address.
+  // Expects input to be a cash address, and input validation to have
+  // already been done by parent, calling function.
+  async _mempoolFromElectrumx (address) {
+    try {
+      // Convert the address to a scripthash.
+      const scripthash = _this.addressToScripthash(address)
+
+      if (!_this.isReady) {
+        throw new Error(
+          'ElectrumX server connection is not ready. Call await connectToServer() first.'
+        )
+      }
+
+      // Query the unconfirmed utxos from the ElectrumX server.
+      const electrumResponse = await _this.electrumx.request(
+        'blockchain.scripthash.get_mempool',
+        scripthash
+      )
+      // console.log(
+      //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
+      // )
+
+      return electrumResponse
+    } catch (err) {
+      // console.log('err: ', err)
+
+      // Write out error to error log.
+      wlogger.error('Error in elecrumx.js/_mempoolFromElectrumx(): ', err)
+      throw err
+    }
+  }
+
+  /**
+   * @api {get} /electrumx/mempool/{addr} Get unconfirmed utxos for a single address.
+   * @apiName Unconfirmed UTXOs for a single address
+   * @apiGroup ElectrumX / Fulcrum
+   * @apiDescription Returns an object with unconfirmed UTXOs associated with an address.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/electrumx/mempool/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
+   *
+   */
+  // GET handler for single balance
+  async getMempool (req, res, next) {
+    try {
+      const address = req.params.address
+
+      // Reject if address is an array.
+      if (Array.isArray(address)) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'address can not be an array. Use POST for bulk upload.'
+        })
+      }
+
+      // Ensure the address is in cash address format.
+      const cashAddr = _this.bchjs.Address.toCashAddress(address)
+
+      // Prevent a common user error. Ensure they are using the correct network address.
+      const networkIsValid = _this.routeUtils.validateNetwork(cashAddr)
+      if (!networkIsValid) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error:
+            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+        })
+      }
+
+      wlogger.debug(
+        'Executing electrumx/getMempool with this address: ',
+        cashAddr
+      )
+
+      // Get data from ElectrumX server.
+      const electrumResponse = await _this._mempoolFromElectrumx(cashAddr)
+      // console.log(`_mempoolFromElectrumx(): ${JSON.stringify(electrumResponse, null, 2)}`)
+
+      // Pass the error message if ElectrumX reports an error.
+      if (Object.prototype.hasOwnProperty.call(electrumResponse, 'code')) {
+        res.status(400)
+        return res.json({
+          success: false,
+          message: electrumResponse.message
+        })
+      }
+
+      res.status(200)
+      return res.json({
+        success: true,
+        utxos: electrumResponse
+      })
+    } catch (err) {
+      // Write out error to error log.
+      wlogger.error('Error in elecrumx.js/getMempool().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  /**
+   * @api {post} /electrumx/mempool Get unconfirmed utxos for an array of addresses.
+   * @apiName  Unconfirmed UTXOs for an array of addresses
+   * @apiGroup ElectrumX / Fulcrum
+   * @apiDescription Returns an array of objects with unconfirmed UTXOs associated with an address.
+   * Limited to 20 items per request.
+   *
+   * @apiExample Example usage:
+   * curl -X POST "https://api.fullstack.cash/v3/electrumx/mempool" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
+   *
+   *
+   */
+  // POST handler for bulk queries on address details
+  async mempoolBulk (req, res, next) {
+    try {
+      let addresses = req.body.addresses
+
+      // Reject if addresses is not an array.
+      if (!Array.isArray(addresses)) {
+        res.status(400)
+        return res.json({
+          error: 'addresses needs to be an array. Use GET for single address.'
+        })
+      }
+
+      // Enforce array size rate limits
+      if (!_this.routeUtils.validateArraySize(req, addresses)) {
+        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        return res.json({
+          error: 'Array too large.'
+        })
+      }
+
+      wlogger.debug(
+        'Executing electrumx.js/mempoolBulk with these addresses: ',
+        addresses
+      )
+
+      // Validate each element in the address array.
+      for (let i = 0; i < addresses.length; i++) {
+        const thisAddress = addresses[i]
+
+        // Ensure the input is a valid BCH address.
+        try {
+          _this.bchjs.Address.toLegacyAddress(thisAddress)
+        } catch (err) {
+          res.status(400)
+          return res.json({
+            error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`
+          })
+        }
+
+        // Prevent a common user error. Ensure they are using the correct network address.
+        const networkIsValid = _this.routeUtils.validateNetwork(thisAddress)
+        if (!networkIsValid) {
+          res.status(400)
+          return res.json({
+            error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`
+          })
+        }
+      }
+
+      // Loops through each address and creates an array of Promises, querying
+      // Insight API in parallel.
+      addresses = addresses.map(async (address, index) => {
+        // console.log(`address: ${address}`)
+        const utxos = await _this._mempoolFromElectrumx(address)
+
+        return {
+          utxos,
+          address
+        }
+      })
+
+      // Wait for all parallel Insight requests to return.
+      const result = await Promise.all(addresses)
+
+      // Return the array of retrieved address information.
+      res.status(200)
+      return res.json({
+        success: true,
+        mempool: result
+      })
+    } catch (err) {
+      wlogger.error('Error in electrumx.js/mempoolBulk().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
+
   // Convert a 'bitcoincash:...' address to a script hash used by ElectrumX.
   addressToScripthash (addrStr) {
     try {

@@ -999,4 +999,298 @@ describe('#ElectrumX Router', () => {
       assert.equal(result.transactions.length, 2, '2 outputs for 2 inputs')
     })
   })
+
+  describe('#_mempoolFromElectrumx', () => {
+    it('should throw error for invalid address', async () => {
+      try {
+        // Address has invalid checksum.
+        const address = 'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
+
+        // Call the details API.
+        await electrumxRoute._mempoolFromElectrumx(address)
+
+        assert.equal(true, false, 'Unexpected code path')
+      } catch (err) {
+        assert.include(err.message, 'Invalid checksum')
+      }
+    })
+
+    it('should return empty array for address with no unconfirmed utxos', async () => {
+      // Address has invalid checksum.
+      const address = 'bchtest:qqtmlpspjakqlvywae226esrcdrj9auynuwadh55uf'
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox.stub(electrumxRoute.electrumx, 'request').resolves([])
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute._mempoolFromElectrumx(address)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isArray(result)
+      assert.equal(result.length, 0)
+    })
+
+    it('should get mempool for a single address', async () => {
+      const address = 'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.electrumx, 'request')
+          .resolves(mockData.mempool)
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute._mempoolFromElectrumx(address)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isArray(result)
+      assert.property(result[0], 'height')
+      assert.property(result[0], 'tx_hash')
+      assert.property(result[0], 'fee')
+    })
+  })
+
+  describe('#getMempool', () => {
+    it('should throw 400 if address is empty', async () => {
+      const result = await electrumxRoute.getMempool(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Unsupported address format')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw 400 on array input', async () => {
+      req.params.address = ['qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c']
+
+      const result = await electrumxRoute.getMempool(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'address can not be an array')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw an error for an invalid address', async () => {
+      req.params.address = '02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
+
+      const result = await electrumxRoute.getMempool(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Unsupported address format')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should detect a network mismatch', async () => {
+      req.params.address = 'bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'
+
+      const result = await electrumxRoute.getMempool(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Invalid network', 'Proper error message')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should pass errors from electrum-cash to user', async () => {
+      // Address has invalid checksum.
+      req.params.address =
+        'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
+
+      // Call the details API.
+      const result = await electrumxRoute.getMempool(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Unsupported address format')
+    })
+
+    it('should get mempool for a single address', async () => {
+      req.params.address =
+        'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute, '_mempoolFromElectrumx')
+          .resolves(mockData.mempool)
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.getMempool(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'utxos')
+      assert.isArray(result.utxos)
+
+      assert.property(result.utxos[0], 'height')
+      assert.property(result.utxos[0], 'tx_hash')
+      assert.property(result.utxos[0], 'fee')
+    })
+  })
+
+  describe('#mempoolBulk', () => {
+    it('should throw an error for an empty body', async () => {
+      req.body = {}
+
+      const result = await electrumxRoute.mempoolBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
+      assert.include(
+        result.error,
+        'addresses needs to be an array',
+        'Proper error message'
+      )
+    })
+
+    it('should error on non-array single address', async () => {
+      req.body = {
+        address: 'qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
+      }
+
+      const result = await electrumxRoute.mempoolBulk(req, res)
+
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
+      assert.include(
+        result.error,
+        'addresses needs to be an array',
+        'Proper error message'
+      )
+    })
+
+    it('should throw 400 error if addresses array is too large', async () => {
+      const testArray = []
+      for (var i = 0; i < 25; i++) testArray.push('')
+
+      req.body.addresses = testArray
+
+      const result = await electrumxRoute.mempoolBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'Array too large')
+    })
+
+    it('should throw an error for an invalid address', async () => {
+      req.body = {
+        addresses: ['02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c']
+      }
+
+      const result = await electrumxRoute.mempoolBulk(req, res)
+
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
+      assert.include(
+        result.error,
+        'Invalid BCH address',
+        'Proper error message'
+      )
+    })
+
+    it('should detect a network mismatch', async () => {
+      req.body = {
+        addresses: ['bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4']
+      }
+
+      const result = await electrumxRoute.mempoolBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
+      assert.include(result.error, 'Invalid network', 'Proper error message')
+    })
+
+    it('should get mempool details for a single address', async () => {
+      req.body = {
+        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7']
+      }
+
+      // Mock the Insight URL for unit tests.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute, '_mempoolFromElectrumx')
+          .resolves(mockData.mempool)
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.mempoolBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'mempool')
+      assert.isArray(result.mempool)
+
+      assert.property(result.mempool[0], 'address')
+      assert.property(result.mempool[0], 'utxos')
+
+      assert.isArray(result.mempool[0].utxos)
+      assert.property(result.mempool[0].utxos[0], 'height')
+      assert.property(result.mempool[0].utxos[0], 'tx_hash')
+      assert.property(result.mempool[0].utxos[0], 'fee')
+    })
+
+    it('should get mempool for multiple addresses', async () => {
+      req.body = {
+        addresses: [
+          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf',
+          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+        ]
+      }
+
+      // Mock the Insight URL for unit tests.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute, '_mempoolFromElectrumx')
+          .resolves(mockData.mempool)
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.mempoolBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.isArray(result.mempool)
+      assert.isArray(result.mempool[0].utxos)
+      assert.equal(result.mempool.length, 2, '2 outputs for 2 inputs')
+    })
+  })
 })
