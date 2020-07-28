@@ -1252,16 +1252,16 @@ describe('#ElectrumX Router', () => {
       assert.property(result, 'success')
       assert.equal(result.success, true)
 
-      assert.property(result, 'mempool')
-      assert.isArray(result.mempool)
+      assert.property(result, 'utxos')
+      assert.isArray(result.utxos)
 
-      assert.property(result.mempool[0], 'address')
-      assert.property(result.mempool[0], 'utxos')
+      assert.property(result.utxos[0], 'address')
+      assert.property(result.utxos[0], 'utxos')
 
-      assert.isArray(result.mempool[0].utxos)
-      assert.property(result.mempool[0].utxos[0], 'height')
-      assert.property(result.mempool[0].utxos[0], 'tx_hash')
-      assert.property(result.mempool[0].utxos[0], 'fee')
+      assert.isArray(result.utxos[0].utxos)
+      assert.property(result.utxos[0].utxos[0], 'height')
+      assert.property(result.utxos[0].utxos[0], 'tx_hash')
+      assert.property(result.utxos[0].utxos[0], 'fee')
     })
 
     it('should get mempool for multiple addresses', async () => {
@@ -1288,9 +1288,9 @@ describe('#ElectrumX Router', () => {
       assert.property(result, 'success')
       assert.equal(result.success, true)
 
-      assert.isArray(result.mempool)
-      assert.isArray(result.mempool[0].utxos)
-      assert.equal(result.mempool.length, 2, '2 outputs for 2 inputs')
+      assert.isArray(result.utxos)
+      assert.isArray(result.utxos[0].utxos)
+      assert.equal(result.utxos.length, 2, '2 outputs for 2 inputs')
     })
   })
 })
