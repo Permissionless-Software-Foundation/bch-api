@@ -1,0 +1,26 @@
+language: node_js
+
+node_js:
+  - "10"
+
+dist: trusty
+
+sudo: required
+
+services:
+  - docker
+  - redis-server
+
+#before_install:
+#  - ./install-redis.sh
+
+script: "npm run test"
+
+after_success:
+  - npm run coverage
+
+deploy:
+  provider: script
+  skip_cleanup: true
+  script:
+    - npx semantic-release && ./deploy-production.sh

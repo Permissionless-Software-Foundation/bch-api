@@ -1,0 +1,19 @@
+bch-api-test:
+  build: .
+  dockerfile: Dockerfile
+  #image: bitcore
+  container_name: bch-api-test
+  links:
+    - redis-test
+  ports:
+    - "4000:3000"
+  volumes:
+    - ../../logs:/home/safeuser/bch-api/logs    
+  restart: always
+
+redis-test:
+  image: redis:latest
+  container_name: redis-test
+  restart: always
+  ports:
+    - "172.17.0.1:6380:6379"
