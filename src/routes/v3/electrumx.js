@@ -54,6 +54,8 @@ class Electrum {
     _this.router.post('/balance', _this.balanceBulk)
     _this.router.get('/transactions/:address', _this.getTransactions)
     _this.router.post('/transactions', _this.transactionsBulk)
+    _this.router.get('/mempool/:address', _this.getMempool)
+    _this.router.post('/mempool', _this.mempoolBulk)
   }
 
   // Initializes a connection to electrum servers.
