@@ -1,7 +1,7 @@
 {
   "name": "bch-api",
-  "version": "1.0.0",
-  "description": "REST API based on rest.bitcoin.com",
+  "version": "1.16.0",
+  "description": "The REST API powering FullStack.cash",
   "author": "Chris Troutner <chris.troutner@gmail.com>",
   "contributors": [
     "Gabriel Cardona <gabriel@bitcoin.com>"
@@ -9,7 +9,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/christroutner/bch-api.git"
+    "url": "git+https://github.com/Permissionless-Software-Foundation/bch-api.git"
   },
   "scripts": {
     "start": "node ./src/app.js",
