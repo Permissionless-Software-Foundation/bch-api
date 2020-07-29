@@ -31,8 +31,17 @@ const txHistory = [
   }
 ]
 
+const mempool = [
+  {
+    tx_hash: '45381031132c57b2ff1cbe8d8d3920cf9ed25efd9a0beb764bdb2f24c7d1c7e3',
+    height: 0,
+    fee: 24310
+  }
+]
+
 module.exports = {
   utxos,
   balance,
-  txHistory
+  txHistory,
+  mempool
 }
