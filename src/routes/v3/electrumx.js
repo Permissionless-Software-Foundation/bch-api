@@ -744,14 +744,14 @@ class Electrum {
   }
 
   /**
-   * @api {get} /electrumx/mempool/{addr} Get unconfirmed utxos for a single address.
+   * @api {get} /electrumx/unconfirmed/{addr} Get unconfirmed utxos for a single address.
    * @apiName Unconfirmed UTXOs for a single address
    * @apiGroup ElectrumX / Fulcrum
    * @apiDescription Returns an object with unconfirmed UTXOs associated with an address.
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v3/electrumx/mempool/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v3/electrumx/unconfirmed/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
    *
    */
   // GET handler for single balance
@@ -814,14 +814,14 @@ class Electrum {
   }
 
   /**
-   * @api {post} /electrumx/mempool Get unconfirmed utxos for an array of addresses.
+   * @api {post} /electrumx/unconfirmed Get unconfirmed utxos for an array of addresses.
    * @apiName  Unconfirmed UTXOs for an array of addresses
    * @apiGroup ElectrumX / Fulcrum
    * @apiDescription Returns an array of objects with unconfirmed UTXOs associated with an address.
    * Limited to 20 items per request.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v3/electrumx/mempool" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
+   * curl -X POST "https://api.fullstack.cash/v3/electrumx/unconfirmed" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
    *
    *
    */
