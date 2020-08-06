@@ -16,9 +16,8 @@ of [BITBOX SDK](https://github.com/Bitcoin-com/bitbox-sdk).
 Both bch-api and bch-js are part of the
 [full stack of BCH software](https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer).
 
-- [API Documentation](https://api.bchjs.cash/docs/)
-- [BCH Example Applications](https://github.com/Permissionless-Software-Foundation/bch-js-examples)
-- [slp-cli-wallet](https://github.com/christroutner/slp-cli-wallet): a hacker-friendly, command-line BCH and SLP token wallet using this REST API.
+- [API Documentation](https://fullstack.cash/documentation)
+- [Example Code](https://fullstack.cash/examples)
 
 Have questions? Need help? Join our community support
 [Telegram channel](https://t.me/bch_js_toolkit)
