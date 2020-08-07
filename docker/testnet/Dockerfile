@@ -13,8 +13,9 @@ USER safeuser
 
 # Clone the repository
 WORKDIR /home/safeuser
-RUN git clone https://github.com/christroutner/bch-api
+RUN git clone https://github.com/Permissionless-Software-Foundation/bch-api
 WORKDIR /home/safeuser/bch-api
+RUN git checkout free
 RUN npm install
 
 # Generate documentation
