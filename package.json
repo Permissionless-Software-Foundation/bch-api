@@ -1,7 +1,7 @@
 {
   "name": "bch-api",
-  "version": "1.0.0",
-  "description": "REST API based on rest.bitcoin.com",
+  "version": "1.16.0",
+  "description": "The REST API powering FullStack.cash",
   "author": "Chris Troutner <chris.troutner@gmail.com>",
   "contributors": [
     "Gabriel Cardona <gabriel@bitcoin.com>"
@@ -9,7 +9,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/christroutner/bch-api.git"
+    "url": "git+https://github.com/Permissionless-Software-Foundation/bch-api.git"
   },
   "scripts": {
     "start": "node ./src/app.js",
@@ -17,7 +17,7 @@
     "test": "npm run lint && npm run test-v3",
     "lint": "standard --env mocha --fix",
     "test-v3": "export NETWORK=mainnet && nyc --reporter=text mocha --timeout 60000 test/v3/",
-    "test:temp": "export NETWORK=mainnet && mocha --timeout 25000 test/v3/slp.js",
+    "test:temp": "export NETWORK=mainnet && mocha --timeout 25000 test/v3/a01-electrumx.js",
     "test:integration": "mocha test/v3/integration",
     "test:integration:slpdb": "mocha --timeout 25000 test/v3/integration/slp*.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
@@ -31,7 +31,7 @@
     "@chris.troutner/bch-js": "^3.0.1",
     "apidoc": "^0.23.0",
     "axios": "^0.19.0",
-    "bitcore-lib-cash": "^8.16.2",
+    "bitcore-lib-cash": "^8.20.3",
     "body-parser": "^1.18.3",
     "cookie-parser": "~1.4.3",
     "cors": "^2.8.3",

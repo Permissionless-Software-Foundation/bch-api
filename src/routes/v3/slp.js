@@ -64,10 +64,6 @@ class Slp {
     _this.router.get('/balancesForAddress/:address', _this.balancesForAddress)
     _this.router.post('/balancesForAddress', _this.balancesForAddressBulk)
     _this.router.get('/balancesForToken/:tokenId', _this.balancesForTokenSingle)
-    _this.router.get(
-      '/balance/:address/:tokenId',
-      _this.balancesForAddressByTokenID
-    )
     _this.router.get('/convert/:address', _this.convertAddressSingle)
     _this.router.post('/convert', _this.convertAddressBulk)
     _this.router.post('/validateTxid', _this.validateBulk)
@@ -82,6 +78,7 @@ class Slp {
       '/transactionHistoryAllTokens/:address',
       _this.txsByAddressSingle
     )
+    _this.router.post('/generateSendOpReturn', _this.generateSendOpReturn)
   }
 
   // DRY error handler.
@@ -830,170 +827,6 @@ class Slp {
   }
 
   /**
-   * @api {get} /slp/balance/{address}/{TokenId}  List single slp token balance for address.
-   * @apiName List single slp token balance for address.
-   * @apiGroup SLP
-   * @apiDescription Returns List single slp token balance for address.
-   *
-   *
-   * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v3/slp/balance/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m/1cda254d0a995c713b7955298ed246822bee487458cd9747a91d9e81d9d28125" -H "accept:application/json"
-   *
-   *
-   */
-  // Retrieve token balances for a single token class, for a single address.
-  async balancesForAddressByTokenID (req, res, next) {
-    try {
-      // Validate input data.
-      const address = req.params.address
-      if (!address || address === '') {
-        res.status(400)
-        return res.json({ error: 'address can not be empty' })
-      }
-
-      const tokenId = req.params.tokenId
-      if (!tokenId || tokenId === '') {
-        res.status(400)
-        return res.json({ error: 'tokenId can not be empty' })
-      }
-
-      // Ensure the input is a valid BCH address.
-      try {
-        _this.bchjs.SLP.Address.toCashAddress(address)
-      } catch (err) {
-        res.status(400)
-        return res.json({
-          error: `Invalid BCH address. Double check your address is valid: ${address}`
-        })
-      }
-
-      // Prevent a common user error. Ensure they are using the correct network address.
-      const cashAddr = _this.bchjs.SLP.Address.toCashAddress(address)
-      const networkIsValid = _this.routeUtils.validateNetwork(cashAddr)
-      if (!networkIsValid) {
-        res.status(400)
-        return res.json({
-          error:
-            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
-        })
-      }
-
-      // Convert input to an simpleledger: address.
-      const slpAddr = _this.bchjs.SLP.Address.toSlpAddress(req.params.address)
-
-      const query = {
-        v: 3,
-        q: {
-          db: ['g'],
-          aggregate: [
-            {
-              $match: {
-                'graphTxn.outputs': {
-                  $elemMatch: {
-                    address: slpAddr,
-                    status: 'UNSPENT',
-                    slpAmount: { $gte: 0 }
-                  }
-                }
-              }
-            },
-            {
-              $unwind: '$graphTxn.outputs'
-            },
-            {
-              $match: {
-                'graphTxn.outputs.address': slpAddr,
-                'graphTxn.outputs.status': 'UNSPENT',
-                'graphTxn.outputs.slpAmount': { $gte: 0 }
-              }
-            },
-            {
-              $project: {
-                amount: '$graphTxn.outputs.slpAmount',
-                address: '$graphTxn.outputs.address',
-                txid: '$graphTxn.txid',
-                vout: '$graphTxn.outputs.vout',
-                tokenId: '$tokenDetails.tokenIdHex'
-              }
-            },
-            {
-              $group: {
-                _id: '$tokenId',
-                balanceString: {
-                  $sum: '$amount'
-                },
-                slpAddress: {
-                  $first: '$address'
-                }
-              }
-            }
-          ],
-          limit: 10000
-        }
-      }
-
-      const options = _this.generateCredentials()
-
-      const s = JSON.stringify(query)
-      const b64 = Buffer.from(s).toString('base64')
-      const url = `${process.env.SLPDB_URL}q/${b64}`
-
-      // Get data from SLPDB.
-      const opt = {
-        method: 'get',
-        baseURL: url,
-        headers: options.headers,
-        timeout: options.timeout
-      }
-      const tokenRes = await _this.axios.request(opt)
-      console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
-
-      let resVal = {
-        cashAddress: _this.bchjs.SLP.Address.toCashAddress(slpAddr),
-        legacyAddress: _this.bchjs.SLP.Address.toLegacyAddress(slpAddr),
-        slpAddress: slpAddr,
-        tokenId: tokenId,
-        balance: 0,
-        balanceString: '0'
-      }
-
-      if (tokenRes.data.g.length > 0) {
-        tokenRes.data.g.forEach(async (token) => {
-          if (token._id === tokenId) {
-            resVal = {
-              cashAddress: _this.bchjs.SLP.Address.toCashAddress(slpAddr),
-              legacyAddress: _this.bchjs.SLP.Address.toLegacyAddress(slpAddr),
-              slpAddress: slpAddr,
-              tokenId: token._id,
-              balance: parseFloat(token.balanceString),
-              balanceString: token.balanceString
-            }
-          }
-        })
-      } else {
-        resVal = {
-          cashAddress: _this.bchjs.SLP.Address.toCashAddress(slpAddr),
-          legacyAddress: _this.bchjs.SLP.Address.toLegacyAddress(slpAddr),
-          slpAddress: slpAddr,
-          tokenId: tokenId,
-          balance: 0,
-          balanceString: '0'
-        }
-      }
-
-      res.status(200)
-      return res.json(resVal)
-    } catch (err) {
-      wlogger.error('Error in slp.ts/balancesForAddressByTokenID().', err)
-
-      return _this.errorHandler(err, res)
-      // return res.json({
-      //   error: `Error in /balance/:address/:tokenId: ${err.message}`
-      // })
-    }
-  }
-
-  /**
    * @api {get} /slp/convert/{address}  Convert address to slpAddr, cashAddr and legacy.
    * @apiName Convert address to slpAddr, cashAddr and legacy.
    * @apiGroup SLP
@@ -1606,6 +1439,83 @@ class Slp {
       res.status(500)
       return res.json({
         error: `Error in /transactionHistoryAllTokens/:address: ${err.message}`
+      })
+    }
+  }
+
+  /**
+   * @api {post} /slp/generateSendOpReturn/ generateSendOpReturn
+   * @apiName SLP generateSendOpReturn
+   * @apiGroup SLP
+   * @apiDescription Generate the hex required for a SLP Send OP_RETURN.
+   *
+   * This will return a hexidecimal representation of the OP_RETURN code that
+   * can be used to generate an SLP Send transaction. The number of outputs
+   * (1 or 2) will also be returned.
+   *
+   * @apiExample Example usage:
+   * curl -X POST "https://api.fullstack.cash/v3/slp/generateSendOpReturn" -H "accept:application/json" -H "Content-Type: application/json" -d '{"tokenUtxos":[{"tokenId": "0a321bff9761f28e06a268b14711274bb77617410a16807bd0437ef234a072b1","decimals": 0, "tokenQty": 2}], "sendQty": 1.5}'
+   *
+   *
+   */
+  // Get OP_RETURN script and outputs
+  async generateSendOpReturn (req, res, next) {
+    try {
+      const tokenUtxos = req.body.tokenUtxos
+      // console.log(`tokenUtxos: `, tokenUtxos)
+
+      const _sendQty = req.body.sendQty
+      const sendQty = Number(_sendQty)
+
+      // console.log(`sendQty: `, sendQty)
+
+      // Reject if tokenUtxos is not an array.
+      if (!Array.isArray(tokenUtxos)) {
+        res.status(400)
+        return res.json({
+          error: 'tokenUtxos needs to be an array.'
+        })
+      }
+
+      // Reject if tokenUtxos array is empty.
+      if (!tokenUtxos.length) {
+        res.status(400)
+        return res.json({
+          error: 'tokenUtxos array can not be empty.'
+        })
+      }
+
+      // Reject if sendQty is not an number.
+      if (!sendQty) {
+        res.status(400)
+        return res.json({
+          error: 'sendQty must be a number.'
+        })
+      }
+
+      const opReturn = await _this.bchjs.SLP.TokenType1.generateSendOpReturn(
+        tokenUtxos,
+        sendQty
+      )
+
+      const script = opReturn.script.toString('hex')
+      // console.log(`script: ${script}`)
+
+      res.status(200)
+      return res.json({ script, outputs: opReturn.outputs })
+    } catch (err) {
+      wlogger.error('Error in slp.js/generateSendOpReturn().', err)
+
+      // Decode the error message.
+      const { msg, status } = routeUtils.decodeError(err)
+      if (msg) {
+        res.status(status)
+        return res.json({ error: msg })
+      }
+
+      res.status(500)
+      return res.json({
+        error: 'Error in /generateSendOpReturn()'
       })
     }
   }
