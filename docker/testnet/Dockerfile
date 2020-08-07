@@ -21,7 +21,7 @@ RUN npm install
 # Generate documentation
 RUN npm run docs
 
-EXPOSE 3000
+EXPOSE 4000
 
 COPY start-local-testnet.sh start-local-testnet.sh
 CMD ["./start-local-testnet.sh"]
