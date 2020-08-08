@@ -119,6 +119,7 @@ class RateLimits {
         // If the request originates from one of the approved wallet apps, then
         // apply paid-access rate limits.
         const origin = req.get('origin')
+        wlogger.info(`origin: ${origin}`)
         if (
           origin &&
           (origin.toString().indexOf('wallet.fullstack.cash') > -1 ||
