@@ -116,14 +116,20 @@ class RateLimits {
         let pointsToConsume = _this.calcPoints(decoded)
         res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
 
+        // Retrieve the origin.
+        let origin = req.get('origin')
+        if (origin === undefined && key.indexOf('10.0.0.5') > -1) {
+          origin = 'slp-api'
+        }
+        wlogger.info(`origin: ${origin}`)
+
         // If the request originates from one of the approved wallet apps, then
         // apply paid-access rate limits.
-        const origin = req.get('origin')
-        wlogger.info(`origin: ${origin}`)
         if (
           origin &&
           (origin.toString().indexOf('wallet.fullstack.cash') > -1 ||
-            origin.toString().indexOf('sandbox.fullstack.cash') > -1)
+            origin.toString().indexOf('sandbox.fullstack.cash') > -1 ||
+            origin === 'slp-api')
         ) {
           pointsToConsume = 1
           res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
