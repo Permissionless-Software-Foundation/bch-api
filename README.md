@@ -1,6 +1,5 @@
 # bch-api
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/christroutner/bch-api.svg)](https://greenkeeper.io/)
 
 [![Build Status](https://travis-ci.org/christroutner/bch-api.svg?branch=master)](https://travis-ci.org/christroutner/bch-api)
 
