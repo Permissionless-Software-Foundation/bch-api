@@ -30,6 +30,16 @@ const mockData = require('./mocks/electrumx-mock')
 const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
+function expectRouteError (res, result, expectedError, code = 400) {
+  assert.equal(res.statusCode, code, `HTTP status code ${code} expected.`)
+
+  assert.property(result, 'error')
+  assert.include(result.error, expectedError)
+
+  assert.property(result, 'success')
+  assert.equal(result.success, false)
+}
+
 describe('#ElectrumX Router', () => {
   let req, res
   let sandbox
@@ -81,6 +91,16 @@ describe('#ElectrumX Router', () => {
   after(() => {
     //
   })
+
+  function stubMethodForUnitTests (obj, method, value) {
+    if (!process.env.TEST === 'unit') return false
+
+    electrumxRoute.isReady = true // Force flag.
+
+    sandbox.stub(obj, method).resolves(value)
+
+    return true
+  }
 
   describe('#root', () => {
     // root route handler.
@@ -409,6 +429,188 @@ describe('#ElectrumX Router', () => {
       assert.isArray(result.utxos)
       assert.isArray(result.utxos[0].utxos)
       assert.equal(result.utxos.length, 2, '2 outputs for 2 inputs')
+    })
+  })
+
+  describe('#_transactionDetailsFromElectrum', () => {
+    it('should return error object for invalid txid', async () => {
+      const txid = '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb25'
+
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', new Error('Invalid tx hash'))
+
+      const result = await electrumxRoute._transactionDetailsFromElectrum(txid)
+
+      assert.instanceOf(result, Error)
+      assert.include(result.message, 'Invalid tx hash')
+    })
+
+    it('should get details for a single txid', async () => {
+      const txid = '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
+
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', mockData.txDetails)
+
+      const result = await electrumxRoute._transactionDetailsFromElectrum(txid)
+
+      assert.isObject(result)
+      assert.property(result, 'blockhash')
+      assert.property(result, 'hash')
+      assert.property(result, 'hex')
+      assert.property(result, 'vin')
+      assert.property(result, 'vout')
+      assert.equal(result.hash, txid)
+    })
+  })
+
+  describe('#getTransactionDetails', () => {
+    it('should throw 400 if txid is not a string', async () => {
+      req.params.txid = 5
+
+      const result = await electrumxRoute.getTransactionDetails(req, res)
+
+      expectRouteError(res, result, 'txid must be a string')
+    })
+
+    it('should throw 400 on array input', async () => {
+      req.params.address = ['4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251']
+
+      const result = await electrumxRoute.getTransactionDetails(req, res)
+
+      expectRouteError(res, result, 'txid must be a string')
+    })
+
+    it('should return error object for invalid txid', async () => {
+      req.params.txid = '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb25'
+
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', new Error('Invalid tx hash'))
+
+      // Call the details API.
+      const result = await electrumxRoute.getTransactionDetails(req, res)
+
+      expectRouteError(res, result, 'Invalid tx hash')
+    })
+
+    it('should get details for a single txid', async () => {
+      req.params.txid = '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
+
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', mockData.txDetails)
+
+      // Call the details API.
+      const result = await electrumxRoute.getTransactionDetails(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'details')
+      assert.isObject(result.details)
+
+      assert.property(result.details, 'blockhash')
+      assert.property(result.details, 'hash')
+      assert.property(result.details, 'hex')
+      assert.property(result.details, 'vin')
+      assert.property(result.details, 'vout')
+      assert.equal(result.details.hash, req.params.txid)
+    })
+  })
+
+  describe('#transactionDetailsBulk', () => {
+    it('should throw an error for an empty body', async () => {
+      req.body = {}
+
+      const result = await electrumxRoute.transactionDetailsBulk(req, res)
+
+      expectRouteError(res, result, 'txids needs to be an array')
+    })
+
+    it('should error on non-array single txid', async () => {
+      req.body = {
+        txid: '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
+      }
+
+      const result = await electrumxRoute.transactionDetailsBulk(req, res)
+
+      expectRouteError(res, result, 'txids needs to be an array')
+    })
+
+    it('should NOT throw 400 error for an invalid txid', async () => {
+      req.body = {
+        txids: ['4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb25']
+      }
+
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', mockData.txDetails)
+
+      const result = await electrumxRoute.transactionDetailsBulk(req, res)
+
+      // This should probably throw a 400 error, but to be consistent with the other
+      // bulk endpoints it doesn't throw. This will change in the future
+      // expectRouteError(res, result, 'Invalid tx hash')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'transactions')
+      assert.isArray(result.transactions)
+    })
+
+    it('should throw 429 error if txid array is too large', async () => {
+      const testArray = []
+      for (var i = 0; i < 25; i++) testArray.push('')
+
+      req.body.txids = testArray
+
+      const result = await electrumxRoute.transactionDetailsBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      expectRouteError(res, result, 'Array too large', 429)
+    })
+
+    it('should get details for a single txid', async () => {
+      req.body = {
+        txids: ['4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251']
+      }
+
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', mockData.txDetails)
+
+      // Call the details API.
+      const result = await electrumxRoute.transactionDetailsBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'transactions')
+      assert.isArray(result.transactions)
+
+      assert.property(result.transactions[0], 'txid')
+      assert.property(result.transactions[0], 'details')
+
+      assert.property(result.transactions[0].details, 'blockhash')
+      assert.property(result.transactions[0].details, 'hash')
+      assert.property(result.transactions[0].details, 'hex')
+      assert.property(result.transactions[0].details, 'vin')
+      assert.property(result.transactions[0].details, 'vout')
+    })
+
+    it('should get details for multiple txids', async () => {
+      req.body = {
+        txids: [
+          '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251',
+          '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
+        ]
+      }
+
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', mockData.txDetails)
+
+      // Call the details API.
+      const result = await electrumxRoute.transactionDetailsBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)'
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.isArray(result.transactions)
+      assert.isObject(result.transactions[0].details)
+      assert.equal(result.transactions.length, 2, '2 outputs for 2 inputs')
     })
   })
 
