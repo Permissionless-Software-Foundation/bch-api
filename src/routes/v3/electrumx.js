@@ -1076,7 +1076,9 @@ class Electrum {
       const address = _this.bitcore.Address.fromString(addrStr)
       // console.log(`address: ${address}`)
 
-      const script = _this.bitcore.Script.buildPublicKeyHashOut(address)
+      const script = address.isPayToPublicKeyHash()
+        ? _this.bitcore.Script.buildPublicKeyHashOut(address)
+        : _this.bitcore.Script.buildScriptHashOut(address)
       // console.log(`script: ${script}`)
 
       const scripthash = _this.bitcore.crypto.Hash.sha256(script.toBuffer())
