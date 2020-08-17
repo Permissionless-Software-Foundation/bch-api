@@ -50,6 +50,8 @@ class Electrum {
     _this.router.get('/', _this.root)
     _this.router.get('/utxos/:address', _this.getUtxos)
     _this.router.post('/utxos', _this.utxosBulk)
+    _this.router.get('/tx/data/:address', _this.getTransactionDetails)
+    _this.router.post('/tx/data', _this.transactionDetailsBulk)
     _this.router.get('/balance/:address', _this.getBalance)
     _this.router.post('/balance', _this.balanceBulk)
     _this.router.get('/transactions/:address', _this.getTransactions)
@@ -319,6 +321,169 @@ class Electrum {
       })
     } catch (err) {
       wlogger.error('Error in electrumx.js/utxoBulk().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  // Returns a promise that resolves to transaction details data for a txid.
+  // Expects input to be a txid string, and input validation to have already
+  // been done by parent, calling function.
+  async _transactionDetailsFromElectrum (txid, verbose = true) {
+    try {
+      if (!_this.isReady) {
+        throw new Error(
+          'ElectrumX server connection is not ready. Call await connectToServer() first.'
+        )
+      }
+
+      // Query the utxos from the ElectrumX server.
+      const electrumResponse = await _this.electrumx.request(
+        'blockchain.transaction.get',
+        txid,
+        verbose
+      )
+      // console.log(
+      //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
+      // )
+
+      return electrumResponse
+    } catch (err) {
+      // console.log('err: ', err)
+
+      // Write out error to error log.
+      wlogger.error(
+        'Error in elecrumx.js/_transactionDetailsFromElectrum(): ',
+        err
+      )
+      throw err
+    }
+  }
+
+  /**
+   * @api {get} /electrumx/tx/data/{txid} Get transaction details for a TXID
+   * @apiName transaction details for a TXID
+   * @apiGroup ElectrumX / Fulcrum
+   * @apiDescription Returns an object with transaction details of the TXID
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/electrumx/tx/data/a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d" -H "accept: application/json"
+   *
+   */
+  // GET handler for single transaction
+  async getTransactionDetails (req, res, next) {
+    try {
+      const txid = req.params.txid
+      const verbose = req.query.verbose
+
+      // Reject if txid is anything other than a string
+      if (typeof txid !== 'string') {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'txid must be a string'
+        })
+      }
+
+      wlogger.debug(
+        'Executing electrumx/getTransactionDetails with this txid: ',
+        txid
+      )
+
+      // Get data from ElectrumX server.
+      const electrumResponse = await _this._transactionDetailsFromElectrum(
+        txid,
+        verbose
+      )
+      // console.log(`_transactionDetailsFromElectrum(): ${JSON.stringify(electrumResponse, null, 2)}`)
+
+      // Pass the error message if ElectrumX reports an error.
+      if (electrumResponse instanceof Error) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: electrumResponse.message
+        })
+      }
+
+      res.status(200)
+      return res.json({
+        success: true,
+        details: electrumResponse
+      })
+    } catch (err) {
+      // Write out error to error log.
+      wlogger.error('Error in elecrumx.js/getTransactionDetails().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  /**
+   * @api {post} /electrumx/tx/data Get transaction details for an array of TXIDs
+   * @apiName  Transaction details for an array of TXIDs
+   * @apiGroup ElectrumX / Fulcrum
+   * @apiDescription Returns an array of objects with transaction details of an array of TXIDs.
+   * Limited to 20 items per request.
+   *
+   * @apiExample Example usage:
+   * curl -X POST "https://api.fullstack.cash/v3/electrumx/tx/data" -H "accept: application/json" -H "Content-Type: application/json" -d '{"txids":["a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d","a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d"], "verbose":false}'
+   *
+   *
+   */
+  // POST handler for bulk queries on transaction details
+  async transactionDetailsBulk (req, res, next) {
+    try {
+      const txids = req.body.txids
+      const verbose = req.body.verbose || true
+
+      // Reject if txids is not an array.
+      if (!Array.isArray(txids)) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'txids needs to be an array. Use GET for single txid.'
+        })
+      }
+
+      // Enforce array size rate limits
+      if (!_this.routeUtils.validateArraySize(req, txids)) {
+        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        return res.json({
+          success: false,
+          error: 'Array too large.'
+        })
+      }
+
+      wlogger.debug(
+        'Executing electrumx.js/transactionDetailsBulk with these txids: ',
+        txids
+      )
+
+      // Loops through each address and creates an array of Promises, querying
+      // the Electrum server in parallel.
+      const transactions = txids.map(async (txid, index) => {
+        // console.log(`address: ${address}`)
+        const details = await _this._transactionDetailsFromElectrum(
+          txid,
+          verbose
+        )
+
+        return { details, txid }
+      })
+
+      // Wait for all parallel Electrum requests to return.
+      const result = await Promise.all(transactions)
+
+      // Return the array of retrieved transaction details.
+      res.status(200)
+      return res.json({
+        success: true,
+        transactions: result
+      })
+    } catch (err) {
+      wlogger.error('Error in electrumx.js/transactionDetailsBulk().', err)
 
       return _this.errorHandler(err, res)
     }
