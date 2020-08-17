@@ -94,13 +94,24 @@ describe('#ElectrumX Router', () => {
   })
 
   describe('#addressToScripthash', () => {
-    it('should accurately return a scripthash', () => {
+    it('should accurately return a scripthash for a P2PKH address', () => {
       const addr = 'bitcoincash:qpr270a5sxphltdmggtj07v4nskn9gmg9yx4m5h7s4'
 
       const scripthash = electrumxRoute.addressToScripthash(addr)
 
       const expectedOutput =
         'bce4d5f2803bd1ed7c1ba00dcb3edffcbba50524af7c879d6bb918d04f138965'
+
+      assert.equal(scripthash, expectedOutput)
+    })
+
+    it('should accurately return a scripthash for a P2SH address', () => {
+      const addr = 'bitcoincash:pz0z7u9p96h2p6hfychxdrmwgdlzpk5luc5yks2wxq'
+
+      const scripthash = electrumxRoute.addressToScripthash(addr)
+
+      const expectedOutput =
+        '8bc2235c8e7d5634d9ec429fc0171f2c58e728d4f1e2fb7e440e313133cfa4f0'
 
       assert.equal(scripthash, expectedOutput)
     })
