@@ -2,7 +2,7 @@
   TESTS FOR THE ELECTRUMX.JS LIBRARY
 
   Named with a01 prefix so that these tests are run first. Something about running
-  the Blcokbook and Blockchain tests screws up these tests. Spend a couple hours
+  the Blcokbook and Blockchain tests screws up these tests. Spent a couple hours
   debugging and couldn't isolate the source of the issue, but renaming the file
   was an easy fix.
 
@@ -30,6 +30,8 @@ const mockData = require('./mocks/electrumx-mock')
 const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
+// A wrapper for asserting that the correct response is returned when an error
+// is expected.
 function expectRouteError (res, result, expectedError, code = 400) {
   assert.equal(res.statusCode, code, `HTTP status code ${code} expected.`)
 
@@ -92,6 +94,7 @@ describe('#ElectrumX Router', () => {
     //
   })
 
+  // A wrapper for stubbing with the Sinon sandbox.
   function stubMethodForUnitTests (obj, method, value) {
     if (!process.env.TEST === 'unit') return false
 
@@ -434,9 +437,14 @@ describe('#ElectrumX Router', () => {
 
   describe('#_transactionDetailsFromElectrum', () => {
     it('should return error object for invalid txid', async () => {
-      const txid = '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb25'
+      const txid =
+        '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb25'
 
-      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', new Error('Invalid tx hash'))
+      stubMethodForUnitTests(
+        electrumxRoute.electrumx,
+        'request',
+        new Error('Invalid tx hash')
+      )
 
       const result = await electrumxRoute._transactionDetailsFromElectrum(txid)
 
@@ -445,9 +453,14 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should get details for a single txid', async () => {
-      const txid = '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
+      const txid =
+        '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
 
-      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', mockData.txDetails)
+      stubMethodForUnitTests(
+        electrumxRoute.electrumx,
+        'request',
+        mockData.txDetails
+      )
 
       const result = await electrumxRoute._transactionDetailsFromElectrum(txid)
 
@@ -471,7 +484,9 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should throw 400 on array input', async () => {
-      req.params.address = ['4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251']
+      req.params.address = [
+        '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
+      ]
 
       const result = await electrumxRoute.getTransactionDetails(req, res)
 
@@ -479,9 +494,14 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should return error object for invalid txid', async () => {
-      req.params.txid = '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb25'
+      req.params.txid =
+        '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb25'
 
-      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', new Error('Invalid tx hash'))
+      stubMethodForUnitTests(
+        electrumxRoute.electrumx,
+        'request',
+        new Error('Invalid tx hash')
+      )
 
       // Call the details API.
       const result = await electrumxRoute.getTransactionDetails(req, res)
@@ -490,9 +510,14 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should get details for a single txid', async () => {
-      req.params.txid = '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
+      req.params.txid =
+        '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
 
-      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', mockData.txDetails)
+      stubMethodForUnitTests(
+        electrumxRoute.electrumx,
+        'request',
+        mockData.txDetails
+      )
 
       // Call the details API.
       const result = await electrumxRoute.getTransactionDetails(req, res)
@@ -534,10 +559,16 @@ describe('#ElectrumX Router', () => {
 
     it('should NOT throw 400 error for an invalid txid', async () => {
       req.body = {
-        txids: ['4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb25']
+        txids: [
+          '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb25'
+        ]
       }
 
-      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', mockData.txDetails)
+      stubMethodForUnitTests(
+        electrumxRoute.electrumx,
+        'request',
+        mockData.txDetails
+      )
 
       const result = await electrumxRoute.transactionDetailsBulk(req, res)
 
@@ -566,10 +597,16 @@ describe('#ElectrumX Router', () => {
 
     it('should get details for a single txid', async () => {
       req.body = {
-        txids: ['4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251']
+        txids: [
+          '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
+        ]
       }
 
-      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', mockData.txDetails)
+      stubMethodForUnitTests(
+        electrumxRoute.electrumx,
+        'request',
+        mockData.txDetails
+      )
 
       // Call the details API.
       const result = await electrumxRoute.transactionDetailsBulk(req, res)
@@ -599,7 +636,11 @@ describe('#ElectrumX Router', () => {
         ]
       }
 
-      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', mockData.txDetails)
+      stubMethodForUnitTests(
+        electrumxRoute.electrumx,
+        'request',
+        mockData.txDetails
+      )
 
       // Call the details API.
       const result = await electrumxRoute.transactionDetailsBulk(req, res)

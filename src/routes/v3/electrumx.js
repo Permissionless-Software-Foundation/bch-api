@@ -338,7 +338,11 @@ class Electrum {
       }
 
       // Query the utxos from the ElectrumX server.
-      const electrumResponse = await _this.electrumx.request('blockchain.transaction.get', txid, verbose)
+      const electrumResponse = await _this.electrumx.request(
+        'blockchain.transaction.get',
+        txid,
+        verbose
+      )
       // console.log(
       //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
       // )
@@ -348,7 +352,10 @@ class Electrum {
       // console.log('err: ', err)
 
       // Write out error to error log.
-      wlogger.error('Error in elecrumx.js/_transactionDetailsFromElectrum(): ', err)
+      wlogger.error(
+        'Error in elecrumx.js/_transactionDetailsFromElectrum(): ',
+        err
+      )
       throw err
     }
   }
@@ -385,7 +392,10 @@ class Electrum {
       )
 
       // Get data from ElectrumX server.
-      const electrumResponse = await _this._transactionDetailsFromElectrum(txid, verbose)
+      const electrumResponse = await _this._transactionDetailsFromElectrum(
+        txid,
+        verbose
+      )
       // console.log(`_transactionDetailsFromElectrum(): ${JSON.stringify(electrumResponse, null, 2)}`)
 
       // Pass the error message if ElectrumX reports an error.
@@ -455,7 +465,10 @@ class Electrum {
       // the Electrum server in parallel.
       const transactions = txids.map(async (txid, index) => {
         // console.log(`address: ${address}`)
-        const details = await _this._transactionDetailsFromElectrum(txid, verbose)
+        const details = await _this._transactionDetailsFromElectrum(
+          txid,
+          verbose
+        )
 
         return { details, txid }
       })
