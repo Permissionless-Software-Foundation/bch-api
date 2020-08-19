@@ -96,7 +96,7 @@ describe('#ElectrumX Router', () => {
 
   // A wrapper for stubbing with the Sinon sandbox.
   function stubMethodForUnitTests (obj, method, value) {
-    if (!process.env.TEST === 'unit') return false
+    if (process.env.TEST !== 'unit') return false
 
     electrumxRoute.isReady = true // Force flag.
 
@@ -495,7 +495,7 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should throw 400 on array input', async () => {
-      req.params.address = [
+      req.params.txid = [
         '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
       ]
 
@@ -663,6 +663,246 @@ describe('#ElectrumX Router', () => {
       assert.isArray(result.transactions)
       assert.isObject(result.transactions[0].details)
       assert.equal(result.transactions.length, 2, '2 outputs for 2 inputs')
+    })
+  })
+
+  describe('#_blockHeadersFromElectrum', () => {
+    it('should return error object for invalid block height', async () => {
+      const height = -10
+
+      stubMethodForUnitTests(
+        electrumxRoute.electrumx,
+        'request',
+        new Error('Invalid height')
+      )
+
+      const result = await electrumxRoute._blockHeadersFromElectrum(height, 2)
+
+      assert.instanceOf(result, Error)
+      assert.include(result.message, 'Invalid height')
+    })
+
+    it('should return error object for invalid count', async () => {
+      const height = 42
+
+      stubMethodForUnitTests(
+        electrumxRoute.electrumx,
+        'request',
+        new Error('Invalid count')
+      )
+
+      const result = await electrumxRoute._blockHeadersFromElectrum(height, -1)
+
+      assert.instanceOf(result, Error)
+      assert.include(result.message, 'Invalid count')
+    })
+
+    it('should get block header for a single block height', async () => {
+      const height = 42
+
+      const mockedResponse = { count: 2, hex: mockData.blockHeaders.join(''), max: 2016 }
+
+      stubMethodForUnitTests(
+        electrumxRoute.electrumx,
+        'request',
+        mockedResponse
+      )
+
+      const result = await electrumxRoute._blockHeadersFromElectrum(height, 2)
+
+      assert.isArray(result)
+      assert.deepEqual(result, mockData.blockHeaders)
+    })
+  })
+
+  describe('#getBlockheaders', () => {
+    it('should throw 400 if height is not a number', async () => {
+      req.params.height = 'Hello'
+
+      const result = await electrumxRoute.getBlockHeaders(req, res)
+
+      expectRouteError(res, result, 'height must be a positive number')
+    })
+
+    it('should throw 400 if height is negative', async () => {
+      req.params.height = -42
+
+      const result = await electrumxRoute.getBlockHeaders(req, res)
+
+      expectRouteError(res, result, 'height must be a positive number')
+    })
+
+    it('should throw 400 if count is not a number', async () => {
+      req.params.height = 42
+      req.query.count = 'Hello'
+
+      const result = await electrumxRoute.getBlockHeaders(req, res)
+
+      expectRouteError(res, result, 'count must be a positive number')
+    })
+
+    it('should throw 400 if count is negative', async () => {
+      req.params.height = 42
+      req.query.count = -10
+
+      const result = await electrumxRoute.getBlockHeaders(req, res)
+
+      expectRouteError(res, result, 'count must be a positive number')
+    })
+
+    it('should throw 400 on array input', async () => {
+      req.params.height = [42, 42]
+
+      const result = await electrumxRoute.getBlockHeaders(req, res)
+
+      expectRouteError(res, result, 'height must be a positive number')
+    })
+
+    it('should return error object for invalid height', async () => {
+      req.params.height = 1000000000
+
+      stubMethodForUnitTests(
+        electrumxRoute.electrumx,
+        'request',
+        new Error('Invalid height')
+      )
+
+      // Call the details API.
+      const result = await electrumxRoute.getBlockHeaders(req, res)
+
+      expectRouteError(res, result, 'Invalid height')
+    })
+
+    it('should get headers for a single block height with count 2', async () => {
+      req.params.height = 42
+      req.query.count = 2
+
+      stubMethodForUnitTests(
+        electrumxRoute,
+        '_blockHeadersFromElectrum',
+        mockData.blockHeaders
+      )
+
+      // Call the details API.
+      const result = await electrumxRoute.getBlockHeaders(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'headers')
+      assert.isArray(result.headers)
+      assert.deepEqual(result.headers, mockData.blockHeaders)
+    })
+  })
+
+  describe('#blockHeadersBulk', () => {
+    it('should throw an error for an empty body', async () => {
+      req.body = {}
+
+      const result = await electrumxRoute.blockHeadersBulk(req, res)
+
+      expectRouteError(res, result, 'heights needs to be an array')
+    })
+
+    it('should error on non-array single height', async () => {
+      req.body = {
+        heights: 42
+      }
+
+      const result = await electrumxRoute.blockHeadersBulk(req, res)
+
+      expectRouteError(res, result, 'heights needs to be an array')
+    })
+
+    it('should NOT throw 400 error for an invalid height', async () => {
+      req.body = {
+        heights: [
+          { height: -10, count: 2 }
+        ]
+      }
+
+      stubMethodForUnitTests(
+        electrumxRoute,
+        '_blockHeadersFromElectrum',
+        mockData.blockHeaders
+      )
+
+      const result = await electrumxRoute.blockHeadersBulk(req, res)
+
+      // This should probably throw a 400 error, but to be consistent with the other
+      // bulk endpoints it doesn't throw. This will change in the future
+      // expectRouteError(res, result, 'Invalid tx hash')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'headers')
+      assert.isArray(result.headers)
+    })
+
+    it('should throw 429 error if heights array is too large', async () => {
+      const testArray = []
+      for (var i = 0; i < 25; i++) testArray.push('')
+
+      req.body.heights = testArray
+
+      const result = await electrumxRoute.blockHeadersBulk(req, res)
+
+      expectRouteError(res, result, 'Array too large', 429)
+    })
+
+    it('should get details for a single height', async () => {
+      req.body = {
+        heights: [
+          { height: 42, count: 2 }
+        ]
+      }
+
+      stubMethodForUnitTests(
+        electrumxRoute,
+        '_blockHeadersFromElectrum',
+        mockData.blockHeaders
+      )
+
+      // Call the details API.
+      const result = await electrumxRoute.blockHeadersBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'headers')
+      assert.isArray(result.headers)
+
+      assert.property(result.headers[0], 'headers')
+      assert.isArray(result.headers[0].headers)
+    })
+
+    it('should get details for multiple txids', async () => {
+      req.body = {
+        heights: [
+          { height: 42, count: 2 },
+          { height: 42, count: 2 }
+        ]
+      }
+
+      stubMethodForUnitTests(
+        electrumxRoute,
+        '_blockHeadersFromElectrum',
+        mockData.blockHeaders
+      )
+
+      // Call the details API.
+      const result = await electrumxRoute.blockHeadersBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)'
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.isArray(result.headers)
+      assert.isArray(result.headers[0].headers)
+      assert.equal(result.headers.length, 2, '2 outputs for 2 inputs')
     })
   })
 
