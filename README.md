@@ -94,4 +94,4 @@ Have questions? Need help? Join our community support
 [Telegram channel](https://t.me/bch_js_toolkit)
 
 ## License
-[MIT](LICENSE.md)
+[MIT](./LICENSE.md)
