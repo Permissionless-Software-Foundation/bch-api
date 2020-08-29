@@ -10,7 +10,7 @@ const axios = require('axios')
 const util = require('util')
 const bitcore = require('bitcore-lib-cash')
 
-const ElectrumCash = require('electrum-cash').Client
+const ElectrumCash = require('electrum-cash').ElectrumClient
 // const ElectrumCash = require('/home/trout/work/personal/electrum-cash/electrum.js').Client // eslint-disable-line
 
 const wlogger = require('../../util/winston-logging')
