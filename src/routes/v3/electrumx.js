@@ -10,7 +10,7 @@ const axios = require('axios')
 const util = require('util')
 const bitcore = require('bitcore-lib-cash')
 
-const ElectrumCash = require('electrum-cash').Client
+const ElectrumCash = require('electrum-cash').ElectrumClient
 // const ElectrumCash = require('/home/trout/work/personal/electrum-cash/electrum.js').Client // eslint-disable-line
 
 const wlogger = require('../../util/winston-logging')
@@ -50,8 +50,10 @@ class Electrum {
     _this.router.get('/', _this.root)
     _this.router.get('/utxos/:address', _this.getUtxos)
     _this.router.post('/utxos', _this.utxosBulk)
-    _this.router.get('/tx/data/:address', _this.getTransactionDetails)
+    _this.router.get('/tx/data/:txid', _this.getTransactionDetails)
     _this.router.post('/tx/data', _this.transactionDetailsBulk)
+    _this.router.get('/block/headers/:height', _this.getBlockHeaders)
+    _this.router.post('/block/headers', _this.blockHeadersBulk)
     _this.router.get('/balance/:address', _this.getBalance)
     _this.router.post('/balance', _this.balanceBulk)
     _this.router.get('/transactions/:address', _this.getTransactions)
@@ -484,6 +486,175 @@ class Electrum {
       })
     } catch (err) {
       wlogger.error('Error in electrumx.js/transactionDetailsBulk().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  // Returns a promise that resolves to block header data for a block height.
+  // Expects input to be a height number, and input validation to have already
+  // been done by parent, calling function.
+  async _blockHeadersFromElectrum (height, count = 1) {
+    try {
+      if (!_this.isReady) {
+        throw new Error(
+          'ElectrumX server connection is not ready. Call await connectToServer() first.'
+        )
+      }
+
+      // Query the block header from the ElectrumX server.
+      const electrumResponse = await _this.electrumx.request('blockchain.block.headers', height, count)
+      // console.log(
+      //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
+      // )
+
+      const HEADER_SIZE = 80 * 2
+
+      if (!(electrumResponse instanceof Error)) {
+        const headers = electrumResponse.hex.match(new RegExp(`.{1,${HEADER_SIZE}}`, 'g'))
+        return headers
+      }
+
+      return electrumResponse
+    } catch (err) {
+      // console.log('err: ', err)
+
+      // Write out error to error log.
+      wlogger.error(
+        'Error in elecrumx.js/_blockHeaderFromElectrum(): ',
+        err
+      )
+      throw err
+    }
+  }
+
+  /**
+   * @api {get} /electrumx/block/headers/{height} Get `count` block headers starting at a height
+   * @apiName Block header data for a `count` blocks starting at a block height
+   * @apiGroup ElectrumX / Fulcrum
+   * @apiDescription Returns an array with block headers starting at the block height
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/electrumx/block/header/42?count=2" -H "accept: application/json"
+   *
+   */
+  // GET handler for single block headers
+  async getBlockHeaders (req, res, next) {
+    try {
+      const height = Number(req.params.height)
+      const count = req.query.count === undefined ? 1 : Number(req.query.count)
+
+      // Reject if height is not a number
+      if (Number.isNaN(height) || height < 0) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'height must be a positive number'
+        })
+      }
+
+      // Reject if height is not a number
+      if (Number.isNaN(count) || count < 0) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'count must be a positive number'
+        })
+      }
+
+      wlogger.debug(
+        'Executing electrumx/getBlockHeaders with this height: ',
+        height
+      )
+
+      // Get data from ElectrumX server.
+      const electrumResponse = await _this._blockHeadersFromElectrum(height, count)
+      // console.log(`_transactionDetailsFromElectrum(): ${JSON.stringify(electrumResponse, null, 2)}`)
+
+      // Pass the error message if ElectrumX reports an error.
+      if (electrumResponse instanceof Error) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: electrumResponse.message
+        })
+      }
+
+      res.status(200)
+      return res.json({
+        success: true,
+        headers: electrumResponse
+      })
+    } catch (err) {
+      // Write out error to error log.
+      wlogger.error('Error in elecrumx.js/getBlockHeader().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  /**
+   * @api {post} /electrumx/block/headers Get block headers for an array of height + count pairs
+   * @apiName  Block headers for an array of height + count pairs
+   * @apiGroup ElectrumX / Fulcrum
+   * @apiDescription Returns an array of objects with blockheaders of an array of TXIDs.
+   * Limited to 20 items per request.
+   *
+   * @apiExample Example usage:
+   * curl -X POST "https://api.fullstack.cash/v3/electrumx/block/headers" -H "accept: application/json" -H "Content-Type: application/json" -d '{"heights":[{ "height": 42, count: 2 }, { "height": 100, count: 5 }]}'
+   *
+   */
+  // POST handler for bulk queries on block headers
+  async blockHeadersBulk (req, res, next) {
+    try {
+      const heights = req.body.heights
+
+      // Reject if heights is not an array.
+      if (!Array.isArray(heights)) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'heights needs to be an array. Use GET for single height.'
+        })
+      }
+
+      // Enforce array size rate limits
+      if (!_this.routeUtils.validateArraySize(req, heights)) {
+        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        return res.json({
+          success: false,
+          error: 'Array too large.'
+        })
+      }
+
+      wlogger.debug(
+        'Executing electrumx.js/blockHeadersBulk with these txids: ',
+        heights
+      )
+
+      // Loops through each address and creates an array of Promises, querying
+      // the Electrum server in parallel.
+      const transactions = heights.map(async (obj) => {
+        const headers = await _this._blockHeadersFromElectrum(
+          obj.height,
+          obj.count
+        )
+
+        return { headers }
+      })
+
+      // Wait for all parallel Electrum requests to return.
+      const result = await Promise.all(transactions)
+
+      // Return the array of retrieved transaction details.
+      res.status(200)
+      return res.json({
+        success: true,
+        headers: result
+      })
+    } catch (err) {
+      wlogger.error('Error in electrumx.js/blockHeadersBulk().', err)
 
       return _this.errorHandler(err, res)
     }

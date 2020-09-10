@@ -21,6 +21,7 @@ free-bch-api-main.sh
 free-bch-api-test.sh
 start-local-mainnet.sh.save
 start-local-testnet.sh.save
+temp.sh
 
 coverage
 start-my-infra
