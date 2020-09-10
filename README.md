@@ -18,7 +18,7 @@ Both bch-api and bch-js are part of the
 - [API Documentation](https://fullstack.cash/documentation)
 - [Example Code](https://fullstack.cash/examples)
 
-Have questions? Need help? Join our community support
+Have questions? Need help? Join our community support:
 [Telegram channel](https://t.me/bch_js_toolkit)
 
 ## Features
