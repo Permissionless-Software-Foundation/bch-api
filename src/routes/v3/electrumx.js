@@ -50,7 +50,7 @@ class Electrum {
     _this.router.get('/', _this.root)
     _this.router.get('/utxos/:address', _this.getUtxos)
     _this.router.post('/utxos', _this.utxosBulk)
-    _this.router.get('/tx/data/:address', _this.getTransactionDetails)
+    _this.router.get('/tx/data/:txid', _this.getTransactionDetails)
     _this.router.post('/tx/data', _this.transactionDetailsBulk)
     _this.router.get('/block/headers/:height', _this.getBlockHeaders)
     _this.router.post('/block/headers', _this.blockHeadersBulk)
