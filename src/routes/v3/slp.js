@@ -13,7 +13,7 @@ const Slpdb = require('./services/slpdb')
 // const strftime = require('strftime')
 const wlogger = require('../../util/winston-logging')
 
-const BCHJS = require('@chris.troutner/bch-js')
+const BCHJS = require('@psf/bch-js')
 const bchjs = new BCHJS()
 
 // Used to convert error messages to strings, to safely pass to users.
