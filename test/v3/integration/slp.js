@@ -102,7 +102,7 @@ describe('#slp', () => {
     })
   })
 
-  describe('generateSendOpReturn', () => {
+  describe('#generateSendOpReturn', () => {
     it('should return OP_RETURN script', async () => {
       req.body.tokenUtxos = [
         {
@@ -119,6 +119,68 @@ describe('#slp', () => {
 
       assert.hasAllKeys(result, ['script', 'outputs'])
       assert.isNumber(result.outputs)
+    })
+  })
+
+  describe('#hydrateUtxos', () => {
+    it('should return utxo details', async () => {
+      const utxos = [
+        {
+          txid:
+            'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+          vout: 3,
+          value: '6816',
+          height: 606848,
+          confirmations: 13,
+          satoshis: 6816
+        },
+        {
+          txid:
+            'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+          vout: 2,
+          value: '546',
+          height: 606848,
+          confirmations: 13,
+          satoshis: 546
+        }
+      ]
+
+      req.body.utxos = utxos
+      const result = await slp.hydrateUtxos(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      // Test the general structure of the output.
+      assert.isArray(result.slpUtxos)
+      assert.equal(result.slpUtxos.length, 2)
+
+      // Test the non-slp UTXO.
+      assert.property(result.slpUtxos[0], 'txid')
+      assert.property(result.slpUtxos[0], 'vout')
+      assert.property(result.slpUtxos[0], 'value')
+      assert.property(result.slpUtxos[0], 'height')
+      assert.property(result.slpUtxos[0], 'confirmations')
+      assert.property(result.slpUtxos[0], 'satoshis')
+      assert.property(result.slpUtxos[0], 'isValid')
+      assert.equal(result.slpUtxos[0].isValid, false)
+
+      // Test the slp UTXO.
+      assert.property(result.slpUtxos[1], 'txid')
+      assert.property(result.slpUtxos[1], 'vout')
+      assert.property(result.slpUtxos[1], 'value')
+      assert.property(result.slpUtxos[1], 'height')
+      assert.property(result.slpUtxos[1], 'confirmations')
+      assert.property(result.slpUtxos[1], 'satoshis')
+      assert.property(result.slpUtxos[1], 'isValid')
+      assert.equal(result.slpUtxos[1].isValid, true)
+      assert.property(result.slpUtxos[1], 'transactionType')
+      assert.property(result.slpUtxos[1], 'tokenId')
+      assert.property(result.slpUtxos[1], 'tokenTicker')
+      assert.property(result.slpUtxos[1], 'tokenName')
+      assert.property(result.slpUtxos[1], 'tokenDocumentUrl')
+      assert.property(result.slpUtxos[1], 'tokenDocumentHash')
+      assert.property(result.slpUtxos[1], 'decimals')
+      assert.property(result.slpUtxos[1], 'tokenType')
+      assert.property(result.slpUtxos[1], 'tokenQty')
     })
   })
 })

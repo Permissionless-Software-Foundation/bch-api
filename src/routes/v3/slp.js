@@ -13,7 +13,7 @@ const Slpdb = require('./services/slpdb')
 // const strftime = require('strftime')
 const wlogger = require('../../util/winston-logging')
 
-const BCHJS = require('@chris.troutner/bch-js')
+const BCHJS = require('@psf/bch-js')
 const bchjs = new BCHJS()
 
 // Used to convert error messages to strings, to safely pass to users.
@@ -79,6 +79,7 @@ class Slp {
       _this.txsByAddressSingle
     )
     _this.router.post('/generateSendOpReturn', _this.generateSendOpReturn)
+    _this.router.post('/hydrateUtxos', _this.hydrateUtxos)
   }
 
   // DRY error handler.
@@ -1516,6 +1517,75 @@ class Slp {
       res.status(500)
       return res.json({
         error: 'Error in /generateSendOpReturn()'
+      })
+    }
+  }
+
+  /**
+   * @api {post} /slp/hydrateUtxos/ hydrateUtxos
+   * @apiName SLP hydrateUtxos
+   * @apiGroup SLP
+   * @apiDescription Hydrate UTXO data with SLP information.
+   *
+   * Expects an array of UTXO objects as input. Returns an array of equal size.
+   * Returns UTXO data hydrated with token information. If the UTXO does not
+   * belong to a SLP transaction, it will return an isValid property set to
+   * false. If the UTXO is part of an SLP transaction, it will return the UTXO
+   * object with additional SLP information attached. An isValid property will
+   * be included. If its value is true, the UTXO is a valid SLP UTXO. If the
+   * value is null, then SLPDB has not yet processed that txid and validity has
+   * not been confirmed.
+   *
+   * @apiExample Example usage:
+   * curl -X POST "https://api.fullstack.cash/v3/slp/hydrateUtxos" -H "accept:application/json" -H "Content-Type: application/json" -d '{"utxos":[{"txid": "d56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56","vout": 3, "value": "6816", "height": 606848, "confirmations": 13, "satoshis": 6816}, {"txid": "d56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56","vout": 2, "value": "546", "height": 606848, "confirmations": 13, "satoshis": 546}]}'
+   *
+   *
+   */
+  async hydrateUtxos (req, res, next) {
+    try {
+      const utxos = req.body.utxos
+
+      // Validate inputs
+      if (!Array.isArray(utxos)) {
+        res.status(422)
+        return res.json({
+          error: 'Input must be an array.'
+        })
+      }
+
+      if (!utxos.length) {
+        res.status(422)
+        return res.json({
+          error: 'Array should not be empty'
+        })
+      }
+
+      if (utxos.length > 20) {
+        res.status(422)
+        return res.json({
+          error: 'Array too long, max length is 20'
+        })
+      }
+
+      // Get Token Utxo Details
+      const details = await _this.bchjs.SLP.Utils.tokenUtxoDetails(utxos)
+      // console.log('details : ', details)
+
+      res.status(200)
+      return res.json({ slpUtxos: details })
+    } catch (err) {
+      wlogger.error('Error in slp.js/hydrateUtxos().', err)
+
+      // Decode the error message.
+      const { msg, status } = routeUtils.decodeError(err)
+      if (msg) {
+        res.status(status)
+        return res.json({ error: msg })
+      }
+
+      res.status(500)
+      return res.json({
+        error: 'Error in hydrateUtxos()'
       })
     }
   }
