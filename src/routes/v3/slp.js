@@ -1567,12 +1567,20 @@ class Slp {
         })
       }
 
-      // Get Token Utxo Details
-      const details = await _this.bchjs.SLP.Utils.tokenUtxoDetails(utxos)
-      // console.log('details : ', details)
+      // Loop through each address and query the UTXOs for that element.
+      for (let i = 0; i < utxos.length; i++) {
+        const theseUtxos = utxos[i].utxos
+
+        // Get SLP token details.
+        const details = await _this.bchjs.SLP.Utils.tokenUtxoDetails(theseUtxos)
+        // console.log('details : ', details)
+
+        // Replace the original UTXO data with the hydrated data.
+        utxos[i].utxos = details
+      }
 
       res.status(200)
-      return res.json({ slpUtxos: details })
+      return res.json({ slpUtxos: utxos })
     } catch (err) {
       wlogger.error('Error in slp.js/hydrateUtxos().', err)
 
