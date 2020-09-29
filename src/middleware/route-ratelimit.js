@@ -129,9 +129,14 @@ class RateLimits {
           origin &&
           (origin.toString().indexOf('wallet.fullstack.cash') > -1 ||
             origin.toString().indexOf('sandbox.fullstack.cash') > -1 ||
-            origin.toString().indexOf('172.17.') > -1 ||
             origin === 'slp-api')
         ) {
+          pointsToConsume = 1
+          res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
+        }
+
+        // Apply paid-access rate limits based on key/IP
+        if (key.toString().indexOf('172.17.') > -1) {
           pointsToConsume = 1
           res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
         }
