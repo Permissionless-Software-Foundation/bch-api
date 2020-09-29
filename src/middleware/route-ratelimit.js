@@ -137,7 +137,7 @@ class RateLimits {
 
         // Apply paid-access rate limits based on key/IP
         if (key.toString().indexOf('172.17.') > -1) {
-          pointsToConsume = 1
+          pointsToConsume = 0.1
           res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
         }
 
