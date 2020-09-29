@@ -28,7 +28,7 @@
     "node": ">=10.15.1"
   },
   "dependencies": {
-    "@psf/bch-js": "^3.5.5",
+    "@psf/bch-js": "^3.6.2",
     "apidoc": "^0.23.0",
     "axios": "^0.19.0",
     "bitcore-lib-cash": "^8.20.3",
