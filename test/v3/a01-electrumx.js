@@ -906,7 +906,7 @@ describe('#ElectrumX Router', () => {
     })
   })
 
-  describe.only('#_broadcastTransactionWithElectrum', () => {
+  describe('#_broadcastTransactionWithElectrum', () => {
     it('should return error object for invalid formatted transaction', async () => {
       const invalidHex = mockData.txDetails.hex.substring(10)
 
@@ -941,7 +941,7 @@ describe('#ElectrumX Router', () => {
     })
   })
 
-  describe.only('#broadcastTransaction', () => {
+  describe('#broadcastTransaction', () => {
     it('should throw an error for a non-string', async () => {
       req.body = 456
 
