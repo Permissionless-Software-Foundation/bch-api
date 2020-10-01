@@ -492,7 +492,7 @@ class Electrum {
     }
   }
 
-  // Returns a promise that resolves to transaction ID of the broadcasted transaction.
+  // Returns a promise that resolves to transaction ID of the broadcasted transaction or an error.
   // Expects input to be a txHex string, and input validation to have already
   // been done by parent, calling function.
   async _broadcastTransactionWithElectrum (txHex) {
@@ -529,10 +529,10 @@ class Electrum {
    * @api {post} /electrumx/tx/broadcast Broadcast a raw transaction
    * @apiName Broadcast a raw transaction
    * @apiGroup ElectrumX / Fulcrum
-   * @apiDescription Broadcast a raw transaction and return the transaction on success or error on failure.
+   * @apiDescription Broadcast a raw transaction and return the transaction ID on success or error on failure.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v3/electrumx/tx/broadcast" -H "accept: application/json" -H "Content-Type: application/json" -d '020000000265d13ef402840c8a51f39779afb7ae4d49e4b0a3c24a3d0e7742038f2c679667010000006441dd1dd72770cadede1a7fd0363574846c48468a398ddfa41a9677c74cac8d2652b682743725a3b08c6c2021a629011e11a264d9036e9d5311e35b5f4937ca7b4e4121020797d8fd4d2fa6fd7cdeabe2526bfea2b90525d6e8ad506ec4ee3c53885aa309ffffffff65d13ef402840c8a51f39779afb7ae4d49e4b0a3c24a3d0e7742038f2c679667000000006441347d7f218c11c04487c1ad8baac28928fb10e5054cd4494b94d078cfa04ccf68e064fb188127ff656c0b98e9ce87f036d183925d0d0860605877d61e90375f774121028a53f95eb631b460854fc836b2e5d31cad16364b4dc3d970babfbdcc3f2e4954ffffffff035ac355000000000017a914189ce02e332548f4804bac65cba68202c9dbf822878dfd0800000000001976a914285bb350881b21ac89724c6fb6dc914d096cd53b88acf9ef3100000000001976a91445f1f1c4a9b9419a5088a3e9c24a293d7a150e6488ac00000000'
+   * curl -X POST "https://api.fullstack.cash/v3/electrumx/tx/broadcast" -H "accept: application/json" -H "Content-Type: text/plain" -d '020000000265d13ef402840c8a51f39779afb7ae4d49e4b0a3c24a3d0e7742038f2c679667010000006441dd1dd72770cadede1a7fd0363574846c48468a398ddfa41a9677c74cac8d2652b682743725a3b08c6c2021a629011e11a264d9036e9d5311e35b5f4937ca7b4e4121020797d8fd4d2fa6fd7cdeabe2526bfea2b90525d6e8ad506ec4ee3c53885aa309ffffffff65d13ef402840c8a51f39779afb7ae4d49e4b0a3c24a3d0e7742038f2c679667000000006441347d7f218c11c04487c1ad8baac28928fb10e5054cd4494b94d078cfa04ccf68e064fb188127ff656c0b98e9ce87f036d183925d0d0860605877d61e90375f774121028a53f95eb631b460854fc836b2e5d31cad16364b4dc3d970babfbdcc3f2e4954ffffffff035ac355000000000017a914189ce02e332548f4804bac65cba68202c9dbf822878dfd0800000000001976a914285bb350881b21ac89724c6fb6dc914d096cd53b88acf9ef3100000000001976a91445f1f1c4a9b9419a5088a3e9c24a293d7a150e6488ac00000000'
    *
    */
   // POST handler for broadcasting a single transaction
