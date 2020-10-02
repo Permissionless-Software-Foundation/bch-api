@@ -22,7 +22,7 @@
 'use strict'
 
 const passport = require('passport')
-const BasicStrategy = require('passport-http').BasicStrategy
+// const BasicStrategy = require('passport-http').BasicStrategy
 const AnonymousStrategy = require('passport-anonymous')
 const wlogger = require('../util/winston-logging')
 
@@ -48,55 +48,55 @@ class AuthMW {
     passport.use(new AnonymousStrategy())
 
     // Initialize passport for 'basic' authentication.
-    passport.use(
-      new BasicStrategy({ passReqToCallback: true }, function (
-        req,
-        username,
-        password,
-        done
-      ) {
-        // console.log(`req: ${util.inspect(req)}`)
-        // console.log(`username: ${username}`)
-        // console.log(`password: ${password}`)
-
-        // Create the req.locals property if it does not yet exist.
-        if (!req.locals) {
-          req.locals = {
-            // default values
-            proLimit: false,
-            apiLevel: 0
-          }
-        }
-
-        // Set pro-tier rate limit to flag to false by default.
-        req.locals.proLimit = false
-
-        // Evaluate the username and password and set the rate limit accordingly.
-        // if (username === "BITBOX" && password === PRO_PASS) {
-        if (username === 'BITBOX') {
-          for (let i = 0; i < PRO_PASS.length; i++) {
-            const thisPass = PRO_PASS[i]
-
-            if (password === thisPass) {
-              wlogger.verbose(`${req.url} called by ${password.slice(0, 6)}`)
-
-              // Success
-              req.locals.proLimit = true
-              break
-            }
-          }
-        }
-
-        // console.log(`req.locals: ${util.inspect(req.locals)}`)
-
-        return done(null, true)
-      })
-    )
+    //   passport.use(
+    //     new BasicStrategy({ passReqToCallback: true }, function (
+    //       req,
+    //       username,
+    //       password,
+    //       done
+    //     ) {
+    //       // console.log(`req: ${util.inspect(req)}`)
+    //       // console.log(`username: ${username}`)
+    //       // console.log(`password: ${password}`)
+    //
+    //       // Create the req.locals property if it does not yet exist.
+    //       if (!req.locals) {
+    //         req.locals = {
+    //           // default values
+    //           proLimit: false,
+    //           apiLevel: 0
+    //         }
+    //       }
+    //
+    //       // Set pro-tier rate limit to flag to false by default.
+    //       req.locals.proLimit = false
+    //
+    //       // Evaluate the username and password and set the rate limit accordingly.
+    //       // if (username === "BITBOX" && password === PRO_PASS) {
+    //       if (username === 'BITBOX') {
+    //         for (let i = 0; i < PRO_PASS.length; i++) {
+    //           const thisPass = PRO_PASS[i]
+    //
+    //           if (password === thisPass) {
+    //             wlogger.verbose(`${req.url} called by ${password.slice(0, 6)}`)
+    //
+    //             // Success
+    //             req.locals.proLimit = true
+    //             break
+    //           }
+    //         }
+    //       }
+    //
+    //       // console.log(`req.locals: ${util.inspect(req.locals)}`)
+    //
+    //       return done(null, true)
+    //     })
+    //   )
   }
 
   // Middleware called by the route.
   mw () {
-    return passport.authenticate(['basic', 'anonymous'], {
+    return passport.authenticate(['anonymous'], {
       session: false
     })
   }
