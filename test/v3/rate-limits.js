@@ -105,14 +105,14 @@ describe('#route-ratelimits & jwt-auth', () => {
   })
 
   describe('#calcPoints', () => {
-    it('should return 30 points for anonymous user', () => {
+    it('should return 300 points for anonymous user', () => {
       const result = rateLimits.calcPoints()
       // console.log(`result: ${result}`)
 
-      assert.equal(result, 30)
+      assert.equal(result, 300)
     })
 
-    it('should return 10 points for free tier requesting full node access', () => {
+    it('should return 100 points for free tier requesting full node access', () => {
       const jwtInfo = {
         apiLevel: 10,
         resource: 'blockchain',
@@ -120,10 +120,10 @@ describe('#route-ratelimits & jwt-auth', () => {
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 10)
+      assert.equal(result, 100)
     })
 
-    it('should return 10 points for free tier requesting indexer access', () => {
+    it('should return 100 points for free tier requesting indexer access', () => {
       const jwtInfo = {
         apiLevel: 10,
         resource: 'blockbook',
@@ -131,10 +131,10 @@ describe('#route-ratelimits & jwt-auth', () => {
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 10)
+      assert.equal(result, 100)
     })
 
-    it('should return 10 points for free tier requesting SLPDB access', () => {
+    it('should return 100 points for free tier requesting SLPDB access', () => {
       const jwtInfo = {
         apiLevel: 10,
         resource: 'slp',
@@ -142,10 +142,10 @@ describe('#route-ratelimits & jwt-auth', () => {
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 10)
+      assert.equal(result, 100)
     })
 
-    it('should return 1 point for full node tier requesting full node access', () => {
+    it('should return 10 points for full node tier requesting full node access', () => {
       const jwtInfo = {
         apiLevel: 20,
         resource: 'blockchain',
@@ -153,12 +153,45 @@ describe('#route-ratelimits & jwt-auth', () => {
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 1)
+      assert.equal(result, 10)
     })
 
-    it('should return 10 points for full-node tier requesting indexer access', () => {
+    it('should return 100 points for full-node tier requesting indexer access', () => {
       const jwtInfo = {
         apiLevel: 20,
+        resource: 'blockbook',
+        id: '5e3a0415eb29a962da2708b4'
+      }
+
+      const result = rateLimits.calcPoints(jwtInfo)
+      assert.equal(result, 100)
+    })
+
+    it('should return 100 points for full node tier requesting SLPDB access', () => {
+      const jwtInfo = {
+        apiLevel: 20,
+        resource: 'slp',
+        id: '5e3a0415eb29a962da2708b4'
+      }
+
+      const result = rateLimits.calcPoints(jwtInfo)
+      assert.equal(result, 100)
+    })
+
+    it('should return 10 point for indexer tier requesting full node access', () => {
+      const jwtInfo = {
+        apiLevel: 30,
+        resource: 'blockchain',
+        id: '5e3a0415eb29a962da2708b4'
+      }
+
+      const result = rateLimits.calcPoints(jwtInfo)
+      assert.equal(result, 10)
+    })
+
+    it('should return 10 points for indexer tier requesting indexer access', () => {
+      const jwtInfo = {
+        apiLevel: 30,
         resource: 'blockbook',
         id: '5e3a0415eb29a962da2708b4'
       }
@@ -167,40 +200,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       assert.equal(result, 10)
     })
 
-    it('should return 10 points for full node tier requesting SLPDB access', () => {
-      const jwtInfo = {
-        apiLevel: 20,
-        resource: 'slp',
-        id: '5e3a0415eb29a962da2708b4'
-      }
-
-      const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 10)
-    })
-
-    it('should return 1 point for indexer tier requesting full node access', () => {
-      const jwtInfo = {
-        apiLevel: 30,
-        resource: 'blockchain',
-        id: '5e3a0415eb29a962da2708b4'
-      }
-
-      const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 1)
-    })
-
-    it('should return 1 points for indexer tier requesting indexer access', () => {
-      const jwtInfo = {
-        apiLevel: 30,
-        resource: 'blockbook',
-        id: '5e3a0415eb29a962da2708b4'
-      }
-
-      const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 1)
-    })
-
-    it('should return 10 points for indexer tier requesting SLPDB access', () => {
+    it('should return 100 points for indexer tier requesting SLPDB access', () => {
       const jwtInfo = {
         apiLevel: 30,
         resource: 'slp',
@@ -208,10 +208,10 @@ describe('#route-ratelimits & jwt-auth', () => {
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 10)
+      assert.equal(result, 100)
     })
 
-    it('should return 1 point for SLP tier requesting full node access', () => {
+    it('should return 10 point for SLP tier requesting full node access', () => {
       const jwtInfo = {
         apiLevel: 40,
         resource: 'blockchain',
@@ -219,10 +219,10 @@ describe('#route-ratelimits & jwt-auth', () => {
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 1)
+      assert.equal(result, 10)
     })
 
-    it('should return 1 points for SLP tier requesting indexer access', () => {
+    it('should return 10 points for SLP tier requesting indexer access', () => {
       const jwtInfo = {
         apiLevel: 40,
         resource: 'blockbook',
@@ -230,10 +230,10 @@ describe('#route-ratelimits & jwt-auth', () => {
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 1)
+      assert.equal(result, 10)
     })
 
-    it('should return 1 points for SLP tier requesting SLPDB access', () => {
+    it('should return 10 points for SLP tier requesting SLPDB access', () => {
       const jwtInfo = {
         apiLevel: 40,
         resource: 'slp',
@@ -241,7 +241,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 1)
+      assert.equal(result, 10)
     })
   })
 
@@ -442,7 +442,7 @@ describe('#route-ratelimits & jwt-auth', () => {
 
       // Issues with token secret should treat incoming requests as anonymous
       // calls with 30 points or 3 RPM.
-      assert.equal(res.locals.pointsToConsume, 30)
+      assert.equal(res.locals.pointsToConsume, 300)
     })
   })
 })

@@ -192,13 +192,13 @@ class RateLimits {
       if (jwtInfo.id) {
         // SLP indexer routes
         if (level40Routes.includes(resource)) {
-          if (apiLevel >= 40) retVal = 1
+          if (apiLevel >= 40) retVal = 10
           // else if (apiLevel >= 10) retVal = 10
           else retVal = 100
 
           // Normal indexer routes
         } else if (level30Routes.includes(resource)) {
-          if (apiLevel >= 30) retVal = 1
+          if (apiLevel >= 30) retVal = 10
           else retVal = 100
 
           // Full node tier
