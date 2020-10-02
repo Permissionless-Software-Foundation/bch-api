@@ -957,7 +957,7 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should throw an error object for invalid formatted transaction', async () => {
-      req.body = mockData.txDetails.hex.substring(10)
+      req.body.txHex = mockData.txDetails.hex.substring(10)
 
       stubMethodForUnitTests(
         electrumxRoute,
@@ -974,7 +974,7 @@ describe('#ElectrumX Router', () => {
       // We cannot send an actual broadcast transaction to mainnet
       if (process.env.TEST !== 'unit') return this.skip()
 
-      req.body = mockData.txDetails.hex
+      req.body.txHex = mockData.txDetails.hex
 
       stubMethodForUnitTests(
         electrumxRoute,
