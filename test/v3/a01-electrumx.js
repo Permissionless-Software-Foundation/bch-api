@@ -906,6 +906,92 @@ describe('#ElectrumX Router', () => {
     })
   })
 
+  describe('#_broadcastTransactionWithElectrum', () => {
+    it('should return error object for invalid formatted transaction', async () => {
+      const invalidHex = mockData.txDetails.hex.substring(10)
+
+      stubMethodForUnitTests(
+        electrumxRoute.electrumx,
+        'request',
+        new Error('Error: the transaction was rejected by network rules.\n\nTX decode failed\n')
+      )
+
+      const result = await electrumxRoute._broadcastTransactionWithElectrum(invalidHex)
+
+      assert.instanceOf(result, Error)
+      assert.include(result.message, 'TX decode failed')
+    })
+
+    it('should return txid for valid transaction', async function () {
+      // We cannot send an actual broadcast transaction to mainnet
+      if (process.env.TEST !== 'unit') return this.skip()
+
+      const validHex = mockData.txDetails.hex
+
+      stubMethodForUnitTests(
+        electrumxRoute.electrumx,
+        'request',
+        mockData.txDetails.hash
+      )
+
+      const result = await electrumxRoute._broadcastTransactionWithElectrum(validHex)
+
+      assert.typeOf(result, 'string')
+      assert.equal(result, mockData.txDetails.hash)
+    })
+  })
+
+  describe('#broadcastTransaction', () => {
+    it('should throw an error for a non-string', async () => {
+      req.body = 456
+
+      stubMethodForUnitTests(
+        electrumxRoute,
+        '_broadcastTransactionWithElectrum',
+        new Error('request body must be a string.')
+      )
+
+      const result = await electrumxRoute.broadcastTransaction(req, res)
+
+      expectRouteError(res, result, 'request body must be a string.')
+    })
+
+    it('should throw an error object for invalid formatted transaction', async () => {
+      req.body = mockData.txDetails.hex.substring(10)
+
+      stubMethodForUnitTests(
+        electrumxRoute,
+        '_broadcastTransactionWithElectrum',
+        new Error('Error: the transaction was rejected by network rules.\n\nTX decode failed\n')
+      )
+
+      const result = await electrumxRoute.broadcastTransaction(req, res)
+
+      expectRouteError(res, result, 'TX decode failed')
+    })
+
+    it('should return txid for valid transaction', async function () {
+      // We cannot send an actual broadcast transaction to mainnet
+      if (process.env.TEST !== 'unit') return this.skip()
+
+      req.body = mockData.txDetails.hex
+
+      stubMethodForUnitTests(
+        electrumxRoute,
+        '_broadcastTransactionWithElectrum',
+        mockData.txDetails.hash
+      )
+
+      const result = await electrumxRoute.broadcastTransaction(req, res)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'txid')
+      assert.equal(result.txid, mockData.txDetails.hash)
+    })
+  })
+
   describe('#_balanceFromElectrumx', () => {
     it('should throw error for invalid address', async () => {
       try {
