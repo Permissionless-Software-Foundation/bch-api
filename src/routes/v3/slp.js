@@ -13,8 +13,11 @@ const Slpdb = require('./services/slpdb')
 // const strftime = require('strftime')
 const wlogger = require('../../util/winston-logging')
 
+const LOCAL_RESTURL = process.env.LOCAL_RESTURL
+  ? process.env.LOCAL_RESTURL
+  : 'https://api.fullstack.cash/v3/'
 const BCHJS = require('@psf/bch-js')
-const bchjs = new BCHJS()
+const bchjs = new BCHJS({ restURL: LOCAL_RESTURL })
 
 // Used to convert error messages to strings, to safely pass to users.
 const util = require('util')
