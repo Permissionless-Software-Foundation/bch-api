@@ -1570,6 +1570,13 @@ class Slp {
         })
       }
 
+      if (!utxos[0].utxos) {
+        res.status(422)
+        return res.json({
+          error: 'Each element in array should have a utxos property'
+        })
+      }
+
       // Loop through each address and query the UTXOs for that element.
       for (let i = 0; i < utxos.length; i++) {
         const theseUtxos = utxos[i].utxos
@@ -1586,6 +1593,7 @@ class Slp {
       return res.json({ slpUtxos: utxos })
     } catch (err) {
       wlogger.error('Error in slp.js/hydrateUtxos().', err)
+      console.error('Error in slp.js/hydrateUtxos().', err)
 
       // Decode the error message.
       const { msg, status } = routeUtils.decodeError(err)

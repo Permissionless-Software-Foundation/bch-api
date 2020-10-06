@@ -1034,6 +1034,34 @@ describe('#SLP', () => {
       assert.property(result.slpUtxos[0].utxos[1], 'tokenType')
       assert.property(result.slpUtxos[0].utxos[1], 'tokenQty')
     })
+
+    it('should throw error for missing properties', async () => {
+      const utxos = [
+        {
+          height: 639443,
+          tx_hash:
+            '30707fffb9b295a06a68d217f49c198e9e1dbe1edc3874a0928ca1905f1709df',
+          tx_pos: 0,
+          value: 6000
+        },
+        {
+          height: 639443,
+          tx_hash:
+            '8962566e413501224d178a02effc89be5ac0d8e4195f617415d443dc4c38fe50',
+          tx_pos: 1,
+          value: 546
+        }
+      ]
+
+      req.body.utxos = utxos
+      const result = await slpRoute.hydrateUtxos(req, res)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(
+        result.error,
+        'Each element in array should have a utxos property'
+      )
+    })
   })
 })
 
