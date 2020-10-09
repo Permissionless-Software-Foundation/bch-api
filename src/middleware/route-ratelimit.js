@@ -178,7 +178,7 @@ class RateLimits {
   // Calculates the points consumed, based on the jwt information and the route
   // requested.
   calcPoints (jwtInfo) {
-    let retVal = 20 // By default, use anonymous tier.
+    let retVal = 33 // By default, use anonymous tier.
 
     try {
       // console.log(`jwtInfo: ${JSON.stringify(jwtInfo, null, 2)}`)
@@ -197,12 +197,12 @@ class RateLimits {
         if (level40Routes.includes(resource)) {
           if (apiLevel >= 40) retVal = 10
           // else if (apiLevel >= 10) retVal = 10
-          else retVal = 100
+          else retVal = 33
 
           // Normal indexer routes
         } else if (level30Routes.includes(resource)) {
           if (apiLevel >= 30) retVal = 10
-          else retVal = 100
+          else retVal = 33
 
           // Full node tier
         } else if (apiLevel >= 20) {
@@ -210,7 +210,7 @@ class RateLimits {
 
           // Free tier, full node only.
         } else {
-          retVal = 100
+          retVal = 33
         }
       }
 
@@ -218,7 +218,7 @@ class RateLimits {
     } catch (err) {
       wlogger.error('Error in route-ratelimit.js/calcPoints()')
       // throw err
-      retVal = 20
+      retVal = 33
     }
 
     return retVal
