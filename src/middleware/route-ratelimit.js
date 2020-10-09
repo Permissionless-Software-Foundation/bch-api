@@ -20,7 +20,7 @@ const redisClient = new Redis(redisOptions)
 const { RateLimiterRedis } = require('rate-limiter-flexible')
 const rateLimitOptions = {
   storeClient: redisClient,
-  points: 100, // Number of points
+  points: 1000, // Number of points
   duration: 60 // Per minute (per 60 seconds)
 }
 
@@ -98,8 +98,8 @@ class RateLimits {
         wlogger.debug('No JWT token found!')
       }
 
-      // Used for displaying error message. Default value is 3.
-      let rateLimit = 50
+      // Used for displaying error message. Default value is 30.
+      let rateLimit = 30
 
       // Code here for the rate limiter is adapted from this example:
       // https://github.com/animir/node-rate-limiter-flexible/wiki/Overall-example#authorized-and-not-authorized-users
@@ -131,6 +131,15 @@ class RateLimits {
             origin.toString().indexOf('sandbox.fullstack.cash') > -1 ||
             origin === 'slp-api')
         ) {
+          pointsToConsume = 10
+          res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
+        }
+
+        // Apply paid-access rate limits based on key/IP
+        if (
+          key.toString().indexOf('172.17.') > -1 ||
+          key.toString().indexOf('::ffff:127.0.0.1') > -1
+        ) {
           pointsToConsume = 1
           res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
         }
@@ -139,7 +148,7 @@ class RateLimits {
           `User ${key} consuming ${pointsToConsume} point for resource ${resource}.`
         )
 
-        rateLimit = Math.floor(100 / pointsToConsume)
+        rateLimit = Math.floor(1000 / pointsToConsume)
 
         // Update the key so that rate limits track both the user and the resource.
         key = `${key}-${resource}`
@@ -169,7 +178,7 @@ class RateLimits {
   // Calculates the points consumed, based on the jwt information and the route
   // requested.
   calcPoints (jwtInfo) {
-    let retVal = 2 // By default, use anonymous tier.
+    let retVal = 20 // By default, use anonymous tier.
 
     try {
       // console.log(`jwtInfo: ${JSON.stringify(jwtInfo, null, 2)}`)
@@ -186,22 +195,22 @@ class RateLimits {
       if (jwtInfo.id) {
         // SLP indexer routes
         if (level40Routes.includes(resource)) {
-          if (apiLevel >= 40) retVal = 2
+          if (apiLevel >= 40) retVal = 10
           // else if (apiLevel >= 10) retVal = 10
-          else retVal = 2
+          else retVal = 100
 
           // Normal indexer routes
         } else if (level30Routes.includes(resource)) {
-          if (apiLevel >= 30) retVal = 2
-          else retVal = 2
+          if (apiLevel >= 30) retVal = 10
+          else retVal = 100
 
           // Full node tier
         } else if (apiLevel >= 20) {
-          retVal = 2
+          retVal = 10
 
           // Free tier, full node only.
         } else {
-          retVal = 2
+          retVal = 100
         }
       }
 
@@ -209,7 +218,7 @@ class RateLimits {
     } catch (err) {
       wlogger.error('Error in route-ratelimit.js/calcPoints()')
       // throw err
-      retVal = 2
+      retVal = 20
     }
 
     return retVal

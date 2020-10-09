@@ -888,6 +888,181 @@ describe('#SLP', () => {
       assert.isNumber(result.outputs)
     })
   })
+
+  describe('#hydrateUtxos', () => {
+    it('should throw error if input is not an array.', async () => {
+      req.body.utxos = 'test'
+
+      const result = await slpRoute.hydrateUtxos(req, res)
+      // console.log(`result: `, result)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'Input must be an array')
+    })
+
+    it('should throw error if Array is empty', async () => {
+      req.body.utxos = []
+
+      const result = await slpRoute.hydrateUtxos(req, res)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'Array should not be empty')
+    })
+
+    it('should throw error if Array is too long', async () => {
+      const utxo = {
+        txid:
+          'bd158c564dd4ef54305b14f44f8e94c44b649f246dab14bcb42fb0d0078b8a90',
+        vout: 3,
+        amount: 0.00002015,
+        satoshis: 2015,
+        height: 594892,
+        confirmations: 5
+      }
+
+      const utxos = []
+
+      // Populate array with 21 utxos
+      for (let i = 0; i < 21; i++) {
+        utxos.push(utxo)
+      }
+
+      req.body.utxos = utxos
+
+      const result = await slpRoute.hydrateUtxos(req, res)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'Array too long, max length is 20')
+    })
+
+    it('should return utxo details', async () => {
+      const utxos = [
+        {
+          utxos: [
+            {
+              txid:
+                'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+              vout: 3,
+              value: '6816',
+              height: 606848,
+              confirmations: 13,
+              satoshis: 6816
+            },
+            {
+              txid:
+                'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+              vout: 2,
+              value: '546',
+              height: 606848,
+              confirmations: 13,
+              satoshis: 546
+            }
+          ]
+        }
+      ]
+
+      // Mock the external network call.
+      sandbox.stub(slpRoute.bchjs.SLP.Utils, 'tokenUtxoDetails').resolves([
+        {
+          txid:
+            'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+          vout: 3,
+          value: '6816',
+          height: 606848,
+          confirmations: 13,
+          satoshis: 6816,
+          isValid: false
+        },
+        {
+          txid:
+            'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+          vout: 2,
+          value: '546',
+          height: 606848,
+          confirmations: 13,
+          satoshis: 546,
+          utxoType: 'token',
+          transactionType: 'send',
+          tokenId:
+            'dd84ca78db4d617221b58eabc6667af8fe2f7eadbfcc213d35be9f1b419beb8d',
+          tokenTicker: 'TAP',
+          tokenName: 'Thoughts and Prayers',
+          tokenDocumentUrl: '',
+          tokenDocumentHash: '',
+          decimals: 0,
+          tokenType: 1,
+          tokenQty: 5,
+          isValid: true
+        }
+      ])
+
+      req.body.utxos = utxos
+      const result = await slpRoute.hydrateUtxos(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      // Test the general structure of the output.
+      assert.isArray(result.slpUtxos)
+      assert.equal(result.slpUtxos.length, 1)
+      assert.equal(result.slpUtxos[0].utxos.length, 2)
+
+      // Test the non-slp UTXO.
+      assert.property(result.slpUtxos[0].utxos[0], 'txid')
+      assert.property(result.slpUtxos[0].utxos[0], 'vout')
+      assert.property(result.slpUtxos[0].utxos[0], 'value')
+      assert.property(result.slpUtxos[0].utxos[0], 'height')
+      assert.property(result.slpUtxos[0].utxos[0], 'confirmations')
+      assert.property(result.slpUtxos[0].utxos[0], 'satoshis')
+      assert.property(result.slpUtxos[0].utxos[0], 'isValid')
+      assert.equal(result.slpUtxos[0].utxos[0].isValid, false)
+
+      // Test the slp UTXO.
+      assert.property(result.slpUtxos[0].utxos[1], 'txid')
+      assert.property(result.slpUtxos[0].utxos[1], 'vout')
+      assert.property(result.slpUtxos[0].utxos[1], 'value')
+      assert.property(result.slpUtxos[0].utxos[1], 'height')
+      assert.property(result.slpUtxos[0].utxos[1], 'confirmations')
+      assert.property(result.slpUtxos[0].utxos[1], 'satoshis')
+      assert.property(result.slpUtxos[0].utxos[1], 'isValid')
+      assert.equal(result.slpUtxos[0].utxos[1].isValid, true)
+      assert.property(result.slpUtxos[0].utxos[1], 'transactionType')
+      assert.property(result.slpUtxos[0].utxos[1], 'tokenId')
+      assert.property(result.slpUtxos[0].utxos[1], 'tokenTicker')
+      assert.property(result.slpUtxos[0].utxos[1], 'tokenName')
+      assert.property(result.slpUtxos[0].utxos[1], 'tokenDocumentUrl')
+      assert.property(result.slpUtxos[0].utxos[1], 'tokenDocumentHash')
+      assert.property(result.slpUtxos[0].utxos[1], 'decimals')
+      assert.property(result.slpUtxos[0].utxos[1], 'tokenType')
+      assert.property(result.slpUtxos[0].utxos[1], 'tokenQty')
+    })
+
+    it('should throw error for missing properties', async () => {
+      const utxos = [
+        {
+          height: 639443,
+          tx_hash:
+            '30707fffb9b295a06a68d217f49c198e9e1dbe1edc3874a0928ca1905f1709df',
+          tx_pos: 0,
+          value: 6000
+        },
+        {
+          height: 639443,
+          tx_hash:
+            '8962566e413501224d178a02effc89be5ac0d8e4195f617415d443dc4c38fe50',
+          tx_pos: 1,
+          value: 546
+        }
+      ]
+
+      req.body.utxos = utxos
+      const result = await slpRoute.hydrateUtxos(req, res)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(
+        result.error,
+        'Each element in array should have a utxos property'
+      )
+    })
+  })
 })
 
 /*

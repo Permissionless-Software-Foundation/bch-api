@@ -12,7 +12,7 @@ const blockbook = new Blockbook()
 const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-const BCHJS = require('@chris.troutner/bch-js')
+const BCHJS = require('@psf/bch-js')
 const bchjs = new BCHJS()
 // const BCHJS_TESTNET = 'https://testnet.bchjs.cash/v3/'
 

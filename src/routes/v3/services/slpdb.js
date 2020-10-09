@@ -1,6 +1,6 @@
 const axios = require('axios')
 
-const SLPSDK = require('@chris.troutner/bch-js')
+const SLPSDK = require('@psf/bch-js')
 const SLP = new SLPSDK()
 
 class Slpdb {

@@ -10,7 +10,7 @@ const wlogger = require('./winston-logging')
 const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-const BCHJS = require('@chris.troutner/bch-js')
+const BCHJS = require('@psf/bch-js')
 const bchjs = new BCHJS()
 
 // let _this
