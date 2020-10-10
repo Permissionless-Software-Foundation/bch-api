@@ -214,9 +214,41 @@ describe('#slp', () => {
     })
   })
 
-  // describe('#validate2Single', () => {
-  //   it('should validate a known valid TXID', async () => {
-  //
-  //   })
-  // })
+  describe('#validate2Single', () => {
+    it('should invalidate a known invalid TXID', async () => {
+      const txid =
+        'f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a'
+
+      req.params.txid = txid
+      const result = await slp.validate2Single(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.equal(result.txid, txid)
+      assert.equal(result.valid, false)
+    })
+
+    it('should validate a known valid TXID', async () => {
+      const txid =
+        '3a4b628cbcc183ab376d44ce5252325f042268307ffa4a53443e92b6d24fb488'
+
+      req.params.txid = txid
+      const result = await slp.validate2Single(req, res)
+      console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      // assert.equal(result.txid, txid)
+      // assert.equal(result.valid, false)
+    })
+
+    it('should cancel if validation takes too long', async () => {
+      const txid =
+        '2822f7d21e17ca8c36846613dc52caf0d03e355a13022a6cec066d197e59bb27'
+
+      req.params.txid = txid
+      const result = await slp.validate2Single(req, res)
+      console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      // assert.equal(result.txid, txid)
+      // assert.equal(result.valid, false)
+    })
+  })
 })
