@@ -15,6 +15,7 @@ const slpValidate = require('slp-validate')
 const ValidatorType1 = slpValidate.ValidatorType1
 const RpcClient = require('bitcoin-rpc-promise-retry')
 const RPC_CONNECTION_STRING = `http://${process.env.RPC_USERNAME}:${process.env.RPC_PASSWORD}@${process.env.RPC_IP}`
+const pTimeout = require('p-timeout')
 
 // const strftime = require('strftime')
 const wlogger = require('../../util/winston-logging')
@@ -69,12 +70,13 @@ class Slp {
     // Instantiate and encapsulate slp-validate and dependencies.
     _this.rpc = new RpcClient(RPC_CONNECTION_STRING)
     _this.slpValidator = new ValidatorType1({
-      getRawTransaction: async txid => {
+      getRawTransaction: async (txid) => {
         const rawTx = await _this.rpc.getRawTransaction(txid)
         // console.log(`rawTx: ${JSON.stringify(rawTx, null, 2)}`)
         return rawTx
       }
     })
+    _this.pTimeout = pTimeout
 
     _this.router = router
 
@@ -1188,30 +1190,42 @@ class Slp {
       try {
         await _this.slpValidator.getRawTransaction(txid)
       } catch (err) {
-        wlogger.error(`err in slp.js/validate2Single() with getRawTransaction(${txid}): `, err)
+        wlogger.error(
+          `err in slp.js/validate2Single() with getRawTransaction(${txid}): `,
+          err
+        )
         return _this.errorHandler(err, res)
       }
 
-      // false by default.
-      let isValid = false
-
-      // Validat the TXID.
-      try {
-        isValid = await _this.slpValidator.isValidSlpTxid({ txid })
-        // console.log('isValid: ', isValid)
-      } catch (error) {
-        console.log(error)
-        isValid = false
-      }
-
+      // null by default.
       // Default return value.
       const result = {
         txid: txid,
-        valid: false
+        isValid: null,
+        msg: ''
+      }
+
+      // Time in milliseconds when the promise is canceled.
+      const TIMEOUT = 5000
+
+      // Validat the TXID.
+      try {
+        result.isValid = await _this.pTimeout(
+          _this.slpValidator.isValidSlpTxid({ txid }),
+          TIMEOUT,
+          `Validation took longer than ${TIMEOUT} milliseconds to complete.`
+        )
+
+        // isValid = await _this.slpValidator.isValidSlpTxid({ txid })
+        // console.log('isValid: ', isValid)
+      } catch (error) {
+        console.log(error)
+        result.isValid = null
+        result.msg = error.message
       }
 
       // Build result.
-      result.valid = isValid
+      // result.valid = isValid
 
       res.status(200)
       return res.json(result)

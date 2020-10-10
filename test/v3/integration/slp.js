@@ -224,7 +224,7 @@ describe('#slp', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.equal(result.txid, txid)
-      assert.equal(result.valid, false)
+      assert.equal(result.isValid, false)
     })
 
     it('should validate a known valid TXID', async () => {
@@ -233,10 +233,10 @@ describe('#slp', () => {
 
       req.params.txid = txid
       const result = await slp.validate2Single(req, res)
-      console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
-      // assert.equal(result.txid, txid)
-      // assert.equal(result.valid, false)
+      assert.equal(result.txid, txid)
+      assert.equal(result.isValid, true)
     })
 
     it('should cancel if validation takes too long', async () => {
@@ -247,8 +247,8 @@ describe('#slp', () => {
       const result = await slp.validate2Single(req, res)
       console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
-      // assert.equal(result.txid, txid)
-      // assert.equal(result.valid, false)
+      assert.equal(result.txid, txid)
+      assert.equal(result.isValid, null)
     })
   })
 })
