@@ -10,9 +10,16 @@ const routeUtils = new RouteUtils()
 
 const Slpdb = require('./services/slpdb')
 
+// slp-validate dependencies. Used to validate SLP TXIDs independent of SLPDB.
+const slpValidate = require('slp-validate')
+const ValidatorType1 = slpValidate.ValidatorType1
+const RpcClient = require('bitcoin-rpc-promise-retry')
+const RPC_CONNECTION_STRING = `http://${process.env.RPC_USERNAME}:${process.env.RPC_PASSWORD}@${process.env.RPC_IP}`
+
 // const strftime = require('strftime')
 const wlogger = require('../../util/winston-logging')
 
+// Instantiate a local copy of bch-js using the local REST API server.
 const LOCAL_RESTURL = process.env.LOCAL_RESTURL
   ? process.env.LOCAL_RESTURL
   : 'https://api.fullstack.cash/v3/'
@@ -51,12 +58,23 @@ class Slp {
   constructor () {
     _this = this
 
+    // Encapsulate external libraries.
     _this.axios = axios
     _this.routeUtils = routeUtils
     _this.BigNumber = BigNumber
     _this.bchjs = bchjs
     _this.rawTransactions = rawTransactions
     _this.slpdb = new Slpdb()
+
+    // Instantiate and encapsulate slp-validate and dependencies.
+    _this.rpc = new RpcClient(RPC_CONNECTION_STRING)
+    _this.slpValidator = new ValidatorType1({
+      getRawTransaction: async txid => {
+        const rawTx = await _this.rpc.getRawTransaction(txid)
+        // console.log(`rawTx: ${JSON.stringify(rawTx, null, 2)}`)
+        return rawTx
+      }
+    })
 
     _this.router = router
 
@@ -83,6 +101,7 @@ class Slp {
     )
     _this.router.post('/generateSendOpReturn', _this.generateSendOpReturn)
     _this.router.post('/hydrateUtxos', _this.hydrateUtxos)
+    _this.router.get('/validateTxid2/:txid', _this.validate2Single)
   }
 
   // DRY error handler.
@@ -1062,7 +1081,7 @@ class Slp {
    * @api {get} /slp/validateTxid/{txid}  Validate single SLP transaction by txid.
    * @apiName Validate single SLP transaction by txid.
    * @apiGroup SLP
-   * @apiDescription Validate single SLP transaction by txid.
+   * @apiDescription Validate single SLP transaction by txid, using SLPDB.
    *
    *
    * @apiExample Example usage:
@@ -1135,11 +1154,73 @@ class Slp {
     }
   }
 
-  // Returns a Boolean if the input TXID is a valid SLP TXID.
-  // async function isValidSlpTxid (txid) {
-  //   const isValid = await slpValidator.isValidSlpTxid(txid)
-  //   return isValid
-  // }
+  /**
+   * @api {get} /slp/validateTxid2/{txid}  Validate single SLP transaction by txid.
+   * @apiName Validate single SLP transaction by txid.
+   * @apiGroup SLP
+   * @apiDescription Validate single SLP transaction by txid, using slp-validate.
+   * Slower, less efficient method of validating an SLP TXID using the slp-validate
+   * npm library. This method is independent of SLPDB and can be used when
+   * SLPDB return 'null' values.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/slp/validateTxid2/f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a" -H "accept:application/json"
+   *
+   *
+   */
+  async validate2Single (req, res, next) {
+    try {
+      const txid = req.params.txid
+
+      // Validate input
+      if (!txid || txid === '') {
+        res.status(400)
+        return res.json({ error: 'txid can not be empty' })
+      }
+
+      wlogger.debug(
+        'Executing slp/validate2Single/:txid with this txid: ',
+        txid
+      )
+
+      // Get the raw transaction from the full node.
+      try {
+        await _this.slpValidator.getRawTransaction(txid)
+      } catch (err) {
+        wlogger.error(`err in slp.js/validate2Single() with getRawTransaction(${txid}): `, err)
+        return _this.errorHandler(err, res)
+      }
+
+      // false by default.
+      let isValid = false
+
+      // Validat the TXID.
+      try {
+        isValid = await _this.slpValidator.isValidSlpTxid({ txid })
+        // console.log('isValid: ', isValid)
+      } catch (error) {
+        console.log(error)
+        isValid = false
+      }
+
+      // Default return value.
+      const result = {
+        txid: txid,
+        valid: false
+      }
+
+      // Build result.
+      result.valid = isValid
+
+      res.status(200)
+      return res.json(result)
+    } catch (err) {
+      wlogger.error('Error in slp.ts/validate2Single().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
 
   /**
    * @api {get} /slp/txDetails/{txid}  SLP transaction details.

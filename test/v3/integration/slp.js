@@ -213,4 +213,10 @@ describe('#slp', () => {
       assert.equal(result.slpUtxos[2].utxos.length, 2)
     })
   })
+
+  // describe('#validate2Single', () => {
+  //   it('should validate a known valid TXID', async () => {
+  //
+  //   })
+  // })
 })
