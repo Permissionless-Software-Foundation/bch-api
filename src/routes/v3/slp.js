@@ -73,6 +73,7 @@ class Slp {
     _this.router.post('/convert', _this.convertAddressBulk)
     _this.router.post('/validateTxid', _this.validateBulk)
     _this.router.get('/validateTxid/:txid', _this.validateSingle)
+    _this.router.get('/validateTxid2/:txid', _this.validate2Single)
     _this.router.get('/txDetails/:txid', _this.txDetails)
     _this.router.get('/tokenStats/:tokenId', _this.tokenStats)
     _this.router.get(
@@ -85,7 +86,6 @@ class Slp {
     )
     _this.router.post('/generateSendOpReturn', _this.generateSendOpReturn)
     _this.router.post('/hydrateUtxos', _this.hydrateUtxos)
-    _this.router.get('/validateTxid2/:txid', _this.validate2Single)
   }
 
   // DRY error handler.
@@ -1192,7 +1192,7 @@ class Slp {
       res.status(200)
       return res.json(result)
     } catch (err) {
-      console.log('validate2Single error: ', err)
+      // console.log('validate2Single error: ', err)
       wlogger.error('Error in slp.ts/validate2Single().', err)
 
       return _this.errorHandler(err, res)

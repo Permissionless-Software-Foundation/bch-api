@@ -352,7 +352,8 @@ const mockTxHistory = [
         e: {
           h: '7bdd586ebd1e5f3dfd5295ab6e896c48b25855ab77a72c035ce1e7aacc965c2d',
           i: 1,
-          s: 'RzBEAiAsu5o9EnxgZChjxKygxhGLhlfxJJbQfd4PP/vp2od3fAIgPpMqg+Sp4YpiInQZ6weJwELq8LEIrHXJpueBz7yF5gRBIQLsyL3809mRphc/+tPAcTQO5bi0kqZRFKpKIHXE3qN8Rw==',
+          s:
+            'RzBEAiAsu5o9EnxgZChjxKygxhGLhlfxJJbQfd4PP/vp2od3fAIgPpMqg+Sp4YpiInQZ6weJwELq8LEIrHXJpueBz7yF5gRBIQLsyL3809mRphc/+tPAcTQO5bi0kqZRFKpKIHXE3qN8Rw==',
           a: 'simpleledger:qrrrpqmdkggpnw0czwg0jgcjd7yhu25jy5zxh2gqdq'
         }
       },
@@ -361,7 +362,8 @@ const mockTxHistory = [
         e: {
           h: 'df49feff24dc34a10a44a0cbd7c908d964801ec7218512c84574fbce698535f0',
           i: 3,
-          s: 'SDBFAiEAhW3zbKTlPrOXD2E2oEcNof6vCMPGYIg8vOVSE9c8IakCIFLg/gxydG9eL8HMAzkScGElKWJRnfhVMpMHU3evNcrZQSEDRS7F+pSC8OxSldsT4FctJLZBU7f2+FDiE05ae1xqtN0=',
+          s:
+            'SDBFAiEAhW3zbKTlPrOXD2E2oEcNof6vCMPGYIg8vOVSE9c8IakCIFLg/gxydG9eL8HMAzkScGElKWJRnfhVMpMHU3evNcrZQSEDRS7F+pSC8OxSldsT4FctJLZBU7f2+FDiE05ae1xqtN0=',
           a: 'simpleledger:qpkpeqfslejw5pptzcy25h2jxhsc9k0vts43n26up0'
         }
       }
@@ -371,7 +373,8 @@ const mockTxHistory = [
         e: {
           v: 0,
           i: 0,
-          s: 'agRTTFAAAQEEU0VORCA46XxdfTWFosvz+VgMgsozmF+csIRdTcziIMtwn5U4sAgAAAAAAJiWgAgAAAAAJHfU+g=='
+          s:
+            'agRTTFAAAQEEU0VORCA46XxdfTWFosvz+VgMgsozmF+csIRdTcziIMtwn5U4sAgAAAAAAJiWgAgAAAAAJHfU+g=='
         }
       },
       {
@@ -402,7 +405,8 @@ const mockTxHistory = [
     slp: {
       detail: {
         decimals: 8,
-        tokenIdHex: '38e97c5d7d3585a2cbf3f9580c82ca33985f9cb0845d4dcce220cb709f9538b0',
+        tokenIdHex:
+          '38e97c5d7d3585a2cbf3f9580c82ca33985f9cb0845d4dcce220cb709f9538b0',
         transactionType: 'SEND',
         versionType: 1,
         documentUri: 'psfoundation.cash',
@@ -439,7 +443,8 @@ const mockTxHistory = [
         e: {
           h: 'e4e1e1f6b502cbd42f69b919634cea3e37fc8595e6ca800e0a7d8f6dcdfb249e',
           i: 3,
-          s: 'SDBFAiEAjCGRmU28x24LMTwg5XqC+fLf3zGhTYCsSWpmF8Eshq0CIAJhxAKMbwKWC4ASmjWzplpno2ch+hGNUD6HNWOdbd4SQSECeRsZo5Fl29g0A9bfJo1E/WIdowWBsLblyxWnEB7ViFE=',
+          s:
+            'SDBFAiEAjCGRmU28x24LMTwg5XqC+fLf3zGhTYCsSWpmF8Eshq0CIAJhxAKMbwKWC4ASmjWzplpno2ch+hGNUD6HNWOdbd4SQSECeRsZo5Fl29g0A9bfJo1E/WIdowWBsLblyxWnEB7ViFE=',
           a: 'simpleledger:qpvsg9vl9a5mlf37a7n3yce6pktdctn73qznkmw3s7'
         }
       },
@@ -448,7 +453,8 @@ const mockTxHistory = [
         e: {
           h: '438420345dd8b7fb4ea74aaf2e3090f44899bf3c71662243946a441de6dae720',
           i: 2,
-          s: 'SDBFAiEAhmLYL4QY3mvZo3/i0XG9PJAYMruw3MaGOLJ3Z4si7hwCIAaaGwRnj/cZK3L/KKFBoMtItpGRZ10GowNN//vgn6PKQSECeRsZo5Fl29g0A9bfJo1E/WIdowWBsLblyxWnEB7ViFE=',
+          s:
+            'SDBFAiEAhmLYL4QY3mvZo3/i0XG9PJAYMruw3MaGOLJ3Z4si7hwCIAaaGwRnj/cZK3L/KKFBoMtItpGRZ10GowNN//vgn6PKQSECeRsZo5Fl29g0A9bfJo1E/WIdowWBsLblyxWnEB7ViFE=',
           a: 'simpleledger:qpvsg9vl9a5mlf37a7n3yce6pktdctn73qznkmw3s7'
         }
       }
@@ -458,7 +464,8 @@ const mockTxHistory = [
         e: {
           v: 0,
           i: 0,
-          s: 'agRTTFAAAQEEU0VORCCk+1wtoaoGTiUBikP5FlBABx2emEuhkMIip/WQU6+EsggAAAAAAA9CQAgAAAAXQnHEwA=='
+          s:
+            'agRTTFAAAQEEU0VORCCk+1wtoaoGTiUBikP5FlBABx2emEuhkMIip/WQU6+EsggAAAAAAA9CQAgAAAAXQnHEwA=='
         }
       },
       {
@@ -489,7 +496,8 @@ const mockTxHistory = [
     slp: {
       detail: {
         decimals: 2,
-        tokenIdHex: 'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2',
+        tokenIdHex:
+          'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2',
         transactionType: 'SEND',
         versionType: 1,
         documentUri: 'troutsblog.com',
