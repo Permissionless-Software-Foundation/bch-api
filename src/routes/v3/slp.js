@@ -13,6 +13,7 @@ const Slpdb = require('./services/slpdb')
 // const strftime = require('strftime')
 const wlogger = require('../../util/winston-logging')
 
+// Instantiate a local copy of bch-js using the local REST API server.
 const LOCAL_RESTURL = process.env.LOCAL_RESTURL
   ? process.env.LOCAL_RESTURL
   : 'https://api.fullstack.cash/v3/'
@@ -51,6 +52,7 @@ class Slp {
   constructor () {
     _this = this
 
+    // Encapsulate external libraries.
     _this.axios = axios
     _this.routeUtils = routeUtils
     _this.BigNumber = BigNumber
@@ -71,6 +73,7 @@ class Slp {
     _this.router.post('/convert', _this.convertAddressBulk)
     _this.router.post('/validateTxid', _this.validateBulk)
     _this.router.get('/validateTxid/:txid', _this.validateSingle)
+    _this.router.get('/validateTxid2/:txid', _this.validate2Single)
     _this.router.get('/txDetails/:txid', _this.txDetails)
     _this.router.get('/tokenStats/:tokenId', _this.tokenStats)
     _this.router.get(
@@ -1062,7 +1065,7 @@ class Slp {
    * @api {get} /slp/validateTxid/{txid}  Validate single SLP transaction by txid.
    * @apiName Validate single SLP transaction by txid.
    * @apiGroup SLP
-   * @apiDescription Validate single SLP transaction by txid.
+   * @apiDescription Validate single SLP transaction by txid, using SLPDB.
    *
    *
    * @apiExample Example usage:
@@ -1135,11 +1138,66 @@ class Slp {
     }
   }
 
-  // Returns a Boolean if the input TXID is a valid SLP TXID.
-  // async function isValidSlpTxid (txid) {
-  //   const isValid = await slpValidator.isValidSlpTxid(txid)
-  //   return isValid
-  // }
+  /**
+   * @api {get} /slp/validateTxid2/{txid}  Validate single SLP transaction by txid.
+   * @apiName Validate single SLP transaction by txid.
+   * @apiGroup SLP
+   * @apiDescription Validate single SLP transaction by txid, using slp-validate.
+   * Slower, less efficient method of validating an SLP TXID using the slp-validate
+   * npm library. This method is independent of SLPDB and can be used as a fall-back
+   * when SLPDB returns 'null' values.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/slp/validateTxid2/f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a" -H "accept:application/json"
+   *
+   *
+   */
+  async validate2Single (req, res, next) {
+    try {
+      const txid = req.params.txid
+
+      // Validate input
+      if (!txid || txid === '') {
+        res.status(400)
+        return res.json({ error: 'txid can not be empty' })
+      }
+
+      wlogger.debug(
+        'Executing slp/validate2Single/:txid with this txid: ',
+        txid
+      )
+
+      // null by default.
+      // Default return value.
+      const result = {
+        txid: txid,
+        isValid: null,
+        msg: ''
+      }
+
+      // Request options
+      const opt = {
+        method: 'get',
+        baseURL: `${process.env.SLP_API_URL}slp/validate/${txid}`,
+        timeout: 10000 // Exit after 10 seconds.
+      }
+      const tokenRes = await _this.axios.request(opt)
+      // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
+      // console.log(`tokenRes: `, tokenRes)
+
+      // Overwrite the default value with the result from slp-api.
+      result.isValid = tokenRes.data.isValid
+
+      res.status(200)
+      return res.json(result)
+    } catch (err) {
+      // console.log('validate2Single error: ', err)
+      wlogger.error('Error in slp.ts/validate2Single().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
 
   /**
    * @api {get} /slp/txDetails/{txid}  SLP transaction details.
