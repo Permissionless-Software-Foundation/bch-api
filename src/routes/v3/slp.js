@@ -10,14 +10,6 @@ const routeUtils = new RouteUtils()
 
 const Slpdb = require('./services/slpdb')
 
-// slp-validate dependencies. Used to validate SLP TXIDs independent of SLPDB.
-const slpValidate = require('slp-validate')
-const ValidatorType1 = slpValidate.ValidatorType1
-const RpcClient = require('bitcoin-rpc-promise-retry')
-const RPC_CONNECTION_STRING = `http://${process.env.RPC_USERNAME}:${process.env.RPC_PASSWORD}@${process.env.RPC_IP}`
-const pTimeout = require('p-timeout')
-const PCancelable = require('p-cancelable')
-
 // const strftime = require('strftime')
 const wlogger = require('../../util/winston-logging')
 
@@ -67,17 +59,6 @@ class Slp {
     _this.bchjs = bchjs
     _this.rawTransactions = rawTransactions
     _this.slpdb = new Slpdb()
-
-    // Instantiate and encapsulate slp-validate and dependencies.
-    _this.rpc = new RpcClient(RPC_CONNECTION_STRING)
-    _this.slpValidator = new ValidatorType1({
-      getRawTransaction: async (txid) => {
-        const rawTx = await _this.rpc.getRawTransaction(txid)
-        // console.log(`rawTx: ${JSON.stringify(rawTx, null, 2)}`)
-        return rawTx
-      }
-    })
-    _this.pTimeout = pTimeout
 
     _this.router = router
 
