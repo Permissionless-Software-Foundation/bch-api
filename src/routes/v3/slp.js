@@ -16,6 +16,7 @@ const ValidatorType1 = slpValidate.ValidatorType1
 const RpcClient = require('bitcoin-rpc-promise-retry')
 const RPC_CONNECTION_STRING = `http://${process.env.RPC_USERNAME}:${process.env.RPC_PASSWORD}@${process.env.RPC_IP}`
 const pTimeout = require('p-timeout')
+const PCancelable = require('p-cancelable')
 
 // const strftime = require('strftime')
 const wlogger = require('../../util/winston-logging')
@@ -1162,8 +1163,8 @@ class Slp {
    * @apiGroup SLP
    * @apiDescription Validate single SLP transaction by txid, using slp-validate.
    * Slower, less efficient method of validating an SLP TXID using the slp-validate
-   * npm library. This method is independent of SLPDB and can be used when
-   * SLPDB return 'null' values.
+   * npm library. This method is independent of SLPDB and can be used as a fall-back
+   * when SLPDB returns 'null' values.
    *
    *
    * @apiExample Example usage:
@@ -1186,17 +1187,6 @@ class Slp {
         txid
       )
 
-      // Get the raw transaction from the full node.
-      try {
-        await _this.slpValidator.getRawTransaction(txid)
-      } catch (err) {
-        wlogger.error(
-          `err in slp.js/validate2Single() with getRawTransaction(${txid}): `,
-          err
-        )
-        return _this.errorHandler(err, res)
-      }
-
       // null by default.
       // Default return value.
       const result = {
@@ -1205,31 +1195,23 @@ class Slp {
         msg: ''
       }
 
-      // Time in milliseconds when the promise is canceled.
-      const TIMEOUT = 5000
-
-      // Validat the TXID.
-      try {
-        result.isValid = await _this.pTimeout(
-          _this.slpValidator.isValidSlpTxid({ txid }),
-          TIMEOUT,
-          `Validation took longer than ${TIMEOUT} milliseconds to complete.`
-        )
-
-        // isValid = await _this.slpValidator.isValidSlpTxid({ txid })
-        // console.log('isValid: ', isValid)
-      } catch (error) {
-        console.log(error)
-        result.isValid = null
-        result.msg = error.message
+      // Request options
+      const opt = {
+        method: 'get',
+        baseURL: `${process.env.SLP_API_URL}slp/validate/${txid}`,
+        timeout: 10000 // Exit after 10 seconds.
       }
+      const tokenRes = await _this.axios.request(opt)
+      // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
+      // console.log(`tokenRes: `, tokenRes)
 
-      // Build result.
-      // result.valid = isValid
+      // Overwrite the default value with the result from slp-api.
+      result.isValid = tokenRes.data.isValid
 
       res.status(200)
       return res.json(result)
     } catch (err) {
+      console.log('validate2Single error: ', err)
       wlogger.error('Error in slp.ts/validate2Single().', err)
 
       return _this.errorHandler(err, res)

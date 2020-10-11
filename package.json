@@ -19,7 +19,7 @@
     "test-v3": "export NETWORK=mainnet && nyc --reporter=text mocha --timeout 60000 test/v3/",
     "test:temp": "export NETWORK=mainnet && mocha --timeout 25000 test/v3/slp.js",
     "test:integration": "mocha test/v3/integration",
-    "test:integration:slpdb": "mocha --timeout 25000 test/v3/integration/slp*.js",
+    "test:integration:slpdb": "mocha --timeout 25000 -g '#validate2Single' test/v3/integration/slp*.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coverage:report": "export NETWORK=mainnet && nyc --reporter=html mocha --timeout 25000 test/v3/",
     "docs": "./node_modules/.bin/apidoc -i src/routes/v3 -o docs"
@@ -50,6 +50,7 @@
     "mocha": "^7.1.1",
     "morgan": "^1.9.1",
     "mqtt": "^4.0.0",
+    "p-cancelable": "^2.0.0",
     "p-timeout": "^3.2.0",
     "passport": "^0.4.0",
     "passport-anonymous": "^1.0.1",
