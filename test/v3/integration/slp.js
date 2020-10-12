@@ -245,7 +245,6 @@ describe('#slp', () => {
     // it('should cancel if validation takes too long', async () => {
     //   const txid =
     //     'eacb1085dfa296fef6d4ae2c0f4529a1bef096dd2325bdcc6dcb5241b3bdb579'
-    //     // '2822f7d21e17ca8c36846613dc52caf0d03e355a13022a6cec066d197e59bb27'
     //
     //   req.params.txid = txid
     //   const result = await slp.validate2Single(req, res)
