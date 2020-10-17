@@ -20,6 +20,7 @@ start-free-main.sh
 start-local-mainnet.sh.save
 start-local-testnet.sh.save
 temp.sh
+test-fullstack-test.sh
 
 coverage
 start-my-infra
