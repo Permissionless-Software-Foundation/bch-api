@@ -3,6 +3,7 @@
 #!/bin/bash
 #echo $DEPLOY_SECRET
 
+# This if statement will only deploy on Jenkins when its testing the master branch.
 if [ $GIT_BRANCH == master ]
   then
 
