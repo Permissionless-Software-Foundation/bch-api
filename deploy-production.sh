@@ -1,6 +1,6 @@
+#!/bin/bash
 # Triggers a webhook to update the staging server at staging.fullstack.cash.
 
-#!/bin/bash
 #echo $DEPLOY_SECRET
 
 # This if statement will only deploy on Jenkins when its testing the master branch.
