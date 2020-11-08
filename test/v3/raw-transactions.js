@@ -1004,8 +1004,13 @@ describe('#Raw-Transactions', () => {
 
         // Integration test
       } else {
-        assert.hasAllKeys(result, ['error'])
-        assert.include(result.error, 'bad-txns-inputs-missingorspent')
+        if (process.env.ISBCHN) {
+          assert.hasAllKeys(result, ['error'])
+          assert.include(result.error, 'Missing inputs')
+        } else {
+          assert.hasAllKeys(result, ['error'])
+          assert.include(result.error, 'bad-txns-inputs-missingorspent')
+        }
       }
     })
   })
@@ -1159,8 +1164,13 @@ describe('#Raw-Transactions', () => {
 
         // Integration test
       } else {
-        assert.hasAllKeys(result, ['error'])
-        assert.include(result.error, 'bad-txns-inputs-missingorspent')
+        if (process.env.ISBCHN) {
+          assert.hasAllKeys(result, ['error'])
+          assert.include(result.error, 'Missing inputs')
+        } else {
+          assert.hasAllKeys(result, ['error'])
+          assert.include(result.error, 'bad-txns-inputs-missingorspent')
+        }
       }
     })
   })
