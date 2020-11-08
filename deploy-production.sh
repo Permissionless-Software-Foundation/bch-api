@@ -5,7 +5,7 @@
 
 # This if statement will only deploy on Jenkins when its testing the master branch.
 echo "-->$GIT_BRANCH<--"
-if [ $GIT_BRANCH == 'origin/master' ]
+if [[ $GIT_BRANCH == *"master"* ]]
   then
 
     echo "Deploying to production...."
