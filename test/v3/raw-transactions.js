@@ -1005,7 +1005,7 @@ describe('#Raw-Transactions', () => {
         // Integration test
       } else {
         assert.hasAllKeys(result, ['error'])
-        assert.include(result.error, 'bad-txns-inputs-missingorspent')
+        assert.include(result.error, 'Missing inputs')
       }
     })
   })
@@ -1160,7 +1160,7 @@ describe('#Raw-Transactions', () => {
         // Integration test
       } else {
         assert.hasAllKeys(result, ['error'])
-        assert.include(result.error, 'bad-txns-inputs-missingorspent')
+        assert.include(result.error, 'Missing inputs')
       }
     })
   })
