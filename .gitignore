@@ -21,6 +21,8 @@ start-local-mainnet.sh.save
 start-local-testnet.sh.save
 temp.sh
 test-fullstack-test.sh
+start-sweet-main.sh
+test-sweet-main.sh
 
 coverage
 start-my-infra
