@@ -3,15 +3,20 @@
 #!/bin/bash
 #echo $DEPLOY_SECRET
 
-echo "Deploy to production...."
+if [ $GIT_BRANCH == master ]
+  then
 
-export DATA="{\"ref\":\"$DEPLOY_SECRET\"}"
+    echo "Deploying to production...."
 
-#echo $DATA
+    export DATA="{\"ref\":\"$DEPLOY_SECRET\"}"
 
-curl -X POST http://fullstack.cash:9000/hooks/bch-api-mainnet -H "Content-Type: application/json" -d $DATA
-curl -X POST http://fullstack.cash:9000/hooks/bch-api-testnet -H "Content-Type: application/json" -d $DATA
-curl -X POST http://$FREE_SERVER:9000/hooks/bch-api-testnet -H "Content-Type: application/json" -d $DATA
-curl -X POST http://$FREE_SERVER:9000/hooks/bch-api-mainnet -H "Content-Type: application/json" -d $DATA
+    #echo $DATA
 
-echo "...Finished deploying to production."
+    curl -X POST http://fullstack.cash:9000/hooks/bch-api-mainnet -H "Content-Type: application/json" -d $DATA
+    curl -X POST http://fullstack.cash:9000/hooks/bch-api-testnet -H "Content-Type: application/json" -d $DATA
+    curl -X POST http://$FREE_SERVER:9000/hooks/bch-api-testnet -H "Content-Type: application/json" -d $DATA
+    curl -X POST http://$FREE_SERVER:9000/hooks/bch-api-mainnet -H "Content-Type: application/json" -d $DATA
+
+    echo "...Finished deploying to production."
+
+fi
