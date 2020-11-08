@@ -1,3 +1,15 @@
+/*
+  Sets the rate limits for the anonymous and paid tiers. Current rate limits:
+  - 1000 points in 60 seconds
+  - 10 points per call for paid tier (100 RPM)
+  - 50 points per call for anonymous tier (20 RPM)
+
+  Background:
+  The rate limits below were originially coded with the idea of charging on a
+  per-resource basis. However, that was confusing to end users trying to purchase
+  a subscription. So everything was simplied to two tiers: paid and anonymous
+*/
+
 'use strict'
 
 const wlogger = require('../util/winston-logging')
@@ -98,8 +110,8 @@ class RateLimits {
         wlogger.debug('No JWT token found!')
       }
 
-      // Used for displaying error message. Default value is 30.
-      let rateLimit = 30
+      // Default value is 50 points per request = 20 RPM
+      let rateLimit = 50
 
       // Code here for the rate limiter is adapted from this example:
       // https://github.com/animir/node-rate-limiter-flexible/wiki/Overall-example#authorized-and-not-authorized-users
@@ -118,9 +130,12 @@ class RateLimits {
 
         // Retrieve the origin.
         let origin = req.get('origin')
+
+        // Handle calls coming from the intranet.
         if (origin === undefined && key.indexOf('10.0.0.5') > -1) {
           origin = 'slp-api'
         }
+
         wlogger.info(`origin: ${origin}`)
 
         // If the request originates from one of the approved wallet apps, then
@@ -135,7 +150,7 @@ class RateLimits {
           res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
         }
 
-        // Apply paid-access rate limits based on key/IP
+        // For internal calls, increase rate limits to as fast as possible.
         if (
           key.toString().indexOf('172.17.') > -1 ||
           key.toString().indexOf('::ffff:127.0.0.1') > -1
@@ -178,7 +193,7 @@ class RateLimits {
   // Calculates the points consumed, based on the jwt information and the route
   // requested.
   calcPoints (jwtInfo) {
-    let retVal = 300 // By default, use anonymous tier.
+    let retVal = 50 // By default, use anonymous tier.
 
     try {
       // console.log(`jwtInfo: ${JSON.stringify(jwtInfo, null, 2)}`)
@@ -197,12 +212,12 @@ class RateLimits {
         if (level40Routes.includes(resource)) {
           if (apiLevel >= 40) retVal = 10
           // else if (apiLevel >= 10) retVal = 10
-          else retVal = 100
+          else retVal = 50
 
           // Normal indexer routes
         } else if (level30Routes.includes(resource)) {
           if (apiLevel >= 30) retVal = 10
-          else retVal = 100
+          else retVal = 50
 
           // Full node tier
         } else if (apiLevel >= 20) {
@@ -210,7 +225,7 @@ class RateLimits {
 
           // Free tier, full node only.
         } else {
-          retVal = 100
+          retVal = 50
         }
       }
 
@@ -218,7 +233,7 @@ class RateLimits {
     } catch (err) {
       wlogger.error('Error in route-ratelimit.js/calcPoints()')
       // throw err
-      retVal = 300
+      retVal = 50
     }
 
     return retVal
