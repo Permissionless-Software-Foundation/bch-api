@@ -20,4 +20,6 @@ if [ $GIT_BRANCH == master ]
 
     echo "...Finished deploying to production."
 
+  else
+    echo "Not master, so not deploying."
 fi
