@@ -16,15 +16,10 @@ const RouteUtils = require('../../util/route-utils')
 const routeUtils = new RouteUtils()
 
 const BCHJS = require('@psf/bch-js')
-const bchjs = new BCHJS()
-
-// Use Blockbook for getting indexer data.
-const Blockbook = require('./blockbook')
-const blockbook = new Blockbook()
-
-// Use RawTransactions library for getting raw blockchain data.
-const RawTransactions = require('./full-node/rawtransactions')
-const rawTransactions = new RawTransactions()
+const restURL = process.env.LOCAL_RESTURL
+  ? process.env.LOCAL_RESTURL
+  : 'https://api.fullstack.cash/v3/'
+const bchjs = new BCHJS({ restURL })
 
 let _this
 
@@ -36,8 +31,8 @@ class Encryption {
     _this.axios = axios
     _this.routeUtils = routeUtils
     _this.bchjs = bchjs
-    _this.blockbook = blockbook
-    _this.rawTransactions = rawTransactions
+    // _this.blockbook = blockbook
+    // _this.rawTransactions = rawTransactions
 
     _this.router = router
     _this.router.get('/', _this.root)
@@ -115,23 +110,23 @@ class Encryption {
         cashAddr
       )
 
-      // Retrieve the transaction history for this address.
-      const balance = await _this.blockbook.balanceFromBlockbook(cashAddr)
-      // console.log(`balance: ${JSON.stringify(balance, null, 2)}`)
+      const rawTxData = await _this.bchjs.Electrumx.transactions(cashAddr)
+      // console.log(`rawTxData: ${JSON.stringify(rawTxData, null, 2)}`)
 
-      const txHistory = balance.txids
-      // console.log(`txHistory: ${JSON.stringify(txHistory, null, 2)}`)
+      // Extract just the TXIDs
+      const txids = rawTxData.transactions.map((elem) => elem.tx_hash)
+      // console.log(`txids: ${JSON.stringify(txids, null, 2)}`)
 
       // throw error if there is no transaction history.
-      if (!txHistory || txHistory.length === 0) {
+      if (!txids || txids.length === 0) {
         throw new Error('No transaction history.')
       }
 
       // Loop through the transaction history and search for the public key.
-      for (let i = 0; i < txHistory.length; i++) {
-        const thisTx = txHistory[i]
+      for (let i = 0; i < txids.length; i++) {
+        const thisTx = txids[i]
 
-        const txDetails = await _this.rawTransactions.getRawTransactionsFromNode(
+        const txDetails = await _this.bchjs.RawTransactions.getRawTransaction(
           thisTx,
           true
         )

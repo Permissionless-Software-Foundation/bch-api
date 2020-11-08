@@ -78,11 +78,11 @@ describe('#Encryption Router', () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox
-          .stub(encryptionRoute.blockbook, 'balanceFromBlockbook')
-          .resolves(mockData.mockBalance)
+          .stub(encryptionRoute.bchjs.Electrumx, 'transactions')
+          .resolves(mockData.mockFulcrumTxHistory)
         sandbox
-          .stub(encryptionRoute.rawTransactions, 'getRawTransactionsFromNode')
-          .resolves(mockData.mockTxDetails)
+          .stub(encryptionRoute.bchjs.RawTransactions, 'getRawTransaction')
+          .resolves(mockData.mockTxDetails2)
       }
 
       const result = await encryptionRoute.getPublicKey(req, res)
@@ -105,8 +105,8 @@ describe('#Encryption Router', () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox
-          .stub(encryptionRoute.blockbook, 'balanceFromBlockbook')
-          .resolves(mockData.mockNoTxHistory)
+          .stub(encryptionRoute.bchjs.Electrumx, 'transactions')
+          .resolves(mockData.mockFulcrumNoTxHistory)
       }
 
       const result = await encryptionRoute.getPublicKey(req, res)
@@ -126,10 +126,10 @@ describe('#Encryption Router', () => {
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox
-          .stub(encryptionRoute.blockbook, 'balanceFromBlockbook')
-          .resolves(mockData.mockNoSendBalance)
+          .stub(encryptionRoute.bchjs.Electrumx, 'transactions')
+          .resolves(mockData.mockFulcrumNoSendBalance)
         sandbox
-          .stub(encryptionRoute.rawTransactions, 'getRawTransactionsFromNode')
+          .stub(encryptionRoute.bchjs.RawTransactions, 'getRawTransaction')
           .resolves(mockData.mockNoSendTx)
       }
 
