@@ -6,7 +6,7 @@ This repository is intended to be paired with [bch-js](https://github.com/christ
 
 ![Cash Stack Network Diagram](./generic-network-diagram.png)
 
-Both bch-api and bch-js are part of the [full stack of BCH software](https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer).
+Both bch-api and bch-js are part of the 'Cash Stack' [full stack of BCH software](https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer).
 
 - [API Documentation](https://fullstack.cash/documentation)
 - [Example Code](https://fullstack.cash/examples)
@@ -17,26 +17,20 @@ Have questions? Need help? Join our community support:
 ## Features
 The following features set this repository apart from rest.bitcoin.com:
 
-- Address balance and UTXO queries use the [Blockbook](https://github.com/trezor/blockbook)
-indexer instead of Insight.
 - Fine grain access is controlled with a JWT token using
-[this back end auth server](https://github.com/Permissionless-Software-Foundation/jwt-bch-api) and [this front end](https://github.com/Permissionless-Software-Foundation/jwt-bch-frontend).
-- Default rate limits are set to 3 RPM for anonymous connections, 10 RPM for [free accounts](https://fullstack.cash/pricing), up to 100 RPM if a full-access JWT token is used.
+[this back end auth server](https://github.com/Permissionless-Software-Foundation/jwt-bch-api) and [this front end](https://github.com/Permissionless-Software-Foundation/jwt-bch-frontend). Can be used to monetize access to the REST API.
 - Typescript removed and ES8 JavaScript used instead.
 - npm audit run on all dependencies.
-- [Greenkeeper](https://greenkeeper.io/) implemented for automatic dependency management
-and security updates.
 
 ## Live Demo
 You can test a live demo of the REST API by running the
 [bch-js examples](https://github.com/Permissionless-Software-Foundation/bch-js-examples).
-Rate limits are 3 requests per minute, but you can increase them to 10 with a [free account](https://fullstack.cash/pricing).
-This is fast enough to try out the examples
-but these servers are not intended as a freemium service. You can run your own
-REST server by purchasing the hard drive at [bchjs.cash](https://bchjs.cash).
+Rate limits are 20 requests per minute, but you can increase them to 100 with a [paid account](https://fullstack.cash/pricing).
+You can run bootstrap your own REST server by downloading and installing the infrastructure listed on the [CashStrap](https://fullstack.cash/cashstrap).
 
-- Mainnet REST API server: https://api.fullstack.cash/v3/
-- Testnet REST API server: https://tapi.fullstack.cash/v3/
+- BCHN Mainnet REST API server: https://bchn.fullstack.cash/v3/
+- ABC Mainnet REST API server: https://abc.fullstack.cash/v3/
+- Testnet3 REST API server: https://testnet3.fullstack.cash/v3/
 - Check server status: https://metrics.fullstack.cash
 
 ## Installation
