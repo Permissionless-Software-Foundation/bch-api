@@ -13,14 +13,12 @@
 "use strict";
 
 // Allow rate limits to be set with environment variables
-const whitelistedRateLimit = process.env.whitelistedRateLimit || 10;
-const defaultRateLimit = process.env.defaultRateLimit || 50;
-const internalRateLimit = process.env.internalRateLimit || 1;
 
-console.log(`Starting app with rate limits of`);
-console.log(`whitelistedRateLimit`, whitelistedRateLimit);
-console.log(`defaultRateLimit`, defaultRateLimit);
-console.log(`internalRateLimit`, internalRateLimit);
+const defaultRateLimit = process.env.DEFAULT_RATE_LIMIT || 50;
+const whitelistedRateLimit = process.env.WHITELIST_RATE_LIMIT || 10;
+const internalRateLimit = process.env.INTERNAL_RATE_LIMIT || 1;
+const whitelistedDomain =
+  process.env.WHITELISTED_DOMAIN || "sandbox.fullstack.cash";
 
 const wlogger = require("../util/winston-logging");
 const config = require("../../config");
@@ -38,6 +36,7 @@ const redisClient = new Redis(redisOptions);
 
 // Rate limiter middleware lib.
 const { RateLimiterRedis } = require("rate-limiter-flexible");
+const { sandbox } = require("sinon");
 const rateLimitOptions = {
   storeClient: redisClient,
   points: 1000, // Number of points
@@ -123,7 +122,7 @@ class RateLimits {
         if (
           origin &&
           (origin.toString().indexOf("wallet.fullstack.cash") > -1 ||
-            origin.toString().indexOf("sandbox.fullstack.cash") > -1 ||
+            origin.toString().indexOf(whitelistedDomain) > -1 ||
             origin === "slp-api")
         ) {
           pointsToConsume = whitelistedRateLimit;
