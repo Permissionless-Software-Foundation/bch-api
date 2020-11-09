@@ -36,7 +36,6 @@ const redisClient = new Redis(redisOptions);
 
 // Rate limiter middleware lib.
 const { RateLimiterRedis } = require("rate-limiter-flexible");
-const { sandbox } = require("sinon");
 const rateLimitOptions = {
   storeClient: redisClient,
   points: 1000, // Number of points
