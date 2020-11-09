@@ -83,5 +83,10 @@ installation.
 Have questions? Need help? Join our community support
 [Telegram channel](https://t.me/bch_js_toolkit)
 
+## IPFS
+Copies of this repository will occasionally be uploaded and hosted on [IPFS](https://ipfs.io):
+
+- v1.15.4: QmSAerFmDJm6KQp2HC8jsRR5MdL5X39hoUsJYvWNDvrD8m
+
 ## License
 [MIT](./LICENSE.md)
