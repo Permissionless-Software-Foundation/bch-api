@@ -26,7 +26,10 @@ The following features set this repository apart from rest.bitcoin.com:
 You can test a live demo of the REST API by running the
 [bch-js examples](https://github.com/Permissionless-Software-Foundation/bch-js-examples).
 Rate limits are 20 requests per minute, but you can increase them to 100 with a [paid account](https://fullstack.cash/pricing).
-You can run bootstrap your own REST server by downloading and installing the infrastructure listed on the [CashStrap](https://fullstack.cash/cashstrap).
+You can bootstrap your own REST API server by downloading and installing the infrastructure listed on the [CashStrap](https://fullstack.cash/cashstrap) page.
+
+### Configure bch-js
+The live servers can be used by [bch-js](https://github.com/christroutner/bch-js) by settings the `restURL` config property to one of these servers:
 
 - BCHN Mainnet REST API server: https://bchn.fullstack.cash/v3/
 - ABC Mainnet REST API server: https://abc.fullstack.cash/v3/
