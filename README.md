@@ -1,8 +1,8 @@
 # bch-api
 
-This is a node.js JavaScript REST API server using Express.js. The purpose of this code is to create a REST API server that provides a common interface for working with a Bitcoin Cash full node and various indexers. See [this article](https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer) to learn about the 'Cash Stack'. Visit [FullStack.cash](https://fullstack.cash), sign up for a free account, and use this REST API right away with the [bch-js](https://github.com/christroutner/bch-js) JavaScript library.
+This is a node.js JavaScript REST API server using Express.js. The purpose of this code is to create a REST API server that provides a common interface for working with a Bitcoin Cash full node and various indexers. See [this article](https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer) to learn about the 'Cash Stack'. Visit [FullStack.cash](https://fullstack.cash), sign up for a free account, and use this REST API right away with the [bch-js](https://github.com/Permissionless-Software-Foundation/bch-js) JavaScript library.
 
-This repository is intended to be paired with [bch-js](https://github.com/christroutner/bch-js), an npm JavaScript library for building Bitcoin Cash apps.
+This repository is intended to be paired with [bch-js](https://github.com/Permissionless-Software-Foundation/bch-js), an npm JavaScript library for building Bitcoin Cash apps.
 
 ![Cash Stack Network Diagram](./generic-network-diagram.png)
 
@@ -29,7 +29,7 @@ Rate limits are 20 requests per minute, but you can increase them to 100 with a 
 You can bootstrap your own REST API server by downloading and installing the infrastructure listed on the [CashStrap](https://fullstack.cash/cashstrap) page.
 
 ### Configure bch-js
-The live servers can be used by [bch-js](https://github.com/christroutner/bch-js) by settings the `restURL` config property to one of these servers:
+The live servers can be used by [bch-js](https://github.com/Permissionless-Software-Foundation/bch-js) by settings the `restURL` config property to one of these servers:
 
 - BCHN Mainnet REST API server: https://bchn.fullstack.cash/v3/
 - ABC Mainnet REST API server: https://abc.fullstack.cash/v3/
@@ -48,7 +48,7 @@ This is a standard node.js project. The installation is as follows:
 
 - Clone this repository:
 
-`git clone https://github.com/christroutner/bch-api && cd bch-api`
+`git clone https://github.com/Permissionless-Software-Foundation/bch-api && cd bch-api`
 
 - Install dependencies:
 
