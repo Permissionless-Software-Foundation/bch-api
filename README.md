@@ -36,7 +36,7 @@ You can run bootstrap your own REST server by downloading and installing the inf
 ## Installation
 There are two installation paths, depending if you want a *development* or
 *production* environment. You'll also need to set up the underlying infrastructure
-described [this page](https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer).
+described on [this page](https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer).
 
 This code targets the Ubuntu 18.04 LTS Linux OS.
 
