@@ -105,14 +105,14 @@ describe('#route-ratelimits & jwt-auth', () => {
   })
 
   describe('#calcPoints', () => {
-    it('should return 300 points for anonymous user', () => {
+    it('should return 50 points for anonymous user', () => {
       const result = rateLimits.calcPoints()
       // console.log(`result: ${result}`)
 
-      assert.equal(result, 300)
+      assert.equal(result, 50)
     })
 
-    it('should return 100 points for free tier requesting full node access', () => {
+    it('should return 50 points for free tier requesting full node access', () => {
       const jwtInfo = {
         apiLevel: 10,
         resource: 'blockchain',
@@ -120,10 +120,10 @@ describe('#route-ratelimits & jwt-auth', () => {
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 100)
+      assert.equal(result, 50)
     })
 
-    it('should return 100 points for free tier requesting indexer access', () => {
+    it('should return 50 points for free tier requesting indexer access', () => {
       const jwtInfo = {
         apiLevel: 10,
         resource: 'blockbook',
@@ -131,10 +131,10 @@ describe('#route-ratelimits & jwt-auth', () => {
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 100)
+      assert.equal(result, 50)
     })
 
-    it('should return 100 points for free tier requesting SLPDB access', () => {
+    it('should return 50 points for free tier requesting SLPDB access', () => {
       const jwtInfo = {
         apiLevel: 10,
         resource: 'slp',
@@ -142,7 +142,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 100)
+      assert.equal(result, 50)
     })
 
     it('should return 10 points for full node tier requesting full node access', () => {
@@ -156,7 +156,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       assert.equal(result, 10)
     })
 
-    it('should return 100 points for full-node tier requesting indexer access', () => {
+    it('should return 50 points for full-node tier requesting indexer access', () => {
       const jwtInfo = {
         apiLevel: 20,
         resource: 'blockbook',
@@ -164,10 +164,10 @@ describe('#route-ratelimits & jwt-auth', () => {
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 100)
+      assert.equal(result, 50)
     })
 
-    it('should return 100 points for full node tier requesting SLPDB access', () => {
+    it('should return 50 points for full node tier requesting SLPDB access', () => {
       const jwtInfo = {
         apiLevel: 20,
         resource: 'slp',
@@ -175,7 +175,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 100)
+      assert.equal(result, 50)
     })
 
     it('should return 10 point for indexer tier requesting full node access', () => {
@@ -200,7 +200,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       assert.equal(result, 10)
     })
 
-    it('should return 100 points for indexer tier requesting SLPDB access', () => {
+    it('should return 50 points for indexer tier requesting SLPDB access', () => {
       const jwtInfo = {
         apiLevel: 30,
         resource: 'slp',
@@ -208,7 +208,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
-      assert.equal(result, 100)
+      assert.equal(result, 50)
     })
 
     it('should return 10 point for SLP tier requesting full node access', () => {
@@ -319,7 +319,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       )
     })
 
-    it('should trigger rate-limit for free tier after 10 RPM', async () => {
+    it('should trigger rate-limit for free tier after 20 RPM', async () => {
       // Create a new instance of the rate limit so we start with zeroed tracking.
       rateLimits = new RateLimits()
 
@@ -338,7 +338,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       // Mock the call to the jwt library.
       sandbox.stub(rateLimits.jwt, 'verify').returns(jwtInfo)
 
-      for (let i = 0; i < 12; i++) {
+      for (let i = 0; i < 22; i++) {
         next.reset() // reset the stubbed next() function.
 
         await rateLimits.rateLimitByResource(req, res, next)
@@ -442,7 +442,7 @@ describe('#route-ratelimits & jwt-auth', () => {
 
       // Issues with token secret should treat incoming requests as anonymous
       // calls with 30 points or 3 RPM.
-      assert.equal(res.locals.pointsToConsume, 300)
+      assert.equal(res.locals.pointsToConsume, 50)
     })
   })
 })

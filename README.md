@@ -1,19 +1,12 @@
 # bch-api
 
+This is a node.js JavaScript REST API server using Express.js. The purpose of this code is to create a REST API server that provides a common interface for working with a Bitcoin Cash full node and various indexers. See [this article](https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer) to learn about the 'Cash Stack'. Visit [FullStack.cash](https://fullstack.cash), sign up for a free account, and use this REST API right away with the [bch-js](https://github.com/Permissionless-Software-Foundation/bch-js) JavaScript library.
 
-[![Build Status](https://travis-ci.org/christroutner/bch-api.svg?branch=master)](https://travis-ci.org/christroutner/bch-api)
+This repository is intended to be paired with [bch-js](https://github.com/Permissionless-Software-Foundation/bch-js), an npm JavaScript library for building Bitcoin Cash apps.
 
-This is a fork and alternative implementation of
-the [rest.bitcoin.com](https://github.com/Bitcoin-com/rest.bitcoin.com) repository.
-The purpose of this code is to create a REST API server that provides a common
-interface for working with a Bitcoin Cash full node and various indexers. See [this article](https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer) to learn about the 'Cash Stack'. Visit [FullStack.cash](https://fullstack.cash), sign up for a free account, and use this REST API right away with the [bch-js](https://github.com/christroutner/bch-js) JavaScript library.
+![Cash Stack Network Diagram](./generic-network-diagram.png)
 
-This repository is intended to be paired with [bch-js](https://github.com/christroutner/bch-js),
-an npm JavaScript library, and an alternative implementation
-of [BITBOX SDK](https://github.com/Bitcoin-com/bitbox-sdk).
-
-Both bch-api and bch-js are part of the
-[full stack of BCH software](https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer).
+Both bch-api and bch-js are part of the 'Cash Stack' [full stack of BCH software](https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer).
 
 - [API Documentation](https://fullstack.cash/documentation)
 - [Example Code](https://fullstack.cash/examples)
@@ -24,32 +17,29 @@ Have questions? Need help? Join our community support:
 ## Features
 The following features set this repository apart from rest.bitcoin.com:
 
-- Address balance and UTXO queries use the [Blockbook](https://github.com/trezor/blockbook)
-indexer instead of Insight.
 - Fine grain access is controlled with a JWT token using
-[this back end auth server](https://github.com/Permissionless-Software-Foundation/jwt-bch-api) and [this front end](https://github.com/Permissionless-Software-Foundation/jwt-bch-frontend).
-- Default rate limits are set to 3 RPM for anonymous connections, 10 RPM for [free accounts](https://fullstack.cash/pricing), up to 100 RPM if a full-access JWT token is used.
+[this back end auth server](https://github.com/Permissionless-Software-Foundation/jwt-bch-api) and [this front end](https://github.com/Permissionless-Software-Foundation/jwt-bch-frontend). Can be used to monetize access to the REST API.
 - Typescript removed and ES8 JavaScript used instead.
 - npm audit run on all dependencies.
-- [Greenkeeper](https://greenkeeper.io/) implemented for automatic dependency management
-and security updates.
 
 ## Live Demo
 You can test a live demo of the REST API by running the
 [bch-js examples](https://github.com/Permissionless-Software-Foundation/bch-js-examples).
-Rate limits are 3 requests per minute, but you can increase them to 10 with a [free account](https://fullstack.cash/pricing).
-This is fast enough to try out the examples
-but these servers are not intended as a freemium service. You can run your own
-REST server by purchasing the hard drive at [bchjs.cash](https://bchjs.cash).
+Rate limits are 20 requests per minute, but you can increase them to 100 with a [paid account](https://fullstack.cash/pricing).
+You can bootstrap your own REST API server by downloading and installing the infrastructure listed on the [CashStrap](https://fullstack.cash/cashstrap) page.
 
-- Mainnet REST API server: https://api.fullstack.cash/v3/
-- Testnet REST API server: https://tapi.fullstack.cash/v3/
+### Configure bch-js
+The live servers can be used by [bch-js](https://github.com/Permissionless-Software-Foundation/bch-js) by settings the `restURL` config property to one of these servers:
+
+- BCHN Mainnet REST API server: https://bchn.fullstack.cash/v3/
+- ABC Mainnet REST API server: https://abc.fullstack.cash/v3/
+- Testnet3 REST API server: https://testnet3.fullstack.cash/v3/
 - Check server status: https://metrics.fullstack.cash
 
 ## Installation
 There are two installation paths, depending if you want a *development* or
 *production* environment. You'll also need to set up the underlying infrastructure
-described [this page](https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer).
+described on [this page](https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer).
 
 This code targets the Ubuntu 18.04 LTS Linux OS.
 
@@ -58,7 +48,7 @@ This is a standard node.js project. The installation is as follows:
 
 - Clone this repository:
 
-`git clone https://github.com/christroutner/bch-api && cd bch-api`
+`git clone https://github.com/Permissionless-Software-Foundation/bch-api && cd bch-api`
 
 - Install dependencies:
 
@@ -92,6 +82,11 @@ installation.
 ## Support
 Have questions? Need help? Join our community support
 [Telegram channel](https://t.me/bch_js_toolkit)
+
+## IPFS
+Copies of this repository will occasionally be uploaded and hosted on [IPFS](https://ipfs.io):
+
+- v1.15.4: QmSAerFmDJm6KQp2HC8jsRR5MdL5X39hoUsJYvWNDvrD8m
 
 ## License
 [MIT](./LICENSE.md)

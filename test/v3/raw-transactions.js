@@ -975,6 +975,7 @@ describe('#Raw-Transactions', () => {
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
     })
+
     it('should submit hex encoded transaction', async () => {
       // This is a difficult test to run as transaction hex is invalid after a
       // block confirmation. So the unit tests simulates what the output 'should'
@@ -1003,8 +1004,13 @@ describe('#Raw-Transactions', () => {
 
         // Integration test
       } else {
-        assert.hasAllKeys(result, ['error'])
-        assert.include(result.error, 'Missing inputs')
+        if (process.env.ISBCHN) {
+          assert.hasAllKeys(result, ['error'])
+          assert.include(result.error, 'Missing inputs')
+        } else {
+          assert.hasAllKeys(result, ['error'])
+          assert.include(result.error, 'bad-txns-inputs-missingorspent')
+        }
       }
     })
   })
@@ -1158,8 +1164,13 @@ describe('#Raw-Transactions', () => {
 
         // Integration test
       } else {
-        assert.hasAllKeys(result, ['error'])
-        assert.include(result.error, 'Missing inputs')
+        if (process.env.ISBCHN) {
+          assert.hasAllKeys(result, ['error'])
+          assert.include(result.error, 'Missing inputs')
+        } else {
+          assert.hasAllKeys(result, ['error'])
+          assert.include(result.error, 'bad-txns-inputs-missingorspent')
+        }
       }
     })
   })
