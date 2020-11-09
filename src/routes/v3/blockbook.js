@@ -96,18 +96,6 @@ class Blockbook {
     }
   }
 
-  /**
-   * @api {get} /blockbook/balance/{addr} Get balance for a single address.
-   * @apiName Balance for a single address
-   * @apiGroup Blockbook
-   * @apiDescription Returns an object with balance and details about an address.
-   *
-   *
-   * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v3/blockbook/balance/bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf" -H "accept: application/json"
-   *
-   */
-  // GET handler for single balance
   async balanceSingle (req, res, next) {
     try {
       const address = req.params.address
@@ -165,18 +153,6 @@ class Blockbook {
     }
   }
 
-  /**
-   * @api {post} /blockbook/balance Get balance for an array of addresses.
-   * @apiName  Balance for an array of addresses
-   * @apiGroup Blockbook
-   * @apiDescription Return balances and details for an array of addresses.
-   * Limited to 20 items per request.
-   *
-   * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v3/blockbook/balance" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
-   *
-   *
-   */
   // POST handler for bulk queries on address details
   async balanceBulk (req, res, next) {
     try {
@@ -284,17 +260,6 @@ class Blockbook {
     }
   }
 
-  /**
-   * @api {get} /blockbook/utxos/{addr} Get utxos for a single address.
-   * @apiName UTXOs for a single address
-   * @apiGroup Blockbook
-   * @apiDescription Returns an object with UTXOs associated with an address.
-   *
-   *
-   * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v3/blockbook/utxos/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
-   *
-   */
   // GET handler for single balance
   async utxosSingle (req, res, next) {
     try {
@@ -352,18 +317,6 @@ class Blockbook {
     }
   }
 
-  /**
-   * @api {post} /blockbook/utxos Get UTXOs for an array of addresses.
-   * @apiName  UTXOs for an array of addresses
-   * @apiGroup Blockbook
-   * @apiDescription Return UTXOs associate with an array of addresses.
-   * Limited to 20 items per request.
-   *
-   * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v3/blockbook/utxos" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3","bitcoincash:qzy8wnj0dz927eu6kvh8v2pqsr5w8jh33ys757tdtq"]}'
-   *
-   *
-   */
   // POST handler for bulk queries on address utxos
   async utxosBulk (req, res, next) {
     try {
@@ -461,17 +414,6 @@ class Blockbook {
     }
   }
 
-  /**
-   * @api {get} /blockbook/tx/{txid} Get details for a single transaction.
-   * @apiName Details for a single transaction
-   * @apiGroup Blockbook
-   * @apiDescription Returns an object with details for a single transaction
-   *
-   *
-   * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v3/blockbook/tx/6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d" -H "accept: application/json"
-   *
-   */
   // GET handler for single transaction details.
   async txSingle (req, res, next) {
     try {
@@ -514,18 +456,6 @@ class Blockbook {
     }
   }
 
-  /**
-   * @api {post} /blockbook/tx Get details for an array of transactions.
-   * @apiName  Details for an array of transactions
-   * @apiGroup Blockbook
-   * @apiDescription Return details for an array of transactions.
-   * Limited to 20 items per request.
-   *
-   * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v3/blockbook/tx" -H "accept: application/json" -H "Content-Type: application/json" -d '{"txids":["6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d","6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d"]}'
-   *
-   *
-   */
   // POST handler for bulk queries on tx details
   async txBulk (req, res, next) {
     try {
