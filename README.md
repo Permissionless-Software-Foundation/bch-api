@@ -28,6 +28,9 @@ You can test a live demo of the REST API by running the
 Rate limits are 20 requests per minute, but you can increase them to 100 with a [paid account](https://fullstack.cash/pricing).
 You can run bootstrap your own REST server by downloading and installing the infrastructure listed on the [CashStrap](https://fullstack.cash/cashstrap).
 
+### Configure bch-js
+The live servers can be used by [bch-js](https://github.com/christroutner/bch-js) by settings the `restURL` config property to one of these servers:
+
 - BCHN Mainnet REST API server: https://bchn.fullstack.cash/v3/
 - ABC Mainnet REST API server: https://abc.fullstack.cash/v3/
 - Testnet3 REST API server: https://testnet3.fullstack.cash/v3/
