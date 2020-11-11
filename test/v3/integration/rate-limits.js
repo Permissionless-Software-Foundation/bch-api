@@ -21,7 +21,7 @@ const SERVER = 'http://localhost:3000/v3/'
 const TEST_JWT =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlODhhY2JmMDIyMWMxMDAxMmFkOTNmZiIsImVtYWlsIjoiY2hyaXMudHJvdXRuZXJAZ21haWwuY29tIiwiYXBpTGV2ZWwiOjQwLCJyYXRlTGltaXQiOjMsImlhdCI6MTYwMDYyODk1MSwiZXhwIjoxNjAzMjIwOTUxfQ.JPXDJQsxJFtCGZjHOd-hRfJuY41Ef_FQ4ET06CtYdNk'
 
-describe('#rate limits', () => {
+describe('#JWT rate limits', () => {
   it('should get control/getNetworkInfo() with no auth', async () => {
     const options = {
       method: 'GET',
@@ -36,25 +36,24 @@ describe('#rate limits', () => {
     assert.hasAnyKeys(result.data, ['version'])
   })
 
-  it('should trigger rate-limit handler if rate limits exceeds 5 request per minute', async () => {
+  it('should trigger rate-limit handler if rate limits exceeds 20 request per minute', async () => {
     try {
-      // Actual rate limit is 60 per minute X 4 nodes = 240 rpm.
       const options = {
         method: 'GET',
         url: `${SERVER}control/getNetworkInfo`
       }
 
       const promises = []
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 30; i++) {
         const promise = axios(options)
         promises.push(promise)
       }
 
       await Promise.all(promises)
 
-      assert.equal(true, false, 'Unexpected result!')
+      assert.fail('Unexpected result!')
     } catch (err) {
-      // console.log(`err.response: ${util.inspect(err.response)}`)
+      console.log('err: ', err)
 
       assert.equal(err.response.status, 429)
       assert.include(err.response.data.error, 'Too many requests')

@@ -26,5 +26,7 @@ export LOCAL_RESTURL=http://127.0.0.1:3000/v3/
 # slp-api alternative SLP validator.
 export SLP_API_URL=http://10.0.0.5:5001/
 
+# Basic Authentication password
+export PRO_PASS=somerandomepassword:someotherrandompassword:aThirdPassword
 
 npm start
