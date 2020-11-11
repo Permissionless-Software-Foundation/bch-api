@@ -1,7 +1,6 @@
 /*
-  This integration tests should be run against a live bch-api REST server. It
-  tests to ensure the rate-limits are working as expected. Adjust the values
-  in the tests below to match the rate limit setting in your own installation.
+  These tests have been deprecated. To test bch-api rate limits, run the e2e
+  tests in the bch-js repository.
  */
 
 'use strict'
@@ -134,32 +133,32 @@ describe('#JWT rate limits', () => {
   //   }
   // })
 
-  it('should unlock pro-tier for a valid JWT token', async () => {
-    try {
-      // Actual rate limit is 60 per minute X 4 nodes = 240 rpm.
-      const options = {
-        method: 'GET',
-        url: `${SERVER}control/`,
-        headers: {
-          Authorization: `Token ${TEST_JWT}`
-        }
-      }
-
-      const promises = []
-      for (let i = 0; i < 60; i++) {
-        const promise = axios(options)
-        promises.push(promise)
-      }
-
-      await Promise.all(promises)
-
-      // assert.equal(true, false, "Unexpected result!")
-      assert.equal(true, true, 'Not throwing an error is a pass!')
-    } catch (err) {
-      console.log(`err.response: ${util.inspect(err.response)}`)
-
-      assert.equal(true, false, 'Unexpected result!')
-    }
-    // Override default timeout for this test.
-  }).timeout(20000)
+  // it('should unlock pro-tier for a valid JWT token', async () => {
+  //   try {
+  //     // Actual rate limit is 60 per minute X 4 nodes = 240 rpm.
+  //     const options = {
+  //       method: 'GET',
+  //       url: `${SERVER}control/`,
+  //       headers: {
+  //         Authorization: `Token ${TEST_JWT}`
+  //       }
+  //     }
+  //
+  //     const promises = []
+  //     for (let i = 0; i < 60; i++) {
+  //       const promise = axios(options)
+  //       promises.push(promise)
+  //     }
+  //
+  //     await Promise.all(promises)
+  //
+  //     // assert.equal(true, false, "Unexpected result!")
+  //     assert.equal(true, true, 'Not throwing an error is a pass!')
+  //   } catch (err) {
+  //     console.log(`err.response: ${util.inspect(err.response)}`)
+  //
+  //     assert.equal(true, false, 'Unexpected result!')
+  //   }
+  //   // Override default timeout for this test.
+  // }).timeout(20000)
 })

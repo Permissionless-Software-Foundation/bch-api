@@ -33,7 +33,7 @@ util.inspect.defaultOptions = { depth: 1 }
 // let _this
 
 // Set default rate limit value for testing
-const PRO_PASSES = process.env.PRO_PASS ? process.env.PRO_PASS : 'BITBOX'
+const PRO_PASSES = process.env.PRO_PASSES ? process.env.PRO_PASSES : 'testpassword'
 // Convert the pro-tier password string into an array split by ':'.
 const PRO_PASS = PRO_PASSES.split(':')
 
@@ -82,6 +82,7 @@ class AuthMW {
 
               // Success
               req.locals.proLimit = true
+              console.log(`User ${req.ip} authenticated using Basic Auth`)
               break
             }
           }
@@ -96,7 +97,8 @@ class AuthMW {
 
   // Middleware called by the route.
   mw () {
-    return passport.authenticate(['anonymous', 'basic'], {
+    console.log('Initializing passport')
+    return passport.authenticate(['basic', 'anonymous'], {
       session: false
     })
   }
