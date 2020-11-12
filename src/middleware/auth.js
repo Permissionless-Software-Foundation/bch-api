@@ -33,7 +33,9 @@ util.inspect.defaultOptions = { depth: 1 }
 // let _this
 
 // Set default rate limit value for testing
-const PRO_PASSES = process.env.PRO_PASSES ? process.env.PRO_PASSES : 'testpassword'
+const PRO_PASSES = process.env.PRO_PASS
+  ? process.env.PRO_PASS
+  : 'testpassword'
 // Convert the pro-tier password string into an array split by ':'.
 const PRO_PASS = PRO_PASSES.split(':')
 
@@ -46,6 +48,8 @@ class AuthMW {
 
     // Initialize passport for 'anonymous' authentication.
     passport.use(new AnonymousStrategy())
+
+    console.log(`PRO_PASS: ${JSON.stringify(PRO_PASS, null, 2)}`)
 
     // Initialize passport for 'basic' authentication.
     passport.use(
