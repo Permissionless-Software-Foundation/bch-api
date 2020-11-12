@@ -16,9 +16,9 @@ util.inspect.defaultOptions = { depth: 1 }
 // const SERVER = `http://192.168.0.36:12400/v3/`
 const SERVER = 'http://localhost:3000/v3/'
 // const SERVER = 'https://api.fullstack.cash/v3/'
-
-const TEST_JWT =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlODhhY2JmMDIyMWMxMDAxMmFkOTNmZiIsImVtYWlsIjoiY2hyaXMudHJvdXRuZXJAZ21haWwuY29tIiwiYXBpTGV2ZWwiOjQwLCJyYXRlTGltaXQiOjMsImlhdCI6MTYwMDYyODk1MSwiZXhwIjoxNjAzMjIwOTUxfQ.JPXDJQsxJFtCGZjHOd-hRfJuY41Ef_FQ4ET06CtYdNk'
+//
+// const TEST_JWT =
+//   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlODhhY2JmMDIyMWMxMDAxMmFkOTNmZiIsImVtYWlsIjoiY2hyaXMudHJvdXRuZXJAZ21haWwuY29tIiwiYXBpTGV2ZWwiOjQwLCJyYXRlTGltaXQiOjMsImlhdCI6MTYwMDYyODk1MSwiZXhwIjoxNjAzMjIwOTUxfQ.JPXDJQsxJFtCGZjHOd-hRfJuY41Ef_FQ4ET06CtYdNk'
 
 describe('#JWT rate limits', () => {
   it('should get control/getNetworkInfo() with no auth', async () => {
