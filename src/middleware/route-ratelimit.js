@@ -154,9 +154,11 @@ class RateLimits {
 
           // For internal calls, increase rate limits to as fast as possible.
           if (
-            key.toString().indexOf('172.17.') > -1
             // Comment out the line below when running bch-js e2e rate limit tests.
-            // key.toString().indexOf('::ffff:127.0.0.1') > -1
+            key.toString().indexOf('::ffff:127.0.0.1') > -1 ||
+
+            // Do not comment out this line.
+            key.toString().indexOf('172.17.') > -1
           ) {
             pointsToConsume = 1
             res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
