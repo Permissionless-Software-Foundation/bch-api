@@ -12,10 +12,12 @@
 
 'use strict'
 
+const jwt = require('jsonwebtoken')
+
 const wlogger = require('../util/winston-logging')
 const config = require('../../config')
 
-const jwt = require('jsonwebtoken')
+const ANON_LIMITS = 50
 
 // Redis
 const redisOptions = {
@@ -111,7 +113,7 @@ class RateLimits {
       }
 
       // Default value is 50 points per request = 20 RPM
-      let rateLimit = 50
+      let rateLimit = ANON_LIMITS
 
       // Only evaluate the JWT token if the user is not using Basic Authentication.
       if (!req.locals.proLimit) {
@@ -199,7 +201,7 @@ class RateLimits {
   // Calculates the points consumed, based on the jwt information and the route
   // requested.
   calcPoints (jwtInfo) {
-    let retVal = 50 // By default, use anonymous tier.
+    let retVal = ANON_LIMITS // By default, use anonymous tier.
 
     try {
       // console.log(`jwtInfo: ${JSON.stringify(jwtInfo, null, 2)}`)
@@ -218,12 +220,12 @@ class RateLimits {
         if (level40Routes.includes(resource)) {
           if (apiLevel >= 40) retVal = 10
           // else if (apiLevel >= 10) retVal = 10
-          else retVal = 50
+          else retVal = ANON_LIMITS
 
           // Normal indexer routes
         } else if (level30Routes.includes(resource)) {
           if (apiLevel >= 30) retVal = 10
-          else retVal = 50
+          else retVal = ANON_LIMITS
 
           // Full node tier
         } else if (apiLevel >= 20) {
@@ -231,7 +233,7 @@ class RateLimits {
 
           // Free tier, full node only.
         } else {
-          retVal = 50
+          retVal = ANON_LIMITS
         }
       }
 
@@ -239,7 +241,7 @@ class RateLimits {
     } catch (err) {
       wlogger.error('Error in route-ratelimit.js/calcPoints()')
       // throw err
-      retVal = 50
+      retVal = ANON_LIMITS
     }
 
     return retVal
