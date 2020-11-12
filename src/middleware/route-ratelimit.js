@@ -17,7 +17,7 @@ const jwt = require('jsonwebtoken')
 const wlogger = require('../util/winston-logging')
 const config = require('../../config')
 
-const ANON_LIMITS = 50
+const ANON_LIMITS = 333
 
 // Redis
 const redisOptions = {
