@@ -113,74 +113,78 @@ class RateLimits {
       // Default value is 50 points per request = 20 RPM
       let rateLimit = 50
 
-      // Code here for the rate limiter is adapted from this example:
-      // https://github.com/animir/node-rate-limiter-flexible/wiki/Overall-example#authorized-and-not-authorized-users
-      try {
-        // The resource being consumed: full node, indexer, SLPDB, etc.
-        const resource = _this.getResource(req.url)
-        wlogger.debug(`resource: ${resource}`)
+      // Only evaluate the JWT token if the user is not using Basic Authentication.
+      if (!req.locals.proLimit) {
+        // Code here for the rate limiter is adapted from this example:
+        // https://github.com/animir/node-rate-limiter-flexible/wiki/Overall-example#authorized-and-not-authorized-users
+        try {
+          // The resource being consumed: full node, indexer, SLPDB, etc.
+          const resource = _this.getResource(req.url)
+          wlogger.debug(`resource: ${resource}`)
 
-        let key = userId || req.ip
-        res.locals.key = key // Feedback for tests.
+          let key = userId || req.ip
+          res.locals.key = key // Feedback for tests.
 
-        // const pointsToConsume = userId ? 1 : 30
-        decoded.resource = resource
-        let pointsToConsume = _this.calcPoints(decoded)
-        res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
-
-        // Retrieve the origin.
-        let origin = req.get('origin')
-
-        // Handle calls coming from the intranet.
-        if (origin === undefined && key.indexOf('10.0.0.5') > -1) {
-          origin = 'slp-api'
-        }
-
-        wlogger.info(`origin: ${origin}`)
-
-        // If the request originates from one of the approved wallet apps, then
-        // apply paid-access rate limits.
-        if (
-          origin &&
-          (origin.toString().indexOf('wallet.fullstack.cash') > -1 ||
-            origin.toString().indexOf('sandbox.fullstack.cash') > -1 ||
-            origin === 'slp-api')
-        ) {
-          pointsToConsume = 10
+          // const pointsToConsume = userId ? 1 : 30
+          decoded.resource = resource
+          let pointsToConsume = _this.calcPoints(decoded)
           res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
+
+          // Retrieve the origin.
+          let origin = req.get('origin')
+
+          // Handle calls coming from the intranet.
+          if (origin === undefined && key.indexOf('10.0.0.5') > -1) {
+            origin = 'slp-api'
+          }
+
+          wlogger.info(`origin: ${origin}`)
+
+          // If the request originates from one of the approved wallet apps, then
+          // apply paid-access rate limits.
+          if (
+            origin &&
+            (origin.toString().indexOf('wallet.fullstack.cash') > -1 ||
+              origin.toString().indexOf('sandbox.fullstack.cash') > -1 ||
+              origin === 'slp-api')
+          ) {
+            pointsToConsume = 10
+            res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
+          }
+
+          // For internal calls, increase rate limits to as fast as possible.
+          if (
+            key.toString().indexOf('172.17.') > -1
+            // Comment out the line below when running bch-js e2e rate limit tests.
+            // key.toString().indexOf('::ffff:127.0.0.1') > -1
+          ) {
+            pointsToConsume = 1
+            res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
+          }
+
+          wlogger.info(
+            `User ${key} consuming ${pointsToConsume} point for resource ${resource}.`
+          )
+
+          rateLimit = Math.floor(1000 / pointsToConsume)
+
+          // Update the key so that rate limits track both the user and the resource.
+          key = `${key}-${resource}`
+
+          await _this.rateLimiter.consume(key, pointsToConsume)
+        } catch (err) {
+          // console.log('err: ', err)
+
+          // Used for returning data for tests.
+          res.locals.rateLimitTriggered = true
+          // console.log('res.locals: ', res.locals)
+
+          // Rate limited was triggered
+          res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+          return res.json({
+            error: `Too many requests. Your limits are currently ${rateLimit} requests per minute. Increase rate limits at https://fullstack.cash`
+          })
         }
-
-        // For internal calls, increase rate limits to as fast as possible.
-        if (
-          key.toString().indexOf('172.17.') > -1 ||
-          key.toString().indexOf('::ffff:127.0.0.1') > -1
-        ) {
-          pointsToConsume = 1
-          res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
-        }
-
-        wlogger.info(
-          `User ${key} consuming ${pointsToConsume} point for resource ${resource}.`
-        )
-
-        rateLimit = Math.floor(1000 / pointsToConsume)
-
-        // Update the key so that rate limits track both the user and the resource.
-        key = `${key}-${resource}`
-
-        await _this.rateLimiter.consume(key, pointsToConsume)
-      } catch (err) {
-        // console.log('err: ', err)
-
-        // Used for returning data for tests.
-        res.locals.rateLimitTriggered = true
-        // console.log('res.locals: ', res.locals)
-
-        // Rate limited was triggered
-        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
-        return res.json({
-          error: `Too many requests. Your limits are currently ${rateLimit} requests per minute. Increase rate limits at https://fullstack.cash`
-        })
       }
     } catch (err) {
       wlogger.error('Error in route-ratelimit.js/newRateLimit(): ', err)

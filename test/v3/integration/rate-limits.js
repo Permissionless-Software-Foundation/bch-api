@@ -1,7 +1,6 @@
 /*
-  This integration tests should be run against a live bch-api REST server. It
-  tests to ensure the rate-limits are working as expected. Adjust the values
-  in the tests below to match the rate limit setting in your own installation.
+  These tests have been deprecated. To test bch-api rate limits, run the e2e
+  tests in the bch-js repository.
  */
 
 'use strict'
@@ -17,11 +16,11 @@ util.inspect.defaultOptions = { depth: 1 }
 // const SERVER = `http://192.168.0.36:12400/v3/`
 const SERVER = 'http://localhost:3000/v3/'
 // const SERVER = 'https://api.fullstack.cash/v3/'
+//
+// const TEST_JWT =
+//   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlODhhY2JmMDIyMWMxMDAxMmFkOTNmZiIsImVtYWlsIjoiY2hyaXMudHJvdXRuZXJAZ21haWwuY29tIiwiYXBpTGV2ZWwiOjQwLCJyYXRlTGltaXQiOjMsImlhdCI6MTYwMDYyODk1MSwiZXhwIjoxNjAzMjIwOTUxfQ.JPXDJQsxJFtCGZjHOd-hRfJuY41Ef_FQ4ET06CtYdNk'
 
-const TEST_JWT =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlODhhY2JmMDIyMWMxMDAxMmFkOTNmZiIsImVtYWlsIjoiY2hyaXMudHJvdXRuZXJAZ21haWwuY29tIiwiYXBpTGV2ZWwiOjQwLCJyYXRlTGltaXQiOjMsImlhdCI6MTYwMDYyODk1MSwiZXhwIjoxNjAzMjIwOTUxfQ.JPXDJQsxJFtCGZjHOd-hRfJuY41Ef_FQ4ET06CtYdNk'
-
-describe('#rate limits', () => {
+describe('#JWT rate limits', () => {
   it('should get control/getNetworkInfo() with no auth', async () => {
     const options = {
       method: 'GET',
@@ -36,25 +35,24 @@ describe('#rate limits', () => {
     assert.hasAnyKeys(result.data, ['version'])
   })
 
-  it('should trigger rate-limit handler if rate limits exceeds 5 request per minute', async () => {
+  it('should trigger rate-limit handler if rate limits exceeds 20 request per minute', async () => {
     try {
-      // Actual rate limit is 60 per minute X 4 nodes = 240 rpm.
       const options = {
         method: 'GET',
         url: `${SERVER}control/getNetworkInfo`
       }
 
       const promises = []
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 30; i++) {
         const promise = axios(options)
         promises.push(promise)
       }
 
       await Promise.all(promises)
 
-      assert.equal(true, false, 'Unexpected result!')
+      assert.fail('Unexpected result!')
     } catch (err) {
-      // console.log(`err.response: ${util.inspect(err.response)}`)
+      console.log('err: ', err)
 
       assert.equal(err.response.status, 429)
       assert.include(err.response.data.error, 'Too many requests')
@@ -135,32 +133,32 @@ describe('#rate limits', () => {
   //   }
   // })
 
-  it('should unlock pro-tier for a valid JWT token', async () => {
-    try {
-      // Actual rate limit is 60 per minute X 4 nodes = 240 rpm.
-      const options = {
-        method: 'GET',
-        url: `${SERVER}control/`,
-        headers: {
-          Authorization: `Token ${TEST_JWT}`
-        }
-      }
-
-      const promises = []
-      for (let i = 0; i < 60; i++) {
-        const promise = axios(options)
-        promises.push(promise)
-      }
-
-      await Promise.all(promises)
-
-      // assert.equal(true, false, "Unexpected result!")
-      assert.equal(true, true, 'Not throwing an error is a pass!')
-    } catch (err) {
-      console.log(`err.response: ${util.inspect(err.response)}`)
-
-      assert.equal(true, false, 'Unexpected result!')
-    }
-    // Override default timeout for this test.
-  }).timeout(20000)
+  // it('should unlock pro-tier for a valid JWT token', async () => {
+  //   try {
+  //     // Actual rate limit is 60 per minute X 4 nodes = 240 rpm.
+  //     const options = {
+  //       method: 'GET',
+  //       url: `${SERVER}control/`,
+  //       headers: {
+  //         Authorization: `Token ${TEST_JWT}`
+  //       }
+  //     }
+  //
+  //     const promises = []
+  //     for (let i = 0; i < 60; i++) {
+  //       const promise = axios(options)
+  //       promises.push(promise)
+  //     }
+  //
+  //     await Promise.all(promises)
+  //
+  //     // assert.equal(true, false, "Unexpected result!")
+  //     assert.equal(true, true, 'Not throwing an error is a pass!')
+  //   } catch (err) {
+  //     console.log(`err.response: ${util.inspect(err.response)}`)
+  //
+  //     assert.equal(true, false, 'Unexpected result!')
+  //   }
+  //   // Override default timeout for this test.
+  // }).timeout(20000)
 })

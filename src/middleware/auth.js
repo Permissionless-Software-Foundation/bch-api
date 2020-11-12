@@ -22,9 +22,9 @@
 'use strict'
 
 const passport = require('passport')
-// const BasicStrategy = require('passport-http').BasicStrategy
+const BasicStrategy = require('passport-http').BasicStrategy
 const AnonymousStrategy = require('passport-anonymous')
-// const wlogger = require('../util/winston-logging')
+const wlogger = require('../util/winston-logging')
 
 // Used for debugging and iterrogating JS objects.
 const util = require('util')
@@ -33,9 +33,9 @@ util.inspect.defaultOptions = { depth: 1 }
 // let _this
 
 // Set default rate limit value for testing
-// const PRO_PASSES = process.env.PRO_PASS ? process.env.PRO_PASS : 'BITBOX'
+const PRO_PASSES = process.env.PRO_PASSES ? process.env.PRO_PASSES : 'testpassword'
 // Convert the pro-tier password string into an array split by ':'.
-// const PRO_PASS = PRO_PASSES.split(':')
+const PRO_PASS = PRO_PASSES.split(':')
 
 // wlogger.verbose(`PRO_PASS set to: ${PRO_PASS}`)
 
@@ -48,55 +48,57 @@ class AuthMW {
     passport.use(new AnonymousStrategy())
 
     // Initialize passport for 'basic' authentication.
-    //   passport.use(
-    //     new BasicStrategy({ passReqToCallback: true }, function (
-    //       req,
-    //       username,
-    //       password,
-    //       done
-    //     ) {
-    //       // console.log(`req: ${util.inspect(req)}`)
-    //       // console.log(`username: ${username}`)
-    //       // console.log(`password: ${password}`)
-    //
-    //       // Create the req.locals property if it does not yet exist.
-    //       if (!req.locals) {
-    //         req.locals = {
-    //           // default values
-    //           proLimit: false,
-    //           apiLevel: 0
-    //         }
-    //       }
-    //
-    //       // Set pro-tier rate limit to flag to false by default.
-    //       req.locals.proLimit = false
-    //
-    //       // Evaluate the username and password and set the rate limit accordingly.
-    //       // if (username === "BITBOX" && password === PRO_PASS) {
-    //       if (username === 'BITBOX') {
-    //         for (let i = 0; i < PRO_PASS.length; i++) {
-    //           const thisPass = PRO_PASS[i]
-    //
-    //           if (password === thisPass) {
-    //             wlogger.verbose(`${req.url} called by ${password.slice(0, 6)}`)
-    //
-    //             // Success
-    //             req.locals.proLimit = true
-    //             break
-    //           }
-    //         }
-    //       }
-    //
-    //       // console.log(`req.locals: ${util.inspect(req.locals)}`)
-    //
-    //       return done(null, true)
-    //     })
-    //   )
+    passport.use(
+      new BasicStrategy({ passReqToCallback: true }, function (
+        req,
+        username,
+        password,
+        done
+      ) {
+        // console.log(`req: ${util.inspect(req)}`)
+        // console.log(`username: ${username}`)
+        // console.log(`password: ${password}`)
+
+        // Create the req.locals property if it does not yet exist.
+        if (!req.locals) {
+          req.locals = {
+            // default values
+            proLimit: false,
+            apiLevel: 0
+          }
+        }
+
+        // Set pro-tier rate limit to flag to false by default.
+        req.locals.proLimit = false
+
+        // Evaluate the username and password and set the rate limit accordingly.
+        // if (username === "BITBOX" && password === PRO_PASS) {
+        if (username === 'fullstackcash') {
+          for (let i = 0; i < PRO_PASS.length; i++) {
+            const thisPass = PRO_PASS[i]
+
+            if (password === thisPass) {
+              wlogger.verbose(`${req.url} called by ${password.slice(0, 6)}`)
+
+              // Success
+              req.locals.proLimit = true
+              console.log(`User ${req.ip} authenticated using Basic Auth`)
+              break
+            }
+          }
+        }
+
+        // console.log(`req.locals: ${util.inspect(req.locals)}`)
+
+        return done(null, true)
+      })
+    )
   }
 
   // Middleware called by the route.
   mw () {
-    return passport.authenticate(['anonymous'], {
+    console.log('Initializing passport')
+    return passport.authenticate(['basic', 'anonymous'], {
       session: false
     })
   }
