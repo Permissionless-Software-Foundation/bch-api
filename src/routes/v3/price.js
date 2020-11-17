@@ -133,7 +133,7 @@ class Price {
       // Request options
       const opt = {
         method: 'get',
-        baseURL: this.coinexPriceUrl,
+        baseURL: _this.coinexPriceUrl,
         timeout: 15000
       }
 
