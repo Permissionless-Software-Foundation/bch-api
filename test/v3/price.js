@@ -211,4 +211,70 @@ describe('#PriceRouter', () => {
       assert.property(result, 'error')
     })
   })
+
+  describe('#getBCHAUSD', () => {
+    // const getNetworkInfo = controlRoute.testableComponents.getNetworkInfo
+
+    it('should throw 500 when network issues', async () => {
+      uut.coinexPriceUrl = 'http://fakeurl/api/'
+
+      await uut.getBCHAUSD(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.isAbove(
+        res.statusCode,
+        499,
+        'HTTP status code 500 or greater expected.'
+      )
+      // console.log(res)
+      assert.include(
+        res.output.error,
+        'Network error: Could not communicate with full node or other external service'
+      )
+    })
+
+    it('returns proper error when downstream service stalls', async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
+
+      const result = await uut.getBCHAUSD(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+
+    it('returns proper error when downstream service is down', async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
+
+      const result = await uut.getBCHAUSD(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+
+    it('should get the USD price of BCH', async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === 'unit') {
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: mockData.mockCoinexFeed })
+      }
+
+      const result = await uut.getBCHAUSD(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.isNumber(result.usd)
+    })
+  })
 })
