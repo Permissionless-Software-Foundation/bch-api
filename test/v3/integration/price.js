@@ -4,7 +4,7 @@
 
 'use strict'
 
-// const assert = require('chai').assert
+const assert = require('chai').assert
 // const axios = require('axios')
 
 // Used for debugging.
@@ -29,6 +29,17 @@ describe('#price', () => {
     it('should get the USD price', async () => {
       const result = await price.getUSD(req, res)
       console.log(`result: ${util.inspect(result)}`)
+
+      assert.isNumber(result.usd)
+    })
+  })
+
+  describe('#getBCHAUSD', () => {
+    it('should get the USD price of BCHA', async () => {
+      const result = await price.getBCHAUSD(req, res)
+      console.log(`result: ${util.inspect(result)}`)
+
+      assert.isNumber(result.usd)
     })
   })
 })

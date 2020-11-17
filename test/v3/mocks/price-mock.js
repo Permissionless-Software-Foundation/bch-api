@@ -216,6 +216,26 @@ const mockCoinbaseFeed = {
   }
 }
 
+const mockCoinexFeed = {
+  code: 0,
+  data: {
+    date: 1605649499848,
+    ticker: {
+      vol: '26717.39062407',
+      low: '10.4000',
+      open: '11.8000',
+      high: '19.0029',
+      last: '18.5000',
+      buy: '18.0100',
+      buy_amount: '200.00000000',
+      sell: '18.5000',
+      sell_amount: '47.89580474'
+    }
+  },
+  message: 'OK'
+}
+
 module.exports = {
-  mockCoinbaseFeed
+  mockCoinbaseFeed,
+  mockCoinexFeed
 }
