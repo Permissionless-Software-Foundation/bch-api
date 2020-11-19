@@ -1,15 +1,16 @@
 {
-  "name": "bch-api",
+  "name": "bcha-api",
   "version": "1.16.0",
-  "description": "The REST API powering FullStack.cash",
+  "description": "The REST API powering KingBCH.com",
   "author": "Chris Troutner <chris.troutner@gmail.com>",
   "contributors": [
-    "Gabriel Cardona <gabriel@bitcoin.com>"
+    "Gabriel Cardona <gabriel@bitcoin.com>",
+    "Joey King <joey@bitcoinabc.org"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Permissionless-Software-Foundation/bch-api.git"
+    "url": "git+https://github.com/josephroyking/bch-api.git"
   },
   "scripts": {
     "start": "node ./src/app.js",
@@ -89,7 +90,7 @@
     ]
   },
   "apidoc": {
-    "title": "bch-api",
-    "url": "https://api.fullstack.cash/v3"
+    "title": "bcha-api",
+    "url": "https://rest.kingbch.com/v3"
   }
 }
