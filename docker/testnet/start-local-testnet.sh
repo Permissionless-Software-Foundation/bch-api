@@ -14,6 +14,10 @@ export BLOCKBOOK_URL=https://172.17.0.1:19131/
 # Allow node.js to make network calls to https using self-signed certificate.
 export NODE_TLS_REJECT_UNAUTHORIZED=0
 
+# Mainnet Fulcrum / ElectrumX
+export FULCRUM_URL=172.17.0.1
+export FULCRUM_PORT=50002
+
 # Redis DB
 export REDIS_PORT=6380
 export REDIS_HOST=172.17.0.1
