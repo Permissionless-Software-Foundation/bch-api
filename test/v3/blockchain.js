@@ -821,6 +821,7 @@ describe('#BlockchainRouter', () => {
       ])
     })
   })
+
   describe('getRawMempool()', () => {
     it('should throw 503 when network issues', async () => {
       // Save the existing RPC URL.
@@ -842,6 +843,7 @@ describe('#BlockchainRouter', () => {
         'Error message expected'
       )
     })
+
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
@@ -856,6 +858,7 @@ describe('#BlockchainRouter', () => {
         'Error message expected'
       )
     })
+
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
@@ -871,7 +874,7 @@ describe('#BlockchainRouter', () => {
       )
     })
 
-    it('should GET /getMempoolInfo', async () => {
+    it('should GET /getRawMempool', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox
@@ -886,6 +889,7 @@ describe('#BlockchainRouter', () => {
       // Not sure what other assertions should be made here.
     })
   })
+
   describe('getMempoolEntrySingle()', () => {
     it('should throw 400 if txid is empty', async () => {
       const result = await uut.getMempoolEntrySingle(req, res)
