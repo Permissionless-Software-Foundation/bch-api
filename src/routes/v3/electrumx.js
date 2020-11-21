@@ -81,7 +81,7 @@ class Electrum {
 
       // Periodically check the connection. If it's not connected, attempt to
       // reconnect.
-      setInterval(async function () {
+      _this.reconnectIntervalHandle = setInterval(async function () {
         const status = _this.electrumx.connection.status
         // console.log(`Electrumx status: ${status}`)
 
@@ -110,6 +110,9 @@ class Electrum {
     try {
       // Return immediately if the isReady flag is false.
       if (!_this.isReady) return true
+
+      // Disable the reconnect timer.
+      clearInterval(_this.reconnectIntervalHandle)
 
       // Disconnect from the server.
       await _this.electrumx.disconnect()
