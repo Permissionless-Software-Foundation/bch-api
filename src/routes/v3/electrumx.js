@@ -79,6 +79,21 @@ class Electrum {
       // Set the connection flag.
       _this.isReady = true
 
+      // Periodically check the connection. If it's not connected, attempt to
+      // reconnect.
+      setInterval(async function () {
+        const status = _this.electrumx.connection.status
+        // console.log(`Electrumx status: ${status}`)
+
+        // 1 = connected. If we're not connected, attemp to reconnect.
+        if (status !== 1) {
+          wlogger.info(`Electrumx not connectes. Status: ${status}`)
+          wlogger.info(`Attempting to reconnect...`)
+          await _this.electrumx.connect()
+          wlogger.info(`...reconnected.`)
+        }
+      }, 30000)
+
       console.log('...Successfully connected to ElectrumX server.')
 
       // console.log(`_this.isReady: ${_this.isReady}`)
