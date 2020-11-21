@@ -88,9 +88,9 @@ class Electrum {
         // 1 = connected. If we're not connected, attemp to reconnect.
         if (status !== 1) {
           wlogger.info(`Electrumx not connectes. Status: ${status}`)
-          wlogger.info(`Attempting to reconnect...`)
+          wlogger.info('Attempting to reconnect...')
           await _this.electrumx.connect()
-          wlogger.info(`...reconnected.`)
+          wlogger.info('...reconnected.')
         }
       }, 30000)
 
