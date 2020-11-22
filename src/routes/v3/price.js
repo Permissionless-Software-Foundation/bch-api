@@ -24,11 +24,14 @@ class Price {
     this.routeUtils = routeUtils
 
     this.priceUrl = 'https://api.coinbase.com/v2/exchange-rates?currency=BCH'
+    this.coinexPriceUrl =
+      'https://api.coinex.com/v1/market/ticker?market=bchausdt'
 
     this.router = express.Router()
     this.router.get('/', _this.root)
     this.router.get('/usd', _this.getUSD)
     this.router.get('/rates', _this.getBCHRate)
+    this.router.get('/bchausd', _this.getBCHAUSD)
   }
 
   // DRY error handler.
@@ -53,7 +56,7 @@ class Price {
    * @api {get} /price/usd Get the USD price of BCH
    * @apiName Get the USD price of BCH
    * @apiGroup Price
-   * @apiDescription Get the USD price of BCH
+   * @apiDescription Get the USD price of BCH from Coinbase.
    *
    *
    * @apiExample Example usage:
@@ -85,7 +88,7 @@ class Price {
    * @api {get} /price/usd Get rates for several different currencies
    * @apiName Get rates for several different currencies
    * @apiGroup Price
-   * @apiDescription Get rates for several different currencies
+   * @apiDescription Get rates for several different currencies from Coinbase.
    *
    *
    * @apiExample Example usage:
@@ -109,6 +112,40 @@ class Price {
     } catch (err) {
       // Write out error to error log.
       wlogger.error('Error in price.js/getUSD().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  /**
+   * @api {get} /price/bchausd Get the USD price of BCHA
+   * @apiName Get the USD price of BCHA
+   * @apiGroup Price
+   * @apiDescription Get the USD price of BCHA from Coinex.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/price/bchausd" -H "accept: application/json"
+   *
+   */
+  async getBCHAUSD (req, res, next) {
+    try {
+      // Request options
+      const opt = {
+        method: 'get',
+        baseURL: _this.coinexPriceUrl,
+        timeout: 15000
+      }
+
+      const response = await axios.request(opt)
+      // console.log(`response.data: ${JSON.stringify(response.data, null, 2)}`)
+
+      const price = Number(response.data.data.ticker.last)
+
+      return res.json({ usd: price })
+    } catch (err) {
+      // Write out error to error log.
+      wlogger.error('Error in price.js/getBCHAUSD().', err)
 
       return _this.errorHandler(err, res)
     }

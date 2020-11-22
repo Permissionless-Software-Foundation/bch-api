@@ -42,7 +42,7 @@ function expectRouteError (res, result, expectedError, code = 400) {
   assert.equal(result.success, false)
 }
 
-describe('#ElectrumX Router', () => {
+describe('#Electrumx', () => {
   let req, res
   let sandbox
   const electrumxRoute = new ElecrumxRoute()

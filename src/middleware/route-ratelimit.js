@@ -148,6 +148,7 @@ class RateLimits {
             origin &&
             (origin.toString().indexOf('wallet.fullstack.cash') > -1 ||
               origin.toString().indexOf('sandbox.fullstack.cash') > -1 ||
+              origin.toString().indexOf('splitbch.com') > -1 ||
               origin === 'slp-api')
           ) {
             pointsToConsume = 10
