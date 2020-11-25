@@ -1251,7 +1251,7 @@ class Slp {
       const tokenRes = await _this.axios.request(opt)
       // console.log(`tokenRes: ${util.inspect(tokenRes)}`)
 
-      if (tokenRes.data.c.length === 0) {
+      if (tokenRes.data.c.length === 0 && tokenRes.data.u.length === 0) {
         res.status(404)
         return res.json({ error: 'TXID not found' })
       }
@@ -1459,7 +1459,7 @@ class Slp {
         tokenIdHex: transaction.slp.detail.tokenIdHex,
         sendOutputs: sendOutputs,
         sendInputsFull: sendInputs,
-        sendOutputsFull: transaction.slp.detail.outputs,
+        sendOutputsFull: transaction.slp.detail.outputs
       },
       tokenIsValid: transaction.slp.valid
     }
