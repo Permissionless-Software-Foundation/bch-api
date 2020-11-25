@@ -77,15 +77,11 @@ describe('#PriceRouter', () => {
       await uut.getUSD(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.isAbove(
-        res.statusCode,
-        499,
-        'HTTP status code 500 or greater expected.'
-      )
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 500 or greater expected.')
       // console.log(res)
       assert.include(
         res.output.error,
-        'Network error: Could not communicate with full node or other external service'
+        'Network error: Could not communicate with full node or other external service',
       )
     })
 
@@ -97,11 +93,7 @@ describe('#PriceRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
 
     it('returns proper error when downstream service is down', async () => {
@@ -112,19 +104,13 @@ describe('#PriceRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
 
     it('should get the USD price of BCH', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox
-          .stub(uut.axios, 'request')
-          .resolves({ data: mockData.mockCoinbaseFeed })
+        sandbox.stub(uut.axios, 'request').resolves({ data: mockData.mockCoinbaseFeed })
       }
 
       const result = await uut.getUSD(req, res)
@@ -141,15 +127,11 @@ describe('#PriceRouter', () => {
       await uut.getBCHRate(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.isAbove(
-        res.statusCode,
-        499,
-        'HTTP status code 500 or greater expected.'
-      )
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 500 or greater expected.')
       // console.log(res)
       assert.include(
         res.output.error,
-        'Network error: Could not communicate with full node or other external service'
+        'Network error: Could not communicate with full node or other external service',
       )
     })
 
@@ -161,11 +143,7 @@ describe('#PriceRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
 
     it('returns proper error when downstream service is down', async () => {
@@ -176,19 +154,13 @@ describe('#PriceRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
 
     it('should get several rates for BCH', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox
-          .stub(uut.axios, 'request')
-          .resolves({ data: mockData.mockCoinbaseFeed })
+        sandbox.stub(uut.axios, 'request').resolves({ data: mockData.mockCoinbaseFeed })
       }
 
       const result = await uut.getBCHRate(req, res)

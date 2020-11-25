@@ -35,7 +35,7 @@ describe('#ControlRouter', () => {
       BITCOINCOM_BASEURL: process.env.BITCOINCOM_BASEURL,
       RPC_BASEURL: process.env.RPC_BASEURL,
       RPC_USERNAME: process.env.RPC_USERNAME,
-      RPC_PASSWORD: process.env.RPC_PASSWORD
+      RPC_PASSWORD: process.env.RPC_PASSWORD,
     }
 
     // Set default environment variables for unit tests.
@@ -96,11 +96,7 @@ describe('#ControlRouter', () => {
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl
 
-      assert.isAbove(
-        res.statusCode,
-        499,
-        'HTTP status code 500 or greater expected.'
-      )
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 500 or greater expected.')
       // assert.include(result.error, "ENOTFOUND", "Error message expected")
     })
     it('returns proper error when downstream service stalls', async () => {
@@ -111,11 +107,7 @@ describe('#ControlRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
 
     it('returns proper error when downstream service is down', async () => {
@@ -126,11 +118,7 @@ describe('#ControlRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
 
     it('should get info on the full node', async () => {
@@ -157,7 +145,7 @@ describe('#ControlRouter', () => {
         'relayfee',
         'excessutxocharge',
         'localaddresses',
-        'warnings'
+        'warnings',
       ])
     })
   })

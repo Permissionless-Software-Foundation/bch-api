@@ -72,8 +72,7 @@ describe('#Encryption Router', () => {
 
   describe('#getPublicKey', () => {
     it('should get public key from blockchain', async () => {
-      req.params.address =
-        'bitcoincash:qrehqueqhw629p6e57994436w730t4rzasnly00ht0'
+      req.params.address = 'bitcoincash:qrehqueqhw629p6e57994436w730t4rzasnly00ht0'
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
@@ -94,13 +93,12 @@ describe('#Encryption Router', () => {
       assert.property(result, 'publicKey')
       assert.equal(
         result.publicKey,
-        '044eb40b025df18409f2a5197b010dd62a9e65d9a74e415e5b10367721a9c4baa7ebfee22d14b8ece1c9bd70c0d9e5e8b00b61b81b88a1b5ce6f24eac6b8a34b2c'
+        '044eb40b025df18409f2a5197b010dd62a9e65d9a74e415e5b10367721a9c4baa7ebfee22d14b8ece1c9bd70c0d9e5e8b00b61b81b88a1b5ce6f24eac6b8a34b2c',
       )
     })
 
     it('should return false for address with no tx history', async () => {
-      req.params.address =
-        'bitcoincash:qqwfpk04ecf69wuprj9yjys9rla5mk7rj5j8uthqel'
+      req.params.address = 'bitcoincash:qqwfpk04ecf69wuprj9yjys9rla5mk7rj5j8uthqel'
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
@@ -120,8 +118,7 @@ describe('#Encryption Router', () => {
     })
 
     it('should return false for address with no send history', async () => {
-      req.params.address =
-        'bitcoincash:qq78nwj5x97yh6wtlfd27dtlwjuh70vkjc59h8tgtg'
+      req.params.address = 'bitcoincash:qq78nwj5x97yh6wtlfd27dtlwjuh70vkjc59h8tgtg'
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {

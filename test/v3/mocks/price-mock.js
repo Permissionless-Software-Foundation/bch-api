@@ -211,11 +211,11 @@ const mockCoinbaseFeed = {
       ZMK: '1313006.15998725',
       ZMW: '5048.6210738',
       ZRX: '642.804422350408735165',
-      ZWL: '80483.9'
-    }
-  }
+      ZWL: '80483.9',
+    },
+  },
 }
 
 module.exports = {
-  mockCoinbaseFeed
+  mockCoinbaseFeed,
 }

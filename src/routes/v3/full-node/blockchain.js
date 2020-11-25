@@ -23,7 +23,7 @@ const bchjs = new BCHJS()
 let _this
 
 class Blockchain {
-  constructor () {
+  constructor() {
     _this = this
 
     this.bchjs = bchjs
@@ -41,10 +41,7 @@ class Blockchain {
     this.router.get('/getDifficulty', this.getDifficulty)
     this.router.get('/getMempoolEntry/:txid', this.getMempoolEntrySingle)
     this.router.post('/getMempoolEntry', this.getMempoolEntryBulk)
-    this.router.get(
-      '/getMempoolAncestors/:txid',
-      this.getMempoolAncestorsSingle
-    )
+    this.router.get('/getMempoolAncestors/:txid', this.getMempoolAncestorsSingle)
     this.router.get('/getMempoolInfo', this.getMempoolInfo)
     this.router.get('/getRawMempool', this.getRawMempool)
     this.router.get('/getTxOut/:txid/:n', this.getTxOut)
@@ -55,12 +52,12 @@ class Blockchain {
     this.router.post('/verifyTxOutProof', this.verifyTxOutProofBulk)
   }
 
-  root (req, res, next) {
+  root(req, res, next) {
     return res.json({ status: 'blockchain' })
   }
 
   // DRY error handler.
-  errorHandler (err, res) {
+  errorHandler(err, res) {
     // Attempt to decode the error message.
     const { msg, status } = _this.routeUtils.decodeError(err)
     if (msg) {
@@ -84,7 +81,7 @@ class Blockchain {
    *
    * @apiSuccess {String}   bestBlockHash           000000000000000002bc884334336d99c9a9c616670a9244c6a8c1fc35aa91a1
    */
-  async getBestBlockHash (req, res, next) {
+  async getBestBlockHash(req, res, next) {
     try {
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
@@ -129,7 +126,7 @@ class Blockchain {
    * @apiSuccess {Object}   object.softforks.reject
    * @apiSuccess {String}   object.softforks.reject.status true
    */
-  async getBlockchainInfo (req, res, next) {
+  async getBlockchainInfo(req, res, next) {
     try {
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
@@ -159,7 +156,7 @@ class Blockchain {
    *
    * @apiSuccess {Number} bestBlockCount  587665
    */
-  async getBlockCount (req, res, next) {
+  async getBlockCount(req, res, next) {
     try {
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
@@ -209,7 +206,7 @@ class Blockchain {
    * @apiSuccess {String}   object.previousblockhash   "0000000000000000043831d6ebb013716f0580287ee5e5687e27d0ed72e6e523"
    * @apiSuccess {String}   object.nextblockhash       "00000000000000000568f0a96bf4348847bc84e455cbfec389f27311037a20f3"
    */
-  async getBlockHeaderSingle (req, res, next) {
+  async getBlockHeaderSingle(req, res, next) {
     try {
       let verbose = false
       if (req.query.verbose && req.query.verbose.toString() === 'true') {
@@ -270,7 +267,7 @@ class Blockchain {
    * @apiSuccess {String}   object.previousblockhash   "0000000000000000043831d6ebb013716f0580287ee5e5687e27d0ed72e6e523"
    * @apiSuccess {String}   object.nextblockhash       "00000000000000000568f0a96bf4348847bc84e455cbfec389f27311037a20f3"
    */
-  async getBlockHeaderBulk (req, res, next) {
+  async getBlockHeaderBulk(req, res, next) {
     try {
       const hashes = req.body.hashes
       const verbose = req.body.verbose ? req.body.verbose : false
@@ -278,7 +275,7 @@ class Blockchain {
       if (!Array.isArray(hashes)) {
         res.status(400)
         return res.json({
-          error: 'hashes needs to be an array. Use GET for single hash.'
+          error: 'hashes needs to be an array. Use GET for single hash.',
         })
       }
 
@@ -286,14 +283,11 @@ class Blockchain {
       if (!routeUtils.validateArraySize(req, hashes)) {
         res.status(429) // https://github.com/Bitcoin-com/api.fullstack.cash/issues/330
         return res.json({
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
-      wlogger.debug(
-        'Executing blockchain/getBlockHeaderBulk with these hashes: ',
-        hashes
-      )
+      wlogger.debug('Executing blockchain/getBlockHeaderBulk with these hashes: ', hashes)
 
       // Validate each hash in the array.
       for (let i = 0; i < hashes.length; i++) {
@@ -344,7 +338,7 @@ class Blockchain {
    * curl -X GET "https://api.fullstack.cash/v3/blockchain/getChainTips" -H "accept: application/json"
    *
    */
-  async getChainTips (req, res, next) {
+  async getChainTips(req, res, next) {
     try {
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
@@ -375,7 +369,7 @@ class Blockchain {
    * curl -X GET "https://api.fullstack.cash/v3/blockchain/getDifficulty" -H "accept: application/json"
    *
    */
-  async getDifficulty (req, res, next) {
+  async getDifficulty(req, res, next) {
     try {
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
@@ -407,7 +401,7 @@ class Blockchain {
    * curl -X GET "https://api.fullstack.cash/v3/blockchain/getMempoolEntry/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
    *
    */
-  async getMempoolEntrySingle (req, res, next) {
+  async getMempoolEntrySingle(req, res, next) {
     try {
       // Validate input parameter
       const txid = req.params.txid
@@ -444,14 +438,14 @@ class Blockchain {
    * @apiExample Example usage:
    * curl -X POST https://api.fullstack.cash/v3/blockchain/getMempoolEntry -H "Content-Type: application/json" -d "{\"txids\":[\"a5f972572ee1753e2fd2457dd61ce5f40fa2f8a30173d417e49feef7542c96a1\",\"5165dc531aad05d1149bb0f0d9b7bda99c73e2f05e314bcfb5b4bb9ca5e1af5e\"]}"
    */
-  async getMempoolEntryBulk (req, res, next) {
+  async getMempoolEntryBulk(req, res, next) {
     try {
       const txids = req.body.txids
 
       if (!Array.isArray(txids)) {
         res.status(400)
         return res.json({
-          error: 'txids needs to be an array. Use GET for single txid.'
+          error: 'txids needs to be an array. Use GET for single txid.',
         })
       }
 
@@ -459,14 +453,11 @@ class Blockchain {
       if (!routeUtils.validateArraySize(req, txids)) {
         res.status(429) // https://github.com/Bitcoin-com/api.fullstack.cash/issues/330
         return res.json({
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
-      wlogger.debug(
-        'Executing blockchain/getMempoolEntry with these txids: ',
-        txids
-      )
+      wlogger.debug('Executing blockchain/getMempoolEntry with these txids: ', txids)
 
       // Validate each element in the array
       for (let i = 0; i < txids.length; i++) {
@@ -518,7 +509,7 @@ class Blockchain {
    * curl -X GET "https://api.fullstack.cash/v3/blockchain/getMempoolAncestors/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
    *
    */
-  async getMempoolAncestorsSingle (req, res, next) {
+  async getMempoolAncestorsSingle(req, res, next) {
     try {
       // Validate input parameter
       const txid = req.params.txid
@@ -560,7 +551,7 @@ class Blockchain {
    * curl -X GET https://api.fullstack.cash/v3/getMempoolInfo -H "accept: application/json"
    *
    */
-  async getMempoolInfo (req, res, next) {
+  async getMempoolInfo(req, res, next) {
     try {
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
@@ -604,7 +595,7 @@ class Blockchain {
    * @apiParam {Boolean} verbose Return verbose data
    *
    */
-  async getRawMempool (req, res, next) {
+  async getRawMempool(req, res, next) {
     try {
       // Axios options
       const options = _this.routeUtils.getAxiosOptions()
@@ -643,7 +634,7 @@ class Blockchain {
    *
    */
   // Returns details about an unspent transaction output.
-  async getTxOut (req, res, next) {
+  async getTxOut(req, res, next) {
     try {
       // Validate input parameter
       const txid = req.params.txid
@@ -700,7 +691,7 @@ class Blockchain {
    *
    */
   // Returns details about an unspent transaction output.
-  async getTxOutPost (req, res, next) {
+  async getTxOutPost(req, res, next) {
     try {
       const txid = req.body.txid
       let n = req.body.vout
@@ -751,7 +742,7 @@ class Blockchain {
    * @apiParam {String} txid Transaction id (required)
    *
    */
-  async getTxOutProofSingle (req, res, next) {
+  async getTxOutProofSingle(req, res, next) {
     try {
       // Validate input parameter
       const txid = req.params.txid
@@ -780,7 +771,7 @@ class Blockchain {
   }
 
   // Returns a hex-encoded proof that 'txid' was included in a block.
-  async getTxOutProofBulk (req, res, next) {
+  async getTxOutProofBulk(req, res, next) {
     try {
       const txids = req.body.txids
 
@@ -788,7 +779,7 @@ class Blockchain {
       if (!Array.isArray(txids)) {
         res.status(400)
         return res.json({
-          error: 'txids needs to be an array. Use GET for single txid.'
+          error: 'txids needs to be an array. Use GET for single txid.',
         })
       }
 
@@ -796,7 +787,7 @@ class Blockchain {
       if (!routeUtils.validateArraySize(req, txids)) {
         res.status(429) // https://github.com/Bitcoin-com/api.fullstack.cash/issues/330
         return res.json({
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
@@ -810,15 +801,12 @@ class Blockchain {
         if (txid.length !== 64) {
           res.status(400)
           return res.json({
-            error: `Invalid txid. Double check your txid is valid: ${txid}`
+            error: `Invalid txid. Double check your txid is valid: ${txid}`,
           })
         }
       }
 
-      wlogger.debug(
-        'Executing blockchain/getTxOutProof with these txids: ',
-        txids
-      )
+      wlogger.debug('Executing blockchain/getTxOutProof with these txids: ', txids)
 
       // Loop through each txid and creates an array of requests to call in parallel
       const promises = txids.map(async (txid) => {
@@ -846,7 +834,7 @@ class Blockchain {
     }
   }
 
-  async verifyTxOutProofSingle (req, res, next) {
+  async verifyTxOutProofSingle(req, res, next) {
     try {
       // Validate input parameter
       const proof = req.params.proof
@@ -874,7 +862,7 @@ class Blockchain {
     }
   }
 
-  async verifyTxOutProofBulk (req, res, next) {
+  async verifyTxOutProofBulk(req, res, next) {
     try {
       const proofs = req.body.proofs
 
@@ -882,7 +870,7 @@ class Blockchain {
       if (!Array.isArray(proofs)) {
         res.status(400)
         return res.json({
-          error: 'proofs needs to be an array. Use GET for single proof.'
+          error: 'proofs needs to be an array. Use GET for single proof.',
         })
       }
 
@@ -890,7 +878,7 @@ class Blockchain {
       if (!routeUtils.validateArraySize(req, proofs)) {
         res.status(429) // https://github.com/Bitcoin-com/api.fullstack.cash/issues/330
         return res.json({
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
@@ -907,10 +895,7 @@ class Blockchain {
         }
       }
 
-      wlogger.debug(
-        'Executing blockchain/verifyTxOutProof with these proofs: ',
-        proofs
-      )
+      wlogger.debug('Executing blockchain/verifyTxOutProof with these proofs: ', proofs)
 
       // Loop through each proof and creates an array of requests to call in parallel
       const promises = proofs.map(async (proof) => {

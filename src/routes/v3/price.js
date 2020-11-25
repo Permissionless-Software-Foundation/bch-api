@@ -17,7 +17,7 @@ const routeUtils = new RouteUtils()
 let _this // Global context for 'this' instance of the Class.
 
 class Price {
-  constructor () {
+  constructor() {
     _this = this
 
     this.axios = axios
@@ -32,7 +32,7 @@ class Price {
   }
 
   // DRY error handler.
-  errorHandler (err, res) {
+  errorHandler(err, res) {
     // Attempt to decode the error message.
     const { msg, status } = _this.routeUtils.decodeError(err)
     if (msg) {
@@ -45,7 +45,7 @@ class Price {
   }
 
   // Root API endpoint. Simply acknowledges that it exists.
-  root (req, res, next) {
+  root(req, res, next) {
     return res.json({ status: 'price' })
   }
 
@@ -60,13 +60,13 @@ class Price {
    * curl -X GET "https://api.fullstack.cash/v3/price/usd" -H "accept: application/json"
    *
    */
-  async getUSD (req, res, next) {
+  async getUSD(req, res, next) {
     try {
       // Request options
       const opt = {
         method: 'get',
         baseURL: _this.priceUrl,
-        timeout: 15000
+        timeout: 15000,
       }
 
       const response = await axios.request(opt)
@@ -93,13 +93,13 @@ class Price {
    *
    */
   // Get rates for several different currencies
-  async getBCHRate (req, res, next) {
+  async getBCHRate(req, res, next) {
     try {
       // Request options
       const opt = {
         method: 'get',
         baseURL: _this.priceUrl,
-        timeout: 15000
+        timeout: 15000,
       }
 
       const response = await axios.request(opt)

@@ -32,7 +32,7 @@ util.inspect.defaultOptions = { depth: 1 }
 
 // A wrapper for asserting that the correct response is returned when an error
 // is expected.
-function expectRouteError (res, result, expectedError, code = 400) {
+function expectRouteError(res, result, expectedError, code = 400) {
   assert.equal(res.statusCode, code, `HTTP status code ${code} expected.`)
 
   assert.property(result, 'error')
@@ -95,7 +95,7 @@ describe('#ElectrumX Router', () => {
   })
 
   // A wrapper for stubbing with the Sinon sandbox.
-  function stubMethodForUnitTests (obj, method, value) {
+  function stubMethodForUnitTests(obj, method, value) {
     if (process.env.TEST !== 'unit') return false
 
     electrumxRoute.isReady = true // Force flag.
@@ -122,8 +122,7 @@ describe('#ElectrumX Router', () => {
 
       const scripthash = electrumxRoute.addressToScripthash(addr)
 
-      const expectedOutput =
-        'bce4d5f2803bd1ed7c1ba00dcb3edffcbba50524af7c879d6bb918d04f138965'
+      const expectedOutput = 'bce4d5f2803bd1ed7c1ba00dcb3edffcbba50524af7c879d6bb918d04f138965'
 
       assert.equal(scripthash, expectedOutput)
     })
@@ -133,8 +132,7 @@ describe('#ElectrumX Router', () => {
 
       const scripthash = electrumxRoute.addressToScripthash(addr)
 
-      const expectedOutput =
-        '8bc2235c8e7d5634d9ec429fc0171f2c58e728d4f1e2fb7e440e313133cfa4f0'
+      const expectedOutput = '8bc2235c8e7d5634d9ec429fc0171f2c58e728d4f1e2fb7e440e313133cfa4f0'
 
       assert.equal(scripthash, expectedOutput)
     })
@@ -181,9 +179,7 @@ describe('#ElectrumX Router', () => {
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute.electrumx, 'request')
-          .resolves(mockData.utxos)
+        sandbox.stub(electrumxRoute.electrumx, 'request').resolves(mockData.utxos)
       }
 
       // Call the details API.
@@ -259,16 +255,13 @@ describe('#ElectrumX Router', () => {
 
     it('should pass errors from ElectrumX to user', async () => {
       // Address has invalid checksum.
-      req.params.address =
-        'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
+      req.params.address = 'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
 
       // Mock unit tests to prevent live network calls.
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute.electrumx, 'request')
-          .resolves(mockData.utxos)
+        sandbox.stub(electrumxRoute.electrumx, 'request').resolves(mockData.utxos)
       }
 
       // Call the details API.
@@ -283,16 +276,13 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should get balance for a single address', async () => {
-      req.params.address =
-        'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+      req.params.address = 'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
 
       // Mock unit tests to prevent live network calls.
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute, '_utxosFromElectrumx')
-          .resolves(mockData.utxos)
+        sandbox.stub(electrumxRoute, '_utxosFromElectrumx').resolves(mockData.utxos)
       }
 
       // Call the details API.
@@ -320,41 +310,29 @@ describe('#ElectrumX Router', () => {
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(
-        result.error,
-        'addresses needs to be an array',
-        'Proper error message'
-      )
+      assert.include(result.error, 'addresses needs to be an array', 'Proper error message')
     })
 
     it('should error on non-array single address', async () => {
       req.body = {
-        address: 'qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
+        address: 'qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c',
       }
 
       const result = await electrumxRoute.utxosBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(
-        result.error,
-        'addresses needs to be an array',
-        'Proper error message'
-      )
+      assert.include(result.error, 'addresses needs to be an array', 'Proper error message')
     })
 
     it('should throw an error for an invalid address', async () => {
       req.body = {
-        addresses: ['02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c']
+        addresses: ['02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'],
       }
 
       const result = await electrumxRoute.utxosBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(
-        result.error,
-        'Invalid BCH address',
-        'Proper error message'
-      )
+      assert.include(result.error, 'Invalid BCH address', 'Proper error message')
     })
 
     it('should throw 400 error if addresses array is too large', async () => {
@@ -372,7 +350,7 @@ describe('#ElectrumX Router', () => {
 
     it('should detect a network mismatch', async () => {
       req.body = {
-        addresses: ['bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4']
+        addresses: ['bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'],
       }
 
       const result = await electrumxRoute.utxosBulk(req, res)
@@ -384,16 +362,14 @@ describe('#ElectrumX Router', () => {
 
     it('should get details for a single address', async () => {
       req.body = {
-        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7']
+        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'],
       }
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute, '_utxosFromElectrumx')
-          .resolves(mockData.utxos)
+        sandbox.stub(electrumxRoute, '_utxosFromElectrumx').resolves(mockData.utxos)
       }
 
       // Call the details API.
@@ -420,17 +396,15 @@ describe('#ElectrumX Router', () => {
       req.body = {
         addresses: [
           'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf',
-          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
-        ]
+          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf',
+        ],
       }
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute, '_utxosFromElectrumx')
-          .resolves(mockData.utxos)
+        sandbox.stub(electrumxRoute, '_utxosFromElectrumx').resolves(mockData.utxos)
       }
 
       // Call the details API.
@@ -448,14 +422,9 @@ describe('#ElectrumX Router', () => {
 
   describe('#_transactionDetailsFromElectrum', () => {
     it('should return error object for invalid txid', async () => {
-      const txid =
-        '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb25'
+      const txid = '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb25'
 
-      stubMethodForUnitTests(
-        electrumxRoute.electrumx,
-        'request',
-        new Error('Invalid tx hash')
-      )
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', new Error('Invalid tx hash'))
 
       const result = await electrumxRoute._transactionDetailsFromElectrum(txid)
 
@@ -464,14 +433,9 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should get details for a single txid', async () => {
-      const txid =
-        '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
+      const txid = '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
 
-      stubMethodForUnitTests(
-        electrumxRoute.electrumx,
-        'request',
-        mockData.txDetails
-      )
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', mockData.txDetails)
 
       const result = await electrumxRoute._transactionDetailsFromElectrum(txid)
 
@@ -495,9 +459,7 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should throw 400 on array input', async () => {
-      req.params.txid = [
-        '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
-      ]
+      req.params.txid = ['4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251']
 
       const result = await electrumxRoute.getTransactionDetails(req, res)
 
@@ -505,14 +467,9 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should return error object for invalid txid', async () => {
-      req.params.txid =
-        '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb25'
+      req.params.txid = '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb25'
 
-      stubMethodForUnitTests(
-        electrumxRoute.electrumx,
-        'request',
-        new Error('Invalid tx hash')
-      )
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', new Error('Invalid tx hash'))
 
       // Call the details API.
       const result = await electrumxRoute.getTransactionDetails(req, res)
@@ -521,14 +478,9 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should get details for a single txid', async () => {
-      req.params.txid =
-        '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
+      req.params.txid = '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
 
-      stubMethodForUnitTests(
-        electrumxRoute.electrumx,
-        'request',
-        mockData.txDetails
-      )
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', mockData.txDetails)
 
       // Call the details API.
       const result = await electrumxRoute.getTransactionDetails(req, res)
@@ -560,7 +512,7 @@ describe('#ElectrumX Router', () => {
 
     it('should error on non-array single txid', async () => {
       req.body = {
-        txid: '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
+        txid: '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251',
       }
 
       const result = await electrumxRoute.transactionDetailsBulk(req, res)
@@ -570,16 +522,10 @@ describe('#ElectrumX Router', () => {
 
     it('should NOT throw 400 error for an invalid txid', async () => {
       req.body = {
-        txids: [
-          '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb25'
-        ]
+        txids: ['4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb25'],
       }
 
-      stubMethodForUnitTests(
-        electrumxRoute.electrumx,
-        'request',
-        mockData.txDetails
-      )
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', mockData.txDetails)
 
       const result = await electrumxRoute.transactionDetailsBulk(req, res)
 
@@ -608,16 +554,10 @@ describe('#ElectrumX Router', () => {
 
     it('should get details for a single txid', async () => {
       req.body = {
-        txids: [
-          '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
-        ]
+        txids: ['4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'],
       }
 
-      stubMethodForUnitTests(
-        electrumxRoute.electrumx,
-        'request',
-        mockData.txDetails
-      )
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', mockData.txDetails)
 
       // Call the details API.
       const result = await electrumxRoute.transactionDetailsBulk(req, res)
@@ -643,15 +583,11 @@ describe('#ElectrumX Router', () => {
       req.body = {
         txids: [
           '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251',
-          '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251'
-        ]
+          '4db095f34d632a4daf942142c291f1f2abb5ba2e1ccac919d85bdc2f671fb251',
+        ],
       }
 
-      stubMethodForUnitTests(
-        electrumxRoute.electrumx,
-        'request',
-        mockData.txDetails
-      )
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', mockData.txDetails)
 
       // Call the details API.
       const result = await electrumxRoute.transactionDetailsBulk(req, res)
@@ -670,11 +606,7 @@ describe('#ElectrumX Router', () => {
     it('should return error object for invalid block height', async () => {
       const height = -10
 
-      stubMethodForUnitTests(
-        electrumxRoute.electrumx,
-        'request',
-        new Error('Invalid height')
-      )
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', new Error('Invalid height'))
 
       const result = await electrumxRoute._blockHeadersFromElectrum(height, 2)
 
@@ -685,11 +617,7 @@ describe('#ElectrumX Router', () => {
     it('should return error object for invalid count', async () => {
       const height = 42
 
-      stubMethodForUnitTests(
-        electrumxRoute.electrumx,
-        'request',
-        new Error('Invalid count')
-      )
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', new Error('Invalid count'))
 
       const result = await electrumxRoute._blockHeadersFromElectrum(height, -1)
 
@@ -702,11 +630,7 @@ describe('#ElectrumX Router', () => {
 
       const mockedResponse = { count: 2, hex: mockData.blockHeaders.join(''), max: 2016 }
 
-      stubMethodForUnitTests(
-        electrumxRoute.electrumx,
-        'request',
-        mockedResponse
-      )
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', mockedResponse)
 
       const result = await electrumxRoute._blockHeadersFromElectrum(height, 2)
 
@@ -761,11 +685,7 @@ describe('#ElectrumX Router', () => {
     it('should return error object for invalid height', async () => {
       req.params.height = 1000000000
 
-      stubMethodForUnitTests(
-        electrumxRoute.electrumx,
-        'request',
-        new Error('Invalid height')
-      )
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', new Error('Invalid height'))
 
       // Call the details API.
       const result = await electrumxRoute.getBlockHeaders(req, res)
@@ -777,11 +697,7 @@ describe('#ElectrumX Router', () => {
       req.params.height = 42
       req.query.count = 2
 
-      stubMethodForUnitTests(
-        electrumxRoute,
-        '_blockHeadersFromElectrum',
-        mockData.blockHeaders
-      )
+      stubMethodForUnitTests(electrumxRoute, '_blockHeadersFromElectrum', mockData.blockHeaders)
 
       // Call the details API.
       const result = await electrumxRoute.getBlockHeaders(req, res)
@@ -807,7 +723,7 @@ describe('#ElectrumX Router', () => {
 
     it('should error on non-array single height', async () => {
       req.body = {
-        heights: 42
+        heights: 42,
       }
 
       const result = await electrumxRoute.blockHeadersBulk(req, res)
@@ -817,16 +733,10 @@ describe('#ElectrumX Router', () => {
 
     it('should NOT throw 400 error for an invalid height', async () => {
       req.body = {
-        heights: [
-          { height: -10, count: 2 }
-        ]
+        heights: [{ height: -10, count: 2 }],
       }
 
-      stubMethodForUnitTests(
-        electrumxRoute,
-        '_blockHeadersFromElectrum',
-        mockData.blockHeaders
-      )
+      stubMethodForUnitTests(electrumxRoute, '_blockHeadersFromElectrum', mockData.blockHeaders)
 
       const result = await electrumxRoute.blockHeadersBulk(req, res)
 
@@ -854,16 +764,10 @@ describe('#ElectrumX Router', () => {
 
     it('should get details for a single height', async () => {
       req.body = {
-        heights: [
-          { height: 42, count: 2 }
-        ]
+        heights: [{ height: 42, count: 2 }],
       }
 
-      stubMethodForUnitTests(
-        electrumxRoute,
-        '_blockHeadersFromElectrum',
-        mockData.blockHeaders
-      )
+      stubMethodForUnitTests(electrumxRoute, '_blockHeadersFromElectrum', mockData.blockHeaders)
 
       // Call the details API.
       const result = await electrumxRoute.blockHeadersBulk(req, res)
@@ -883,15 +787,11 @@ describe('#ElectrumX Router', () => {
       req.body = {
         heights: [
           { height: 42, count: 2 },
-          { height: 42, count: 2 }
-        ]
+          { height: 42, count: 2 },
+        ],
       }
 
-      stubMethodForUnitTests(
-        electrumxRoute,
-        '_blockHeadersFromElectrum',
-        mockData.blockHeaders
-      )
+      stubMethodForUnitTests(electrumxRoute, '_blockHeadersFromElectrum', mockData.blockHeaders)
 
       // Call the details API.
       const result = await electrumxRoute.blockHeadersBulk(req, res)
@@ -913,7 +813,7 @@ describe('#ElectrumX Router', () => {
       stubMethodForUnitTests(
         electrumxRoute.electrumx,
         'request',
-        new Error('Error: the transaction was rejected by network rules.\n\nTX decode failed\n')
+        new Error('Error: the transaction was rejected by network rules.\n\nTX decode failed\n'),
       )
 
       const result = await electrumxRoute._broadcastTransactionWithElectrum(invalidHex)
@@ -928,11 +828,7 @@ describe('#ElectrumX Router', () => {
 
       const validHex = mockData.txDetails.hex
 
-      stubMethodForUnitTests(
-        electrumxRoute.electrumx,
-        'request',
-        mockData.txDetails.hash
-      )
+      stubMethodForUnitTests(electrumxRoute.electrumx, 'request', mockData.txDetails.hash)
 
       const result = await electrumxRoute._broadcastTransactionWithElectrum(validHex)
 
@@ -948,7 +844,7 @@ describe('#ElectrumX Router', () => {
       stubMethodForUnitTests(
         electrumxRoute,
         '_broadcastTransactionWithElectrum',
-        new Error('request body must be a string.')
+        new Error('request body must be a string.'),
       )
 
       const result = await electrumxRoute.broadcastTransaction(req, res)
@@ -962,7 +858,7 @@ describe('#ElectrumX Router', () => {
       stubMethodForUnitTests(
         electrumxRoute,
         '_broadcastTransactionWithElectrum',
-        new Error('Error: the transaction was rejected by network rules.\n\nTX decode failed\n')
+        new Error('Error: the transaction was rejected by network rules.\n\nTX decode failed\n'),
       )
 
       const result = await electrumxRoute.broadcastTransaction(req, res)
@@ -979,7 +875,7 @@ describe('#ElectrumX Router', () => {
       stubMethodForUnitTests(
         electrumxRoute,
         '_broadcastTransactionWithElectrum',
-        mockData.txDetails.hash
+        mockData.txDetails.hash,
       )
 
       const result = await electrumxRoute.broadcastTransaction(req, res)
@@ -1024,9 +920,7 @@ describe('#ElectrumX Router', () => {
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute.electrumx, 'request')
-          .resolves(mockData.balance)
+        sandbox.stub(electrumxRoute.electrumx, 'request').resolves(mockData.balance)
       }
 
       // Call the details API.
@@ -1044,9 +938,7 @@ describe('#ElectrumX Router', () => {
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute.electrumx, 'request')
-          .resolves(mockData.balance)
+        sandbox.stub(electrumxRoute.electrumx, 'request').resolves(mockData.balance)
       }
 
       // Call the details API.
@@ -1119,8 +1011,7 @@ describe('#ElectrumX Router', () => {
 
     it('should pass errors from electrum-cash to user', async () => {
       // Address has invalid checksum.
-      req.params.address =
-        'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
+      req.params.address = 'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
 
       // Call the details API.
       const result = await electrumxRoute.getBalance(req, res)
@@ -1134,16 +1025,13 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should get balance for a single address', async () => {
-      req.params.address =
-        'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
+      req.params.address = 'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
 
       // Mock unit tests to prevent live network calls.
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute, '_balanceFromElectrumx')
-          .resolves(mockData.balance)
+        sandbox.stub(electrumxRoute, '_balanceFromElectrumx').resolves(mockData.balance)
       }
 
       // Call the details API.
@@ -1167,41 +1055,29 @@ describe('#ElectrumX Router', () => {
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(
-        result.error,
-        'addresses needs to be an array',
-        'Proper error message'
-      )
+      assert.include(result.error, 'addresses needs to be an array', 'Proper error message')
     })
 
     it('should error on non-array single address', async () => {
       req.body = {
-        address: 'qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
+        address: 'qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c',
       }
 
       const result = await electrumxRoute.balanceBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(
-        result.error,
-        'addresses needs to be an array',
-        'Proper error message'
-      )
+      assert.include(result.error, 'addresses needs to be an array', 'Proper error message')
     })
 
     it('should throw an error for an invalid address', async () => {
       req.body = {
-        addresses: ['02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c']
+        addresses: ['02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'],
       }
 
       const result = await electrumxRoute.balanceBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(
-        result.error,
-        'Invalid BCH address',
-        'Proper error message'
-      )
+      assert.include(result.error, 'Invalid BCH address', 'Proper error message')
     })
 
     it('should throw 400 error if addresses array is too large', async () => {
@@ -1219,7 +1095,7 @@ describe('#ElectrumX Router', () => {
 
     it('should detect a network mismatch', async () => {
       req.body = {
-        addresses: ['bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4']
+        addresses: ['bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'],
       }
 
       const result = await electrumxRoute.balanceBulk(req, res)
@@ -1231,16 +1107,14 @@ describe('#ElectrumX Router', () => {
 
     it('should get details for a single address', async () => {
       req.body = {
-        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7']
+        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'],
       }
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute, '_balanceFromElectrumx')
-          .resolves(mockData.balance)
+        sandbox.stub(electrumxRoute, '_balanceFromElectrumx').resolves(mockData.balance)
       }
 
       // Call the details API.
@@ -1264,17 +1138,15 @@ describe('#ElectrumX Router', () => {
       req.body = {
         addresses: [
           'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf',
-          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
-        ]
+          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf',
+        ],
       }
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute, '_balanceFromElectrumx')
-          .resolves(mockData.balance)
+        sandbox.stub(electrumxRoute, '_balanceFromElectrumx').resolves(mockData.balance)
       }
 
       // Call the details API.
@@ -1312,9 +1184,7 @@ describe('#ElectrumX Router', () => {
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute.electrumx, 'request')
-          .resolves(mockData.txHistory)
+        sandbox.stub(electrumxRoute.electrumx, 'request').resolves(mockData.txHistory)
       }
 
       // Call the details API.
@@ -1406,8 +1276,7 @@ describe('#ElectrumX Router', () => {
 
     it('should pass errors from ElectrumX to user', async () => {
       // Address has invalid checksum.
-      req.params.address =
-        'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
+      req.params.address = 'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
 
       // Call the details API.
       const result = await electrumxRoute.getTransactions(req, res)
@@ -1421,16 +1290,13 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should get transactions for a single address', async () => {
-      req.params.address =
-        'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
+      req.params.address = 'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
 
       // Mock unit tests to prevent live network calls.
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute, '_transactionsFromElectrumx')
-          .resolves(mockData.txHistory)
+        sandbox.stub(electrumxRoute, '_transactionsFromElectrumx').resolves(mockData.txHistory)
       }
 
       // Call the details API.
@@ -1455,41 +1321,29 @@ describe('#ElectrumX Router', () => {
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(
-        result.error,
-        'addresses needs to be an array',
-        'Proper error message'
-      )
+      assert.include(result.error, 'addresses needs to be an array', 'Proper error message')
     })
 
     it('should error on non-array single address', async () => {
       req.body = {
-        address: 'qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
+        address: 'qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c',
       }
 
       const result = await electrumxRoute.transactionsBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(
-        result.error,
-        'addresses needs to be an array',
-        'Proper error message'
-      )
+      assert.include(result.error, 'addresses needs to be an array', 'Proper error message')
     })
 
     it('should throw an error for an invalid address', async () => {
       req.body = {
-        addresses: ['02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c']
+        addresses: ['02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'],
       }
 
       const result = await electrumxRoute.transactionsBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(
-        result.error,
-        'Invalid BCH address',
-        'Proper error message'
-      )
+      assert.include(result.error, 'Invalid BCH address', 'Proper error message')
     })
 
     it('should throw 400 error if addresses array is too large', async () => {
@@ -1507,7 +1361,7 @@ describe('#ElectrumX Router', () => {
 
     it('should detect a network mismatch', async () => {
       req.body = {
-        addresses: ['bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4']
+        addresses: ['bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'],
       }
 
       const result = await electrumxRoute.transactionsBulk(req, res)
@@ -1519,16 +1373,14 @@ describe('#ElectrumX Router', () => {
 
     it('should get details for a single address', async () => {
       req.body = {
-        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7']
+        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'],
       }
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute, '_transactionsFromElectrumx')
-          .resolves(mockData.txHistory)
+        sandbox.stub(electrumxRoute, '_transactionsFromElectrumx').resolves(mockData.txHistory)
       }
 
       // Call the details API.
@@ -1553,17 +1405,15 @@ describe('#ElectrumX Router', () => {
       req.body = {
         addresses: [
           'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf',
-          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
-        ]
+          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf',
+        ],
       }
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute, '_transactionsFromElectrumx')
-          .resolves(mockData.txHistory)
+        sandbox.stub(electrumxRoute, '_transactionsFromElectrumx').resolves(mockData.txHistory)
       }
 
       // Call the details API.
@@ -1619,9 +1469,7 @@ describe('#ElectrumX Router', () => {
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute.electrumx, 'request')
-          .resolves(mockData.mempool)
+        sandbox.stub(electrumxRoute.electrumx, 'request').resolves(mockData.mempool)
       } else {
         // Skip this test for integrations. Unconfirmed UTXOs are transient and
         // not easy to test in real-time.
@@ -1701,8 +1549,7 @@ describe('#ElectrumX Router', () => {
 
     it('should pass errors from electrum-cash to user', async () => {
       // Address has invalid checksum.
-      req.params.address =
-        'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
+      req.params.address = 'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
 
       // Call the details API.
       const result = await electrumxRoute.getMempool(req, res)
@@ -1716,16 +1563,13 @@ describe('#ElectrumX Router', () => {
     })
 
     it('should get mempool for a single address', async () => {
-      req.params.address =
-        'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+      req.params.address = 'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
 
       // Mock unit tests to prevent live network calls.
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute, '_mempoolFromElectrumx')
-          .resolves(mockData.mempool)
+        sandbox.stub(electrumxRoute, '_mempoolFromElectrumx').resolves(mockData.mempool)
       } else {
         // Skip this test for integrations. Unconfirmed UTXOs are transient and
         // not easy to test in real-time.
@@ -1757,26 +1601,18 @@ describe('#ElectrumX Router', () => {
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(
-        result.error,
-        'addresses needs to be an array',
-        'Proper error message'
-      )
+      assert.include(result.error, 'addresses needs to be an array', 'Proper error message')
     })
 
     it('should error on non-array single address', async () => {
       req.body = {
-        address: 'qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
+        address: 'qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c',
       }
 
       const result = await electrumxRoute.mempoolBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(
-        result.error,
-        'addresses needs to be an array',
-        'Proper error message'
-      )
+      assert.include(result.error, 'addresses needs to be an array', 'Proper error message')
     })
 
     it('should throw 400 error if addresses array is too large', async () => {
@@ -1794,22 +1630,18 @@ describe('#ElectrumX Router', () => {
 
     it('should throw an error for an invalid address', async () => {
       req.body = {
-        addresses: ['02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c']
+        addresses: ['02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'],
       }
 
       const result = await electrumxRoute.mempoolBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(
-        result.error,
-        'Invalid BCH address',
-        'Proper error message'
-      )
+      assert.include(result.error, 'Invalid BCH address', 'Proper error message')
     })
 
     it('should detect a network mismatch', async () => {
       req.body = {
-        addresses: ['bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4']
+        addresses: ['bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'],
       }
 
       const result = await electrumxRoute.mempoolBulk(req, res)
@@ -1821,16 +1653,14 @@ describe('#ElectrumX Router', () => {
 
     it('should get mempool details for a single address', async () => {
       req.body = {
-        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7']
+        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'],
       }
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute, '_mempoolFromElectrumx')
-          .resolves(mockData.mempool)
+        sandbox.stub(electrumxRoute, '_mempoolFromElectrumx').resolves(mockData.mempool)
       } else {
         // Skip this test for integrations. Unconfirmed UTXOs are transient and
         // not easy to test in real-time.
@@ -1861,17 +1691,15 @@ describe('#ElectrumX Router', () => {
       req.body = {
         addresses: [
           'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf',
-          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
-        ]
+          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf',
+        ],
       }
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         electrumxRoute.isReady = true // Force flag.
 
-        sandbox
-          .stub(electrumxRoute, '_mempoolFromElectrumx')
-          .resolves(mockData.mempool)
+        sandbox.stub(electrumxRoute, '_mempoolFromElectrumx').resolves(mockData.mempool)
       } else {
         // Skip this test for integrations. Unconfirmed UTXOs are transient and
         // not easy to test in real-time.
