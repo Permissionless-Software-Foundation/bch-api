@@ -17,14 +17,14 @@ const router = express.Router()
 // let _this
 
 class Ninsight {
-  constructor () {
+  constructor() {
     // _this = this
 
     this.router = router
     this.router.get('/', this.root)
   }
 
-  root (req, res, next) {
+  root(req, res, next) {
     return res.json({ status: 'ninsight' })
   }
 }

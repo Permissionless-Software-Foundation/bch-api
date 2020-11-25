@@ -36,7 +36,7 @@ describe('#Util', () => {
       BITCOINCOM_BASEURL: process.env.BITCOINCOM_BASEURL,
       RPC_BASEURL: process.env.RPC_BASEURL,
       RPC_USERNAME: process.env.RPC_USERNAME,
-      RPC_PASSWORD: process.env.RPC_PASSWORD
+      RPC_PASSWORD: process.env.RPC_PASSWORD,
     }
 
     // Set default environment variables for unit tests.
@@ -101,11 +101,7 @@ describe('#Util', () => {
       const result = await validateAddress(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(
-        result.error,
-        'address can not be empty',
-        'Proper error message'
-      )
+      assert.include(result.error, 'address can not be empty', 'Proper error message')
     })
 
     it('should throw 503 when network issues', async () => {
@@ -123,11 +119,7 @@ describe('#Util', () => {
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
 
-      assert.isAbove(
-        res.statusCode,
-        499,
-        'HTTP status code 500 or greater expected.'
-      )
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 500 or greater expected.')
       // assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
     })
 
@@ -139,8 +131,7 @@ describe('#Util', () => {
           .reply(200, { result: mockData.mockAddress })
       }
 
-      req.params.address =
-        'bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd'
+      req.params.address = 'bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd'
 
       const result = await validateAddress(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -151,7 +142,7 @@ describe('#Util', () => {
         'scriptPubKey',
         'ismine',
         'iswatchonly',
-        'isscript'
+        'isscript',
       ])
     })
   })
@@ -166,13 +157,13 @@ describe('#Util', () => {
       assert.include(
         result.error,
         'addresses needs to be an array. Use GET for single address.',
-        'Proper error message'
+        'Proper error message',
       )
     })
 
     it('should error on non-array single address', async () => {
       req.body = {
-        addresses: 'bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y'
+        addresses: 'bchtest:qqqk4y6lsl5da64sg5qc3xezmplyu5kmpyz2ysaa5y',
       }
 
       const result = await validateAddressBulk(req, res)
@@ -181,7 +172,7 @@ describe('#Util', () => {
       assert.include(
         result.error,
         'addresses needs to be an array. Use GET for single address.',
-        'Proper error message'
+        'Proper error message',
       )
     })
 
@@ -200,7 +191,7 @@ describe('#Util', () => {
 
     it('should error on invalid address', async () => {
       req.body = {
-        addresses: ['bchtest:qqqk4y6lsl5da64sg5qc3xezmpl']
+        addresses: ['bchtest:qqqk4y6lsl5da64sg5qc3xezmpl'],
       }
 
       const result = await validateAddressBulk(req, res)
@@ -209,13 +200,13 @@ describe('#Util', () => {
       assert.include(
         result.error,
         'Invalid BCH address. Double check your address is valid',
-        'Proper error message'
+        'Proper error message',
       )
     })
 
     it('should error on mainnet address when using testnet', async () => {
       req.body = {
-        addresses: ['bchtest:qrls6vzjkkxlds7aqv9075u0fttwc7u9jvczn5fdt9']
+        addresses: ['bchtest:qrls6vzjkkxlds7aqv9075u0fttwc7u9jvczn5fdt9'],
       }
 
       const result = await validateAddressBulk(req, res)
@@ -224,7 +215,7 @@ describe('#Util', () => {
       assert.include(
         result.error,
         'Invalid network. Trying to use a testnet address on mainnet, or vice versa.',
-        'Proper error message'
+        'Proper error message',
       )
     })
 
@@ -235,9 +226,7 @@ describe('#Util', () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = 'http://fakeurl/api/'
 
-      req.body.addresses = [
-        'bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd'
-      ]
+      req.body.addresses = ['bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd']
 
       await validateAddressBulk(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -245,11 +234,7 @@ describe('#Util', () => {
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
 
-      assert.isAbove(
-        res.statusCode,
-        499,
-        'HTTP status code 500 or greater expected.'
-      )
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 500 or greater expected.')
     })
 
     it('should validate a single address', async () => {
@@ -260,9 +245,7 @@ describe('#Util', () => {
           .reply(200, { result: mockData.mockAddress })
       }
 
-      req.body.addresses = [
-        'bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd'
-      ]
+      req.body.addresses = ['bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd']
 
       const result = await validateAddressBulk(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -274,7 +257,7 @@ describe('#Util', () => {
         'scriptPubKey',
         'ismine',
         'iswatchonly',
-        'isscript'
+        'isscript',
       ])
     })
 
@@ -289,7 +272,7 @@ describe('#Util', () => {
 
       req.body.addresses = [
         'bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd',
-        'bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd'
+        'bitcoincash:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5hzljcrnd',
       ]
 
       const result = await validateAddressBulk(req, res)
@@ -302,7 +285,7 @@ describe('#Util', () => {
         'scriptPubKey',
         'ismine',
         'iswatchonly',
-        'isscript'
+        'isscript',
       ])
     })
   })
@@ -317,13 +300,13 @@ describe('#Util', () => {
       assert.include(
         result.error,
         'WIF needs to a proper compressed WIF starting with K or L',
-        'Proper error message'
+        'Proper error message',
       )
     })
 
     it('should throw 400 if WIF is malformed', async () => {
       req.body = {
-        wif: 'abc123'
+        wif: 'abc123',
       }
 
       const result = await utilRouteInst.sweepWif(req, res)
@@ -332,23 +315,19 @@ describe('#Util', () => {
       assert.include(
         result.error,
         'WIF needs to a proper compressed WIF starting with K or L',
-        'Proper error message'
+        'Proper error message',
       )
     })
 
     it('should throw 400 if destination address is not included', async () => {
       req.body = {
-        wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt'
+        wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt',
       }
 
       const result = await utilRouteInst.sweepWif(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(
-        result.error,
-        'address can not be empty',
-        'Proper error message'
-      )
+      assert.include(result.error, 'address can not be empty', 'Proper error message')
     })
 
     // Unit test only.
@@ -356,13 +335,9 @@ describe('#Util', () => {
       it('should generate transaction for valid token sweep', async () => {
         // Mock the RPC call for unit tests.
 
-        sandbox
-          .stub(utilRouteInst.blockbook, 'balanceFromBlockbook')
-          .resolves(mockData.mockBalance)
+        sandbox.stub(utilRouteInst.blockbook, 'balanceFromBlockbook').resolves(mockData.mockBalance)
 
-        sandbox
-          .stub(utilRouteInst.blockbook, 'utxosFromBlockbook')
-          .resolves(mockData.mockUtxos)
+        sandbox.stub(utilRouteInst.blockbook, 'utxosFromBlockbook').resolves(mockData.mockUtxos)
 
         sandbox
           .stub(utilRouteInst.bchjs.SLP.Utils, 'tokenUtxoDetails')
@@ -376,7 +351,7 @@ describe('#Util', () => {
 
         req.body = {
           wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt',
-          toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p'
+          toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p',
         }
 
         const result = await utilRouteInst.sweepWif(req, res)
@@ -388,9 +363,7 @@ describe('#Util', () => {
       it('should return balance if balance-only is true', async () => {
         // Mock the RPC call for unit tests.
 
-        sandbox
-          .stub(utilRouteInst.blockbook, 'balanceFromBlockbook')
-          .resolves(mockData.mockBalance)
+        sandbox.stub(utilRouteInst.blockbook, 'balanceFromBlockbook').resolves(mockData.mockBalance)
 
         // Mock sendRawTransaction() so that the hex does not actually get broadcast
         // to the network.
@@ -400,7 +373,7 @@ describe('#Util', () => {
 
         req.body = {
           wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt',
-          balanceOnly: true
+          balanceOnly: true,
         }
 
         const result = await utilRouteInst.sweepWif(req, res)
@@ -413,18 +386,12 @@ describe('#Util', () => {
     // Unit tests only
     if (process.env.TEST === 'unit') {
       it('should generate transaction for valid BCH-only sweep', async () => {
-        sandbox
-          .stub(utilRouteInst.blockbook, 'balanceFromBlockbook')
-          .resolves(mockData.mockBalance)
+        sandbox.stub(utilRouteInst.blockbook, 'balanceFromBlockbook').resolves(mockData.mockBalance)
 
-        sandbox
-          .stub(utilRouteInst.blockbook, 'utxosFromBlockbook')
-          .resolves(mockData.mockUtxos)
+        sandbox.stub(utilRouteInst.blockbook, 'utxosFromBlockbook').resolves(mockData.mockUtxos)
 
         // Force token utxo to appear as regular BCH utxo.
-        sandbox
-          .stub(utilRouteInst.bchjs.SLP.Utils, 'tokenUtxoDetails')
-          .resolves([false, false])
+        sandbox.stub(utilRouteInst.bchjs.SLP.Utils, 'tokenUtxoDetails').resolves([false, false])
 
         // Mock sendRawTransaction() so that the hex does not actually get broadcast
         // to the network.
@@ -434,7 +401,7 @@ describe('#Util', () => {
 
         req.body = {
           wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt',
-          toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p'
+          toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p',
         }
 
         const result = await utilRouteInst.sweepWif(req, res)
@@ -444,13 +411,9 @@ describe('#Util', () => {
       })
 
       it('should throw 422 error if no non-token UTXOs', async () => {
-        sandbox
-          .stub(utilRouteInst.blockbook, 'balanceFromBlockbook')
-          .resolves(mockData.mockBalance)
+        sandbox.stub(utilRouteInst.blockbook, 'balanceFromBlockbook').resolves(mockData.mockBalance)
 
-        sandbox
-          .stub(utilRouteInst.blockbook, 'utxosFromBlockbook')
-          .resolves(mockData.mockUtxos)
+        sandbox.stub(utilRouteInst.blockbook, 'utxosFromBlockbook').resolves(mockData.mockUtxos)
 
         // Force token utxo to appear as regular BCH utxo.
         sandbox
@@ -465,7 +428,7 @@ describe('#Util', () => {
 
         req.body = {
           wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt',
-          toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p'
+          toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p',
         }
 
         const result = await utilRouteInst.sweepWif(req, res)
@@ -475,14 +438,12 @@ describe('#Util', () => {
         assert.property(result, 'error')
         assert.include(
           result.error,
-          'Tokens found, but no BCH UTXOs found. Add BCH to wallet to move tokens'
+          'Tokens found, but no BCH UTXOs found. Add BCH to wallet to move tokens',
         )
       })
 
       it('should detect and throw error for multiple token classes', async () => {
-        sandbox
-          .stub(utilRouteInst.blockbook, 'balanceFromBlockbook')
-          .resolves(mockData.mockBalance)
+        sandbox.stub(utilRouteInst.blockbook, 'balanceFromBlockbook').resolves(mockData.mockBalance)
 
         sandbox
           .stub(utilRouteInst.blockbook, 'utxosFromBlockbook')
@@ -501,7 +462,7 @@ describe('#Util', () => {
 
         req.body = {
           wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt',
-          toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p'
+          toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p',
         }
 
         const result = await utilRouteInst.sweepWif(req, res)
@@ -511,7 +472,7 @@ describe('#Util', () => {
         assert.property(result, 'error')
         assert.include(
           result.error,
-          'Multiple token classes detected. This function only supports a single class of token'
+          'Multiple token classes detected. This function only supports a single class of token',
         )
       })
     }

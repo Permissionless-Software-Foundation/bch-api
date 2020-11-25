@@ -18,10 +18,7 @@ var transport = new winston.transports.DailyRotateFile({
   zippedArchive: false,
   maxSize: '1m',
   maxFiles: '5d',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  )
+  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
 })
 
 transport.on('rotate', function (oldFilename, newFilename) {
@@ -39,8 +36,8 @@ var wlogger = winston.createLogger({
     //
     // new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
     // new winston.transports.File({ filename: 'logs/combined.log' })
-    transport
-  ]
+    transport,
+  ],
 })
 
 // This controls the logs to CONSOLE

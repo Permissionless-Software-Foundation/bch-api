@@ -16,7 +16,7 @@ util.inspect.defaultOptions = { depth: 1 }
 let _this
 
 class Mining {
-  constructor () {
+  constructor() {
     _this = this
 
     _this.axios = axios
@@ -28,12 +28,12 @@ class Mining {
     _this.router.get('/getNetworkHashPS', _this.getNetworkHashPS)
   }
 
-  root (req, res, next) {
+  root(req, res, next) {
     return res.json({ status: 'mining' })
   }
 
   // DRY error handler.
-  errorHandler (err, res) {
+  errorHandler(err, res) {
     // Attempt to decode the error message.
     const { msg, status } = _this.routeUtils.decodeError(err)
     if (msg) {
@@ -81,7 +81,7 @@ class Mining {
    *
    *
    */
-  async getMiningInfo (req, res, next) {
+  async getMiningInfo(req, res, next) {
     try {
       const options = _this.routeUtils.getAxiosOptions()
 
@@ -112,7 +112,7 @@ class Mining {
    *
    */
 
-  async getNetworkHashPS (req, res, next) {
+  async getNetworkHashPS(req, res, next) {
     try {
       let nblocks = 120 // Default
       let height = -1 // Default

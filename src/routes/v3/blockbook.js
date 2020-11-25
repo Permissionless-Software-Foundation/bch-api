@@ -29,7 +29,7 @@ const bchjs = new BCHJS()
 let _this
 
 class Blockbook {
-  constructor () {
+  constructor() {
     _this = this
 
     _this.axios = axios
@@ -48,7 +48,7 @@ class Blockbook {
   }
 
   // DRY error handler.
-  errorHandler (err, res) {
+  errorHandler(err, res) {
     // Attempt to decode the error message.
     const { msg, status } = _this.routeUtils.decodeError(err)
     if (msg) {
@@ -61,13 +61,13 @@ class Blockbook {
   }
 
   // Root API endpoint. Simply acknowledges that it exists.
-  root (req, res, next) {
+  root(req, res, next) {
     return res.json({ status: 'address' })
   }
 
   // Query the Blockbook Node API for a balance on a single BCH address.
   // Returns a Promise.
-  async balanceFromBlockbook (thisAddress) {
+  async balanceFromBlockbook(thisAddress) {
     try {
       // console.log(`BLOCKBOOK_URL: ${BLOCKBOOK_URL}`)
 
@@ -80,7 +80,7 @@ class Blockbook {
       // Query the Blockbook Node API.
       const options = {
         method: 'get',
-        baseURL: path
+        baseURL: path,
       }
 
       const axiosResponse = await _this.axios.request(options)
@@ -96,7 +96,7 @@ class Blockbook {
     }
   }
 
-  async balanceSingle (req, res, next) {
+  async balanceSingle(req, res, next) {
     try {
       const address = req.params.address
 
@@ -109,14 +109,11 @@ class Blockbook {
       if (Array.isArray(address)) {
         res.status(400)
         return res.json({
-          error: 'address can not be an array. Use POST for bulk upload.'
+          error: 'address can not be an array. Use POST for bulk upload.',
         })
       }
 
-      wlogger.debug(
-        'Executing blockbook/balanceSingle with this address: ',
-        address
-      )
+      wlogger.debug('Executing blockbook/balanceSingle with this address: ', address)
 
       // Ensure the input is a valid BCH address.
       try {
@@ -125,7 +122,7 @@ class Blockbook {
       } catch (err) {
         res.status(400)
         return res.json({
-          error: `Invalid BCH address. Double check your address is valid: ${address}`
+          error: `Invalid BCH address. Double check your address is valid: ${address}`,
         })
       }
 
@@ -134,8 +131,7 @@ class Blockbook {
       if (!networkIsValid) {
         res.status(400)
         return res.json({
-          error:
-            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+          error: 'Invalid network. Trying to use a testnet address on mainnet, or vice versa.',
         })
       }
 
@@ -154,7 +150,7 @@ class Blockbook {
   }
 
   // POST handler for bulk queries on address details
-  async balanceBulk (req, res, next) {
+  async balanceBulk(req, res, next) {
     try {
       let addresses = req.body.addresses
       // const currentPage = req.body.page ? parseInt(req.body.page, 10) : 0
@@ -163,7 +159,7 @@ class Blockbook {
       if (!Array.isArray(addresses)) {
         res.status(400)
         return res.json({
-          error: 'addresses needs to be an array. Use GET for single address.'
+          error: 'addresses needs to be an array. Use GET for single address.',
         })
       }
 
@@ -171,14 +167,11 @@ class Blockbook {
       if (!_this.routeUtils.validateArraySize(req, addresses)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
-      wlogger.debug(
-        'Executing blockbook.js/balanceBulk with these addresses: ',
-        addresses
-      )
+      wlogger.debug('Executing blockbook.js/balanceBulk with these addresses: ', addresses)
 
       // Validate each element in the address array.
       for (let i = 0; i < addresses.length; i++) {
@@ -190,7 +183,7 @@ class Blockbook {
         } catch (err) {
           res.status(400)
           return res.json({
-            error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`
+            error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`,
           })
         }
 
@@ -199,7 +192,7 @@ class Blockbook {
         if (!networkIsValid) {
           res.status(400)
           return res.json({
-            error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`
+            error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`,
           })
         }
       }
@@ -208,7 +201,7 @@ class Blockbook {
       // Insight API in parallel.
       addresses = addresses.map(async (address, index) =>
         // console.log(`address: ${address}`)
-        _this.balanceFromBlockbook(address)
+        _this.balanceFromBlockbook(address),
       )
 
       // Wait for all parallel Insight requests to return.
@@ -226,7 +219,7 @@ class Blockbook {
 
   // Query the Blockbook API for utxos associated with a BCH address.
   // Returns a Promise.
-  async utxosFromBlockbook (thisAddress) {
+  async utxosFromBlockbook(thisAddress) {
     try {
       // console.log(`BLOCKBOOK_URL: ${BLOCKBOOK_URL}`)
 
@@ -240,7 +233,7 @@ class Blockbook {
       // Query the Blockbook Node API.
       const options = {
         method: 'get',
-        baseURL: path
+        baseURL: path,
       }
       const axiosResponse = await _this.axios.request(options)
       const retData = axiosResponse.data
@@ -261,7 +254,7 @@ class Blockbook {
   }
 
   // GET handler for single balance
-  async utxosSingle (req, res, next) {
+  async utxosSingle(req, res, next) {
     try {
       const address = req.params.address
 
@@ -274,14 +267,11 @@ class Blockbook {
       if (Array.isArray(address)) {
         res.status(400)
         return res.json({
-          error: 'address can not be an array. Use POST for bulk upload.'
+          error: 'address can not be an array. Use POST for bulk upload.',
         })
       }
 
-      wlogger.debug(
-        'Executing blockbook/utxosSingle with this address: ',
-        address
-      )
+      wlogger.debug('Executing blockbook/utxosSingle with this address: ', address)
 
       // Ensure the input is a valid BCH address.
       try {
@@ -290,7 +280,7 @@ class Blockbook {
       } catch (err) {
         res.status(400)
         return res.json({
-          error: `Invalid BCH address. Double check your address is valid: ${address}`
+          error: `Invalid BCH address. Double check your address is valid: ${address}`,
         })
       }
 
@@ -299,8 +289,7 @@ class Blockbook {
       if (!networkIsValid) {
         res.status(400)
         return res.json({
-          error:
-            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+          error: 'Invalid network. Trying to use a testnet address on mainnet, or vice versa.',
         })
       }
 
@@ -318,7 +307,7 @@ class Blockbook {
   }
 
   // POST handler for bulk queries on address utxos
-  async utxosBulk (req, res, next) {
+  async utxosBulk(req, res, next) {
     try {
       let addresses = req.body.addresses
       // const currentPage = req.body.page ? parseInt(req.body.page, 10) : 0
@@ -327,7 +316,7 @@ class Blockbook {
       if (!Array.isArray(addresses)) {
         res.status(400)
         return res.json({
-          error: 'addresses needs to be an array. Use GET for single address.'
+          error: 'addresses needs to be an array. Use GET for single address.',
         })
       }
 
@@ -335,14 +324,11 @@ class Blockbook {
       if (!_this.routeUtils.validateArraySize(req, addresses)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
-      wlogger.debug(
-        'Executing blockbook.js/utxosBulk with these addresses: ',
-        addresses
-      )
+      wlogger.debug('Executing blockbook.js/utxosBulk with these addresses: ', addresses)
 
       // Validate each element in the address array.
       for (let i = 0; i < addresses.length; i++) {
@@ -354,7 +340,7 @@ class Blockbook {
         } catch (err) {
           res.status(400)
           return res.json({
-            error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`
+            error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`,
           })
         }
 
@@ -363,7 +349,7 @@ class Blockbook {
         if (!networkIsValid) {
           res.status(400)
           return res.json({
-            error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`
+            error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`,
           })
         }
       }
@@ -372,7 +358,7 @@ class Blockbook {
       // Insight API in parallel.
       addresses = addresses.map(async (address, index) =>
         // console.log(`address: ${address}`)
-        _this.utxosFromBlockbook(address)
+        _this.utxosFromBlockbook(address),
       )
 
       // Wait for all parallel Insight requests to return.
@@ -389,7 +375,7 @@ class Blockbook {
 
   // Query the Blockbook Node API for transactions on a single TXID.
   // Returns a Promise.
-  async transactionsFromBlockbook (txid) {
+  async transactionsFromBlockbook(txid) {
     try {
       // console.log(`BLOCKBOOK_URL: ${BLOCKBOOK_URL}`)
 
@@ -399,7 +385,7 @@ class Blockbook {
       // Query the Blockbook Node API.
       const options = {
         method: 'get',
-        baseURL: path
+        baseURL: path,
       }
       const axiosResponse = await _this.axios.request(options)
       const retPromise = axiosResponse.data
@@ -415,7 +401,7 @@ class Blockbook {
   }
 
   // GET handler for single transaction details.
-  async txSingle (req, res, next) {
+  async txSingle(req, res, next) {
     try {
       const txid = req.params.txid
 
@@ -428,7 +414,7 @@ class Blockbook {
       if (Array.isArray(txid)) {
         res.status(400)
         return res.json({
-          error: 'txid can not be an array. Use POST for bulk upload.'
+          error: 'txid can not be an array. Use POST for bulk upload.',
         })
       }
 
@@ -436,7 +422,7 @@ class Blockbook {
       if (txid.length !== 64) {
         res.status(400)
         return res.json({
-          error: `txid must be of length 64 (not ${txid.length})`
+          error: `txid must be of length 64 (not ${txid.length})`,
         })
       }
 
@@ -457,7 +443,7 @@ class Blockbook {
   }
 
   // POST handler for bulk queries on tx details
-  async txBulk (req, res, next) {
+  async txBulk(req, res, next) {
     try {
       let txids = req.body.txids
       // const currentPage = req.body.page ? parseInt(req.body.page, 10) : 0
@@ -466,7 +452,7 @@ class Blockbook {
       if (!Array.isArray(txids)) {
         res.status(400)
         return res.json({
-          error: 'txids need to be an array. Use GET for single address.'
+          error: 'txids need to be an array. Use GET for single address.',
         })
       }
 
@@ -474,7 +460,7 @@ class Blockbook {
       if (!_this.routeUtils.validateArraySize(req, txids)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
@@ -493,7 +479,7 @@ class Blockbook {
         if (thisTxid.length !== 64) {
           res.status(400)
           return res.json({
-            error: `txid must be of length 64 (not ${thisTxid.length})`
+            error: `txid must be of length 64 (not ${thisTxid.length})`,
           })
         }
       }
@@ -502,7 +488,7 @@ class Blockbook {
       // Insight API in parallel.
       txids = txids.map(async (txid, index) =>
         // console.log(`address: ${address}`)
-        _this.transactionsFromBlockbook(txid)
+        _this.transactionsFromBlockbook(txid),
       )
 
       // Wait for all parallel Insight requests to return.

@@ -25,7 +25,7 @@ let mockServerUrl
 const originalEnvVars = {
   BITDB_URL: process.env.BITDB_URL,
   BITCOINCOM_BASEURL: process.env.BITCOINCOM_BASEURL,
-  SLPDB_URL: process.env.SLPDB_URL
+  SLPDB_URL: process.env.SLPDB_URL,
 }
 
 // Set default environment variables for unit tests.
@@ -137,8 +137,7 @@ describe('#SLP', () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.SLPDB_URL = 'http://fakeurl/api/'
 
-      req.params.address =
-        'simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn'
+      req.params.address = 'simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn'
 
       const result = await balancesForAddress(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -146,62 +145,43 @@ describe('#SLP', () => {
       // Restore the saved URL.
       process.env.SLPDB_URL = savedUrl2
 
-      assert.isAbove(
-        res.statusCode,
-        499,
-        'HTTP status code 500 or greater expected.'
-      )
-      assert.include(
-        result.error,
-        'Network error: Could not communicate',
-        'Error message expected'
-      )
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 500 or greater expected.')
+      assert.include(result.error, 'Network error: Could not communicate', 'Error message expected')
     })
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNABORTED' })
 
-      req.params.address =
-        'simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn'
+      req.params.address = 'simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn'
 
       const result = await balancesForAddress(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
 
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
-      req.params.address =
-        'simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn'
+      req.params.address = 'simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn'
 
       const result = await balancesForAddress(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
     it('should get token balance for an address', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox.stub(slpRoute.axios, 'request').resolves({
-          data: mockData.mockSingleAddress
+          data: mockData.mockSingleAddress,
         })
       }
 
-      req.params.address =
-        'simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn'
+      req.params.address = 'simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn'
 
       const result = await balancesForAddress(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -241,9 +221,7 @@ describe('#SLP', () => {
     })
 
     it('should throw 400 if address network mismatch', async () => {
-      req.body.addresses = [
-        'slptest:qzcvpw3ah7r880d49wsqzrsl90pg0rqjjurmj3g4nk'
-      ]
+      req.body.addresses = ['slptest:qzcvpw3ah7r880d49wsqzrsl90pg0rqjjurmj3g4nk']
 
       const result = await balancesForAddressBulk(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -259,9 +237,7 @@ describe('#SLP', () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.SLPDB_URL = 'http://fakeurl/api/'
 
-      req.body.addresses = [
-        'simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn'
-      ]
+      req.body.addresses = ['simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn']
 
       const result = await balancesForAddressBulk(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -269,58 +245,36 @@ describe('#SLP', () => {
       // Restore the saved URL.
       process.env.SLPDB_URL = savedUrl2
 
-      assert.isAbove(
-        res.statusCode,
-        499,
-        'HTTP status code 500 or greater expected.'
-      )
-      assert.include(
-        result.error,
-        'Network error: Could not communicate',
-        'Error message expected'
-      )
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 500 or greater expected.')
+      assert.include(result.error, 'Network error: Could not communicate', 'Error message expected')
     })
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNABORTED' })
 
-      req.body.addresses = [
-        'simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn'
-      ]
+      req.body.addresses = ['simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn']
       const result = await balancesForAddressBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
 
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
-      req.body.addresses = [
-        'simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn'
-      ]
+      req.body.addresses = ['simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn']
       const result = await balancesForAddressBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
     // Only run as an integration test. Too complex to stub accurately.
     if (process.env.TEST !== 'unit') {
       it('should get token balance for an address', async () => {
-        req.body.addresses = [
-          'simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn'
-        ]
+        req.body.addresses = ['simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn']
 
         const result = await balancesForAddressBulk(req, res)
         // console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -332,7 +286,7 @@ describe('#SLP', () => {
           'balance',
           'balanceString',
           'slpAddress',
-          'decimalCount'
+          'decimalCount',
         ])
       })
     }
@@ -367,49 +321,35 @@ describe('#SLP', () => {
       // Mock the timeout error.
       sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNABORTED' })
 
-      req.body.txids = [
-        '77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d'
-      ]
+      req.body.txids = ['77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d']
       const result = await validateBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
 
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
-      req.body.txids = [
-        '77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d'
-      ]
+      req.body.txids = ['77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d']
       const result = await validateBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
 
     it('should validate array with single element', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox.stub(slpRoute.axios, 'request').resolves({
-          data: mockData.mockSingleValidTxid
+          data: mockData.mockSingleValidTxid,
         })
       }
 
-      req.body.txids = [
-        '77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d'
-      ]
+      req.body.txids = ['77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d']
 
       const result = await validateBulk(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -422,13 +362,13 @@ describe('#SLP', () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox.stub(slpRoute.axios, 'request').resolves({
-          data: mockData.mockTwoValidTxid
+          data: mockData.mockTwoValidTxid,
         })
       }
 
       req.body.txids = [
         '77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d',
-        '552112f9e458dc7d1d8b328b0a6685e8af74a64b60b6846e7c86407f27f47e42'
+        '552112f9e458dc7d1d8b328b0a6685e8af74a64b60b6846e7c86407f27f47e42',
       ]
 
       const result = await validateBulk(req, res)
@@ -445,13 +385,13 @@ describe('#SLP', () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox.stub(slpRoute.axios, 'request').resolves({
-          data: mockData.mockTwoRedundentTxid
+          data: mockData.mockTwoRedundentTxid,
         })
       }
 
       req.body.txids = [
         'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
-        'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56'
+        'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
       ]
 
       const result = await validateBulk(req, res)
@@ -476,13 +416,10 @@ describe('#SLP', () => {
     it('should invalidate a known invalid TXID', async () => {
       if (process.env.TEST === 'unit') {
         // Mock to prevent live network connection.
-        sandbox
-          .stub(slpRoute.axios, 'request')
-          .resolves({ data: { isValid: false } })
+        sandbox.stub(slpRoute.axios, 'request').resolves({ data: { isValid: false } })
       }
 
-      const txid =
-        'f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a'
+      const txid = 'f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a'
 
       req.params.txid = txid
       const result = await slpRoute.validate2Single(req, res)
@@ -495,13 +432,10 @@ describe('#SLP', () => {
     it('should validate a known valid TXID', async () => {
       if (process.env.TEST === 'unit') {
         // Mock to prevent live network connection.
-        sandbox
-          .stub(slpRoute.axios, 'request')
-          .resolves({ data: { isValid: true } })
+        sandbox.stub(slpRoute.axios, 'request').resolves({ data: { isValid: true } })
       }
 
-      const txid =
-        '3a4b628cbcc183ab376d44ce5252325f042268307ffa4a53443e92b6d24fb488'
+      const txid = '3a4b628cbcc183ab376d44ce5252325f042268307ffa4a53443e92b6d24fb488'
 
       req.params.txid = txid
       const result = await slpRoute.validate2Single(req, res)
@@ -517,11 +451,10 @@ describe('#SLP', () => {
       it('should cancel if validation takes too long', async () => {
         // Mock the timeout error.
         sandbox.stub(slpRoute.axios, 'request').throws({
-          code: 'ECONNABORTED'
+          code: 'ECONNABORTED',
         })
 
-        const txid =
-          'eacb1085dfa296fef6d4ae2c0f4529a1bef096dd2325bdcc6dcb5241b3bdb579'
+        const txid = 'eacb1085dfa296fef6d4ae2c0f4529a1bef096dd2325bdcc6dcb5241b3bdb579'
 
         req.params.txid = txid
         const result = await slpRoute.validate2Single(req, res)
@@ -531,7 +464,7 @@ describe('#SLP', () => {
         assert.include(
           result.error,
           'Could not communicate with full node',
-          'Error message expected'
+          'Error message expected',
         )
       })
     }
@@ -549,42 +482,28 @@ describe('#SLP', () => {
 
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
-      sandbox
-        .stub(slpRoute.slpdb, 'getTokenStats')
-        .throws({ code: 'ECONNABORTED' })
+      sandbox.stub(slpRoute.slpdb, 'getTokenStats').throws({ code: 'ECONNABORTED' })
 
-      req.params.tokenId =
-        '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
+      req.params.tokenId = '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
 
       const result = await slpRoute.tokenStats(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
 
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
-      sandbox
-        .stub(slpRoute.slpdb, 'getTokenStats')
-        .throws({ code: 'ECONNREFUSED' })
+      sandbox.stub(slpRoute.slpdb, 'getTokenStats').throws({ code: 'ECONNREFUSED' })
 
-      req.params.tokenId =
-        '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
+      req.params.tokenId = '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
 
       const result = await slpRoute.tokenStats(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
   })
 
@@ -603,49 +522,38 @@ describe('#SLP', () => {
       // Mock the timeout error.
       sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNABORTED' })
 
-      req.params.tokenId =
-        '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
+      req.params.tokenId = '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
 
       const result = await balancesForTokenSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
 
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
-      req.params.tokenId =
-        '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
+      req.params.tokenId = '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
 
       const result = await balancesForTokenSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
     it('should get balances for tokenId', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox.stub(slpRoute.axios, 'request').resolves({
           data: {
-            g: [mockData.mockBalance]
-          }
+            g: [mockData.mockBalance],
+          },
         })
       }
 
-      req.params.tokenId =
-        '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
+      req.params.tokenId = '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
 
       const result = await balancesForTokenSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -669,8 +577,7 @@ describe('#SLP', () => {
     })
 
     it('should throw 400 for malformed txid', async () => {
-      req.params.txid =
-        '57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b9457'
+      req.params.txid = '57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b9457'
 
       const result = await txDetails(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -682,8 +589,7 @@ describe('#SLP', () => {
     it('should throw 400 for non-existant txid', async () => {
       // Integration test
       if (process.env.TEST !== 'unit') {
-        req.params.txid =
-          '57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b94578223333'
+        req.params.txid = '57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b94578223333'
 
         const result = await txDetails(req, res)
         // console.log(`result: ${util.inspect(result)}`)
@@ -696,35 +602,25 @@ describe('#SLP', () => {
       // Mock the timeout error.
       sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNABORTED' })
 
-      req.params.txid =
-        '57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b94578223333'
+      req.params.txid = '57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b94578223333'
 
       const result = await txDetails(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
 
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
-      req.params.txid =
-        '57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b94578223333'
+      req.params.txid = '57b3082a2bf269b3d6f40fee7fb9c664e8256a88ca5ee2697c05b94578223333'
 
       const result = await txDetails(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
     if (process.env.TEST === 'integration') {
       it('should get tx details with token info', async () => {
@@ -737,8 +633,7 @@ describe('#SLP', () => {
         //   txDetails = slpRouteStub.testableComponents.txDetails
         // }
 
-        req.params.txid =
-          '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
+        req.params.txid = '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
 
         const result = await txDetails(req, res)
         // console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -761,8 +656,7 @@ describe('#SLP', () => {
     })
 
     it('should throw 400 if address is empty', async () => {
-      req.params.tokenId =
-        '495322b37d6b2eae81f045eda612b95870a0c2b6069c58f70cf8ef4e6a9fd43a'
+      req.params.tokenId = '495322b37d6b2eae81f045eda612b95870a0c2b6069c58f70cf8ef4e6a9fd43a'
       req.params.address = ''
       const result = await txsTokenIdAddressSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -775,37 +669,27 @@ describe('#SLP', () => {
       // Mock the timeout error.
       sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNABORTED' })
 
-      req.params.tokenId =
-        '7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796'
+      req.params.tokenId = '7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796'
       req.params.address = 'slptest:qpwa35xq0q0cnmdu0rwzkct369hddzsqpsqdzw6h9h'
 
       const result = await txsTokenIdAddressSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
 
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
-      req.params.tokenId =
-        '7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796'
+      req.params.tokenId = '7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796'
       req.params.address = 'slptest:qpwa35xq0q0cnmdu0rwzkct369hddzsqpsqdzw6h9h'
 
       const result = await txsTokenIdAddressSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(
-        result.error,
-        'Could not communicate with full node',
-        'Error message expected'
-      )
+      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
     })
   })
 
@@ -857,8 +741,7 @@ describe('#SLP', () => {
       }
 
       // req.params.address = 'simpleledger:qr5agtachyxvrwxu76vzszan5pnvuzy8duhv4lxrsk'
-      req.params.address =
-        'simpleledger:qz4guf2k3p4r3t4tph0wwgyfq4p628lr2c0cvqplza'
+      req.params.address = 'simpleledger:qz4guf2k3p4r3t4tph0wwgyfq4p628lr2c0cvqplza'
 
       const result = await slpRoute.txsByAddressSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -942,11 +825,10 @@ describe('#SLP', () => {
     it('should return OP_RETURN script', async () => {
       req.body.tokenUtxos = [
         {
-          tokenId:
-            '0a321bff9761f28e06a268b14711274bb77617410a16807bd0437ef234a072b1',
+          tokenId: '0a321bff9761f28e06a268b14711274bb77617410a16807bd0437ef234a072b1',
           decimals: 0,
-          tokenQty: 2
-        }
+          tokenQty: 2,
+        },
       ]
       req.body.sendQty = 1.5
 
@@ -986,13 +868,12 @@ describe('#SLP', () => {
 
     it('should throw error if Array is too long', async () => {
       const utxo = {
-        txid:
-          'bd158c564dd4ef54305b14f44f8e94c44b649f246dab14bcb42fb0d0078b8a90',
+        txid: 'bd158c564dd4ef54305b14f44f8e94c44b649f246dab14bcb42fb0d0078b8a90',
         vout: 3,
         amount: 0.00002015,
         satoshis: 2015,
         height: 594892,
-        confirmations: 5
+        confirmations: 5,
       }
 
       const utxos = []
@@ -1015,42 +896,38 @@ describe('#SLP', () => {
         {
           utxos: [
             {
-              txid:
-                'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+              txid: 'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
               vout: 3,
               value: '6816',
               height: 606848,
               confirmations: 13,
-              satoshis: 6816
+              satoshis: 6816,
             },
             {
-              txid:
-                'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+              txid: 'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
               vout: 2,
               value: '546',
               height: 606848,
               confirmations: 13,
-              satoshis: 546
-            }
-          ]
-        }
+              satoshis: 546,
+            },
+          ],
+        },
       ]
 
       // Mock the external network call.
       sandbox.stub(slpRoute.bchjs.SLP.Utils, 'tokenUtxoDetails').resolves([
         {
-          txid:
-            'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+          txid: 'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
           vout: 3,
           value: '6816',
           height: 606848,
           confirmations: 13,
           satoshis: 6816,
-          isValid: false
+          isValid: false,
         },
         {
-          txid:
-            'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+          txid: 'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
           vout: 2,
           value: '546',
           height: 606848,
@@ -1058,8 +935,7 @@ describe('#SLP', () => {
           satoshis: 546,
           utxoType: 'token',
           transactionType: 'send',
-          tokenId:
-            'dd84ca78db4d617221b58eabc6667af8fe2f7eadbfcc213d35be9f1b419beb8d',
+          tokenId: 'dd84ca78db4d617221b58eabc6667af8fe2f7eadbfcc213d35be9f1b419beb8d',
           tokenTicker: 'TAP',
           tokenName: 'Thoughts and Prayers',
           tokenDocumentUrl: '',
@@ -1067,8 +943,8 @@ describe('#SLP', () => {
           decimals: 0,
           tokenType: 1,
           tokenQty: 5,
-          isValid: true
-        }
+          isValid: true,
+        },
       ])
 
       req.body.utxos = utxos
@@ -1114,28 +990,23 @@ describe('#SLP', () => {
       const utxos = [
         {
           height: 639443,
-          tx_hash:
-            '30707fffb9b295a06a68d217f49c198e9e1dbe1edc3874a0928ca1905f1709df',
+          tx_hash: '30707fffb9b295a06a68d217f49c198e9e1dbe1edc3874a0928ca1905f1709df',
           tx_pos: 0,
-          value: 6000
+          value: 6000,
         },
         {
           height: 639443,
-          tx_hash:
-            '8962566e413501224d178a02effc89be5ac0d8e4195f617415d443dc4c38fe50',
+          tx_hash: '8962566e413501224d178a02effc89be5ac0d8e4195f617415d443dc4c38fe50',
           tx_pos: 1,
-          value: 546
-        }
+          value: 546,
+        },
       ]
 
       req.body.utxos = utxos
       const result = await slpRoute.hydrateUtxos(req, res)
 
       assert.hasAllKeys(result, ['error'])
-      assert.include(
-        result.error,
-        'Each element in array should have a utxos property'
-      )
+      assert.include(result.error, 'Each element in array should have a utxos property')
     })
   })
 })

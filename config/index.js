@@ -3,9 +3,7 @@
 */
 
 const config = {
-  apiTokenSecret: process.env.TOKENSECRET
-    ? process.env.TOKENSECRET
-    : 'secret-jwt-token'
+  apiTokenSecret: process.env.TOKENSECRET ? process.env.TOKENSECRET : 'secret-jwt-token',
 }
 
 module.exports = config
