@@ -37,8 +37,8 @@ const mockDetails = {
       addr: 'bchtest:qqmd9unmhkpx4pkmr6fkrr8rm6y77vckjvqe8aey35',
       valueSat: 45078867559,
       value: 450.78867559,
-      doubleSpentTxID: null,
-    },
+      doubleSpentTxID: null
+    }
   ],
   vout: [
     {
@@ -47,7 +47,7 @@ const mockDetails = {
       scriptPubKey: [{}],
       spentTxId: null,
       spentIndex: null,
-      spentHeight: null,
+      spentHeight: null
     },
     {
       value: '0.10000000',
@@ -55,8 +55,8 @@ const mockDetails = {
       scriptPubKey: [{}],
       spentTxId: null,
       spentIndex: null,
-      spentHeight: null,
-    },
+      spentHeight: null
+    }
   ],
   blockhash: '00000000e7232ff12462dedf9c11985f5b54202515277c337ccc59812758f28b',
   blockheight: 1270188,
@@ -66,9 +66,9 @@ const mockDetails = {
   valueOut: 450.78867333,
   size: 226,
   valueIn: 450.78867559,
-  fees: 0.00000226,
+  fees: 0.00000226
 }
 
 module.exports = {
-  mockDetails,
+  mockDetails
 }

@@ -18,7 +18,7 @@ util.inspect.defaultOptions = { depth: 1 }
 let _this
 
 class Control {
-  constructor() {
+  constructor () {
     _this = this
 
     _this.axios = axios
@@ -29,12 +29,12 @@ class Control {
     _this.router.get('/getNetworkInfo', _this.getNetworkInfo)
   }
 
-  root(req, res, next) {
+  root (req, res, next) {
     return res.json({ status: 'control' })
   }
 
   // DRY error handler.
-  errorHandler(err, res) {
+  errorHandler (err, res) {
     // Attempt to decode the error message.
     const { msg, status } = _this.routeUtils.decodeError(err)
     if (msg) {
@@ -56,7 +56,7 @@ class Control {
    * curl -X GET "https://api.fullstack.cash/v3/control/getnetworkinfo" -H "accept: application/json"
    *
    */
-  async getNetworkInfo(req, res, next) {
+  async getNetworkInfo (req, res, next) {
     // Axios options
     const options = _this.routeUtils.getAxiosOptions()
 

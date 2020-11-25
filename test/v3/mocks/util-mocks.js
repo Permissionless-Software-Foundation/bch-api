@@ -10,7 +10,7 @@ const mockAddress = {
   scriptPubKey: '76a914016a935f87e8deeab04501889b22d87e4e52db0988ac',
   ismine: false,
   iswatchonly: false,
-  isscript: false,
+  isscript: false
 }
 
 const mockBalance = {
@@ -26,8 +26,8 @@ const mockBalance = {
   txs: 2,
   txids: [
     'e190d13b88578132608ab912a4d2be3e55aa2792d6042d481ae21d700639de56',
-    '44e1f48c4093fc61db1a8fa206aa402fc34e482b3f788cb38c123ca0e1a35db6',
-  ],
+    '44e1f48c4093fc61db1a8fa206aa402fc34e482b3f788cb38c123ca0e1a35db6'
+  ]
 }
 
 const mockUtxos = [
@@ -37,7 +37,7 @@ const mockUtxos = [
     value: '2000',
     height: 605873,
     confirmations: 298,
-    satoshis: 2000,
+    satoshis: 2000
   },
   {
     txid: '44e1f48c4093fc61db1a8fa206aa402fc34e482b3f788cb38c123ca0e1a35db6',
@@ -45,8 +45,8 @@ const mockUtxos = [
     value: '546',
     height: 605873,
     confirmations: 298,
-    satoshis: 546,
-  },
+    satoshis: 546
+  }
 ]
 
 const mockThreeUtxos = [
@@ -56,7 +56,7 @@ const mockThreeUtxos = [
     value: '2000',
     height: 605873,
     confirmations: 298,
-    satoshis: 2000,
+    satoshis: 2000
   },
   {
     txid: '44e1f48c4093fc61db1a8fa206aa402fc34e482b3f788cb38c123ca0e1a35db6',
@@ -64,7 +64,7 @@ const mockThreeUtxos = [
     value: '546',
     height: 605873,
     confirmations: 298,
-    satoshis: 546,
+    satoshis: 546
   },
   {
     txid: '44e1f48c4093fc61db1a8fa206aa402fc34e482b3f788cb38c123ca0e1a35db6',
@@ -72,8 +72,8 @@ const mockThreeUtxos = [
     value: '546',
     height: 605873,
     confirmations: 298,
-    satoshis: 546,
-  },
+    satoshis: 546
+  }
 ]
 
 const mockIsTokenUtxos = [
@@ -93,8 +93,8 @@ const mockIsTokenUtxos = [
     tokenDocumentUrl: '',
     tokenDocumentHash: '',
     decimals: 8,
-    tokenQty: 2,
-  },
+    tokenQty: 2
+  }
 ]
 
 const tapUtxo = {
@@ -112,7 +112,7 @@ const tapUtxo = {
   tokenDocumentUrl: '',
   tokenDocumentHash: '',
   decimals: 0,
-  tokenQty: 1,
+  tokenQty: 1
 }
 
 const tokensOnly = [mockIsTokenUtxos[1], tapUtxo]
@@ -126,5 +126,5 @@ module.exports = {
   mockThreeUtxos,
   mockIsTokenUtxos,
   tokensOnly,
-  multipleTokens,
+  multipleTokens
 }

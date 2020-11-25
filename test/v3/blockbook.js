@@ -97,7 +97,11 @@ describe('#Blockbook Router', () => {
       const result = await blockbookRoute.balanceSingle(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'address can not be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'address can not be an array',
+        'Proper error message'
+      )
     })
 
     it('should throw an error for an invalid address', async () => {
@@ -106,7 +110,11 @@ describe('#Blockbook Router', () => {
       const result = await blockbookRoute.balanceSingle(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'Invalid BCH address', 'Proper error message')
+      assert.include(
+        result.error,
+        'Invalid BCH address',
+        'Proper error message'
+      )
     })
 
     it('should detect a network mismatch', async () => {
@@ -141,44 +149,55 @@ describe('#Blockbook Router', () => {
     })
 
     it('returns proper error when downstream service stalls', async () => {
-      req.params.address = 'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+      req.params.address =
+        'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
 
       // Mock the timeout error.
       sandbox.stub(blockbookRoute.axios, 'request').throws({
-        code: 'ECONNABORTED',
+        code: 'ECONNABORTED'
       })
 
       const result = await blockbookRoute.balanceSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('returns proper error when downstream service is down', async () => {
-      req.params.address = 'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+      req.params.address =
+        'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
 
       // Mock the timeout error.
       sandbox.stub(blockbookRoute.axios, 'request').throws({
-        code: 'ECONNREFUSED',
+        code: 'ECONNREFUSED'
       })
 
       const result = await blockbookRoute.balanceSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should get balance for a single address', async () => {
-      req.params.address = 'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+      req.params.address =
+        'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
 
       // console.log(`process.env.BLOCKBOOK_URL: ${process.env.BLOCKBOOK_URL}`)
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox.stub(blockbookRoute.axios, 'request').resolves({
-          data: mockData.mockBalance,
+          data: mockData.mockBalance
         })
       }
 
@@ -197,7 +216,7 @@ describe('#Blockbook Router', () => {
         'unconfirmedBalance',
         'unconfirmedTxs',
         'txs',
-        'txids',
+        'txids'
       ])
       assert.isArray(result.txids)
     })
@@ -214,29 +233,41 @@ describe('#Blockbook Router', () => {
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'addresses needs to be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'addresses needs to be an array',
+        'Proper error message'
+      )
     })
 
     it('should error on non-array single address', async () => {
       req.body = {
-        address: 'qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c',
+        address: 'qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
       }
 
       const result = await balanceBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'addresses needs to be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'addresses needs to be an array',
+        'Proper error message'
+      )
     })
 
     it('should throw an error for an invalid address', async () => {
       req.body = {
-        addresses: ['02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'],
+        addresses: ['02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c']
       }
 
       const result = await balanceBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'Invalid BCH address', 'Proper error message')
+      assert.include(
+        result.error,
+        'Invalid BCH address',
+        'Proper error message'
+      )
     })
 
     it('should throw 400 error if addresses array is too large', async () => {
@@ -254,7 +285,7 @@ describe('#Blockbook Router', () => {
 
     it('should detect a network mismatch', async () => {
       req.body = {
-        addresses: ['bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'],
+        addresses: ['bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4']
       }
 
       const result = await balanceBulk(req, res)
@@ -269,7 +300,7 @@ describe('#Blockbook Router', () => {
 
       try {
         req.body = {
-          addresses: ['bitcoincash:qqqvv56zepke5k0xeaehlmjtmkv9ly2uzgkxpajdx3'],
+          addresses: ['bitcoincash:qqqvv56zepke5k0xeaehlmjtmkv9ly2uzgkxpajdx3']
         }
 
         // Switch the Insight URL to something that will error out.
@@ -286,7 +317,7 @@ describe('#Blockbook Router', () => {
         assert.include(
           result.error,
           'Network error: Could not communicate',
-          'Error message expected',
+          'Error message expected'
         )
       } catch (err) {
         // Restore the saved URL.
@@ -295,43 +326,51 @@ describe('#Blockbook Router', () => {
     })
     it('returns proper error when downstream service stalls', async () => {
       req.body = {
-        addresses: ['bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'],
+        addresses: ['bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf']
       }
       // Mock the timeout error.
       sandbox.stub(blockbookRoute.axios, 'request').throws({
-        code: 'ECONNABORTED',
+        code: 'ECONNABORTED'
       })
 
       const result = await balanceBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service is down', async () => {
       req.body = {
-        addresses: ['bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'],
+        addresses: ['bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf']
       }
       // Mock the timeout error.
       sandbox.stub(blockbookRoute.axios, 'request').throws({
-        code: 'ECONNREFUSED',
+        code: 'ECONNREFUSED'
       })
 
       const result = await balanceBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('should get details for a single address', async () => {
       req.body = {
-        addresses: ['bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'],
+        addresses: ['bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf']
       }
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox.stub(blockbookRoute.axios, 'request').resolves({
-          data: mockData.mockBalance,
+          data: mockData.mockBalance
         })
       }
 
@@ -351,7 +390,7 @@ describe('#Blockbook Router', () => {
         'unconfirmedBalance',
         'unconfirmedTxs',
         'txs',
-        'txids',
+        'txids'
       ])
       assert.isArray(result[0].txids)
     })
@@ -360,14 +399,14 @@ describe('#Blockbook Router', () => {
       req.body = {
         addresses: [
           'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf',
-          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf',
-        ],
+          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+        ]
       }
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox.stub(blockbookRoute.axios, 'request').resolves({
-          data: mockData.mockBalance,
+          data: mockData.mockBalance
         })
       }
 
@@ -398,7 +437,11 @@ describe('#Blockbook Router', () => {
       const result = await utxosSingle(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'address can not be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'address can not be an array',
+        'Proper error message'
+      )
     })
 
     it('should throw an error for an invalid address', async () => {
@@ -407,7 +450,11 @@ describe('#Blockbook Router', () => {
       const result = await utxosSingle(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'Invalid BCH address', 'Proper error message')
+      assert.include(
+        result.error,
+        'Invalid BCH address',
+        'Proper error message'
+      )
     })
 
     it('should detect a network mismatch', async () => {
@@ -441,40 +488,51 @@ describe('#Blockbook Router', () => {
       }
     })
     it('returns proper error when downstream service stalls', async () => {
-      req.params.address = 'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
+      req.params.address =
+        'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
 
       // Mock the timeout error.
       sandbox.stub(blockbookRoute.axios, 'request').throws({
-        code: 'ECONNABORTED',
+        code: 'ECONNABORTED'
       })
 
       const result = await utxosSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service is down', async () => {
-      req.params.address = 'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
+      req.params.address =
+        'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
 
       // Mock the timeout error.
       sandbox.stub(blockbookRoute.axios, 'request').throws({
-        code: 'ECONNREFUSED',
+        code: 'ECONNREFUSED'
       })
 
       const result = await utxosSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('should get utxos for a single address', async () => {
-      req.params.address = 'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
+      req.params.address =
+        'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox.stub(blockbookRoute.axios, 'request').resolves({
-          data: mockData.mockUtxos,
+          data: mockData.mockUtxos
         })
       }
 
@@ -483,7 +541,13 @@ describe('#Blockbook Router', () => {
       // console.log(`result utxosSingle: ${util.inspect(result)}`)
 
       assert.isArray(result)
-      assert.hasAnyKeys(result[0], ['txid', 'vout', 'value', 'height', 'confirmations'])
+      assert.hasAnyKeys(result[0], [
+        'txid',
+        'vout',
+        'value',
+        'height',
+        'confirmations'
+      ])
     })
   })
 
@@ -498,29 +562,41 @@ describe('#Blockbook Router', () => {
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'addresses needs to be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'addresses needs to be an array',
+        'Proper error message'
+      )
     })
 
     it('should error on non-array single address', async () => {
       req.body = {
-        address: 'qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c',
+        address: 'qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
       }
 
       const result = await utxosBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'addresses needs to be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'addresses needs to be an array',
+        'Proper error message'
+      )
     })
 
     it('should throw an error for an invalid address', async () => {
       req.body = {
-        addresses: ['02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'],
+        addresses: ['02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c']
       }
 
       const result = await utxosBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'Invalid BCH address', 'Proper error message')
+      assert.include(
+        result.error,
+        'Invalid BCH address',
+        'Proper error message'
+      )
     })
 
     it('should throw 400 error if addresses array is too large', async () => {
@@ -538,7 +614,7 @@ describe('#Blockbook Router', () => {
 
     it('should detect a network mismatch', async () => {
       req.body = {
-        addresses: ['bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'],
+        addresses: ['bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4']
       }
 
       const result = await utxosBulk(req, res)
@@ -553,7 +629,7 @@ describe('#Blockbook Router', () => {
 
       try {
         req.body = {
-          addresses: ['bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'],
+          addresses: ['bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf']
         }
 
         // Switch the Insight URL to something that will error out.
@@ -570,7 +646,7 @@ describe('#Blockbook Router', () => {
         assert.include(
           result.error,
           'Network error: Could not communicate',
-          'Error message expected',
+          'Error message expected'
         )
       } catch (err) {
         // Restore the saved URL.
@@ -580,47 +656,55 @@ describe('#Blockbook Router', () => {
 
     it('returns proper error when downstream service stalls', async () => {
       req.body = {
-        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'],
+        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7']
       }
 
       // Mock the timeout error.
       sandbox.stub(blockbookRoute.axios, 'request').throws({
-        code: 'ECONNABORTED',
+        code: 'ECONNABORTED'
       })
 
       const result = await utxosBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('returns proper error when downstream service is down', async () => {
       req.body = {
-        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'],
+        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7']
       }
 
       // Mock the timeout error.
       sandbox.stub(blockbookRoute.axios, 'request').throws({
-        code: 'ECONNREFUSED',
+        code: 'ECONNREFUSED'
       })
 
       const result = await utxosBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should get details for a single address', async () => {
       req.body = {
-        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'],
+        addresses: ['bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7']
       }
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox.stub(blockbookRoute.axios, 'request').resolves({
-          data: mockData.mockUtxos,
+          data: mockData.mockUtxos
         })
       }
 
@@ -630,21 +714,27 @@ describe('#Blockbook Router', () => {
 
       assert.isArray(result)
       assert.isArray(result[0])
-      assert.hasAnyKeys(result[0][0], ['txid', 'vout', 'value', 'height', 'confirmations'])
+      assert.hasAnyKeys(result[0][0], [
+        'txid',
+        'vout',
+        'value',
+        'height',
+        'confirmations'
+      ])
     })
 
     it('should get details for multiple addresses', async () => {
       req.body = {
         addresses: [
           'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf',
-          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf',
-        ],
+          'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+        ]
       }
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox.stub(blockbookRoute.axios, 'request').resolves({
-          data: mockData.mockUtxos,
+          data: mockData.mockUtxos
         })
       }
 
@@ -671,12 +761,18 @@ describe('#Blockbook Router', () => {
     })
 
     it('should error on an array', async () => {
-      req.params.txid = ['6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d']
+      req.params.txid = [
+        '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
+      ]
 
       const result = await txSingle(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'txid can not be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'txid can not be an array',
+        'Proper error message'
+      )
     })
 
     it('should throw 400 if txid is not a valid txid', async () => {
@@ -693,7 +789,8 @@ describe('#Blockbook Router', () => {
       const savedUrl = process.env.BLOCKBOOK_URL
 
       try {
-        req.params.txid = '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
+        req.params.txid =
+          '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
 
         // Switch the Insight URL to something that will error out.
         process.env.BLOCKBOOK_URL = 'http://fakeurl/api/'
@@ -711,41 +808,52 @@ describe('#Blockbook Router', () => {
       }
     })
     it('returns proper error when downstream service stalls', async () => {
-      req.params.txid = '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
+      req.params.txid =
+        '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
 
       // Mock the timeout error.
       sandbox.stub(blockbookRoute.axios, 'request').throws({
-        code: 'ECONNABORTED',
+        code: 'ECONNABORTED'
       })
 
       const result = await txSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service is down', async () => {
-      req.params.txid = '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
+      req.params.txid =
+        '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
 
       // Mock the timeout error.
       sandbox.stub(blockbookRoute.axios, 'request').throws({
-        code: 'ECONNREFUSED',
+        code: 'ECONNREFUSED'
       })
 
       const result = await txSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should get tx details for a single txid', async () => {
-      req.params.txid = '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
+      req.params.txid =
+        '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox.stub(blockbookRoute.axios, 'request').resolves({
-          data: mockData.mockTx,
+          data: mockData.mockTx
         })
       }
 
@@ -768,16 +876,29 @@ describe('#Blockbook Router', () => {
         'value',
         'valueIn',
         'fees',
-        'hex',
+        'hex'
       ])
 
       // Vin
       assert.isArray(result.vin)
-      assert.hasAnyKeys(result.vin[0], ['txid', 'sequence', 'n', 'addresses', 'value', 'hex'])
+      assert.hasAnyKeys(result.vin[0], [
+        'txid',
+        'sequence',
+        'n',
+        'addresses',
+        'value',
+        'hex'
+      ])
 
       // Vout
       assert.isArray(result.vout)
-      assert.hasAnyKeys(result.vout[0], ['value', 'n', 'spent', 'hex', 'addresses'])
+      assert.hasAnyKeys(result.vout[0], [
+        'value',
+        'n',
+        'spent',
+        'hex',
+        'addresses'
+      ])
     })
   })
 
@@ -792,16 +913,25 @@ describe('#Blockbook Router', () => {
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'txids need to be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'txids need to be an array',
+        'Proper error message'
+      )
     })
 
     it('should error on non-array single address', async () => {
-      req.body.txids = '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
+      req.body.txids =
+        '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
 
       const result = await txBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'txids need to be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'txids need to be an array',
+        'Proper error message'
+      )
     })
 
     it('should throw 400 error if addresses array is too large', async () => {
@@ -819,13 +949,20 @@ describe('#Blockbook Router', () => {
 
     it('should throw an error for an invalid address', async () => {
       req.body = {
-        txids: ['5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392', 'abc'],
+        txids: [
+          '5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392',
+          'abc'
+        ]
       }
 
       const result = await txBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'txid must be of length 64', 'Proper error message')
+      assert.include(
+        result.error,
+        'txid must be of length 64',
+        'Proper error message'
+      )
     })
 
     it('should throw 500 when network issues', async () => {
@@ -833,7 +970,9 @@ describe('#Blockbook Router', () => {
 
       try {
         req.body = {
-          txids: ['5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392'],
+          txids: [
+            '5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392'
+          ]
         }
 
         // Switch the Insight URL to something that will error out.
@@ -850,7 +989,7 @@ describe('#Blockbook Router', () => {
         assert.include(
           result.error,
           'Network error: Could not communicate',
-          'Error message expected',
+          'Error message expected'
         )
       } catch (err) {
         // Restore the saved URL.
@@ -859,45 +998,59 @@ describe('#Blockbook Router', () => {
     })
     it('returns proper error when downstream service stalls', async () => {
       req.body = {
-        txids: ['6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'],
+        txids: [
+          '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
+        ]
       }
 
       // Mock the timeout error.
       sandbox.stub(blockbookRoute.axios, 'request').throws({
-        code: 'ECONNABORTED',
+        code: 'ECONNABORTED'
       })
 
       const result = await txBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service is down', async () => {
       req.body = {
-        txids: ['6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'],
+        txids: [
+          '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
+        ]
       }
 
       // Mock the timeout error.
       sandbox.stub(blockbookRoute.axios, 'request').throws({
-        code: 'ECONNREFUSED',
+        code: 'ECONNREFUSED'
       })
 
       const result = await txBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('should get details for a single txid', async () => {
       req.body = {
-        txids: ['6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'],
+        txids: [
+          '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
+        ]
       }
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox.stub(blockbookRoute.axios, 'request').resolves({
-          data: mockData.mockTx,
+          data: mockData.mockTx
         })
       }
 
@@ -918,30 +1071,43 @@ describe('#Blockbook Router', () => {
         'value',
         'valueIn',
         'fees',
-        'hex',
+        'hex'
       ])
 
       // Vin
       assert.isArray(result[0].vin)
-      assert.hasAnyKeys(result[0].vin[0], ['txid', 'sequence', 'n', 'addresses', 'value', 'hex'])
+      assert.hasAnyKeys(result[0].vin[0], [
+        'txid',
+        'sequence',
+        'n',
+        'addresses',
+        'value',
+        'hex'
+      ])
 
       // Vout
       assert.isArray(result[0].vout)
-      assert.hasAnyKeys(result[0].vout[0], ['value', 'n', 'spent', 'hex', 'addresses'])
+      assert.hasAnyKeys(result[0].vout[0], [
+        'value',
+        'n',
+        'spent',
+        'hex',
+        'addresses'
+      ])
     })
 
     it('should get details for multiple txid', async () => {
       req.body = {
         txids: [
           '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d',
-          '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d',
-        ],
+          '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d'
+        ]
       }
 
       // Mock the Insight URL for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox.stub(blockbookRoute.axios, 'request').resolves({
-          data: mockData.mockTx,
+          data: mockData.mockTx
         })
       }
 

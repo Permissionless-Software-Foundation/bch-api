@@ -41,7 +41,7 @@ util.inspect.defaultOptions = { depth: 1 }
 
 // Auth Middleware
 class AuthMW {
-  constructor() {
+  constructor () {
     // _this = this
 
     // Initialize passport for 'anonymous' authentication.
@@ -95,9 +95,9 @@ class AuthMW {
   }
 
   // Middleware called by the route.
-  mw() {
+  mw () {
     return passport.authenticate(['anonymous'], {
-      session: false,
+      session: false
     })
   }
 }

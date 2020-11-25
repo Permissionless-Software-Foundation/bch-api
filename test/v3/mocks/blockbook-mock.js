@@ -15,7 +15,7 @@ const mockBalance = {
   unconfirmedBalance: '0',
   unconfirmedTxs: 0,
   txs: 1,
-  txids: ['5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392'],
+  txids: ['5fe9b74056319a8c87f45cc745030715a6180758b94938dbf90d639d55652392']
 }
 
 const mockUtxos = [
@@ -24,8 +24,8 @@ const mockUtxos = [
     vout: 1,
     value: '10000000',
     height: 1265275,
-    confirmations: 42704,
-  },
+    confirmations: 42704
+  }
 ]
 
 const mockTx = {
@@ -39,8 +39,8 @@ const mockTx = {
       addresses: ['bchtest:qqmd9unmhkpx4pkmr6fkrr8rm6y77vckjvqe8aey35'],
       value: '16983000648',
       hex:
-        '47304402202378e55f4d02bb932498deef22dfc1f7a4984858c3b55017e225dd567172252e0220373d27710b5d42a72ac9725959f1605a912fee0ae86a7ad36e7d6d796f14ca29412103c346eee77a77a8d3e073dacc0532ca7a5b9747bc06d88bf091cac9f4bc8bb792',
-    },
+        '47304402202378e55f4d02bb932498deef22dfc1f7a4984858c3b55017e225dd567172252e0220373d27710b5d42a72ac9725959f1605a912fee0ae86a7ad36e7d6d796f14ca29412103c346eee77a77a8d3e073dacc0532ca7a5b9747bc06d88bf091cac9f4bc8bb792'
+    }
   ],
   vout: [
     {
@@ -48,14 +48,14 @@ const mockTx = {
       n: 0,
       spent: true,
       hex: '76a91436d2f27bbd826a86db1e93618ce3de89ef33169388ac',
-      addresses: ['bchtest:qqmd9unmhkpx4pkmr6fkrr8rm6y77vckjvqe8aey35'],
+      addresses: ['bchtest:qqmd9unmhkpx4pkmr6fkrr8rm6y77vckjvqe8aey35']
     },
     {
       value: '10000000',
       n: 1,
       hex: '76a9140e5b4ad9008bb9a027b7e2d0ef958914e12db20788ac',
-      addresses: ['bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'],
-    },
+      addresses: ['bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4']
+    }
   ],
   blockHash: '00000000005242edac4635ac2375a454e801cc1be8b131b622328089731e5e30',
   blockHeight: 1265275,
@@ -65,11 +65,11 @@ const mockTx = {
   valueIn: '16983000648',
   fees: '226',
   hex:
-    '0200000001d3e4f394439408d0e28af4a2aa552cf35e4c6450c4f13c491a70c35f21b8dd85000000006a47304402202378e55f4d02bb932498deef22dfc1f7a4984858c3b55017e225dd567172252e0220373d27710b5d42a72ac9725959f1605a912fee0ae86a7ad36e7d6d796f14ca29412103c346eee77a77a8d3e073dacc0532ca7a5b9747bc06d88bf091cac9f4bc8bb792ffffffff02e66eabf3030000001976a91436d2f27bbd826a86db1e93618ce3de89ef33169388ac80969800000000001976a9140e5b4ad9008bb9a027b7e2d0ef958914e12db20788ac00000000',
+    '0200000001d3e4f394439408d0e28af4a2aa552cf35e4c6450c4f13c491a70c35f21b8dd85000000006a47304402202378e55f4d02bb932498deef22dfc1f7a4984858c3b55017e225dd567172252e0220373d27710b5d42a72ac9725959f1605a912fee0ae86a7ad36e7d6d796f14ca29412103c346eee77a77a8d3e073dacc0532ca7a5b9747bc06d88bf091cac9f4bc8bb792ffffffff02e66eabf3030000001976a91436d2f27bbd826a86db1e93618ce3de89ef33169388ac80969800000000001976a9140e5b4ad9008bb9a027b7e2d0ef958914e12db20788ac00000000'
 }
 
 module.exports = {
   mockBalance,
   mockUtxos,
-  mockTx,
+  mockTx
 }

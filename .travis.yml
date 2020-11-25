@@ -1,7 +1,7 @@
 language: node_js
 
 node_js:
-  - '10'
+  - "10"
 
 dist: trusty
 
@@ -14,7 +14,7 @@ services:
 #before_install:
 #  - ./install-redis.sh
 
-script: 'npm run test'
+script: "npm run test"
 
 after_success:
   - npm run coverage

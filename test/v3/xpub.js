@@ -83,13 +83,17 @@ describe('#XPUBRouter', () => {
 
     it('should error on an array', async () => {
       req.params.xpub = [
-        'tpubDHTK2jqg73w3GwoiHfAMbMYML1HN8FhrUxD9rFgbSgHXdwwrY6pAFqKDfUHhqw7vreaZty5hPGjb1S7ZPQeMmu6TFHAKfY9tJpYbvaGjPRM',
+        'tpubDHTK2jqg73w3GwoiHfAMbMYML1HN8FhrUxD9rFgbSgHXdwwrY6pAFqKDfUHhqw7vreaZty5hPGjb1S7ZPQeMmu6TFHAKfY9tJpYbvaGjPRM'
       ]
 
       const result = await fromXPubSingle(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'xpub can not be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'xpub can not be an array',
+        'Proper error message'
+      )
     })
     /*
     it("should throw 500 when network issues", async () => {
@@ -115,8 +119,7 @@ describe('#XPUBRouter', () => {
     })
 */
     it('should create an address from xpub', async () => {
-      req.params.xpub =
-        'tpubDHTK2jqg73w3GwoiHfAMbMYML1HN8FhrUxD9rFgbSgHXdwwrY6pAFqKDfUHhqw7vreaZty5hPGjb1S7ZPQeMmu6TFHAKfY9tJpYbvaGjPRM'
+      req.params.xpub = 'tpubDHTK2jqg73w3GwoiHfAMbMYML1HN8FhrUxD9rFgbSgHXdwwrY6pAFqKDfUHhqw7vreaZty5hPGjb1S7ZPQeMmu6TFHAKfY9tJpYbvaGjPRM'
 
       // Mock the Insight URL for unit tests.
       // TODO add unit test

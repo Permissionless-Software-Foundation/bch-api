@@ -35,7 +35,7 @@ describe('#Mining', () => {
       BITCOINCOM_BASEURL: process.env.BITCOINCOM_BASEURL,
       RPC_BASEURL: process.env.RPC_BASEURL,
       RPC_USERNAME: process.env.RPC_USERNAME,
-      RPC_PASSWORD: process.env.RPC_PASSWORD,
+      RPC_PASSWORD: process.env.RPC_PASSWORD
     }
 
     // Set default environment variables for unit tests.
@@ -99,7 +99,11 @@ describe('#Mining', () => {
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
 
-      assert.isAbove(res.statusCode, 499, 'HTTP status code 500 or greater expected.')
+      assert.isAbove(
+        res.statusCode,
+        499,
+        'HTTP status code 500 or greater expected.'
+      )
       // assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
     })
     it('returns proper error when downstream service stalls', async () => {
@@ -110,7 +114,11 @@ describe('#Mining', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('returns proper error when downstream service is down', async () => {
@@ -121,13 +129,19 @@ describe('#Mining', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should GET mining information', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: mockData.mockMiningInfo } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockMiningInfo } })
       }
 
       const result = await uut.getMiningInfo(req, res)
@@ -156,7 +170,11 @@ describe('#Mining', () => {
       // Restore the saved URL.
       process.env.RPC_BASEURL = savedUrl2
 
-      assert.isAbove(res.statusCode, 499, 'HTTP status code 500 or greater expected.')
+      assert.isAbove(
+        res.statusCode,
+        499,
+        'HTTP status code 500 or greater expected.'
+      )
       // assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
     })
     it('returns proper error when downstream service stalls', async () => {
@@ -167,7 +185,11 @@ describe('#Mining', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('returns proper error when downstream service is down', async () => {
@@ -178,13 +200,19 @@ describe('#Mining', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should GET Network Hash per second', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: 517604755.6648782 } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: 517604755.6648782 } })
       }
 
       const result = await uut.getNetworkHashPS(req, res)
