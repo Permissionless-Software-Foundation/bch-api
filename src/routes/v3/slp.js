@@ -1384,11 +1384,8 @@ class Slp {
   async formatToRestObject(slpDBFormat) {
     _this.BigNumber.set({ DECIMAL_PLACES: 8 })
 
-    /*
-    console.log(
-      `slpDBFormat.data: ${JSON.stringify(slpDBFormat.data, null, 2)}`
-    );
-    */
+    // console.log(`slpDBFormat.data: ${JSON.stringify(slpDBFormat.data, null, 2)}`)
+
     const transaction = slpDBFormat.data.u.length ? slpDBFormat.data.u[0] : slpDBFormat.data.c[0]
 
     // const inputs = transaction.in

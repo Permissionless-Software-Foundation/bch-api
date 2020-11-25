@@ -14,9 +14,7 @@ util.inspect.defaultOptions = { depth: 1 }
 
 // Exit if SLPDB URL is not defined.
 if (!process.env.SLPDB_URL) {
-  throw new Error(
-    'SLPDB_URL and SLPDB_PASS must be defined in order to run these tests.'
-  )
+  throw new Error('SLPDB_URL and SLPDB_PASS must be defined in order to run these tests.')
 }
 
 const SLP = require('../../../src/routes/v3/slp')
@@ -38,8 +36,7 @@ describe('#slp', () => {
 
   describe('#tokenStats', () => {
     it('should get token stats for token with no mint baton', async () => {
-      req.params.tokenId =
-        '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
+      req.params.tokenId = '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
       // 'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
 
       const result = await slp.tokenStats(req, res)
@@ -72,8 +69,7 @@ describe('#slp', () => {
     })
 
     it('should get token stats for token with a mint baton', async () => {
-      req.params.tokenId =
-        'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
+      req.params.tokenId = 'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
 
       const result = await slp.tokenStats(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -109,11 +105,10 @@ describe('#slp', () => {
     it('should return OP_RETURN script', async () => {
       req.body.tokenUtxos = [
         {
-          tokenId:
-            '0a321bff9761f28e06a268b14711274bb77617410a16807bd0437ef234a072b1',
+          tokenId: '0a321bff9761f28e06a268b14711274bb77617410a16807bd0437ef234a072b1',
           decimals: 0,
-          tokenQty: 2
-        }
+          tokenQty: 2,
+        },
       ]
       req.body.sendQty = 1.5
 
@@ -131,25 +126,23 @@ describe('#slp', () => {
         {
           utxos: [
             {
-              txid:
-                'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+              txid: 'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
               vout: 3,
               value: '6816',
               height: 606848,
               confirmations: 13,
-              satoshis: 6816
+              satoshis: 6816,
             },
             {
-              txid:
-                'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+              txid: 'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
               vout: 2,
               value: '546',
               height: 606848,
               confirmations: 13,
-              satoshis: 546
-            }
-          ]
-        }
+              satoshis: 546,
+            },
+          ],
+        },
       ]
 
       req.body.utxos = utxos
@@ -195,7 +188,7 @@ describe('#slp', () => {
       const addrs = [
         'bitcoincash:qq6mvsm7l92d77zpymmltvaw09p5uzghyuyx7spygg',
         'bitcoincash:qpjdrs8qruzh8xvusdfmutjx62awcepnhyperm3g89',
-        'bitcoincash:qzygn28zpgeemnptkn26xzyuzzfu9l8f9vfvq7kptk'
+        'bitcoincash:qzygn28zpgeemnptkn26xzyuzzfu9l8f9vfvq7kptk',
       ]
 
       const utxos = await bchjs.Electrumx.utxo(addrs)
@@ -216,8 +209,7 @@ describe('#slp', () => {
 
   describe('#validate2Single', () => {
     it('should invalidate a known invalid TXID', async () => {
-      const txid =
-        'f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a'
+      const txid = 'f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a'
 
       req.params.txid = txid
       const result = await slp.validate2Single(req, res)
@@ -228,8 +220,7 @@ describe('#slp', () => {
     })
 
     it('should validate a known valid TXID', async () => {
-      const txid =
-        '3a4b628cbcc183ab376d44ce5252325f042268307ffa4a53443e92b6d24fb488'
+      const txid = '3a4b628cbcc183ab376d44ce5252325f042268307ffa4a53443e92b6d24fb488'
 
       req.params.txid = txid
       const result = await slp.validate2Single(req, res)

@@ -24,7 +24,9 @@ const slpdb = new SLPDB()
 describe('#slpdb', () => {
   describe('#getTotalCirculating', () => {
     it('should get circulating supply', async () => {
-      const result = await slpdb.getTotalCirculating('b10677aef051b73e6b170c1c0824da33a3e0680ab5a01cd8d76aa77840fccfb4')
+      const result = await slpdb.getTotalCirculating(
+        'b10677aef051b73e6b170c1c0824da33a3e0680ab5a01cd8d76aa77840fccfb4',
+      )
       console.log('result: ', result)
     })
   })

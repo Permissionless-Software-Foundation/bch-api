@@ -10,25 +10,25 @@ const sinon = require('sinon')
 const util = require('util')
 util.inspect.defaultOptions = {
   showHidden: true,
-  colors: true
+  colors: true,
 }
 
 // mock for res.send()
-function fakeSend (arg) {
+function fakeSend(arg) {
   // console.log(`res.send: ${util.inspect(arg)}`);
   mockRes.output = arg
   return arg
 }
 
 // mock for res.json()
-function fakeJson (arg) {
+function fakeJson(arg) {
   // console.log(`res.json: ${util.inspect(arg)}`);
   mockRes.output = arg
   return arg
 }
 
 // mock for res.setStatus(num)
-const setStatusCode = arg => {
+const setStatusCode = (arg) => {
   mockRes.statusCode = arg
 }
 
@@ -45,7 +45,7 @@ const mockReq = {
   query: {},
   session: {},
   locals: {},
-  headers: {}
+  headers: {},
 }
 
 const mockRes = {
@@ -75,7 +75,7 @@ const mockRes = {
   vary: sinon.stub().returns({}),
   write: sinon.stub().returns({}),
   setHeader: sinon.stub().returns({}),
-  format: sinon.stub().returns({})
+  format: sinon.stub().returns({}),
 }
 
 // Dev-Note on Rate Limits: Since next() is mocked, I can call the Sinon untility
@@ -85,5 +85,5 @@ const mockNext = sinon.stub().returns()
 module.exports = {
   mockReq,
   mockRes,
-  mockNext
+  mockNext,
 }

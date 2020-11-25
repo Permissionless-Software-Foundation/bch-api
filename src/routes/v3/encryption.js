@@ -24,7 +24,7 @@ const bchjs = new BCHJS({ restURL })
 let _this
 
 class Encryption {
-  constructor () {
+  constructor() {
     _this = this
 
     _this.config = config
@@ -40,7 +40,7 @@ class Encryption {
   }
 
   // DRY error handler.
-  errorHandler (err, res) {
+  errorHandler(err, res) {
     // Attempt to decode the error message.
     const { msg, status } = _this.routeUtils.decodeError(err)
     if (msg) {
@@ -62,7 +62,7 @@ class Encryption {
   }
 
   // Root API endpoint. Simply acknowledges that it exists.
-  root (req, res, next) {
+  root(req, res, next) {
     return res.json({ status: 'encryption' })
   }
 
@@ -79,7 +79,7 @@ class Encryption {
    * curl -X GET "https://api.fullstack.cash/v3/encryption/publickey/bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf" -H "accept: application/json"
    *
    */
-  async getPublicKey (req, res, next) {
+  async getPublicKey(req, res, next) {
     try {
       const address = req.params.address
 
@@ -88,7 +88,7 @@ class Encryption {
         res.status(400)
         return res.json({
           success: false,
-          error: 'address can not be an array.'
+          error: 'address can not be an array.',
         })
       }
 
@@ -100,15 +100,11 @@ class Encryption {
         res.status(400)
         return res.json({
           success: false,
-          error:
-            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+          error: 'Invalid network. Trying to use a testnet address on mainnet, or vice versa.',
         })
       }
 
-      wlogger.debug(
-        'Executing encryption/getPublicKey with this address: ',
-        cashAddr
-      )
+      wlogger.debug('Executing encryption/getPublicKey with this address: ', cashAddr)
 
       const rawTxData = await _this.bchjs.Electrumx.transactions(cashAddr)
       // console.log(`rawTxData: ${JSON.stringify(rawTxData, null, 2)}`)
@@ -126,10 +122,7 @@ class Encryption {
       for (let i = 0; i < txids.length; i++) {
         const thisTx = txids[i]
 
-        const txDetails = await _this.bchjs.RawTransactions.getRawTransaction(
-          thisTx,
-          true
-        )
+        const txDetails = await _this.bchjs.RawTransactions.getRawTransaction(thisTx, true)
         // console.log(`txDetails: ${JSON.stringify(txDetails, null, 2)}`)
 
         const vin = txDetails.vin
@@ -158,7 +151,7 @@ class Encryption {
             res.status(200)
             return res.json({
               success: true,
-              publicKey: pubKey
+              publicKey: pubKey,
             })
           }
         }
@@ -167,7 +160,7 @@ class Encryption {
       res.status(200)
       return res.json({
         success: false,
-        publicKey: 'not found'
+        publicKey: 'not found',
       })
     } catch (err) {
       wlogger.error('Error in encryption.js/getPublicKey().', err)

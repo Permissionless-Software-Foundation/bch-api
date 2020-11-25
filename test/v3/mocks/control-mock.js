@@ -19,7 +19,7 @@ const mockGetInfo = {
   keypoolsize: 2000,
   paytxfee: 0,
   relayfee: 0.00001,
-  errors: 'Warning: unknown new rules activated (versionbit 28)'
+  errors: 'Warning: unknown new rules activated (versionbit 28)',
 }
 
 const mockGetNetworkInfo = {
@@ -36,10 +36,10 @@ const mockGetNetworkInfo = {
   excessutxocharge: 0,
   localaddresses: [],
   warnings:
-    "Warning: Unknown block versions being mined! It's possible unknown rules are in effect"
+    "Warning: Unknown block versions being mined! It's possible unknown rules are in effect",
 }
 
 module.exports = {
   mockGetInfo,
-  mockGetNetworkInfo
+  mockGetNetworkInfo,
 }

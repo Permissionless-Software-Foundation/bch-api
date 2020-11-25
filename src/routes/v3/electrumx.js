@@ -25,7 +25,7 @@ const bchjs = new BCHJS()
 let _this
 
 class Electrum {
-  constructor () {
+  constructor() {
     _this = this
 
     _this.config = config
@@ -38,7 +38,7 @@ class Electrum {
       'bch-api',
       '1.4.1',
       process.env.FULCRUM_URL,
-      process.env.FULCRUM_PORT
+      process.env.FULCRUM_PORT,
       // '192.168.0.6',
       // '50002'
     )
@@ -64,7 +64,7 @@ class Electrum {
   }
 
   // Initializes a connection to electrum servers.
-  async connect () {
+  async connect() {
     try {
       console.log('Attempting to connect to ElectrumX server...')
 
@@ -91,7 +91,7 @@ class Electrum {
   }
 
   // Disconnect from the ElectrumX server.
-  async disconnect () {
+  async disconnect() {
     try {
       // Return immediately if the isReady flag is false.
       if (!_this.isReady) return true
@@ -112,7 +112,7 @@ class Electrum {
   }
 
   // DRY error handler.
-  errorHandler (err, res) {
+  errorHandler(err, res) {
     // Attempt to decode the error message.
     const { msg, status } = _this.routeUtils.decodeError(err)
     if (msg) {
@@ -132,28 +132,28 @@ class Electrum {
   }
 
   // Root API endpoint. Simply acknowledges that it exists.
-  root (req, res, next) {
+  root(req, res, next) {
     return res.json({ status: 'electrumx' })
   }
 
   // Returns a promise that resolves to UTXO data for an address. Expects input
   // to be a cash address, and input validation to have already been done by
   // parent, calling function.
-  async _utxosFromElectrumx (address) {
+  async _utxosFromElectrumx(address) {
     try {
       // Convert the address to a scripthash.
       const scripthash = _this.addressToScripthash(address)
 
       if (!_this.isReady) {
         throw new Error(
-          'ElectrumX server connection is not ready. Call await connectToServer() first.'
+          'ElectrumX server connection is not ready. Call await connectToServer() first.',
         )
       }
 
       // Query the utxos from the ElectrumX server.
       const electrumResponse = await _this.electrumx.request(
         'blockchain.scripthash.listunspent',
-        scripthash
+        scripthash,
       )
       // console.log(
       //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
@@ -181,7 +181,7 @@ class Electrum {
    *
    */
   // GET handler for single balance
-  async getUtxos (req, res, next) {
+  async getUtxos(req, res, next) {
     try {
       const address = req.params.address
 
@@ -190,7 +190,7 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          error: 'address can not be an array. Use POST for bulk upload.'
+          error: 'address can not be an array. Use POST for bulk upload.',
         })
       }
 
@@ -202,15 +202,11 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          error:
-            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+          error: 'Invalid network. Trying to use a testnet address on mainnet, or vice versa.',
         })
       }
 
-      wlogger.debug(
-        'Executing electrumx/getUtxos with this address: ',
-        cashAddr
-      )
+      wlogger.debug('Executing electrumx/getUtxos with this address: ', cashAddr)
 
       // Get data from ElectrumX server.
       const electrumResponse = await _this._utxosFromElectrumx(cashAddr)
@@ -221,14 +217,14 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          message: electrumResponse.message
+          message: electrumResponse.message,
         })
       }
 
       res.status(200)
       return res.json({
         success: true,
-        utxos: electrumResponse
+        utxos: electrumResponse,
       })
     } catch (err) {
       // Write out error to error log.
@@ -251,7 +247,7 @@ class Electrum {
    *
    */
   // POST handler for bulk queries on address details
-  async utxosBulk (req, res, next) {
+  async utxosBulk(req, res, next) {
     try {
       let addresses = req.body.addresses
       // const currentPage = req.body.page ? parseInt(req.body.page, 10) : 0
@@ -260,7 +256,7 @@ class Electrum {
       if (!Array.isArray(addresses)) {
         res.status(400)
         return res.json({
-          error: 'addresses needs to be an array. Use GET for single address.'
+          error: 'addresses needs to be an array. Use GET for single address.',
         })
       }
 
@@ -268,14 +264,11 @@ class Electrum {
       if (!_this.routeUtils.validateArraySize(req, addresses)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
-      wlogger.debug(
-        'Executing electrumx.js/utxoBulk with these addresses: ',
-        addresses
-      )
+      wlogger.debug('Executing electrumx.js/utxoBulk with these addresses: ', addresses)
 
       // Validate each element in the address array.
       for (let i = 0; i < addresses.length; i++) {
@@ -287,7 +280,7 @@ class Electrum {
         } catch (err) {
           res.status(400)
           return res.json({
-            error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`
+            error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`,
           })
         }
 
@@ -296,7 +289,7 @@ class Electrum {
         if (!networkIsValid) {
           res.status(400)
           return res.json({
-            error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`
+            error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`,
           })
         }
       }
@@ -309,7 +302,7 @@ class Electrum {
 
         return {
           utxos,
-          address
+          address,
         }
       })
 
@@ -320,7 +313,7 @@ class Electrum {
       res.status(200)
       return res.json({
         success: true,
-        utxos: result
+        utxos: result,
       })
     } catch (err) {
       wlogger.error('Error in electrumx.js/utxoBulk().', err)
@@ -332,11 +325,11 @@ class Electrum {
   // Returns a promise that resolves to transaction details data for a txid.
   // Expects input to be a txid string, and input validation to have already
   // been done by parent, calling function.
-  async _transactionDetailsFromElectrum (txid, verbose = true) {
+  async _transactionDetailsFromElectrum(txid, verbose = true) {
     try {
       if (!_this.isReady) {
         throw new Error(
-          'ElectrumX server connection is not ready. Call await connectToServer() first.'
+          'ElectrumX server connection is not ready. Call await connectToServer() first.',
         )
       }
 
@@ -344,7 +337,7 @@ class Electrum {
       const electrumResponse = await _this.electrumx.request(
         'blockchain.transaction.get',
         txid,
-        verbose
+        verbose,
       )
       // console.log(
       //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
@@ -355,10 +348,7 @@ class Electrum {
       // console.log('err: ', err)
 
       // Write out error to error log.
-      wlogger.error(
-        'Error in elecrumx.js/_transactionDetailsFromElectrum(): ',
-        err
-      )
+      wlogger.error('Error in elecrumx.js/_transactionDetailsFromElectrum(): ', err)
       throw err
     }
   }
@@ -375,7 +365,7 @@ class Electrum {
    *
    */
   // GET handler for single transaction
-  async getTransactionDetails (req, res, next) {
+  async getTransactionDetails(req, res, next) {
     try {
       const txid = req.params.txid
       const verbose = req.query.verbose
@@ -385,20 +375,14 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          error: 'txid must be a string'
+          error: 'txid must be a string',
         })
       }
 
-      wlogger.debug(
-        'Executing electrumx/getTransactionDetails with this txid: ',
-        txid
-      )
+      wlogger.debug('Executing electrumx/getTransactionDetails with this txid: ', txid)
 
       // Get data from ElectrumX server.
-      const electrumResponse = await _this._transactionDetailsFromElectrum(
-        txid,
-        verbose
-      )
+      const electrumResponse = await _this._transactionDetailsFromElectrum(txid, verbose)
       // console.log(`_transactionDetailsFromElectrum(): ${JSON.stringify(electrumResponse, null, 2)}`)
 
       // Pass the error message if ElectrumX reports an error.
@@ -406,14 +390,14 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          error: electrumResponse.message
+          error: electrumResponse.message,
         })
       }
 
       res.status(200)
       return res.json({
         success: true,
-        details: electrumResponse
+        details: electrumResponse,
       })
     } catch (err) {
       // Write out error to error log.
@@ -436,7 +420,7 @@ class Electrum {
    *
    */
   // POST handler for bulk queries on transaction details
-  async transactionDetailsBulk (req, res, next) {
+  async transactionDetailsBulk(req, res, next) {
     try {
       const txids = req.body.txids
       const verbose = req.body.verbose || true
@@ -446,7 +430,7 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          error: 'txids needs to be an array. Use GET for single txid.'
+          error: 'txids needs to be an array. Use GET for single txid.',
         })
       }
 
@@ -455,23 +439,17 @@ class Electrum {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
           success: false,
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
-      wlogger.debug(
-        'Executing electrumx.js/transactionDetailsBulk with these txids: ',
-        txids
-      )
+      wlogger.debug('Executing electrumx.js/transactionDetailsBulk with these txids: ', txids)
 
       // Loops through each address and creates an array of Promises, querying
       // the Electrum server in parallel.
       const transactions = txids.map(async (txid, index) => {
         // console.log(`address: ${address}`)
-        const details = await _this._transactionDetailsFromElectrum(
-          txid,
-          verbose
-        )
+        const details = await _this._transactionDetailsFromElectrum(txid, verbose)
 
         return { details, txid }
       })
@@ -483,7 +461,7 @@ class Electrum {
       res.status(200)
       return res.json({
         success: true,
-        transactions: result
+        transactions: result,
       })
     } catch (err) {
       wlogger.error('Error in electrumx.js/transactionDetailsBulk().', err)
@@ -495,18 +473,18 @@ class Electrum {
   // Returns a promise that resolves to transaction ID of the broadcasted transaction or an error.
   // Expects input to be a txHex string, and input validation to have already
   // been done by parent, calling function.
-  async _broadcastTransactionWithElectrum (txHex) {
+  async _broadcastTransactionWithElectrum(txHex) {
     try {
       if (!_this.isReady) {
         throw new Error(
-          'ElectrumX server connection is not ready. Call await connectToServer() first.'
+          'ElectrumX server connection is not ready. Call await connectToServer() first.',
         )
       }
 
       // Broadcast the transaction hex to the ElectrumX server.
       const electrumResponse = await _this.electrumx.request(
         'blockchain.transaction.broadcast',
-        txHex
+        txHex,
       )
       // console.log(
       //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
@@ -517,10 +495,7 @@ class Electrum {
       // console.log('err: ', err)
 
       // Write out error to error log.
-      wlogger.error(
-        'Error in elecrumx.js/_transactionDetailsFromElectrum(): ',
-        err
-      )
+      wlogger.error('Error in elecrumx.js/_transactionDetailsFromElectrum(): ', err)
       throw err
     }
   }
@@ -536,7 +511,7 @@ class Electrum {
    *
    */
   // POST handler for broadcasting a single transaction
-  async broadcastTransaction (req, res, next) {
+  async broadcastTransaction(req, res, next) {
     try {
       const txHex = req.body.txHex
 
@@ -544,14 +519,11 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          error: 'request body must be a string.'
+          error: 'request body must be a string.',
         })
       }
 
-      wlogger.debug(
-        'Executing electrumx/broadcastTransaction with this tx hex: ',
-        txHex
-      )
+      wlogger.debug('Executing electrumx/broadcastTransaction with this tx hex: ', txHex)
 
       // Get data from ElectrumX server.
       const electrumResponse = await _this._broadcastTransactionWithElectrum(txHex)
@@ -562,14 +534,14 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          error: electrumResponse.message
+          error: electrumResponse.message,
         })
       }
 
       res.status(200)
       return res.json({
         success: true,
-        txid: electrumResponse
+        txid: electrumResponse,
       })
     } catch (err) {
       wlogger.error('Error in electrumx.js/broadcastTransaction().', err)
@@ -581,16 +553,20 @@ class Electrum {
   // Returns a promise that resolves to block header data for a block height.
   // Expects input to be a height number, and input validation to have already
   // been done by parent, calling function.
-  async _blockHeadersFromElectrum (height, count = 1) {
+  async _blockHeadersFromElectrum(height, count = 1) {
     try {
       if (!_this.isReady) {
         throw new Error(
-          'ElectrumX server connection is not ready. Call await connectToServer() first.'
+          'ElectrumX server connection is not ready. Call await connectToServer() first.',
         )
       }
 
       // Query the block header from the ElectrumX server.
-      const electrumResponse = await _this.electrumx.request('blockchain.block.headers', height, count)
+      const electrumResponse = await _this.electrumx.request(
+        'blockchain.block.headers',
+        height,
+        count,
+      )
       // console.log(
       //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
       // )
@@ -607,10 +583,7 @@ class Electrum {
       // console.log('err: ', err)
 
       // Write out error to error log.
-      wlogger.error(
-        'Error in elecrumx.js/_blockHeaderFromElectrum(): ',
-        err
-      )
+      wlogger.error('Error in elecrumx.js/_blockHeaderFromElectrum(): ', err)
       throw err
     }
   }
@@ -627,7 +600,7 @@ class Electrum {
    *
    */
   // GET handler for single block headers
-  async getBlockHeaders (req, res, next) {
+  async getBlockHeaders(req, res, next) {
     try {
       const height = Number(req.params.height)
       const count = req.query.count === undefined ? 1 : Number(req.query.count)
@@ -637,7 +610,7 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          error: 'height must be a positive number'
+          error: 'height must be a positive number',
         })
       }
 
@@ -646,14 +619,11 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          error: 'count must be a positive number'
+          error: 'count must be a positive number',
         })
       }
 
-      wlogger.debug(
-        'Executing electrumx/getBlockHeaders with this height: ',
-        height
-      )
+      wlogger.debug('Executing electrumx/getBlockHeaders with this height: ', height)
 
       // Get data from ElectrumX server.
       const electrumResponse = await _this._blockHeadersFromElectrum(height, count)
@@ -664,14 +634,14 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          error: electrumResponse.message
+          error: electrumResponse.message,
         })
       }
 
       res.status(200)
       return res.json({
         success: true,
-        headers: electrumResponse
+        headers: electrumResponse,
       })
     } catch (err) {
       // Write out error to error log.
@@ -693,7 +663,7 @@ class Electrum {
    *
    */
   // POST handler for bulk queries on block headers
-  async blockHeadersBulk (req, res, next) {
+  async blockHeadersBulk(req, res, next) {
     try {
       const heights = req.body.heights
 
@@ -702,7 +672,7 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          error: 'heights needs to be an array. Use GET for single height.'
+          error: 'heights needs to be an array. Use GET for single height.',
         })
       }
 
@@ -711,22 +681,16 @@ class Electrum {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
           success: false,
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
-      wlogger.debug(
-        'Executing electrumx.js/blockHeadersBulk with these txids: ',
-        heights
-      )
+      wlogger.debug('Executing electrumx.js/blockHeadersBulk with these txids: ', heights)
 
       // Loops through each address and creates an array of Promises, querying
       // the Electrum server in parallel.
       const transactions = heights.map(async (obj) => {
-        const headers = await _this._blockHeadersFromElectrum(
-          obj.height,
-          obj.count
-        )
+        const headers = await _this._blockHeadersFromElectrum(obj.height, obj.count)
 
         return { headers }
       })
@@ -738,7 +702,7 @@ class Electrum {
       res.status(200)
       return res.json({
         success: true,
-        headers: result
+        headers: result,
       })
     } catch (err) {
       wlogger.error('Error in electrumx.js/blockHeadersBulk().', err)
@@ -750,21 +714,21 @@ class Electrum {
   // Returns a promise that resolves to a balance for an address. Expects input
   // to be a cash address, and input validation to have already been done by
   // parent, calling function.
-  async _balanceFromElectrumx (address) {
+  async _balanceFromElectrumx(address) {
     try {
       // Convert the address to a scripthash.
       const scripthash = _this.addressToScripthash(address)
 
       if (!_this.isReady) {
         throw new Error(
-          'ElectrumX server connection is not ready. Call await connectToServer() first.'
+          'ElectrumX server connection is not ready. Call await connectToServer() first.',
         )
       }
 
       // Query the address balance from the ElectrumX server.
       const electrumResponse = await _this.electrumx.request(
         'blockchain.scripthash.get_balance',
-        scripthash
+        scripthash,
       )
       // console.log(
       //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
@@ -792,7 +756,7 @@ class Electrum {
    *
    */
   // GET handler for single balance
-  async getBalance (req, res, next) {
+  async getBalance(req, res, next) {
     try {
       const address = req.params.address
 
@@ -801,7 +765,7 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          error: 'address can not be an array. Use POST for bulk upload.'
+          error: 'address can not be an array. Use POST for bulk upload.',
         })
       }
 
@@ -814,15 +778,11 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          error:
-            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+          error: 'Invalid network. Trying to use a testnet address on mainnet, or vice versa.',
         })
       }
 
-      wlogger.debug(
-        'Executing electrumx/getBalance with this address: ',
-        cashAddr
-      )
+      wlogger.debug('Executing electrumx/getBalance with this address: ', cashAddr)
 
       // Get data from ElectrumX server.
       const electrumResponse = await _this._balanceFromElectrumx(cashAddr)
@@ -833,14 +793,14 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          message: electrumResponse.message
+          message: electrumResponse.message,
         })
       }
 
       res.status(200)
       return res.json({
         success: true,
-        balance: electrumResponse
+        balance: electrumResponse,
       })
     } catch (err) {
       // Write out error to error log.
@@ -863,7 +823,7 @@ class Electrum {
    *
    */
   // POST handler for bulk queries on address balance
-  async balanceBulk (req, res, next) {
+  async balanceBulk(req, res, next) {
     try {
       let addresses = req.body.addresses
 
@@ -871,7 +831,7 @@ class Electrum {
       if (!Array.isArray(addresses)) {
         res.status(400)
         return res.json({
-          error: 'addresses needs to be an array. Use GET for single address.'
+          error: 'addresses needs to be an array. Use GET for single address.',
         })
       }
 
@@ -879,14 +839,11 @@ class Electrum {
       if (!_this.routeUtils.validateArraySize(req, addresses)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
-      wlogger.debug(
-        'Executing electrumx.js/balanceBulk with these addresses: ',
-        addresses
-      )
+      wlogger.debug('Executing electrumx.js/balanceBulk with these addresses: ', addresses)
 
       // Validate each element in the address array.
       for (let i = 0; i < addresses.length; i++) {
@@ -898,7 +855,7 @@ class Electrum {
         } catch (err) {
           res.status(400)
           return res.json({
-            error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`
+            error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`,
           })
         }
 
@@ -907,7 +864,7 @@ class Electrum {
         if (!networkIsValid) {
           res.status(400)
           return res.json({
-            error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`
+            error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`,
           })
         }
       }
@@ -920,7 +877,7 @@ class Electrum {
 
         return {
           balance,
-          address
+          address,
         }
       })
 
@@ -931,7 +888,7 @@ class Electrum {
       res.status(200)
       return res.json({
         success: true,
-        balances: result
+        balances: result,
       })
     } catch (err) {
       wlogger.error('Error in electrumx.js/balanceBulk().', err)
@@ -943,21 +900,21 @@ class Electrum {
   // Returns a promise that resolves an array of transaction history for an
   // address. Expects input to be a cash address, and input validation to have
   // already been done by parent, calling function.
-  async _transactionsFromElectrumx (address) {
+  async _transactionsFromElectrumx(address) {
     try {
       // Convert the address to a scripthash.
       const scripthash = _this.addressToScripthash(address)
 
       if (!_this.isReady) {
         throw new Error(
-          'ElectrumX server connection is not ready. Call await connectToServer() first.'
+          'ElectrumX server connection is not ready. Call await connectToServer() first.',
         )
       }
 
       // Query the address transaction history from the ElectrumX server.
       const electrumResponse = await _this.electrumx.request(
         'blockchain.scripthash.get_history',
-        scripthash
+        scripthash,
       )
       // console.log(
       //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
@@ -985,7 +942,7 @@ class Electrum {
    *
    */
   // GET handler for single balance
-  async getTransactions (req, res, next) {
+  async getTransactions(req, res, next) {
     try {
       const address = req.params.address
 
@@ -994,7 +951,7 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          error: 'address can not be an array. Use POST for bulk upload.'
+          error: 'address can not be an array. Use POST for bulk upload.',
         })
       }
 
@@ -1007,15 +964,11 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          error:
-            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+          error: 'Invalid network. Trying to use a testnet address on mainnet, or vice versa.',
         })
       }
 
-      wlogger.debug(
-        'Executing electrumx/getTransactions with this address: ',
-        cashAddr
-      )
+      wlogger.debug('Executing electrumx/getTransactions with this address: ', cashAddr)
 
       // Get data from ElectrumX server.
       const electrumResponse = await _this._transactionsFromElectrumx(cashAddr)
@@ -1026,14 +979,14 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          message: electrumResponse.message
+          message: electrumResponse.message,
         })
       }
 
       res.status(200)
       return res.json({
         success: true,
-        transactions: electrumResponse
+        transactions: electrumResponse,
       })
     } catch (err) {
       // Write out error to error log.
@@ -1056,7 +1009,7 @@ class Electrum {
    *
    */
   // POST handler for bulk queries on transaction histories for addresses.
-  async transactionsBulk (req, res, next) {
+  async transactionsBulk(req, res, next) {
     try {
       let addresses = req.body.addresses
 
@@ -1064,7 +1017,7 @@ class Electrum {
       if (!Array.isArray(addresses)) {
         res.status(400)
         return res.json({
-          error: 'addresses needs to be an array. Use GET for single address.'
+          error: 'addresses needs to be an array. Use GET for single address.',
         })
       }
 
@@ -1072,14 +1025,11 @@ class Electrum {
       if (!_this.routeUtils.validateArraySize(req, addresses)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
-      wlogger.debug(
-        'Executing electrumx.js/transactionsBulk with these addresses: ',
-        addresses
-      )
+      wlogger.debug('Executing electrumx.js/transactionsBulk with these addresses: ', addresses)
 
       // Validate each element in the address array.
       for (let i = 0; i < addresses.length; i++) {
@@ -1091,7 +1041,7 @@ class Electrum {
         } catch (err) {
           res.status(400)
           return res.json({
-            error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`
+            error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`,
           })
         }
 
@@ -1100,7 +1050,7 @@ class Electrum {
         if (!networkIsValid) {
           res.status(400)
           return res.json({
-            error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`
+            error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`,
           })
         }
       }
@@ -1113,7 +1063,7 @@ class Electrum {
 
         return {
           transactions,
-          address
+          address,
         }
       })
 
@@ -1124,7 +1074,7 @@ class Electrum {
       res.status(200)
       return res.json({
         success: true,
-        transactions: result
+        transactions: result,
       })
     } catch (err) {
       wlogger.error('Error in electrumx.js/transactionsBulk().', err)
@@ -1136,21 +1086,21 @@ class Electrum {
   // Returns a promise that resolves to unconfirmed UTXO data (mempool) for an address.
   // Expects input to be a cash address, and input validation to have
   // already been done by parent, calling function.
-  async _mempoolFromElectrumx (address) {
+  async _mempoolFromElectrumx(address) {
     try {
       // Convert the address to a scripthash.
       const scripthash = _this.addressToScripthash(address)
 
       if (!_this.isReady) {
         throw new Error(
-          'ElectrumX server connection is not ready. Call await connectToServer() first.'
+          'ElectrumX server connection is not ready. Call await connectToServer() first.',
         )
       }
 
       // Query the unconfirmed utxos from the ElectrumX server.
       const electrumResponse = await _this.electrumx.request(
         'blockchain.scripthash.get_mempool',
-        scripthash
+        scripthash,
       )
       // console.log(
       //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
@@ -1178,7 +1128,7 @@ class Electrum {
    *
    */
   // GET handler for single balance
-  async getMempool (req, res, next) {
+  async getMempool(req, res, next) {
     try {
       const address = req.params.address
 
@@ -1187,7 +1137,7 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          error: 'address can not be an array. Use POST for bulk upload.'
+          error: 'address can not be an array. Use POST for bulk upload.',
         })
       }
 
@@ -1200,15 +1150,11 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          error:
-            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+          error: 'Invalid network. Trying to use a testnet address on mainnet, or vice versa.',
         })
       }
 
-      wlogger.debug(
-        'Executing electrumx/getMempool with this address: ',
-        cashAddr
-      )
+      wlogger.debug('Executing electrumx/getMempool with this address: ', cashAddr)
 
       // Get data from ElectrumX server.
       const electrumResponse = await _this._mempoolFromElectrumx(cashAddr)
@@ -1219,14 +1165,14 @@ class Electrum {
         res.status(400)
         return res.json({
           success: false,
-          message: electrumResponse.message
+          message: electrumResponse.message,
         })
       }
 
       res.status(200)
       return res.json({
         success: true,
-        utxos: electrumResponse
+        utxos: electrumResponse,
       })
     } catch (err) {
       // Write out error to error log.
@@ -1249,7 +1195,7 @@ class Electrum {
    *
    */
   // POST handler for bulk queries on address details
-  async mempoolBulk (req, res, next) {
+  async mempoolBulk(req, res, next) {
     try {
       let addresses = req.body.addresses
 
@@ -1257,7 +1203,7 @@ class Electrum {
       if (!Array.isArray(addresses)) {
         res.status(400)
         return res.json({
-          error: 'addresses needs to be an array. Use GET for single address.'
+          error: 'addresses needs to be an array. Use GET for single address.',
         })
       }
 
@@ -1265,14 +1211,11 @@ class Electrum {
       if (!_this.routeUtils.validateArraySize(req, addresses)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
-      wlogger.debug(
-        'Executing electrumx.js/mempoolBulk with these addresses: ',
-        addresses
-      )
+      wlogger.debug('Executing electrumx.js/mempoolBulk with these addresses: ', addresses)
 
       // Validate each element in the address array.
       for (let i = 0; i < addresses.length; i++) {
@@ -1284,7 +1227,7 @@ class Electrum {
         } catch (err) {
           res.status(400)
           return res.json({
-            error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`
+            error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`,
           })
         }
 
@@ -1293,7 +1236,7 @@ class Electrum {
         if (!networkIsValid) {
           res.status(400)
           return res.json({
-            error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`
+            error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`,
           })
         }
       }
@@ -1306,7 +1249,7 @@ class Electrum {
 
         return {
           utxos,
-          address
+          address,
         }
       })
 
@@ -1317,7 +1260,7 @@ class Electrum {
       res.status(200)
       return res.json({
         success: true,
-        utxos: result
+        utxos: result,
       })
     } catch (err) {
       wlogger.error('Error in electrumx.js/mempoolBulk().', err)
@@ -1327,7 +1270,7 @@ class Electrum {
   }
 
   // Convert a 'bitcoincash:...' address to a script hash used by ElectrumX.
-  addressToScripthash (addrStr) {
+  addressToScripthash(addrStr) {
     try {
       // console.log(`addrStr: ${addrStr}`)
 

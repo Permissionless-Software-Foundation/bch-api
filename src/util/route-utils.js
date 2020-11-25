@@ -16,7 +16,7 @@ const bchjs = new BCHJS()
 // let _this
 
 class RouteUtils {
-  constructor () {
+  constructor() {
     // _this = this
 
     this.bchjs = bchjs
@@ -27,7 +27,7 @@ class RouteUtils {
   // The array is then validated against freemium and pro-tier rate limiting
   // requirements. A boolean is returned to indicate if the array size if valid
   // or not.
-  validateArraySize (req, array) {
+  validateArraySize(req, array) {
     const FREEMIUM_INPUT_SIZE = 20
     const PRO_INPUT_SIZE = 20
 
@@ -41,18 +41,18 @@ class RouteUtils {
   }
 
   // Axios options used when calling axios.post() to talk with a full node.
-  getAxiosOptions () {
+  getAxiosOptions() {
     return {
       method: 'post',
       baseURL: process.env.RPC_BASEURL,
       timeout: 15000,
       auth: {
         username: process.env.RPC_USERNAME,
-        password: process.env.RPC_PASSWORD
+        password: process.env.RPC_PASSWORD,
       },
       data: {
-        jsonrpc: '1.0'
-      }
+        jsonrpc: '1.0',
+      },
     }
   }
 
@@ -61,7 +61,7 @@ class RouteUtils {
   // This prevent a common user-error issue that is easy to make: passing a
   // testnet address into rest.bitcoin.com or passing a mainnet address into
   // trest.bitcoin.com.
-  validateNetwork (addr) {
+  validateNetwork(addr) {
     try {
       const network = process.env.NETWORK
 
@@ -95,7 +95,7 @@ class RouteUtils {
   // error messages.
   // Returns an object. If successful, obj.msg is a string.
   // If there is a failure, obj.msg is false.
-  decodeError (err) {
+  decodeError(err) {
     try {
       // Attempt to extract the full node error message.
       if (
@@ -118,39 +118,32 @@ class RouteUtils {
       // Attempt to detect a network connection error.
       if (err.message && err.message.indexOf('ENOTFOUND') > -1) {
         return {
-          msg:
-            'Network error: Could not communicate with full node or other external service.',
-          status: 503
+          msg: 'Network error: Could not communicate with full node or other external service.',
+          status: 503,
         }
       }
 
       // Different kind of network error
       if (err.message && err.message.indexOf('ENETUNREACH') > -1) {
         return {
-          msg:
-            'Network error: Could not communicate with full node or other external service.',
-          status: 503
+          msg: 'Network error: Could not communicate with full node or other external service.',
+          status: 503,
         }
       }
 
       // Different kind of network error
       if (err.message && err.message.indexOf('EAI_AGAIN') > -1) {
         return {
-          msg:
-            'Network error: Could not communicate with full node or other external service.',
-          status: 503
+          msg: 'Network error: Could not communicate with full node or other external service.',
+          status: 503,
         }
       }
 
       // Axios timeout (aborted) error, or service is down (connection refused).
-      if (
-        err.code &&
-        (err.code === 'ECONNABORTED' || err.code === 'ECONNREFUSED')
-      ) {
+      if (err.code && (err.code === 'ECONNABORTED' || err.code === 'ECONNREFUSED')) {
         return {
-          msg:
-            'Network error: Could not communicate with full node or other external service.',
-          status: 503
+          msg: 'Network error: Could not communicate with full node or other external service.',
+          status: 503,
         }
       }
 

@@ -15,7 +15,7 @@ util.inspect.defaultOptions = { depth: 1 }
 
 let _this
 class RawTransactions {
-  constructor () {
+  constructor() {
     _this = this
 
     // Encapsulate external dependencies.
@@ -25,10 +25,7 @@ class RawTransactions {
     // Define Express routes.
     this.router = router
     this.router.get('/', this.root)
-    this.router.get(
-      '/decodeRawTransaction/:hex',
-      this.decodeRawTransactionSingle
-    )
+    this.router.get('/decodeRawTransaction/:hex', this.decodeRawTransactionSingle)
     this.router.post('/decodeRawTransaction', this.decodeRawTransactionBulk)
     this.router.get('/decodeScript/:hex', this.decodeScriptSingle)
     this.router.post('/decodeScript', this.decodeScriptBulk)
@@ -38,12 +35,12 @@ class RawTransactions {
     this.router.get('/sendRawTransaction/:hex', this.sendRawTransactionSingle)
   }
 
-  root (req, res, next) {
+  root(req, res, next) {
     return res.json({ status: 'rawtransactions' })
   }
 
   // DRY error handler.
-  errorHandler (err, res) {
+  errorHandler(err, res) {
     // Attempt to decode the error message.
     const { msg, status } = _this.routeUtils.decodeError(err)
     if (msg) {
@@ -67,7 +64,7 @@ class RawTransactions {
    * @apiExample Example usage:
    * curl -X GET "https://api.fullstack.cash/v3/rawtransactions/decodeRawTransaction/02000000010e991f7ccec410f27d333f737f149b5d3be6728687da81072e638aed0063a176010000006b483045022100cd20443b0af090053450bc4ab00d563d4ac5955bb36e0135b00b8a96a19f233302205047f2c70a08c6ef4b76f2d198b33a31d17edfaa7e1e9e865894da0d396009354121024d4e7f522f67105b7bf5f9dbe557e7b2244613fdfcd6fe09304f93877328f6beffffffff02a0860100000000001976a9140ee020c07f39526ac5505c54fa1ab98490979b8388acb5f0f70b000000001976a9143a9b2b0c12fe722fcf653b6ef5dcc38732d6ff5188ac00000000" -H "accept: application/json"
    */
-  async decodeRawTransactionSingle (req, res, next) {
+  async decodeRawTransactionSingle(req, res, next) {
     try {
       const hex = req.params.hex
 
@@ -87,10 +84,7 @@ class RawTransactions {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error(
-        'Error in rawtransactions.ts/decodeRawTransactionSingle().',
-        err
-      )
+      wlogger.error('Error in rawtransactions.ts/decodeRawTransactionSingle().', err)
       return _this.errorHandler(err, res)
     }
   }
@@ -107,7 +101,7 @@ class RawTransactions {
    *
    *
    */
-  async decodeRawTransactionBulk (req, res, next) {
+  async decodeRawTransactionBulk(req, res, next) {
     try {
       const hexes = req.body.hexes
 
@@ -120,7 +114,7 @@ class RawTransactions {
       if (!_this.routeUtils.validateArraySize(req, hexes)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
@@ -140,7 +134,7 @@ class RawTransactions {
       const options = _this.routeUtils.getAxiosOptions()
 
       // Loop through each height and creates an array of requests to call in parallel
-      const promises = hexes.map(async hex => {
+      const promises = hexes.map(async (hex) => {
         options.data.id = 'decoderawtransaction'
         options.data.method = 'decoderawtransaction'
         options.data.params = [hex]
@@ -152,17 +146,14 @@ class RawTransactions {
       const axiosResult = await _this.axios.all(promises)
 
       // Retrieve the data part of the result.
-      const result = axiosResult.map(x => x.data.result)
+      const result = axiosResult.map((x) => x.data.result)
 
       res.status(200)
       return res.json(result)
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/getRawTransaction: `, err)
-      wlogger.error(
-        'Error in rawtransactions.ts/decodeRawTransactionBulk().',
-        err
-      )
+      wlogger.error('Error in rawtransactions.ts/decodeRawTransactionBulk().', err)
       return _this.errorHandler(err, res)
     }
   }
@@ -181,7 +172,7 @@ class RawTransactions {
    *
    *
    */
-  async decodeScriptSingle (req, res, next) {
+  async decodeScriptSingle(req, res, next) {
     try {
       const hex = req.params.hex
 
@@ -222,7 +213,7 @@ class RawTransactions {
    *
    *
    */
-  async decodeScriptBulk (req, res, next) {
+  async decodeScriptBulk(req, res, next) {
     try {
       const hexes = req.body.hexes
 
@@ -236,7 +227,7 @@ class RawTransactions {
       if (!_this.routeUtils.validateArraySize(req, hexes)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
@@ -254,7 +245,7 @@ class RawTransactions {
       const options = _this.routeUtils.getAxiosOptions()
 
       // Loop through each hex and create an array of promises
-      const promises = hexes.map(async hex => {
+      const promises = hexes.map(async (hex) => {
         options.data.id = 'decodescript'
         options.data.method = 'decodescript'
         options.data.params = [hex]
@@ -267,7 +258,7 @@ class RawTransactions {
       const resolved = await Promise.all(promises)
 
       // Retrieve the data from each resolved promise.
-      const result = resolved.map(x => x.data.result)
+      const result = resolved.map((x) => x.data.result)
 
       res.status(200)
       return res.json(result)
@@ -281,7 +272,7 @@ class RawTransactions {
 
   // Retrieve raw transactions details from the full node.
 
-  async getRawTransactionsFromNode (txid, verbose) {
+  async getRawTransactionsFromNode(txid, verbose) {
     try {
       const options = _this.routeUtils.getAxiosOptions()
 
@@ -311,7 +302,7 @@ class RawTransactions {
    * curl -X POST "https://api.fullstack.cash/v3/rawtransactions/getRawTransaction" -H "accept: application/json" -H "Content-Type: application/json" -d '{"txids":["a5f972572ee1753e2fd2457dd61ce5f40fa2f8a30173d417e49feef7542c96a1","5165dc531aad05d1149bb0f0d9b7bda99c73e2f05e314bcfb5b4bb9ca5e1af5e"],"verbose":true}'
    *
    */
-  async getRawTransactionBulk (req, res, next) {
+  async getRawTransactionBulk(req, res, next) {
     try {
       let verbose = 0
       if (req.body.verbose) verbose = 1
@@ -326,7 +317,7 @@ class RawTransactions {
       if (!_this.routeUtils.validateArraySize(req, txids)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
@@ -350,15 +341,13 @@ class RawTransactions {
         if (txid.length !== 64) {
           res.status(400)
           return res.json({
-            error: `parameter 1 must be of length 64 (not ${txid.length})`
+            error: `parameter 1 must be of length 64 (not ${txid.length})`,
           })
         }
       }
 
       // Loop through each txid and create an array of promises
-      const promises = txids.map(async txid =>
-        _this.getRawTransactionsFromNode(txid, verbose)
-      )
+      const promises = txids.map(async (txid) => _this.getRawTransactionsFromNode(txid, verbose))
 
       // Wait for all parallel promises to return.
       const axiosResult = await _this.axios.all(promises)
@@ -387,7 +376,7 @@ class RawTransactions {
    *
    *
    */
-  async getRawTransactionSingle (req, res, next) {
+  async getRawTransactionSingle(req, res, next) {
     try {
       let verbose = 0
       if (req.query.verbose === 'true') verbose = 1
@@ -401,7 +390,7 @@ class RawTransactions {
       if (txid.length !== 64) {
         res.status(400)
         return res.json({
-          error: `parameter 1 must be of length 64 (not ${txid.length})`
+          error: `parameter 1 must be of length 64 (not ${txid.length})`,
         })
       }
 
@@ -411,10 +400,7 @@ class RawTransactions {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/getRawTransaction: `, err)
-      wlogger.error(
-        'Error in rawtransactions.ts/getRawTransactionSingle().',
-        err
-      )
+      wlogger.error('Error in rawtransactions.ts/getRawTransactionSingle().', err)
 
       return _this.errorHandler(err, res)
     }
@@ -433,7 +419,7 @@ class RawTransactions {
    *
    *
    */
-  async sendRawTransactionBulk (req, res, next) {
+  async sendRawTransactionBulk(req, res, next) {
     try {
       // Validation
       const hexes = req.body.hexes
@@ -450,7 +436,7 @@ class RawTransactions {
       if (!_this.routeUtils.validateArraySize(req, hexes)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
@@ -461,7 +447,7 @@ class RawTransactions {
         if (hex === '') {
           res.status(400)
           return res.json({
-            error: 'Encountered empty hex'
+            error: 'Encountered empty hex',
           })
         }
       }
@@ -505,10 +491,7 @@ class RawTransactions {
       res.status(200)
       return res.json(result)
     } catch (err) {
-      wlogger.error(
-        'Error in rawtransactions.ts/sendRawTransactionBulk().',
-        err
-      )
+      wlogger.error('Error in rawtransactions.ts/sendRawTransactionBulk().', err)
       return _this.errorHandler(err, res)
     }
   }
@@ -526,7 +509,7 @@ class RawTransactions {
    *
    *
    */
-  async sendRawTransactionSingle (req, res, next) {
+  async sendRawTransactionSingle(req, res, next) {
     try {
       const hex = req.params.hex // URL parameter
 
@@ -540,7 +523,7 @@ class RawTransactions {
       if (hex === '') {
         res.status(400)
         return res.json({
-          error: 'Encountered empty hex'
+          error: 'Encountered empty hex',
         })
       }
 
@@ -558,10 +541,7 @@ class RawTransactions {
       res.status(200)
       return res.json(result)
     } catch (err) {
-      wlogger.error(
-        'Error in rawtransactions.ts/sendRawTransactionSingle().',
-        err
-      )
+      wlogger.error('Error in rawtransactions.ts/sendRawTransactionSingle().', err)
       return _this.errorHandler(err, res)
     }
   }

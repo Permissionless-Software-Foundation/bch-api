@@ -28,7 +28,7 @@ const getTokenFromHeaders = (req, res, next) => {
           req.locals = {
             jwtToken: token,
             proLimit: false,
-            apiLevel: 0
+            apiLevel: 0,
           }
         } else {
           req.locals.jwtToken = token
@@ -43,7 +43,7 @@ const getTokenFromHeaders = (req, res, next) => {
 }
 
 const jwtAuth = {
-  getTokenFromHeaders
+  getTokenFromHeaders,
 }
 
 module.exports = jwtAuth

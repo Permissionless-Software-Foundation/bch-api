@@ -6,7 +6,7 @@ bch-api-main:
   links:
     - redis-main
   ports:
-    - "3000:3000"
+    - '3000:3000'
   volumes:
     - ../../logs:/home/safeuser/bch-api/logs
   restart: always
@@ -16,4 +16,4 @@ redis-main:
   container_name: redis-main
   restart: always
   ports:
-    - "172.17.0.1:6379:6379"
+    - '172.17.0.1:6379:6379'

@@ -13,7 +13,7 @@ const slpMocks = require('./slp-mocks')
 class BitboxNetwork {
   // constructor () {}
 
-  async getAllSlpBalancesAndUtxos (address) {
+  async getAllSlpBalancesAndUtxos(address) {
     return {
       satoshis_available_bch: 9996891,
       satoshis_in_slp_baton: 546,
@@ -22,22 +22,22 @@ class BitboxNetwork {
       satoshis_in_invalid_baton_dag: 0,
       slpTokenBalances: {
         '7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796': new BigNumber(
-          123400000000
-        )
+          123400000000,
+        ),
       },
       slpTokenUtxos: {
-        '7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796': []
+        '7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796': [],
       },
       slpBatonUtxos: {
-        '7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796': []
+        '7ac7f4bb50b019fe0f5c81e3fc13fc0720e130282ea460768cafb49785eb2796': [],
       },
       nonSlpUtxos: [{}],
       invalidTokenUtxos: [],
-      invalidBatonUtxos: []
+      invalidBatonUtxos: [],
     }
   }
 
-  async getTokenInformation (txid) {
+  async getTokenInformation(txid) {
     BigNumber.set({ DECIMAL_PLACES: 8, ROUNDING_MODE: 4 })
 
     const obj = {
@@ -50,13 +50,13 @@ class BitboxNetwork {
       decimals: 8,
       batonVout: 2,
       containsBaton: true,
-      genesisOrMintQuantity: new BigNumber(123400000000)
+      genesisOrMintQuantity: new BigNumber(123400000000),
     }
 
     return obj
   }
 
-  async getTransactionDetails (txid) {
+  async getTransactionDetails(txid) {
     return slpMocks.mockTx
   }
 }
@@ -65,7 +65,7 @@ class BitboxNetwork {
 const slpjs = {
   BitboxNetwork,
   slp: {},
-  validator: {}
+  validator: {},
 }
 
 module.exports = slpjs

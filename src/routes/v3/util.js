@@ -37,14 +37,14 @@ const bchjs = new BCHJS()
 let _this
 
 class UtilRoute {
-  constructor () {
+  constructor() {
     this.bchjs = bchjs
     this.blockbook = blockbook
 
     _this = this
   }
 
-  root (req, res, next) {
+  root(req, res, next) {
     return res.json({ status: 'util' })
   }
 
@@ -60,7 +60,7 @@ class UtilRoute {
    *
    *
    */
-  async validateAddressSingle (req, res, next) {
+  async validateAddressSingle(req, res, next) {
     try {
       const address = req.params.address
       if (!address || address === '') {
@@ -72,7 +72,7 @@ class UtilRoute {
         BitboxHTTP,
         // username,
         // password,
-        requestConfig
+        requestConfig,
       } = routeUtils.setEnvVars()
 
       requestConfig.data.id = 'validateaddress'
@@ -110,7 +110,7 @@ class UtilRoute {
    *
    *
    */
-  async validateAddressBulk (req, res, next) {
+  async validateAddressBulk(req, res, next) {
     try {
       const addresses = req.body.addresses
 
@@ -118,7 +118,7 @@ class UtilRoute {
       if (!Array.isArray(addresses)) {
         res.status(400)
         return res.json({
-          error: 'addresses needs to be an array. Use GET for single address.'
+          error: 'addresses needs to be an array. Use GET for single address.',
         })
       }
 
@@ -126,7 +126,7 @@ class UtilRoute {
       if (!routeUtils.validateArraySize(req, addresses)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: 'Array too large.'
+          error: 'Array too large.',
         })
       }
 
@@ -140,7 +140,7 @@ class UtilRoute {
         } catch (err) {
           res.status(400)
           return res.json({
-            error: `Invalid BCH address. Double check your address is valid: ${address}`
+            error: `Invalid BCH address. Double check your address is valid: ${address}`,
           })
         }
 
@@ -149,8 +149,7 @@ class UtilRoute {
         if (!networkIsValid) {
           res.status(400)
           return res.json({
-            error:
-              'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+            error: 'Invalid network. Trying to use a testnet address on mainnet, or vice versa.',
           })
         }
       }
@@ -161,11 +160,11 @@ class UtilRoute {
         BitboxHTTP,
         // username,
         // password,
-        requestConfig
+        requestConfig,
       } = routeUtils.setEnvVars()
 
       // Loop through each address and creates an array of requests to call in parallel
-      const promises = addresses.map(async address => {
+      const promises = addresses.map(async (address) => {
         requestConfig.data.id = 'validateaddress'
         requestConfig.data.method = 'validateaddress'
         requestConfig.data.params = [address]
@@ -177,7 +176,7 @@ class UtilRoute {
       const axiosResult = await axios.all(promises)
 
       // Retrieve the data part of the result.
-      const result = axiosResult.map(x => x.data.result)
+      const result = axiosResult.map((x) => x.data.result)
 
       res.status(200)
       return res.json(result)
@@ -214,7 +213,7 @@ class UtilRoute {
    *
    */
 
-  async sweepWif (req, res, next) {
+  async sweepWif(req, res, next) {
     try {
       // Validate input
       const wif = req.body.wif
@@ -224,7 +223,7 @@ class UtilRoute {
       if (typeof wif !== 'string' || wif.length !== 52) {
         res.status(400)
         return res.json({
-          error: 'WIF needs to a proper compressed WIF starting with K or L'
+          error: 'WIF needs to a proper compressed WIF starting with K or L',
         })
       }
 
@@ -247,8 +246,7 @@ class UtilRoute {
       // console.log(`balances: ${JSON.stringify(balances, null, 2)}`)
 
       // Total balance is the sum of the confirmed and unconfirmed balance.
-      const totalBalance =
-        Number(balances.balance) + Number(balances.unconfirmedBalance)
+      const totalBalance = Number(balances.balance) + Number(balances.unconfirmedBalance)
 
       // Exit if balance is zero.
       if (isNaN(totalBalance) || totalBalance === 0) {
@@ -293,8 +291,7 @@ class UtilRoute {
       if (bchUtxos.length === 0 && tokenUtxos.length > 0) {
         res.status(422)
         return res.json({
-          error:
-            'Tokens found, but no BCH UTXOs found. Add BCH to wallet to move tokens.'
+          error: 'Tokens found, but no BCH UTXOs found. Add BCH to wallet to move tokens.',
         })
       }
 
@@ -306,7 +303,7 @@ class UtilRoute {
         fromAddr,
         toAddr,
         bchUtxos,
-        tokenUtxos
+        tokenUtxos,
       }
 
       let hex
@@ -334,10 +331,7 @@ class UtilRoute {
       }
 
       // Catch the specific case of multiple tokens.
-      if (
-        err.message &&
-        err.message.indexOf('Multiple token classes detected') > -1
-      ) {
+      if (err.message && err.message.indexOf('Multiple token classes detected') > -1) {
         res.status(422)
         return res.json({ error: err.message })
       }
@@ -351,7 +345,7 @@ class UtilRoute {
   }
 
   // Sweep BCH only from a private WIF.
-  async _sweepBCH (options) {
+  async _sweepBCH(options) {
     try {
       // const wif = flags.wif
       // const toAddr = flags.address
@@ -368,7 +362,7 @@ class UtilRoute {
       let utxos = options.utxos
 
       // Ensure all utxos have the satoshis property.
-      utxos = utxos.map(x => {
+      utxos = utxos.map((x) => {
         x.satoshis = Number(x.value)
         return x
       })
@@ -392,26 +386,18 @@ class UtilRoute {
       }
 
       if (originalAmount < 546) {
-        throw new Error(
-          'Original amount less than the dust limit. Not enough BCH to send.'
-        )
+        throw new Error('Original amount less than the dust limit. Not enough BCH to send.')
       }
 
       // get byte count to calculate fee. paying 1 sat/byte
-      const byteCount = _this.bchjs.BitcoinCash.getByteCount(
-        { P2PKH: utxos.length },
-        { P2PKH: 1 }
-      )
+      const byteCount = _this.bchjs.BitcoinCash.getByteCount({ P2PKH: utxos.length }, { P2PKH: 1 })
       const fee = Math.ceil(1.1 * byteCount)
 
       // amount to send to receiver. It's the original amount - 1 sat/byte for tx size
       const sendAmount = originalAmount - fee
 
       // add output w/ address and amount to send
-      transactionBuilder.addOutput(
-        _this.bchjs.Address.toLegacyAddress(toAddr),
-        sendAmount
-      )
+      transactionBuilder.addOutput(_this.bchjs.Address.toLegacyAddress(toAddr), sendAmount)
 
       // Loop through each input and sign
       let redeemScript
@@ -423,7 +409,7 @@ class UtilRoute {
           ecPair,
           redeemScript,
           transactionBuilder.hashTypes.SIGHASH_ALL,
-          utxo.satoshis
+          utxo.satoshis,
         )
       }
 
@@ -440,7 +426,7 @@ class UtilRoute {
   }
 
   // Sweep BCH and tokens from a WIF.
-  async _sweepTokens (options) {
+  async _sweepTokens(options) {
     try {
       // const { ecPair, utxos, fromAddr, toAddr, bchUtxos, tokenUtxos } = options
       const { ecPair, utxos, toAddr, bchUtxos, tokenUtxos } = options
@@ -461,10 +447,10 @@ class UtilRoute {
       // Ensure there is only one class of token in the wallet. Throw an error if
       // there is more than one.
       const tokenId = tokenUtxos[0].tokenId
-      const otherTokens = tokenUtxos.filter(x => x.tokenId !== tokenId)
+      const otherTokens = tokenUtxos.filter((x) => x.tokenId !== tokenId)
       if (otherTokens.length > 0) {
         throw new Error(
-          'Multiple token classes detected. This function only supports a single class of token.'
+          'Multiple token classes detected. This function only supports a single class of token.',
         )
       }
 
@@ -489,9 +475,7 @@ class UtilRoute {
       }
 
       if (originalAmount < 300) {
-        throw new Error(
-          'Not enough BCH to send. Send more BCH to the wallet to pay miner fees.'
-        )
+        throw new Error('Not enough BCH to send. Send more BCH to the wallet to pay miner fees.')
       }
 
       // get byte count to calculate fee. paying 1 sat
@@ -522,19 +506,17 @@ class UtilRoute {
 
       // Generate the OP_RETURN entry for an SLP SEND transaction.
       // console.log(`Generating op-return.`)
-      const {
-        script,
-        outputs
-      } = _this.bchjs.SLP.TokenType1.generateSendOpReturn(tokenUtxos, tokenQty)
+      const { script, outputs } = _this.bchjs.SLP.TokenType1.generateSendOpReturn(
+        tokenUtxos,
+        tokenQty,
+      )
       // console.log(`token outputs: ${outputs}`)
 
       // Since we are sweeping all tokens from the WIF, there generateOpReturn()
       // function should only compute 1 token output. If it returns 2, then there
       // is something unexpected happening.
       if (outputs > 1) {
-        throw new Error(
-          'More than one class of token detected. Sweep feature not supported.'
-        )
+        throw new Error('More than one class of token detected. Sweep feature not supported.')
       }
 
       // Add OP_RETURN as first output.
@@ -542,16 +524,10 @@ class UtilRoute {
       transactionBuilder.addOutput(data, 0)
 
       // Send dust transaction representing tokens being sent.
-      transactionBuilder.addOutput(
-        _this.bchjs.Address.toLegacyAddress(toAddr),
-        546
-      )
+      transactionBuilder.addOutput(_this.bchjs.Address.toLegacyAddress(toAddr), 546)
 
       // Last output: send remaining BCH
-      transactionBuilder.addOutput(
-        _this.bchjs.Address.toLegacyAddress(toAddr),
-        remainder
-      )
+      transactionBuilder.addOutput(_this.bchjs.Address.toLegacyAddress(toAddr), remainder)
       // console.log(`utxo: ${JSON.stringify(utxo, null, 2)}`)
 
       // Sign each UTXO being consumed.
@@ -565,7 +541,7 @@ class UtilRoute {
           ecPair,
           redeemScript,
           transactionBuilder.hashTypes.SIGHASH_ALL,
-          thisUtxo.satoshis
+          thisUtxo.satoshis,
         )
       }
 
@@ -600,5 +576,5 @@ module.exports = {
   //   validateAddressBulk,
   //   sweepWif
   // }
-  UtilRoute
+  UtilRoute,
 }
