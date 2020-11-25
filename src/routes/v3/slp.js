@@ -41,7 +41,9 @@ const rawTransactions = new RawTransactions()
 
 // Setup REST and TREST URLs used by slpjs
 // Dev note: this allows for unit tests to mock the URL.
-if (!process.env.REST_URL) process.env.REST_URL = 'https://rest.bitcoin.com/v2/'
+if (!process.env.REST_URL) {
+  process.env.REST_URL = 'https://rest.bitcoin.com/v2/'
+}
 if (!process.env.TREST_URL) {
   process.env.TREST_URL = 'https://trest.bitcoin.com/v2/'
 }
@@ -1391,6 +1393,19 @@ class Slp {
     // const outputs = transaction.out
     const tokenOutputs = transaction.slp.detail.outputs
 
+    // Because you are not using insight, you do not get the sending addresses from an indexer
+    // or from the node
+    // However, they are available from the SLPDB output
+    const tokenInputs = transaction.in
+    // Collect the input addresses
+    const sendInputs = []
+    for (let i = 0; i < tokenInputs.length; i += 1) {
+      const tokenInput = tokenInputs[i]
+      const sendInput = {}
+      sendInput.address = tokenInput.e.a
+      sendInputs.push(sendInput)
+    }
+
     const sendOutputs = ['0']
     tokenOutputs.map((x) => {
       const string = parseFloat(x.amount) * 100000000
@@ -1400,9 +1415,13 @@ class Slp {
     const obj = {
       tokenInfo: {
         versionType: transaction.slp.detail.versionType,
+        tokenName: transaction.slp.detail.name,
+        tokenTicker: transaction.slp.detail.symbol,
         transactionType: transaction.slp.detail.transactionType,
         tokenIdHex: transaction.slp.detail.tokenIdHex,
         sendOutputs: sendOutputs,
+        sendInputsFull: sendInputs,
+        sendOutputsFull: transaction.slp.detail.outputs,
       },
       tokenIsValid: transaction.slp.valid,
     }
