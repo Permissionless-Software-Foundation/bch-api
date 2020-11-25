@@ -39,7 +39,7 @@ describe('#BlockchainRouter', () => {
       BITCOINCOM_BASEURL: process.env.BITCOINCOM_BASEURL,
       RPC_BASEURL: process.env.RPC_BASEURL,
       RPC_USERNAME: process.env.RPC_USERNAME,
-      RPC_PASSWORD: process.env.RPC_PASSWORD,
+      RPC_PASSWORD: process.env.RPC_PASSWORD
     }
 
     // Set default environment variables for unit tests.
@@ -102,7 +102,11 @@ describe('#BlockchainRouter', () => {
       process.env.RPC_BASEURL = savedUrl2
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('returns proper error when downstream service stalls', async () => {
@@ -113,7 +117,11 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('returns proper error when downstream service is down', async () => {
@@ -124,13 +132,19 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should GET /getBestBlockHash', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: mockData.mockBlockHash } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockBlockHash } })
       }
 
       const result = await uut.getBestBlockHash(req, res)
@@ -156,7 +170,11 @@ describe('#BlockchainRouter', () => {
       process.env.RPC_BASEURL = savedUrl2
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('returns proper error when downstream service stalls', async () => {
@@ -167,7 +185,11 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('returns proper error when downstream service is down', async () => {
@@ -178,7 +200,11 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should GET /getBlockchainInfo', async () => {
@@ -203,7 +229,7 @@ describe('#BlockchainRouter', () => {
         'chainwork',
         'pruned',
         'softforks',
-        'bip9_softforks',
+        'bip9_softforks'
       ])
     })
   })
@@ -223,7 +249,11 @@ describe('#BlockchainRouter', () => {
       process.env.RPC_BASEURL = savedUrl2
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('returns proper error when downstream service stalls', async () => {
@@ -234,7 +264,11 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
@@ -244,13 +278,19 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should GET /getBlockCount', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: 126769 } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: 126769 } })
       }
 
       const result = await uut.getBlockCount(req, res)
@@ -275,7 +315,8 @@ describe('#BlockchainRouter', () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = 'http://fakeurl/api/'
 
-      req.params.hash = '00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900'
+      req.params.hash =
+        '00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900'
 
       const result = await uut.getBlockHeaderSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -287,32 +328,42 @@ describe('#BlockchainRouter', () => {
       assert.include(
         result.error,
         'Network error: Could not communicate with full node',
-        'Error message expected',
+        'Error message expected'
       )
     })
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
 
-      req.params.hash = '00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900'
+      req.params.hash =
+        '00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900'
 
       const result = await uut.getBlockHeaderSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
-      req.params.hash = '00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900'
+      req.params.hash =
+        '00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900'
 
       const result = await uut.getBlockHeaderSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('should GET block header', async () => {
       // Mock the RPC call for unit tests.
@@ -320,12 +371,13 @@ describe('#BlockchainRouter', () => {
         sandbox.stub(uut.axios, 'request').resolves({
           data: {
             result:
-              '000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c',
-          },
+              '000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c'
+          }
         })
       }
 
-      req.params.hash = '000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0'
+      req.params.hash =
+        '000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0'
 
       const result = await uut.getBlockHeaderSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -333,18 +385,21 @@ describe('#BlockchainRouter', () => {
       assert.isString(result)
       assert.equal(
         result,
-        '000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c',
+        '000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c'
       )
     })
 
     it('should GET verbose block header', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: mockData.mockBlockHeader } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockBlockHeader } })
       }
 
       req.query.verbose = true
-      req.params.hash = '000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0'
+      req.params.hash =
+        '000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0'
 
       const result = await uut.getBlockHeaderSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -364,7 +419,7 @@ describe('#BlockchainRouter', () => {
         'chainwork',
         'previousblockhash',
         'nextblockhash',
-        'nTx',
+        'nTx'
       ])
     })
   })
@@ -378,16 +433,25 @@ describe('#BlockchainRouter', () => {
       const result = await uut.getBlockHeaderBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'hashes needs to be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'hashes needs to be an array',
+        'Proper error message'
+      )
     })
 
     it('should error on non-array single hash', async () => {
-      req.body.hashes = '00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900'
+      req.body.hashes =
+        '00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900'
 
       const result = await uut.getBlockHeaderBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'hashes needs to be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'hashes needs to be an array',
+        'Proper error message'
+      )
     })
 
     it('should throw 400 error if addresses array is too large', async () => {
@@ -416,7 +480,9 @@ describe('#BlockchainRouter', () => {
       const savedUrl = process.env.BITCOINCOM_BASEURL
 
       try {
-        req.body.hashes = ['00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900']
+        req.body.hashes = [
+          '00000000000008c3679777df34f1a09565f98b2400a05b7c8da72525fdca3900'
+        ]
 
         // Switch the Insight URL to something that will error out.
         process.env.BITCOINCOM_BASEURL = 'http://fakeurl/api/'
@@ -438,29 +504,43 @@ describe('#BlockchainRouter', () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
 
-      req.body.hashes = ['000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0']
+      req.body.hashes = [
+        '000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0'
+      ]
 
       const result = await uut.getBlockHeaderBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
-      req.body.hashes = ['000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0']
+      req.body.hashes = [
+        '000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0'
+      ]
 
       const result = await uut.getBlockHeaderBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should get concise block header for a single hash', async () => {
-      req.body.hashes = ['000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0']
+      req.body.hashes = [
+        '000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0'
+      ]
 
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
@@ -477,19 +557,23 @@ describe('#BlockchainRouter', () => {
       assert.isArray(result)
       assert.equal(
         result[0],
-        '000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c',
+        '000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c'
       )
     })
 
     it('should get verbose block header for a single hash', async () => {
       req.body = {
-        hashes: ['000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0'],
-        verbose: true,
+        hashes: [
+          '000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0'
+        ],
+        verbose: true
       }
 
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: mockData.mockBlockHeader } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockBlockHeader } })
       }
 
       // Call the details API.
@@ -513,14 +597,14 @@ describe('#BlockchainRouter', () => {
         'chainwork',
         'previousblockhash',
         'nextblockhash',
-        'nTx',
+        'nTx'
       ])
     })
 
     it('should get details for multiple block heights', async () => {
       req.body.hashes = [
         '000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0',
-        '000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0',
+        '000000000000000002fa9d7851b284c53a5831651b04211c266badf2ad2d8ef0'
       ]
 
       // Mock the RPC call for unit tests.
@@ -553,7 +637,11 @@ describe('#BlockchainRouter', () => {
       process.env.RPC_BASEURL = savedUrl2
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
@@ -563,7 +651,11 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
@@ -573,13 +665,19 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should GET /getChainTips', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: mockData.mockChainTips } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockChainTips } })
       }
 
       const result = await uut.getChainTips(req, res)
@@ -604,7 +702,11 @@ describe('#BlockchainRouter', () => {
       process.env.RPC_BASEURL = savedUrl2
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
@@ -614,7 +716,11 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
@@ -624,13 +730,19 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should GET /getDifficulty', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: 4049809.205246544 } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: 4049809.205246544 } })
       }
 
       const result = await uut.getDifficulty(req, res)
@@ -654,7 +766,11 @@ describe('#BlockchainRouter', () => {
       process.env.RPC_BASEURL = savedUrl2
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
@@ -664,7 +780,11 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
@@ -674,19 +794,31 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should GET /getMempoolInfo', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: mockData.mockMempoolInfo } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockMempoolInfo } })
       }
 
       const result = await uut.getMempoolInfo(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAnyKeys(result, ['result', 'bytes', 'usage', 'maxmempool', 'mempoolminfree'])
+      assert.hasAnyKeys(result, [
+        'result',
+        'bytes',
+        'usage',
+        'maxmempool',
+        'mempoolminfree'
+      ])
     })
   })
   describe('getRawMempool()', () => {
@@ -704,7 +836,11 @@ describe('#BlockchainRouter', () => {
       process.env.RPC_BASEURL = savedUrl2
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
@@ -714,7 +850,11 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
@@ -724,13 +864,19 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should GET /getMempoolInfo', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: mockData.mockRawMempool } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockRawMempool } })
       }
 
       const result = await uut.getRawMempool(req, res)
@@ -756,7 +902,8 @@ describe('#BlockchainRouter', () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = 'http://fakeurl/api/'
 
-      req.params.txid = 'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
+      req.params.txid =
+        'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
 
       const result = await uut.getMempoolEntrySingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -765,42 +912,57 @@ describe('#BlockchainRouter', () => {
       process.env.RPC_BASEURL = savedUrl2
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
 
-      req.params.txid = 'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
+      req.params.txid =
+        'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
 
       const result = await uut.getMempoolEntrySingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
-      req.params.txid = 'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
+      req.params.txid =
+        'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
 
       const result = await uut.getMempoolEntrySingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should GET /getMempoolEntry', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox.stub(uut.axios, 'request').resolves({
-          data: { result: { error: 'Transaction not in mempool' } },
+          data: { result: { error: 'Transaction not in mempool' } }
         })
       }
 
-      req.params.txid = 'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
+      req.params.txid =
+        'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
 
       const result = await uut.getMempoolEntrySingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -817,16 +979,25 @@ describe('#BlockchainRouter', () => {
       const result = await uut.getMempoolEntryBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'txids needs to be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'txids needs to be an array',
+        'Proper error message'
+      )
     })
 
     it('should error on non-array single txid', async () => {
-      req.body.txids = 'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
+      req.body.txids =
+        'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
 
       const result = await uut.getMempoolEntryBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'txids needs to be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'txids needs to be an array',
+        'Proper error message'
+      )
     })
 
     it('should throw 400 error if addresses array is too large', async () => {
@@ -845,25 +1016,37 @@ describe('#BlockchainRouter', () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
 
-      req.body.txids = ['d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde']
+      req.body.txids = [
+        'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
+      ]
 
       const result = await uut.getMempoolEntryBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
-      req.body.txids = ['d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde']
+      req.body.txids = [
+        'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
+      ]
 
       const result = await uut.getMempoolEntryBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     // Only execute on integration tests.
     if (process.env.TEST !== 'unit') {
@@ -871,7 +1054,9 @@ describe('#BlockchainRouter', () => {
       // stay in the mempool for long, so it does not work well for a unit or
       // integration test.
       it('should retrieve single mempool entry', async () => {
-        req.body.txids = ['d65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde']
+        req.body.txids = [
+          'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
+        ]
 
         const result = await uut.getMempoolEntryBulk(req, res)
         // console.log(`result: ${util.inspect(result)}`)
@@ -887,7 +1072,7 @@ describe('#BlockchainRouter', () => {
       it('should retrieve multiple mempool entries', async () => {
         req.body.txids = [
           'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde',
-          'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde',
+          'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
         ]
 
         const result = await uut.getMempoolEntryBulk(req, res)
@@ -915,7 +1100,8 @@ describe('#BlockchainRouter', () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = 'http://fakeurl/api/'
 
-      req.params.txid = 'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
+      req.params.txid =
+        'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
 
       const result = await uut.getMempoolAncestorsSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -924,36 +1110,53 @@ describe('#BlockchainRouter', () => {
       process.env.RPC_BASEURL = savedUrl2
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
 
-      req.params.txid = 'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
+      req.params.txid =
+        'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
 
       const result = await uut.getMempoolAncestorsSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
-      req.params.txid = 'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
+      req.params.txid =
+        'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
 
       const result = await uut.getMempoolAncestorsSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('should GET /getMempoolAncestorsSingle', async () => {
-      sandbox.stub(uut.axios, 'request').resolves({ data: { result: mockData.mockAncestors } })
+      sandbox
+        .stub(uut.axios, 'request')
+        .resolves({ data: { result: mockData.mockAncestors } })
 
-      req.params.txid = 'bb0d349892d351da2767f8c45f6f7949713ff09bd12838d53e76158ddee3ce93'
+      req.params.txid =
+        'bb0d349892d351da2767f8c45f6f7949713ff09bd12838d53e76158ddee3ce93'
 
       const result = await uut.getMempoolAncestorsSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -987,7 +1190,8 @@ describe('#BlockchainRouter', () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = 'http://fakeurl/api/'
 
-      req.params.txid = 'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
+      req.params.txid =
+        'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
       req.params.n = 0
 
       const result = await uut.getTxOut(req, res)
@@ -997,14 +1201,19 @@ describe('#BlockchainRouter', () => {
       process.env.RPC_BASEURL = savedUrl2
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
 
-      req.params.txid = '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
+      req.params.txid =
+        '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
       req.params.n = 0
       req.query.include_mempool = 'true'
 
@@ -1012,14 +1221,19 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
-      req.params.txid = '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
+      req.params.txid =
+        '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
       req.params.n = 0
       req.query.include_mempool = 'true'
 
@@ -1027,25 +1241,44 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     // This test can only run for unit tests. See TODO at the top of this file.
     it('should GET /getTxOut', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: mockData.mockTxOut } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockTxOut } })
       }
 
-      req.params.txid = '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
+      req.params.txid =
+        '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
       req.params.n = 0
       req.query.include_mempool = 'true'
 
       const result = await uut.getTxOut(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
-      assert.hasAllKeys(result, ['bestblock', 'confirmations', 'value', 'scriptPubKey', 'coinbase'])
-      assert.hasAllKeys(result.scriptPubKey, ['asm', 'hex', 'reqSigs', 'type', 'addresses'])
+      assert.hasAllKeys(result, [
+        'bestblock',
+        'confirmations',
+        'value',
+        'scriptPubKey',
+        'coinbase'
+      ])
+      assert.hasAllKeys(result.scriptPubKey, [
+        'asm',
+        'hex',
+        'reqSigs',
+        'type',
+        'addresses'
+      ])
       assert.isArray(result.scriptPubKey.addresses)
     })
   })
@@ -1075,7 +1308,8 @@ describe('#BlockchainRouter', () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = 'http://fakeurl/api/'
 
-      req.body.txid = 'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
+      req.body.txid =
+        'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
       req.body.vout = 0
 
       const result = await uut.getTxOutPost(req, res)
@@ -1085,14 +1319,19 @@ describe('#BlockchainRouter', () => {
       process.env.RPC_BASEURL = savedUrl2
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
 
-      req.body.txid = '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
+      req.body.txid =
+        '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
       req.body.vout = 0
       req.body.mempool = true
 
@@ -1100,14 +1339,19 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
-      req.body.txid = '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
+      req.body.txid =
+        '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
       req.body.vout = 0
       req.body.mempool = true
 
@@ -1115,24 +1359,43 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should POST /getTxOut', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: mockData.mockTxOut } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockTxOut } })
       }
 
-      req.body.txid = '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
+      req.body.txid =
+        '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
       req.body.vout = 0
       req.body.mempool = true
 
       const result = await uut.getTxOutPost(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
-      assert.hasAllKeys(result, ['bestblock', 'confirmations', 'value', 'scriptPubKey', 'coinbase'])
-      assert.hasAllKeys(result.scriptPubKey, ['asm', 'hex', 'reqSigs', 'type', 'addresses'])
+      assert.hasAllKeys(result, [
+        'bestblock',
+        'confirmations',
+        'value',
+        'scriptPubKey',
+        'coinbase'
+      ])
+      assert.hasAllKeys(result.scriptPubKey, [
+        'asm',
+        'hex',
+        'reqSigs',
+        'type',
+        'addresses'
+      ])
       assert.isArray(result.scriptPubKey.addresses)
     })
   })
@@ -1153,7 +1416,8 @@ describe('#BlockchainRouter', () => {
       // Manipulate the URL to cause a 500 network error.
       process.env.RPC_BASEURL = 'http://fakeurl/api/'
 
-      req.params.txid = 'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
+      req.params.txid =
+        'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
 
       const result = await uut.getTxOutProofSingle(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -1162,14 +1426,19 @@ describe('#BlockchainRouter', () => {
       process.env.RPC_BASEURL = savedUrl2
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
 
-      req.params.txid = '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
+      req.params.txid =
+        '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
       req.params.n = 0
       req.query.include_mempool = 'true'
 
@@ -1177,14 +1446,19 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
-      req.params.txid = '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
+      req.params.txid =
+        '197dcda59864b1eee05498fd3c52cad787ec56ab7e635503cb39f9ab6f295d5d'
       req.params.n = 0
       req.query.include_mempool = 'true'
 
@@ -1192,16 +1466,23 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should GET /getTxOutProof', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: mockData.mockTxOutProof } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockTxOutProof } })
       }
 
-      req.params.txid = '2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266'
+      req.params.txid =
+        '2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266'
 
       const result = await uut.getTxOutProofSingle(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -1217,16 +1498,25 @@ describe('#BlockchainRouter', () => {
       const result = await uut.getTxOutProofBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'txids needs to be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'txids needs to be an array',
+        'Proper error message'
+      )
     })
 
     it('should error on non-array single txid', async () => {
-      req.body.txids = 'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
+      req.body.txids =
+        'd65881582ff2bff36747d7a0d0e273f10281abc8bd5c15df5d72f8f3fa779cde'
 
       const result = await uut.getTxOutProofBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'txids needs to be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'txids needs to be an array',
+        'Proper error message'
+      )
     })
 
     it('should throw 400 error if addresses array is too large', async () => {
@@ -1246,35 +1536,51 @@ describe('#BlockchainRouter', () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
 
-      req.body.txids = ['2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266']
+      req.body.txids = [
+        '2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266'
+      ]
 
       const result = await uut.getTxOutProofBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
-      req.body.txids = ['2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266']
+      req.body.txids = [
+        '2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266'
+      ]
 
       const result = await uut.getTxOutProofBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should GET proof for single txid', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: mockData.mockTxOutProof } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockTxOutProof } })
       }
 
-      req.body.txids = ['2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266']
+      req.body.txids = [
+        '2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266'
+      ]
 
       const result = await uut.getTxOutProofBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -1286,12 +1592,14 @@ describe('#BlockchainRouter', () => {
     it('should GET proof for multiple txids', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: mockData.mockTxOutProof } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockTxOutProof } })
       }
 
       req.body.txids = [
         '2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266',
-        '2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266',
+        '2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266'
       ]
 
       const result = await uut.getTxOutProofBulk(req, res)
@@ -1326,7 +1634,11 @@ describe('#BlockchainRouter', () => {
       process.env.RPC_BASEURL = savedUrl2
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
@@ -1339,7 +1651,11 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
@@ -1352,14 +1668,21 @@ describe('#BlockchainRouter', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('should GET /verifyTxOutProof', async () => {
-      const expected = '2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266'
+      const expected =
+        '2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266'
 
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: [expected] } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: [expected] } })
       }
 
       req.params.proof =
@@ -1380,7 +1703,11 @@ describe('#BlockchainRouter', () => {
       const result = await uut.verifyTxOutProofBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'proofs needs to be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'proofs needs to be an array',
+        'Proper error message'
+      )
     })
 
     it('should error on non-array single txid', async () => {
@@ -1389,7 +1716,11 @@ describe('#BlockchainRouter', () => {
       const result = await uut.verifyTxOutProofBulk(req, res)
 
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(result.error, 'proofs needs to be an array', 'Proper error message')
+      assert.include(
+        result.error,
+        'proofs needs to be an array',
+        'Proper error message'
+      )
     })
 
     it('should throw 400 error if addresses array is too large', async () => {
@@ -1410,38 +1741,49 @@ describe('#BlockchainRouter', () => {
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
 
       req.body.proofs = [
-        '000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c1e000000067139f230701a2819a76795564bd2f67ded7eeae68596f368eddb3dd5bc54e59320e896f71d61cfc3ae3d4a90fca08b1aa35ba91256d8939d2cad11e638c0081f66724abdef55cf7b8b9fed064bce0369171434f8b289c1330ccef765f8e97a2c0d794d81aafb535855f7daa6bb51e40f77c6b59d7af7f62d0eb726a4fc4df82353d56fcbda7c7ea6bd935d61af8fb3b295637e6f323b10231135b3f10a034cfb238f635830c0595e52c6c31247cf677b555f7a287076e20cd0e1d3cc9af7260f02b700',
+        '000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c1e000000067139f230701a2819a76795564bd2f67ded7eeae68596f368eddb3dd5bc54e59320e896f71d61cfc3ae3d4a90fca08b1aa35ba91256d8939d2cad11e638c0081f66724abdef55cf7b8b9fed064bce0369171434f8b289c1330ccef765f8e97a2c0d794d81aafb535855f7daa6bb51e40f77c6b59d7af7f62d0eb726a4fc4df82353d56fcbda7c7ea6bd935d61af8fb3b295637e6f323b10231135b3f10a034cfb238f635830c0595e52c6c31247cf677b555f7a287076e20cd0e1d3cc9af7260f02b700'
       ]
       const result = await uut.verifyTxOutProofBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
       req.body.proofs = [
-        '000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c1e000000067139f230701a2819a76795564bd2f67ded7eeae68596f368eddb3dd5bc54e59320e896f71d61cfc3ae3d4a90fca08b1aa35ba91256d8939d2cad11e638c0081f66724abdef55cf7b8b9fed064bce0369171434f8b289c1330ccef765f8e97a2c0d794d81aafb535855f7daa6bb51e40f77c6b59d7af7f62d0eb726a4fc4df82353d56fcbda7c7ea6bd935d61af8fb3b295637e6f323b10231135b3f10a034cfb238f635830c0595e52c6c31247cf677b555f7a287076e20cd0e1d3cc9af7260f02b700',
+        '000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c1e000000067139f230701a2819a76795564bd2f67ded7eeae68596f368eddb3dd5bc54e59320e896f71d61cfc3ae3d4a90fca08b1aa35ba91256d8939d2cad11e638c0081f66724abdef55cf7b8b9fed064bce0369171434f8b289c1330ccef765f8e97a2c0d794d81aafb535855f7daa6bb51e40f77c6b59d7af7f62d0eb726a4fc4df82353d56fcbda7c7ea6bd935d61af8fb3b295637e6f323b10231135b3f10a034cfb238f635830c0595e52c6c31247cf677b555f7a287076e20cd0e1d3cc9af7260f02b700'
       ]
       const result = await uut.verifyTxOutProofBulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-      assert.include(result.error, 'Could not communicate with full node', 'Error message expected')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
     it('should get single proof', async () => {
-      const expected = '2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266'
+      const expected =
+        '2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266'
 
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: [expected] } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: [expected] } })
       }
 
       req.body.proofs = [
-        '000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c1e000000067139f230701a2819a76795564bd2f67ded7eeae68596f368eddb3dd5bc54e59320e896f71d61cfc3ae3d4a90fca08b1aa35ba91256d8939d2cad11e638c0081f66724abdef55cf7b8b9fed064bce0369171434f8b289c1330ccef765f8e97a2c0d794d81aafb535855f7daa6bb51e40f77c6b59d7af7f62d0eb726a4fc4df82353d56fcbda7c7ea6bd935d61af8fb3b295637e6f323b10231135b3f10a034cfb238f635830c0595e52c6c31247cf677b555f7a287076e20cd0e1d3cc9af7260f02b700',
+        '000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c1e000000067139f230701a2819a76795564bd2f67ded7eeae68596f368eddb3dd5bc54e59320e896f71d61cfc3ae3d4a90fca08b1aa35ba91256d8939d2cad11e638c0081f66724abdef55cf7b8b9fed064bce0369171434f8b289c1330ccef765f8e97a2c0d794d81aafb535855f7daa6bb51e40f77c6b59d7af7f62d0eb726a4fc4df82353d56fcbda7c7ea6bd935d61af8fb3b295637e6f323b10231135b3f10a034cfb238f635830c0595e52c6c31247cf677b555f7a287076e20cd0e1d3cc9af7260f02b700'
       ]
 
       const result = await uut.verifyTxOutProofBulk(req, res)
@@ -1453,16 +1795,19 @@ describe('#BlockchainRouter', () => {
     })
 
     it('should get multiple proofs', async () => {
-      const expected = '2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266'
+      const expected =
+        '2c7ae9f865f7ce0c33c189b2f83414176903ce4b06ed9f8b7bcf55efbd4a7266'
 
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox.stub(uut.axios, 'request').resolves({ data: { result: [expected] } })
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: [expected] } })
       }
 
       req.body.proofs = [
         '000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c1e000000067139f230701a2819a76795564bd2f67ded7eeae68596f368eddb3dd5bc54e59320e896f71d61cfc3ae3d4a90fca08b1aa35ba91256d8939d2cad11e638c0081f66724abdef55cf7b8b9fed064bce0369171434f8b289c1330ccef765f8e97a2c0d794d81aafb535855f7daa6bb51e40f77c6b59d7af7f62d0eb726a4fc4df82353d56fcbda7c7ea6bd935d61af8fb3b295637e6f323b10231135b3f10a034cfb238f635830c0595e52c6c31247cf677b555f7a287076e20cd0e1d3cc9af7260f02b700',
-        '000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c1e000000067139f230701a2819a76795564bd2f67ded7eeae68596f368eddb3dd5bc54e59320e896f71d61cfc3ae3d4a90fca08b1aa35ba91256d8939d2cad11e638c0081f66724abdef55cf7b8b9fed064bce0369171434f8b289c1330ccef765f8e97a2c0d794d81aafb535855f7daa6bb51e40f77c6b59d7af7f62d0eb726a4fc4df82353d56fcbda7c7ea6bd935d61af8fb3b295637e6f323b10231135b3f10a034cfb238f635830c0595e52c6c31247cf677b555f7a287076e20cd0e1d3cc9af7260f02b700',
+        '000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c1e000000067139f230701a2819a76795564bd2f67ded7eeae68596f368eddb3dd5bc54e59320e896f71d61cfc3ae3d4a90fca08b1aa35ba91256d8939d2cad11e638c0081f66724abdef55cf7b8b9fed064bce0369171434f8b289c1330ccef765f8e97a2c0d794d81aafb535855f7daa6bb51e40f77c6b59d7af7f62d0eb726a4fc4df82353d56fcbda7c7ea6bd935d61af8fb3b295637e6f323b10231135b3f10a034cfb238f635830c0595e52c6c31247cf677b555f7a287076e20cd0e1d3cc9af7260f02b700'
       ]
 
       const result = await uut.verifyTxOutProofBulk(req, res)

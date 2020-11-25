@@ -23,8 +23,7 @@ let req, res, next
 // let originalEnvVars // Used during transition from integration to unit tests.
 
 // JWT token used in tests.
-const jwt =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkYWRlM2Y1NzM5ZTZjMGZmMDM0YjlhMSIsImlhdCI6MTU3MTY3NzQ1MCwiZXhwIjoxNTc0MjY5NDUwfQ.SSz7F7ETyBB3eoNG2VKCzPOhddtB-vrtmEoj7PxicrQ'
+const jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVkYWRlM2Y1NzM5ZTZjMGZmMDM0YjlhMSIsImlhdCI6MTU3MTY3NzQ1MCwiZXhwIjoxNTc0MjY5NDUwfQ.SSz7F7ETyBB3eoNG2VKCzPOhddtB-vrtmEoj7PxicrQ'
 
 describe('#route-ratelimits & jwt-auth', () => {
   let sandbox
@@ -38,9 +37,7 @@ describe('#route-ratelimits & jwt-auth', () => {
     //   RPC_PASSWORD: process.env.RPC_PASSWORD
     // }
 
-    if (!process.env.JWT_AUTH_SERVER) {
-      process.env.JWT_AUTH_SERVER = 'http://fakeurl.com/'
-    }
+    if (!process.env.JWT_AUTH_SERVER) { process.env.JWT_AUTH_SERVER = 'http://fakeurl.com/' }
 
     // Wipe the Redis DB, which prevents false negatives when running integration
     // tests back-to-back.
@@ -77,7 +74,7 @@ describe('#route-ratelimits & jwt-auth', () => {
         // Initialize req.locals
         req.locals = {
           proLimit: false,
-          apiLevel: 0,
+          apiLevel: 0
         }
 
         const header = `Token ${jwt}`
@@ -119,7 +116,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       const jwtInfo = {
         apiLevel: 10,
         resource: 'blockchain',
-        id: '5e3a0415eb29a962da2708b4',
+        id: '5e3a0415eb29a962da2708b4'
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
@@ -130,7 +127,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       const jwtInfo = {
         apiLevel: 10,
         resource: 'blockbook',
-        id: '5e3a0415eb29a962da2708b4',
+        id: '5e3a0415eb29a962da2708b4'
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
@@ -141,7 +138,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       const jwtInfo = {
         apiLevel: 10,
         resource: 'slp',
-        id: '5e3a0415eb29a962da2708b4',
+        id: '5e3a0415eb29a962da2708b4'
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
@@ -152,7 +149,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       const jwtInfo = {
         apiLevel: 20,
         resource: 'blockchain',
-        id: '5e3a0415eb29a962da2708b4',
+        id: '5e3a0415eb29a962da2708b4'
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
@@ -163,7 +160,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       const jwtInfo = {
         apiLevel: 20,
         resource: 'blockbook',
-        id: '5e3a0415eb29a962da2708b4',
+        id: '5e3a0415eb29a962da2708b4'
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
@@ -174,7 +171,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       const jwtInfo = {
         apiLevel: 20,
         resource: 'slp',
-        id: '5e3a0415eb29a962da2708b4',
+        id: '5e3a0415eb29a962da2708b4'
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
@@ -185,7 +182,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       const jwtInfo = {
         apiLevel: 30,
         resource: 'blockchain',
-        id: '5e3a0415eb29a962da2708b4',
+        id: '5e3a0415eb29a962da2708b4'
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
@@ -196,7 +193,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       const jwtInfo = {
         apiLevel: 30,
         resource: 'blockbook',
-        id: '5e3a0415eb29a962da2708b4',
+        id: '5e3a0415eb29a962da2708b4'
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
@@ -207,7 +204,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       const jwtInfo = {
         apiLevel: 30,
         resource: 'slp',
-        id: '5e3a0415eb29a962da2708b4',
+        id: '5e3a0415eb29a962da2708b4'
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
@@ -218,7 +215,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       const jwtInfo = {
         apiLevel: 40,
         resource: 'blockchain',
-        id: '5e3a0415eb29a962da2708b4',
+        id: '5e3a0415eb29a962da2708b4'
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
@@ -229,7 +226,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       const jwtInfo = {
         apiLevel: 40,
         resource: 'blockbook',
-        id: '5e3a0415eb29a962da2708b4',
+        id: '5e3a0415eb29a962da2708b4'
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
@@ -240,7 +237,7 @@ describe('#route-ratelimits & jwt-auth', () => {
       const jwtInfo = {
         apiLevel: 40,
         resource: 'slp',
-        id: '5e3a0415eb29a962da2708b4',
+        id: '5e3a0415eb29a962da2708b4'
       }
 
       const result = rateLimits.calcPoints(jwtInfo)
@@ -279,7 +276,11 @@ describe('#route-ratelimits & jwt-auth', () => {
       }
 
       // Note: next() will be called unless the rate-limit kicks in.
-      assert.equal(next.called, false, 'next should not be called if rate limit was triggered.')
+      assert.equal(
+        next.called,
+        false,
+        'next should not be called if rate limit was triggered.'
+      )
     })
 
     it('should NOT trigger rate-limit for free-tier at 5 RPM', async () => {
@@ -295,7 +296,7 @@ describe('#route-ratelimits & jwt-auth', () => {
 
       const jwtInfo = {
         apiLevel: 10,
-        id: '5e3a0415eb29a962da2708b1',
+        id: '5e3a0415eb29a962da2708b1'
       }
 
       // Mock the call to the jwt library.
@@ -311,7 +312,11 @@ describe('#route-ratelimits & jwt-auth', () => {
       // console.log(`req.locals after test: ${util.inspect(req.locals)}`)
 
       // Note: next() will be called unless the rate-limit kicks in.
-      assert.equal(next.called, true, 'next should be called if rate limit was not triggered.')
+      assert.equal(
+        next.called,
+        true,
+        'next should be called if rate limit was not triggered.'
+      )
     })
 
     it('should trigger rate-limit for free tier after 20 RPM', async () => {
@@ -327,7 +332,7 @@ describe('#route-ratelimits & jwt-auth', () => {
 
       const jwtInfo = {
         apiLevel: 10,
-        id: '5e3a0415eb29a962da2708b2',
+        id: '5e3a0415eb29a962da2708b2'
       }
 
       // Mock the call to the jwt library.
@@ -341,7 +346,11 @@ describe('#route-ratelimits & jwt-auth', () => {
       }
 
       // Note: next() will be called unless the rate-limit kicks in.
-      assert.equal(next.called, false, 'next should not be called if rate limit was triggered.')
+      assert.equal(
+        next.called,
+        false,
+        'next should not be called if rate limit was triggered.'
+      )
     })
 
     it('should NOT trigger rate-limit handler for indexer-tier at 25 RPM', async () => {
@@ -357,7 +366,7 @@ describe('#route-ratelimits & jwt-auth', () => {
 
       const jwtInfo = {
         apiLevel: 20,
-        id: '5e3a0415eb29a962da2708b3',
+        id: '5e3a0415eb29a962da2708b3'
       }
 
       // Mock the call to the jwt library.
@@ -373,7 +382,11 @@ describe('#route-ratelimits & jwt-auth', () => {
       // console.log(`req.locals after test: ${util.inspect(req.locals)}`)
 
       // Note: next() will be called unless the rate-limit kicks in.
-      assert.equal(next.called, true, 'next should be called if rate limit was not triggered.')
+      assert.equal(
+        next.called,
+        true,
+        'next should be called if rate limit was not triggered.'
+      )
     })
 
     it('should still rate-limit at a higher RPM for pro-tier', async () => {
@@ -389,7 +402,7 @@ describe('#route-ratelimits & jwt-auth', () => {
 
       const jwtInfo = {
         apiLevel: 20,
-        id: '5e3a0415eb29a962da2708b5',
+        id: '5e3a0415eb29a962da2708b5'
       }
 
       // Mock the call to the jwt library.
@@ -405,7 +418,11 @@ describe('#route-ratelimits & jwt-auth', () => {
       // console.log(`req.locals after test: ${util.inspect(req.locals)}`)
 
       // Note: next() will be called unless the rate-limit kicks in.
-      assert.equal(next.called, false, 'next should NOT be called if rate limit was triggered.')
+      assert.equal(
+        next.called,
+        false,
+        'next should NOT be called if rate limit was triggered.'
+      )
     })
 
     it('should handle misconfigured token secret', async () => {

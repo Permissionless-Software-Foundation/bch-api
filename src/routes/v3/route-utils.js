@@ -18,14 +18,14 @@ module.exports = {
   setEnvVars, // Allows RPC variables to be set dynamically based on changing env vars.
   decodeError, // Extract and interpret error messages.
   validateArraySize, // Ensure the passed array meets rate limiting requirements.
-  getAxiosOptions,
+  getAxiosOptions
 }
 
 // This function expects the Request Express.js object and an array as input.
 // The array is then validated against freemium and pro-tier rate limiting
 // requirements. A boolean is returned to indicate if the array size if valid
 // or not.
-function validateArraySize(req, array) {
+function validateArraySize (req, array) {
   const FREEMIUM_INPUT_SIZE = 20
   const PRO_INPUT_SIZE = 20
 
@@ -43,7 +43,7 @@ function validateArraySize(req, array) {
 // This prevent a common user-error issue that is easy to make: passing a
 // testnet address into rest.bitcoin.com or passing a mainnet address into
 // trest.bitcoin.com.
-function validateNetwork(addr) {
+function validateNetwork (addr) {
   try {
     const network = process.env.NETWORK
 
@@ -73,10 +73,10 @@ function validateNetwork(addr) {
 }
 
 // Dynamically set these based on env vars. Allows unit testing.
-function setEnvVars() {
+function setEnvVars () {
   const BitboxHTTP = axios.create({
     baseURL: process.env.RPC_BASEURL,
-    timeout: 15000,
+    timeout: 15000
   })
   const username = process.env.RPC_USERNAME
   const password = process.env.RPC_PASSWORD
@@ -85,29 +85,29 @@ function setEnvVars() {
     method: 'post',
     auth: {
       username: username,
-      password: password,
+      password: password
     },
     data: {
-      jsonrpc: '1.0',
-    },
+      jsonrpc: '1.0'
+    }
   }
 
   return { BitboxHTTP, username, password, requestConfig }
 }
 
 // Axios options used when calling axios.post() to talk with a full node.
-function getAxiosOptions() {
+function getAxiosOptions () {
   return {
     method: 'post',
     baseURL: process.env.RPC_BASEURL,
     timeout: 15000,
     auth: {
       username: process.env.RPC_USERNAME,
-      password: process.env.RPC_PASSWORD,
+      password: process.env.RPC_PASSWORD
     },
     data: {
-      jsonrpc: '1.0',
-    },
+      jsonrpc: '1.0'
+    }
   }
 }
 
@@ -116,7 +116,7 @@ function getAxiosOptions() {
 // error messages.
 // Returns an object. If successful, obj.msg is a string.
 // If there is a failure, obj.msg is false.
-function decodeError(err) {
+function decodeError (err) {
   try {
     // Attempt to extract the full node error message.
     if (
@@ -139,32 +139,39 @@ function decodeError(err) {
     // Attempt to detect a network connection error.
     if (err.message && err.message.indexOf('ENOTFOUND') > -1) {
       return {
-        msg: 'Network error: Could not communicate with full node or other external service.',
-        status: 503,
+        msg:
+          'Network error: Could not communicate with full node or other external service.',
+        status: 503
       }
     }
 
     // Different kind of network error
     if (err.message && err.message.indexOf('ENETUNREACH') > -1) {
       return {
-        msg: 'Network error: Could not communicate with full node or other external service.',
-        status: 503,
+        msg:
+          'Network error: Could not communicate with full node or other external service.',
+        status: 503
       }
     }
 
     // Different kind of network error
     if (err.message && err.message.indexOf('EAI_AGAIN') > -1) {
       return {
-        msg: 'Network error: Could not communicate with full node or other external service.',
-        status: 503,
+        msg:
+          'Network error: Could not communicate with full node or other external service.',
+        status: 503
       }
     }
 
     // Axios timeout (aborted) error, or service is down (connection refused).
-    if (err.code && (err.code === 'ECONNABORTED' || err.code === 'ECONNREFUSED')) {
+    if (
+      err.code &&
+      (err.code === 'ECONNABORTED' || err.code === 'ECONNREFUSED')
+    ) {
       return {
-        msg: 'Network error: Could not communicate with full node or other external service.',
-        status: 503,
+        msg:
+          'Network error: Could not communicate with full node or other external service.',
+        status: 503
       }
     }
 

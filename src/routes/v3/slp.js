@@ -49,7 +49,7 @@ if (!process.env.TREST_URL) {
 let _this
 
 class Slp {
-  constructor() {
+  constructor () {
     _this = this
 
     // Encapsulate external libraries.
@@ -76,14 +76,20 @@ class Slp {
     _this.router.get('/validateTxid2/:txid', _this.validate2Single)
     _this.router.get('/txDetails/:txid', _this.txDetails)
     _this.router.get('/tokenStats/:tokenId', _this.tokenStats)
-    _this.router.get('/transactions/:tokenId/:address', _this.txsTokenIdAddressSingle)
-    _this.router.get('/transactionHistoryAllTokens/:address', _this.txsByAddressSingle)
+    _this.router.get(
+      '/transactions/:tokenId/:address',
+      _this.txsTokenIdAddressSingle
+    )
+    _this.router.get(
+      '/transactionHistoryAllTokens/:address',
+      _this.txsByAddressSingle
+    )
     _this.router.post('/generateSendOpReturn', _this.generateSendOpReturn)
     _this.router.post('/hydrateUtxos', _this.hydrateUtxos)
   }
 
   // DRY error handler.
-  errorHandler(err, res) {
+  errorHandler (err, res) {
     // Attempt to decode the error message.
     const { msg, status } = _this.routeUtils.decodeError(err)
     if (msg) {
@@ -95,26 +101,39 @@ class Slp {
     return res.json({ error: util.inspect(err) })
   }
 
-  formatTokenOutput(token) {
+  formatTokenOutput (token) {
     token.tokenDetails.id = token.tokenDetails.tokenIdHex
     delete token.tokenDetails.tokenIdHex
     token.tokenDetails.documentHash = token.tokenDetails.documentSha256Hex
     delete token.tokenDetails.documentSha256Hex
-    token.tokenDetails.initialTokenQty = parseFloat(token.tokenDetails.genesisOrMintQuantity)
+    token.tokenDetails.initialTokenQty = parseFloat(
+      token.tokenDetails.genesisOrMintQuantity
+    )
     delete token.tokenDetails.genesisOrMintQuantity
     delete token.tokenDetails.transactionType
     delete token.tokenDetails.batonVout
     delete token.tokenDetails.sendOutputs
 
     token.tokenDetails.blockCreated = token.tokenStats.block_created
-    token.tokenDetails.blockLastActiveSend = token.tokenStats.block_last_active_send
-    token.tokenDetails.blockLastActiveMint = token.tokenStats.block_last_active_mint
-    token.tokenDetails.txnsSinceGenesis = token.tokenStats.qty_valid_txns_since_genesis
-    token.tokenDetails.validAddresses = token.tokenStats.qty_valid_token_addresses
-    token.tokenDetails.totalMinted = parseFloat(token.tokenStats.qty_token_minted)
-    token.tokenDetails.totalBurned = parseFloat(token.tokenStats.qty_token_burned)
-    token.tokenDetails.circulatingSupply = parseFloat(token.tokenStats.qty_token_circulating_supply)
-    token.tokenDetails.mintingBatonStatus = token.tokenStats.minting_baton_status
+    token.tokenDetails.blockLastActiveSend =
+      token.tokenStats.block_last_active_send
+    token.tokenDetails.blockLastActiveMint =
+      token.tokenStats.block_last_active_mint
+    token.tokenDetails.txnsSinceGenesis =
+      token.tokenStats.qty_valid_txns_since_genesis
+    token.tokenDetails.validAddresses =
+      token.tokenStats.qty_valid_token_addresses
+    token.tokenDetails.totalMinted = parseFloat(
+      token.tokenStats.qty_token_minted
+    )
+    token.tokenDetails.totalBurned = parseFloat(
+      token.tokenStats.qty_token_burned
+    )
+    token.tokenDetails.circulatingSupply = parseFloat(
+      token.tokenStats.qty_token_circulating_supply
+    )
+    token.tokenDetails.mintingBatonStatus =
+      token.tokenStats.minting_baton_status
 
     delete token.tokenStats.block_last_active_send
     delete token.tokenStats.block_last_active_mint
@@ -123,7 +142,7 @@ class Slp {
     return token
   }
 
-  root(req, res, next) {
+  root (req, res, next) {
     return res.json({ status: 'slp' })
   }
 
@@ -139,7 +158,7 @@ class Slp {
    *
    *
    */
-  async listSingleToken(req, res, next) {
+  async listSingleToken (req, res, next) {
     try {
       const tokenId = req.params.tokenId
 
@@ -172,7 +191,7 @@ class Slp {
    *
    *
    */
-  async listBulkToken(req, res, next) {
+  async listBulkToken (req, res, next) {
     try {
       const tokenIds = req.body.tokenIds
 
@@ -180,7 +199,7 @@ class Slp {
       if (!Array.isArray(tokenIds)) {
         res.status(400)
         return res.json({
-          error: 'tokenIds needs to be an array. Use GET for single tokenId.',
+          error: 'tokenIds needs to be an array. Use GET for single tokenId.'
         })
       }
 
@@ -188,7 +207,7 @@ class Slp {
       if (!_this.routeUtils.validateArraySize(req, tokenIds)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: 'Array too large.',
+          error: 'Array too large.'
         })
       }
 
@@ -198,13 +217,13 @@ class Slp {
           db: ['t'],
           find: {
             'tokenDetails.tokenIdHex': {
-              $in: tokenIds,
-            },
+              $in: tokenIds
+            }
           },
           project: { tokenDetails: 1, tokenStats: 1, _id: 0 },
           sort: { 'tokenStats.block_created': -1 },
-          limit: 10000,
-        },
+          limit: 10000
+        }
       }
 
       const s = JSON.stringify(query)
@@ -213,7 +232,7 @@ class Slp {
       // Request options
       const opt = {
         method: 'get',
-        baseURL: url,
+        baseURL: url
       }
       const tokenRes = await _this.axios.request(opt)
 
@@ -232,7 +251,7 @@ class Slp {
         if (!txids.includes(tokenId)) {
           formattedTokens.push({
             id: tokenId,
-            valid: false,
+            valid: false
           })
         }
       })
@@ -247,7 +266,7 @@ class Slp {
     }
   }
 
-  async lookupToken(tokenId) {
+  async lookupToken (tokenId) {
     try {
       const query = {
         v: 3,
@@ -255,12 +274,12 @@ class Slp {
           db: ['t'],
           find: {
             $query: {
-              'tokenDetails.tokenIdHex': tokenId,
-            },
+              'tokenDetails.tokenIdHex': tokenId
+            }
           },
           project: { tokenDetails: 1, tokenStats: 1, _id: 0 },
-          limit: 1000,
-        },
+          limit: 1000
+        }
       }
 
       const s = JSON.stringify(query)
@@ -271,7 +290,7 @@ class Slp {
       // Request options
       const opt = {
         method: 'get',
-        baseURL: url,
+        baseURL: url
       }
       const tokenRes = await _this.axios.request(opt)
       // console.log(`tokenRes.data: ${util.inspect(tokenRes.data,null,2)}`)
@@ -296,7 +315,7 @@ class Slp {
       // If token could not be found.
       if (t === undefined) {
         t = {
-          id: 'not found',
+          id: 'not found'
         }
       }
 
@@ -321,7 +340,7 @@ class Slp {
    *
    */
   // Retrieve token balances for all tokens for a single address.
-  async balancesForAddress(req, res, next) {
+  async balancesForAddress (req, res, next) {
     try {
       // Validate the input data.
       const address = req.params.address
@@ -336,7 +355,7 @@ class Slp {
       } catch (err) {
         res.status(400)
         return res.json({
-          error: `Invalid BCH address. Double check your address is valid: ${address}`,
+          error: `Invalid BCH address. Double check your address is valid: ${address}`
         })
       }
 
@@ -346,7 +365,8 @@ class Slp {
       if (!networkIsValid) {
         res.status(400)
         return res.json({
-          error: 'Invalid network. Trying to use a testnet address on mainnet, or vice versa.',
+          error:
+            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
         })
       }
 
@@ -361,20 +381,22 @@ class Slp {
                   $elemMatch: {
                     address: _this.bchjs.SLP.Address.toSLPAddress(address),
                     status: 'UNSPENT',
-                    slpAmount: { $gte: 0 },
-                  },
-                },
-              },
+                    slpAmount: { $gte: 0 }
+                  }
+                }
+              }
             },
             {
-              $unwind: '$graphTxn.outputs',
+              $unwind: '$graphTxn.outputs'
             },
             {
               $match: {
-                'graphTxn.outputs.address': _this.bchjs.SLP.Address.toSLPAddress(address),
+                'graphTxn.outputs.address': _this.bchjs.SLP.Address.toSLPAddress(
+                  address
+                ),
                 'graphTxn.outputs.status': 'UNSPENT',
-                'graphTxn.outputs.slpAmount': { $gte: 0 },
-              },
+                'graphTxn.outputs.slpAmount': { $gte: 0 }
+              }
             },
             {
               $project: {
@@ -382,23 +404,23 @@ class Slp {
                 address: '$graphTxn.outputs.address',
                 txid: '$graphTxn.txid',
                 vout: '$graphTxn.outputs.vout',
-                tokenId: '$tokenDetails.tokenIdHex',
-              },
+                tokenId: '$tokenDetails.tokenIdHex'
+              }
             },
             {
               $group: {
                 _id: '$tokenId',
                 balanceString: {
-                  $sum: '$amount',
+                  $sum: '$amount'
                 },
                 slpAddress: {
-                  $first: '$address',
-                },
-              },
-            },
+                  $first: '$address'
+                }
+              }
+            }
           ],
-          limit: 10000,
-        },
+          limit: 10000
+        }
       }
 
       const s = JSON.stringify(query)
@@ -411,7 +433,7 @@ class Slp {
         method: 'get',
         baseURL: url,
         headers: options.headers,
-        timeout: options.timeout,
+        timeout: options.timeout
       }
       const tokenRes = await _this.axios.request(opt)
       // console.log(`tokenRes.data.g: ${JSON.stringify(tokenRes.data.g, null, 2)}`)
@@ -435,16 +457,16 @@ class Slp {
               db: ['t'],
               find: {
                 $query: {
-                  'tokenDetails.tokenIdHex': tokenId,
-                },
+                  'tokenDetails.tokenIdHex': tokenId
+                }
               },
               project: {
                 'tokenDetails.decimals': 1,
                 'tokenDetails.tokenIdHex': 1,
-                _id: 0,
+                _id: 0
               },
-              limit: 1000,
-            },
+              limit: 1000
+            }
           }
 
           const s2 = JSON.stringify(query2)
@@ -455,7 +477,7 @@ class Slp {
             method: 'get',
             baseURL: url2,
             headers: options.headers,
-            timeout: options.timeout,
+            timeout: options.timeout
           }
           const tokenRes2 = await _this.axios.request(opt)
           // console.log(`tokenRes2.data: ${JSON.stringify(tokenRes2.data, null, 2)}`)
@@ -501,7 +523,7 @@ class Slp {
    *
    *
    */
-  async balancesForAddressBulk(req, res, next) {
+  async balancesForAddressBulk (req, res, next) {
     try {
       const addresses = req.body.addresses
 
@@ -515,11 +537,14 @@ class Slp {
       if (!_this.routeUtils.validateArraySize(req, addresses)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: 'Array too large.',
+          error: 'Array too large.'
         })
       }
 
-      wlogger.debug('Executing slp/balancesForAddresss with these addresses: ', addresses)
+      wlogger.debug(
+        'Executing slp/balancesForAddresss with these addresses: ',
+        addresses
+      )
 
       // Loop through each address and do error checking.
       for (let i = 0; i < addresses.length; i++) {
@@ -537,7 +562,7 @@ class Slp {
         } catch (err) {
           res.status(400)
           return res.json({
-            error: `Invalid BCH address. Double check your address is valid: ${address}`,
+            error: `Invalid BCH address. Double check your address is valid: ${address}`
           })
         }
 
@@ -547,7 +572,8 @@ class Slp {
         if (!networkIsValid) {
           res.status(400)
           return res.json({
-            error: 'Invalid network. Trying to use a testnet address on mainnet, or vice versa.',
+            error:
+              'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
           })
         }
       }
@@ -568,20 +594,22 @@ class Slp {
                     $elemMatch: {
                       address: _this.bchjs.SLP.Address.toSLPAddress(address),
                       status: 'UNSPENT',
-                      slpAmount: { $gte: 0 },
-                    },
-                  },
-                },
+                      slpAmount: { $gte: 0 }
+                    }
+                  }
+                }
               },
               {
-                $unwind: '$graphTxn.outputs',
+                $unwind: '$graphTxn.outputs'
               },
               {
                 $match: {
-                  'graphTxn.outputs.address': _this.bchjs.SLP.Address.toSLPAddress(address),
+                  'graphTxn.outputs.address': _this.bchjs.SLP.Address.toSLPAddress(
+                    address
+                  ),
                   'graphTxn.outputs.status': 'UNSPENT',
-                  'graphTxn.outputs.slpAmount': { $gte: 0 },
-                },
+                  'graphTxn.outputs.slpAmount': { $gte: 0 }
+                }
               },
               {
                 $project: {
@@ -589,23 +617,23 @@ class Slp {
                   address: '$graphTxn.outputs.address',
                   txid: '$graphTxn.txid',
                   vout: '$graphTxn.outputs.vout',
-                  tokenId: '$tokenDetails.tokenIdHex',
-                },
+                  tokenId: '$tokenDetails.tokenIdHex'
+                }
               },
               {
                 $group: {
                   _id: '$tokenId',
                   balanceString: {
-                    $sum: '$amount',
+                    $sum: '$amount'
                   },
                   slpAddress: {
-                    $first: '$address',
-                  },
-                },
-              },
+                    $first: '$address'
+                  }
+                }
+              }
             ],
-            limit: 10000,
-          },
+            limit: 10000
+          }
         }
 
         const s = JSON.stringify(query)
@@ -616,7 +644,7 @@ class Slp {
           method: 'get',
           baseURL: url,
           headers: options.headers,
-          timeout: options.timeout,
+          timeout: options.timeout
         }
         const tokenRes = await _this.axios.request(opt)
         // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
@@ -641,16 +669,16 @@ class Slp {
               db: ['t'],
               find: {
                 $query: {
-                  'tokenDetails.tokenIdHex': tokenId,
-                },
+                  'tokenDetails.tokenIdHex': tokenId
+                }
               },
               project: {
                 'tokenDetails.decimals': 1,
                 'tokenDetails.tokenIdHex': 1,
-                _id: 0,
+                _id: 0
               },
-              limit: 1000,
-            },
+              limit: 1000
+            }
           }
 
           const s2 = JSON.stringify(query2)
@@ -660,7 +688,7 @@ class Slp {
             method: 'get',
             baseURL: url2,
             headers: options.headers,
-            timeout: options.timeout,
+            timeout: options.timeout
           }
           const tokenRes2 = await _this.axios.request(opt)
           // console.log(`tokenRes2.data: ${JSON.stringify(tokenRes2.data, null, 2)}`)
@@ -711,7 +739,7 @@ class Slp {
    *
    */
   // Retrieve token balances for all addresses by single tokenId.
-  async balancesForTokenSingle(req, res, next) {
+  async balancesForTokenSingle (req, res, next) {
     try {
       // Validate the input data.
       const tokenId = req.params.tokenId
@@ -730,21 +758,21 @@ class Slp {
                 'graphTxn.outputs': {
                   $elemMatch: {
                     status: 'UNSPENT',
-                    slpAmount: { $gte: 0 },
-                  },
+                    slpAmount: { $gte: 0 }
+                  }
                 },
-                'tokenDetails.tokenIdHex': tokenId,
-              },
+                'tokenDetails.tokenIdHex': tokenId
+              }
             },
             {
-              $unwind: '$graphTxn.outputs',
+              $unwind: '$graphTxn.outputs'
             },
             {
               $match: {
                 'graphTxn.outputs.status': 'UNSPENT',
                 'graphTxn.outputs.slpAmount': { $gte: 0 },
-                'tokenDetails.tokenIdHex': tokenId,
-              },
+                'tokenDetails.tokenIdHex': tokenId
+              }
             },
             {
               $project: {
@@ -752,20 +780,20 @@ class Slp {
                 address: '$graphTxn.outputs.address',
                 txid: '$graphTxn.txid',
                 vout: '$graphTxn.outputs.vout',
-                tokenId: '$tokenDetails.tokenIdHex',
-              },
+                tokenId: '$tokenDetails.tokenIdHex'
+              }
             },
             {
               $group: {
                 _id: '$address',
                 token_balance: {
-                  $sum: '$token_balance',
-                },
-              },
-            },
+                  $sum: '$token_balance'
+                }
+              }
+            }
           ],
-          limit: 10000,
-        },
+          limit: 10000
+        }
       }
 
       const s = JSON.stringify(query)
@@ -777,7 +805,7 @@ class Slp {
         method: 'get',
         baseURL: url,
         headers: options.headers,
-        timeout: options.timeout,
+        timeout: options.timeout
       }
       // Get data from SLPDB.
       const tokenRes = await _this.axios.request(opt)
@@ -817,7 +845,7 @@ class Slp {
    *
    *
    */
-  async convertAddressSingle(req, res, next) {
+  async convertAddressSingle (req, res, next) {
     try {
       const address = req.params.address
 
@@ -832,11 +860,13 @@ class Slp {
       const obj = {
         slpAddress: '',
         cashAddress: '',
-        legacyAddress: '',
+        legacyAddress: ''
       }
       obj.slpAddress = slpAddr
       obj.cashAddress = _this.bchjs.SLP.Address.toCashAddress(slpAddr)
-      obj.legacyAddress = _this.bchjs.SLP.Address.toLegacyAddress(obj.cashAddress)
+      obj.legacyAddress = _this.bchjs.SLP.Address.toLegacyAddress(
+        obj.cashAddress
+      )
 
       res.status(200)
       return res.json(obj)
@@ -861,14 +891,14 @@ class Slp {
    *
    *
    */
-  async convertAddressBulk(req, res, next) {
+  async convertAddressBulk (req, res, next) {
     const addresses = req.body.addresses
 
     // Reject if hashes is not an array.
     if (!Array.isArray(addresses)) {
       res.status(400)
       return res.json({
-        error: 'addresses needs to be an array. Use GET for single address.',
+        error: 'addresses needs to be an array. Use GET for single address.'
       })
     }
 
@@ -876,7 +906,7 @@ class Slp {
     if (!_this.routeUtils.validateArraySize(req, addresses)) {
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
-        error: 'Array too large.',
+        error: 'Array too large.'
       })
     }
 
@@ -896,11 +926,13 @@ class Slp {
       const obj = {
         slpAddress: '',
         cashAddress: '',
-        legacyAddress: '',
+        legacyAddress: ''
       }
       obj.slpAddress = slpAddr
       obj.cashAddress = _this.bchjs.SLP.Address.toCashAddress(slpAddr)
-      obj.legacyAddress = _this.bchjs.SLP.Address.toLegacyAddress(obj.cashAddress)
+      obj.legacyAddress = _this.bchjs.SLP.Address.toLegacyAddress(
+        obj.cashAddress
+      )
 
       convertedAddresses.push(obj)
     }
@@ -921,7 +953,7 @@ class Slp {
    *
    *
    */
-  async validateBulk(req, res, next) {
+  async validateBulk (req, res, next) {
     try {
       const txids = req.body.txids
 
@@ -935,7 +967,7 @@ class Slp {
       if (!_this.routeUtils.validateArraySize(req, txids)) {
         res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: 'Array too large.',
+          error: 'Array too large.'
         })
       }
 
@@ -946,11 +978,11 @@ class Slp {
         q: {
           db: ['c', 'u'],
           find: {
-            'tx.h': { $in: txids },
+            'tx.h': { $in: txids }
           },
           limit: 300,
-          project: { 'slp.valid': 1, 'tx.h': 1, 'slp.invalidReason': 1 },
-        },
+          project: { 'slp.valid': 1, 'tx.h': 1, 'slp.invalidReason': 1 }
+        }
       }
       const s = JSON.stringify(query)
       const b64 = Buffer.from(s).toString('base64')
@@ -963,7 +995,7 @@ class Slp {
         method: 'get',
         baseURL: url,
         headers: options.headers,
-        timeout: options.timeout,
+        timeout: options.timeout
       }
       const tokenRes = await _this.axios.request(opt)
       // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
@@ -980,7 +1012,7 @@ class Slp {
 
           const validationResult = {
             txid: token.tx.h,
-            valid: token.slp.valid,
+            valid: token.slp.valid
           }
 
           // If the txid is invalid, add the reason it's invalid.
@@ -997,7 +1029,7 @@ class Slp {
           if (!tokenIds.includes(txid)) {
             formattedTokens.push({
               txid: txid,
-              valid: false,
+              valid: false
             })
           }
         })
@@ -1041,7 +1073,7 @@ class Slp {
    *
    *
    */
-  async validateSingle(req, res, next) {
+  async validateSingle (req, res, next) {
     try {
       const txid = req.params.txid
 
@@ -1058,11 +1090,11 @@ class Slp {
         q: {
           db: ['c', 'u'],
           find: {
-            'tx.h': txid,
+            'tx.h': txid
           },
           limit: 300,
-          project: { 'slp.valid': 1, 'tx.h': 1, 'slp.invalidReason': 1 },
-        },
+          project: { 'slp.valid': 1, 'tx.h': 1, 'slp.invalidReason': 1 }
+        }
       }
 
       const options = _this.generateCredentials()
@@ -1074,7 +1106,7 @@ class Slp {
         method: 'get',
         baseURL: url,
         headers: options.headers,
-        timeout: options.timeout,
+        timeout: options.timeout
       }
       // Get data from SLPDB.
       const tokenRes = await _this.axios.request(opt)
@@ -1082,7 +1114,7 @@ class Slp {
       // Default return value.
       let result = {
         txid: txid,
-        valid: false,
+        valid: false
       }
 
       // Build result.
@@ -1090,7 +1122,7 @@ class Slp {
       if (concatArray.length > 0) {
         result = {
           txid: concatArray[0].tx.h,
-          valid: concatArray[0].slp.valid,
+          valid: concatArray[0].slp.valid
         }
         if (!result.valid) {
           result.invalidReason = concatArray[0].slp.invalidReason
@@ -1121,7 +1153,7 @@ class Slp {
    *
    *
    */
-  async validate2Single(req, res, next) {
+  async validate2Single (req, res, next) {
     try {
       const txid = req.params.txid
 
@@ -1131,21 +1163,24 @@ class Slp {
         return res.json({ error: 'txid can not be empty' })
       }
 
-      wlogger.debug('Executing slp/validate2Single/:txid with this txid: ', txid)
+      wlogger.debug(
+        'Executing slp/validate2Single/:txid with this txid: ',
+        txid
+      )
 
       // null by default.
       // Default return value.
       const result = {
         txid: txid,
         isValid: null,
-        msg: '',
+        msg: ''
       }
 
       // Request options
       const opt = {
         method: 'get',
         baseURL: `${process.env.SLP_API_URL}slp/validate/${txid}`,
-        timeout: 10000, // Exit after 10 seconds.
+        timeout: 10000 // Exit after 10 seconds.
       }
       const tokenRes = await _this.axios.request(opt)
       // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
@@ -1176,7 +1211,7 @@ class Slp {
    *
    *
    */
-  async txDetails(req, res, next) {
+  async txDetails (req, res, next) {
     try {
       // Validate input parameter
       const txid = req.params.txid
@@ -1195,10 +1230,10 @@ class Slp {
         db: ['g'],
         q: {
           find: {
-            'tx.h': txid,
+            'tx.h': txid
           },
-          limit: 300,
-        },
+          limit: 300
+        }
       }
 
       const s = JSON.stringify(query)
@@ -1210,7 +1245,7 @@ class Slp {
         method: 'get',
         baseURL: url,
         headers: options.headers,
-        timeout: options.timeout,
+        timeout: options.timeout
       }
       // Get token data from SLPDB
       const tokenRes = await _this.axios.request(opt)
@@ -1227,13 +1262,16 @@ class Slp {
 
       // Get information on the transaction from Insight API.
       // const retData = await transactions.transactionsFromInsight(txid)
-      const retData = await _this.rawTransactions.getRawTransactionsFromNode(txid, true)
+      const retData = await _this.rawTransactions.getRawTransactionsFromNode(
+        txid,
+        true
+      )
       // console.log(`retData: ${JSON.stringify(retData, null, 2)}`)
 
       // Return both the tx data from Insight and the formatted token information.
       const response = {
         retData,
-        ...formatted,
+        ...formatted
       }
 
       res.status(200)
@@ -1263,7 +1301,7 @@ class Slp {
    *
    *
    */
-  async tokenStats(req, res, next) {
+  async tokenStats (req, res, next) {
     try {
       const tokenId = req.params.tokenId
       if (!tokenId || tokenId === '') {
@@ -1295,7 +1333,7 @@ class Slp {
    *
    */
   // Retrieve transactions by tokenId and address.
-  async txsTokenIdAddressSingle(req, res, next) {
+  async txsTokenIdAddressSingle (req, res, next) {
     try {
       // Validate the input data.
       const tokenId = req.params.tokenId
@@ -1318,23 +1356,23 @@ class Slp {
             $query: {
               $or: [
                 {
-                  'in.e.a': address,
+                  'in.e.a': address
                 },
                 {
-                  'out.e.a': address,
-                },
+                  'out.e.a': address
+                }
               ],
-              'slp.detail.tokenIdHex': tokenId,
+              'slp.detail.tokenIdHex': tokenId
             },
             $orderby: {
-              'blk.i': -1,
-            },
+              'blk.i': -1
+            }
           },
-          limit: 100,
+          limit: 100
         },
         r: {
-          f: '[.[] | { txid: .tx.h, tokenDetails: .slp } ]',
-        },
+          f: '[.[] | { txid: .tx.h, tokenDetails: .slp } ]'
+        }
       }
 
       const s = JSON.stringify(query)
@@ -1342,7 +1380,7 @@ class Slp {
       const url = `${process.env.SLPDB_URL}q/${b64}`
       const opt = {
         method: 'get',
-        baseURL: url,
+        baseURL: url
       }
       // Get data from SLPDB.
       const tokenRes = await _this.axios.request(opt)
@@ -1360,7 +1398,7 @@ class Slp {
   }
 
   // Generates a Basic Authorization header for slpserve.
-  generateCredentials() {
+  generateCredentials () {
     // Generate the Basic Authentication header for a private instance of SLPDB.
     const username = 'BITBOX'
     const password = SLPDB_PASS
@@ -1370,21 +1408,23 @@ class Slp {
 
     const options = {
       headers: {
-        authorization: readyCredential,
+        authorization: readyCredential
       },
-      timeout: 15000,
+      timeout: 15000
     }
 
     return options
   }
 
   // Format the response from SLPDB into an object.
-  async formatToRestObject(slpDBFormat) {
+  async formatToRestObject (slpDBFormat) {
     _this.BigNumber.set({ DECIMAL_PLACES: 8 })
 
     // console.log(`slpDBFormat.data: ${JSON.stringify(slpDBFormat.data, null, 2)}`)
 
-    const transaction = slpDBFormat.data.u.length ? slpDBFormat.data.u[0] : slpDBFormat.data.c[0]
+    const transaction = slpDBFormat.data.u.length
+      ? slpDBFormat.data.u[0]
+      : slpDBFormat.data.c[0]
 
     // const inputs = transaction.in
 
@@ -1402,16 +1442,16 @@ class Slp {
         versionType: transaction.slp.detail.versionType,
         transactionType: transaction.slp.detail.transactionType,
         tokenIdHex: transaction.slp.detail.tokenIdHex,
-        sendOutputs: sendOutputs,
+        sendOutputs: sendOutputs
       },
-      tokenIsValid: transaction.slp.valid,
+      tokenIsValid: transaction.slp.valid
     }
 
     return obj
   }
 
   // Retrieve transactions by address.
-  async txsByAddressSingle(req, res, next) {
+  async txsByAddressSingle (req, res, next) {
     try {
       // Validate the input data.
       const address = req.params.address
@@ -1426,7 +1466,7 @@ class Slp {
       } catch (err) {
         res.status(400)
         return res.json({
-          error: `Invalid BCH address. Double check your address is valid: ${address}`,
+          error: `Invalid BCH address. Double check your address is valid: ${address}`
         })
       }
 
@@ -1436,11 +1476,14 @@ class Slp {
       if (!networkIsValid) {
         res.status(400)
         return res.json({
-          error: 'Invalid network. Trying to use a testnet address on mainnet, or vice versa.',
+          error:
+            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
         })
       }
 
-      const transactions = await _this.slpdb.getHistoricalSlpTransactions([address])
+      const transactions = await _this.slpdb.getHistoricalSlpTransactions([
+        address
+      ])
       // console.log(`transactions: ${JSON.stringify(transactions, null, 2)}`)
 
       res.status(200)
@@ -1457,7 +1500,7 @@ class Slp {
 
       res.status(500)
       return res.json({
-        error: `Error in /transactionHistoryAllTokens/:address: ${err.message}`,
+        error: `Error in /transactionHistoryAllTokens/:address: ${err.message}`
       })
     }
   }
@@ -1478,7 +1521,7 @@ class Slp {
    *
    */
   // Get OP_RETURN script and outputs
-  async generateSendOpReturn(req, res, next) {
+  async generateSendOpReturn (req, res, next) {
     try {
       const tokenUtxos = req.body.tokenUtxos
       // console.log(`tokenUtxos: `, tokenUtxos)
@@ -1492,7 +1535,7 @@ class Slp {
       if (!Array.isArray(tokenUtxos)) {
         res.status(400)
         return res.json({
-          error: 'tokenUtxos needs to be an array.',
+          error: 'tokenUtxos needs to be an array.'
         })
       }
 
@@ -1500,7 +1543,7 @@ class Slp {
       if (!tokenUtxos.length) {
         res.status(400)
         return res.json({
-          error: 'tokenUtxos array can not be empty.',
+          error: 'tokenUtxos array can not be empty.'
         })
       }
 
@@ -1508,11 +1551,14 @@ class Slp {
       if (!sendQty) {
         res.status(400)
         return res.json({
-          error: 'sendQty must be a number.',
+          error: 'sendQty must be a number.'
         })
       }
 
-      const opReturn = await _this.bchjs.SLP.TokenType1.generateSendOpReturn(tokenUtxos, sendQty)
+      const opReturn = await _this.bchjs.SLP.TokenType1.generateSendOpReturn(
+        tokenUtxos,
+        sendQty
+      )
 
       const script = opReturn.script.toString('hex')
       // console.log(`script: ${script}`)
@@ -1531,7 +1577,7 @@ class Slp {
 
       res.status(500)
       return res.json({
-        error: 'Error in /generateSendOpReturn()',
+        error: 'Error in /generateSendOpReturn()'
       })
     }
   }
@@ -1556,7 +1602,7 @@ class Slp {
    *
    *
    */
-  async hydrateUtxos(req, res, next) {
+  async hydrateUtxos (req, res, next) {
     try {
       const utxos = req.body.utxos
 
@@ -1564,28 +1610,28 @@ class Slp {
       if (!Array.isArray(utxos)) {
         res.status(422)
         return res.json({
-          error: 'Input must be an array.',
+          error: 'Input must be an array.'
         })
       }
 
       if (!utxos.length) {
         res.status(422)
         return res.json({
-          error: 'Array should not be empty',
+          error: 'Array should not be empty'
         })
       }
 
       if (utxos.length > 20) {
         res.status(422)
         return res.json({
-          error: 'Array too long, max length is 20',
+          error: 'Array too long, max length is 20'
         })
       }
 
       if (!utxos[0].utxos) {
         res.status(422)
         return res.json({
-          error: 'Each element in array should have a utxos property',
+          error: 'Each element in array should have a utxos property'
         })
       }
 
@@ -1616,7 +1662,7 @@ class Slp {
 
       res.status(500)
       return res.json({
-        error: 'Error in hydrateUtxos()',
+        error: 'Error in hydrateUtxos()'
       })
     }
   }

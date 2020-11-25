@@ -24,11 +24,11 @@ router.get('/', root)
 router.get('/fromXPub/:xpub', fromXPubSingle)
 
 // Root API endpoint. Simply acknowledges that it exists.
-function root(req, res, next) {
+function root (req, res, next) {
   return res.json({ status: 'address' })
 }
 
-async function fromXPubSingle(req, res, next) {
+async function fromXPubSingle (req, res, next) {
   try {
     const xpub = req.params.xpub
     const hdPath = req.query.hdPath ? req.query.hdPath : '0'
@@ -42,7 +42,7 @@ async function fromXPubSingle(req, res, next) {
     if (Array.isArray(xpub)) {
       res.status(400)
       return res.json({
-        error: 'xpub can not be an array. Use POST for bulk upload.',
+        error: 'xpub can not be an array. Use POST for bulk upload.'
       })
     }
 
@@ -53,7 +53,7 @@ async function fromXPubSingle(req, res, next) {
     res.status(200)
     return res.json({
       cashAddress: cashAddr,
-      legacyAddress: legacyAddr,
+      legacyAddress: legacyAddr
     })
   } catch (err) {
     // Attempt to decode the error message.
@@ -75,6 +75,6 @@ module.exports = {
   router,
   testableComponents: {
     root,
-    fromXPubSingle,
-  },
+    fromXPubSingle
+  }
 }

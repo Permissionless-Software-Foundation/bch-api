@@ -18,10 +18,10 @@ const mockDecodeRawTransaction = {
         asm:
           '3045022100a7b1b08956abb8d6f322aa709d8583c8ea492ba0585f1a6f4f9983520af74a5a0220411aee4a9a54effab617b0508c504c31681b15f9b187179b4874257badd41390[ALL|FORKID] 0360cfc66fdacb650bc4c83b4e351805181ee696b7d5ab4667c57b2786f51c413d',
         hex:
-          '483045022100a7b1b08956abb8d6f322aa709d8583c8ea492ba0585f1a6f4f9983520af74a5a0220411aee4a9a54effab617b0508c504c31681b15f9b187179b4874257badd4139041210360cfc66fdacb650bc4c83b4e351805181ee696b7d5ab4667c57b2786f51c413d',
+          '483045022100a7b1b08956abb8d6f322aa709d8583c8ea492ba0585f1a6f4f9983520af74a5a0220411aee4a9a54effab617b0508c504c31681b15f9b187179b4874257badd4139041210360cfc66fdacb650bc4c83b4e351805181ee696b7d5ab4667c57b2786f51c413d'
       },
-      sequence: 4294967295,
-    },
+      sequence: 4294967295
+    }
   ],
   vout: [
     {
@@ -33,8 +33,8 @@ const mockDecodeRawTransaction = {
         hex: '76a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac',
         reqSigs: 1,
         type: 'pubkeyhash',
-        addresses: [Array],
-      },
+        addresses: [Array]
+      }
     },
     {
       value: 0.09989752,
@@ -45,17 +45,17 @@ const mockDecodeRawTransaction = {
         hex: '76a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac',
         reqSigs: 1,
         type: 'pubkeyhash',
-        addresses: [Array],
-      },
-    },
-  ],
+        addresses: [Array]
+      }
+    }
+  ]
 }
 
 const mockDecodeScript = {
   asm:
     '0 0 -57 OP_NOP6 OP_LSHIFT OP_UNKNOWN OP_UNKNOWN OP_UNKNOWN c486b2b3a3c03c79b5bade6ec9a77ced850515ab5e64edcc21010000006b483045022100a7b1b08956abb8d6f322aa OP_2OVER OP_NUMEQUALVERIFY OP_OR OP_INVERT OP_UNKNOWN OP_UNKNOWN 2ba0585f1a6f4f9983520af74a5a0220411aee4a9a54effab617b0508c504c31681b15f9b187179b4874257badd4139041210360cfc66fdacb650bc4c83b4e351805181ee696b7d5ab 67c57b2786f51c413dffffffff0210270000000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac786e9800000000001976a914eb4b180def88e3f5625b [error]',
   type: 'nonstandard',
-  p2sh: 'bchtest:pzy6dwfy6yf373w0dr05a6flfqksurjhwcl3awhdvm',
+  p2sh: 'bchtest:pzy6dwfy6yf373w0dr05a6flfqksurjhwcl3awhdvm'
 }
 
 const mockRawTransactionConcise =
@@ -77,10 +77,10 @@ const mockRawTransactionVerbose = {
         asm:
           '3044022052762770baa71c1a0b9544ad0f1ea343d32c22aa87c5f8397b6852f464c15b1e02201f4390745cb470e21e0e3c14229f39fef55ea0643a4c997f99d9f3501eae09b7[ALL|FORKID] 03c346eee77a77a8d3e073dacc0532ca7a5b9747bc06d88bf091cac9f4bc8bb792',
         hex:
-          '473044022052762770baa71c1a0b9544ad0f1ea343d32c22aa87c5f8397b6852f464c15b1e02201f4390745cb470e21e0e3c14229f39fef55ea0643a4c997f99d9f3501eae09b7412103c346eee77a77a8d3e073dacc0532ca7a5b9747bc06d88bf091cac9f4bc8bb792',
+          '473044022052762770baa71c1a0b9544ad0f1ea343d32c22aa87c5f8397b6852f464c15b1e02201f4390745cb470e21e0e3c14229f39fef55ea0643a4c997f99d9f3501eae09b7412103c346eee77a77a8d3e073dacc0532ca7a5b9747bc06d88bf091cac9f4bc8bb792'
       },
-      sequence: 4294967295,
-    },
+      sequence: 4294967295
+    }
   ],
   vout: [
     {
@@ -92,8 +92,8 @@ const mockRawTransactionVerbose = {
         hex: '76a91436d2f27bbd826a86db1e93618ce3de89ef33169388ac',
         reqSigs: 1,
         type: 'pubkeyhash',
-        addresses: ['bchtest:qqmd9unmhkpx4pkmr6fkrr8rm6y77vckjvqe8aey35'],
-      },
+        addresses: ['bchtest:qqmd9unmhkpx4pkmr6fkrr8rm6y77vckjvqe8aey35']
+      }
     },
     {
       value: 0.1,
@@ -104,14 +104,14 @@ const mockRawTransactionVerbose = {
         hex: '76a914152ea3cd65f18cb8fa9146c84ea1a97af8f051de88ac',
         reqSigs: 1,
         type: 'pubkeyhash',
-        addresses: ['bchtest:qq2jag7dvhccew86j9rvsn4p49a03uz3mcpw3d6aca'],
-      },
-    },
+        addresses: ['bchtest:qq2jag7dvhccew86j9rvsn4p49a03uz3mcpw3d6aca']
+      }
+    }
   ],
   blockhash: '000000000000026fa244de975ca89ea08008aa566564ce2e8ebb3144361b601b',
   confirmations: 125,
   time: 1542646373,
-  blocktime: 1542646373,
+  blocktime: 1542646373
 }
 
 const mockWHDecode = {
@@ -131,7 +131,7 @@ const mockWHDecode = {
   blocktime: 1542814183,
   positioninblock: 57,
   block: 1269008,
-  confirmations: 2,
+  confirmations: 2
 }
 
 const mockWHCreateInput = {
@@ -144,7 +144,7 @@ const mockWHCreateInput = {
   confirmations: 4,
   legacyAddress: 'mvXwPH74hW2yVTWwDwzsjGoaUAqJvWk7ZJ',
   cashAddress: 'bchtest:qzjtnzcvzxx7s0na88yrg3zl28wwvfp97538sgrrmr',
-  value: 0.09984138,
+  value: 0.09984138
 }
 
 module.exports = {
@@ -153,5 +153,5 @@ module.exports = {
   mockRawTransactionConcise,
   mockRawTransactionVerbose,
   mockWHDecode,
-  mockWHCreateInput,
+  mockWHCreateInput
 }

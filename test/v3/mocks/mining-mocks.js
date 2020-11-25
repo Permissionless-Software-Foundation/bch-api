@@ -13,9 +13,9 @@ const mockMiningInfo = {
     "Warning: Unknown block versions being mined! It's possible unknown rules are in effect",
   networkhashps: 517410290.9365583,
   pooledtx: 5,
-  chain: 'test',
+  chain: 'test'
 }
 
 module.exports = {
-  mockMiningInfo,
+  mockMiningInfo
 }

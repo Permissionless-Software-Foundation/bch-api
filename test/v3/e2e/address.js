@@ -22,13 +22,13 @@ const rp = require('request-promise')
 const addr1 = 'bchtest:qpdcp5pv7qphu5tsjfgwezld9n9aq9ue6swgqpf45c'
 const addr2 = 'bchtest:qzpvx999fagau0xqmvu3xvll9evapge7u5hcgeknzv'
 
-async function testSingleUnconfirmed() {
+async function testSingleUnconfirmed () {
   try {
     const options = {
       method: 'GET',
       uri: `http://localhost:3000/v2/address/unconfirmed/${addr1}`,
       resolveWithFullResponse: true,
-      json: true,
+      json: true
     }
 
     await rp(options)
@@ -39,7 +39,7 @@ async function testSingleUnconfirmed() {
 }
 testSingleUnconfirmed()
 
-async function testDoubleUnconfirmed() {
+async function testDoubleUnconfirmed () {
   try {
     const options = {
       method: 'POST',
@@ -47,8 +47,8 @@ async function testDoubleUnconfirmed() {
       resolveWithFullResponse: true,
       json: true,
       body: {
-        addresses: [addr1, addr2],
-      },
+        addresses: [addr1, addr2]
+      }
     }
 
     await rp(options)

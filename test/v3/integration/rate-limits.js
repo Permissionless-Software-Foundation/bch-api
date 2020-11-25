@@ -25,7 +25,7 @@ describe('#rate limits', () => {
   it('should get control/getNetworkInfo() with no auth', async () => {
     const options = {
       method: 'GET',
-      url: `${SERVER}control/getNetworkInfo`,
+      url: `${SERVER}control/getNetworkInfo`
     }
 
     const result = await axios(options)
@@ -41,7 +41,7 @@ describe('#rate limits', () => {
       // Actual rate limit is 60 per minute X 4 nodes = 240 rpm.
       const options = {
         method: 'GET',
-        url: `${SERVER}control/getNetworkInfo`,
+        url: `${SERVER}control/getNetworkInfo`
       }
 
       const promises = []
@@ -142,8 +142,8 @@ describe('#rate limits', () => {
         method: 'GET',
         url: `${SERVER}control/`,
         headers: {
-          Authorization: `Token ${TEST_JWT}`,
-        },
+          Authorization: `Token ${TEST_JWT}`
+        }
       }
 
       const promises = []

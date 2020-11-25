@@ -29,7 +29,7 @@ describe('#Raw-Transactions', () => {
         method: 'GET',
         uri: 'http://localhost:3000/v2/rawtransactions/',
         resolveWithFullResponse: true,
-        json: true,
+        json: true
       }
 
       const result = await rp(options)
@@ -42,8 +42,9 @@ describe('#Raw-Transactions', () => {
   describe('#whCreateTx', () => {
     it('should return tx hex', async () => {
       const minIn = {
-        txid: 'f7ed9cf23dee85910f6269c9a101a75fcfd2f3c6fc81f17fad824ff7aaf99ab2',
-        vout: 1,
+        txid:
+          'f7ed9cf23dee85910f6269c9a101a75fcfd2f3c6fc81f17fad824ff7aaf99ab2',
+        vout: 1
       }
 
       const options = {
@@ -54,8 +55,8 @@ describe('#Raw-Transactions', () => {
         body: {
           // inputs: [mockData.mockWHCreateInput],
           inputs: [minIn],
-          outputs: {},
-        },
+          outputs: {}
+        }
       }
 
       const result = await rp(options)
@@ -63,7 +64,7 @@ describe('#Raw-Transactions', () => {
 
       assert.equal(
         result.body,
-        '0200000001b29af9aaf74f82ad7ff181fcc6f3d2cf5fa701a1c969620f9185ee3df29cedf70100000000ffffffff0000000000',
+        '0200000001b29af9aaf74f82ad7ff181fcc6f3d2cf5fa701a1c969620f9185ee3df29cedf70100000000ffffffff0000000000'
       )
     })
   })
@@ -77,8 +78,8 @@ describe('#Raw-Transactions', () => {
         json: true,
         body: {
           rawtx: '01000000000000000000',
-          payload: '00000000000000020000000006dac2c0',
-        },
+          payload: '00000000000000020000000006dac2c0'
+        }
       }
 
       const result = await rp(options)
@@ -86,7 +87,7 @@ describe('#Raw-Transactions', () => {
 
       assert.equal(
         result.body,
-        '0100000000010000000000000000166a140877686300000000000000020000000006dac2c000000000',
+        '0100000000010000000000000000166a140877686300000000000000020000000006dac2c000000000'
       )
     })
   })
@@ -102,8 +103,8 @@ describe('#Raw-Transactions', () => {
           rawtx:
             '0100000001a7a9402ecd77f3c9f745793c9ec805bfa2e14b89877581c734c774864247e6f50400000000ffffffff03aa0a0000000000001976a9146d18edfe073d53f84dd491dae1379f8fb0dfe5d488ac5c0d0000000000004751210252ce4bdd3ce38b4ebbc5a6e1343608230da508ff12d23d85b58c964204c4cef3210294cc195fc096f87d0f813a337ae7e5f961b1c8a18f1f8604a909b3a5121f065b52aeaa0a0000000000001976a914946cb2e08075bcbaf157e47bcb67eb2b2339d24288ac00000000',
           destination: 'bitcoincash:qrn60nerx5zug4u4hal06atep3lzhtecvy4pxk75lf',
-          amount: 0.005,
-        },
+          amount: 0.005
+        }
       }
 
       const result = await rp(options)
@@ -126,14 +127,16 @@ describe('#Raw-Transactions', () => {
           destination: 'bitcoincash:qrn60nerx5zug4u4hal06atep3lzhtecvy4pxk75lf',
           prevtxs: [
             {
-              txid: '6779a710fcd5f6fb0883ea3306360c3ad8c0a3c5de902768ec57ef3104e65eb1',
+              txid:
+                '6779a710fcd5f6fb0883ea3306360c3ad8c0a3c5de902768ec57ef3104e65eb1',
               vout: 4,
-              scriptPubKey: '76a9147b25205fd98d462880a3e5b0541235831ae959e588ac',
-              value: 0.00068257,
-            },
+              scriptPubKey:
+                '76a9147b25205fd98d462880a3e5b0541235831ae959e588ac',
+              value: 0.00068257
+            }
           ],
-          fee: 0.000035,
-        },
+          fee: 0.000035
+        }
       }
 
       const result = await rp(options)
@@ -151,9 +154,10 @@ describe('#Raw-Transactions', () => {
         resolveWithFullResponse: true,
         json: true,
         body: {
-          txid: 'b006729017df05eda586df9ad3f8ccfee5be340aadf88155b784d1fc0e8342ee',
-          n: 0,
-        },
+          txid:
+            'b006729017df05eda586df9ad3f8ccfee5be340aadf88155b784d1fc0e8342ee',
+          n: 0
+        }
       }
 
       const result = await rp(options)
@@ -171,9 +175,11 @@ describe('#Raw-Transactions', () => {
         resolveWithFullResponse: true,
         json: true,
         body: {
-          txids: ['0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098'],
-          verbose: true,
-        },
+          txids: [
+            '0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098'
+          ],
+          verbose: true
+        }
       }
 
       const result = await rp(options)
