@@ -1251,7 +1251,7 @@ class Slp {
       const tokenRes = await _this.axios.request(opt)
       // console.log(`tokenRes: ${util.inspect(tokenRes)}`)
 
-      if (tokenRes.data.c.length === 0) {
+      if (tokenRes.data.c.length === 0 && tokenRes.data.u.length === 0) {
         res.status(404)
         return res.json({ error: 'TXID not found' })
       }
@@ -1437,12 +1437,29 @@ class Slp {
       sendOutputs.push(string.toString())
     })
 
+    // Because you are not using insight, you do not get the sending addresses from an indexer
+    // or from the node
+    // However, they are available from the SLPDB output
+    const tokenInputs = transaction.in
+    // Collect the input addresses
+    const sendInputs = []
+    for (let i = 0; i < tokenInputs.length; i += 1) {
+      const tokenInput = tokenInputs[i]
+      const sendInput = {}
+      sendInput.address = tokenInput.e.a
+      sendInputs.push(sendInput)
+    }
+
     const obj = {
       tokenInfo: {
         versionType: transaction.slp.detail.versionType,
+        tokenName: transaction.slp.detail.name,
+        tokenTicker: transaction.slp.detail.symbol,
         transactionType: transaction.slp.detail.transactionType,
         tokenIdHex: transaction.slp.detail.tokenIdHex,
-        sendOutputs: sendOutputs
+        sendOutputs: sendOutputs,
+        sendInputsFull: sendInputs,
+        sendOutputsFull: transaction.slp.detail.outputs
       },
       tokenIsValid: transaction.slp.valid
     }
