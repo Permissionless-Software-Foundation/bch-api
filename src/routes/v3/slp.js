@@ -14,9 +14,7 @@ const Slpdb = require('./services/slpdb')
 const wlogger = require('../../util/winston-logging')
 
 // Instantiate a local copy of bch-js using the local REST API server.
-const LOCAL_RESTURL = process.env.LOCAL_RESTURL
-  ? process.env.LOCAL_RESTURL
-  : 'https://api.fullstack.cash/v3/'
+const LOCAL_RESTURL = process.env.LOCAL_RESTURL ? process.env.LOCAL_RESTURL : 'https://api.fullstack.cash/v3/'
 const BCHJS = require('@psf/bch-js')
 const bchjs = new BCHJS({ restURL: LOCAL_RESTURL })
 
