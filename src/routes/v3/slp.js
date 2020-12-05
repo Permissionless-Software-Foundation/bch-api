@@ -74,6 +74,8 @@ class Slp {
     _this.router.post('/validateTxid', _this.validateBulk)
     _this.router.get('/validateTxid/:txid', _this.validateSingle)
     _this.router.get('/validateTxid2/:txid', _this.validate2Single)
+    _this.router.get('/validateTxid3/:txid', _this.validate3Single)
+    _this.router.get('/whitelist', _this.getSlpWhitelist)
     _this.router.get('/txDetails/:txid', _this.txDetails)
     _this.router.get('/tokenStats/:tokenId', _this.tokenStats)
     _this.router.get(
@@ -1195,6 +1197,144 @@ class Slp {
     } catch (err) {
       // console.log('validate2Single error: ', err)
       wlogger.error('Error in slp.ts/validate2Single().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  /**
+   * @api {get} /slp/whitelist SLP token whitelist.
+   * @apiName SLP token whitelist
+   * @apiGroup SLP
+   * @apiDescription Get tokens that are on the whitelist.
+   * SLPDB is typically used to validate SLP transactions. It can become unstable
+   * during periods of high network usage. A second SLPDB has been implemented
+   * that is much more stable, because it only tracks a whitelist of SLP tokens.
+   * This endpoint will return information on the SLP tokens that are included
+   * in that whitelist.
+   *
+   * For tokens on the whitelist, the /slp/validateTxid3 endpoints can be used.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/slp/whitelist" -H "accept:application/json"
+   *
+   */
+  async getSlpWhitelist (req, res, next) {
+    try {
+      const list = [
+        {
+          name: 'USDH',
+          tokenId:
+            'c4b0d62156b3fa5c8f3436079b5394f7edc1bef5dc1cd2f9d0c4d46f82cca479'
+        },
+        {
+          name: 'SPICE',
+          tokenId:
+            '4de69e374a8ed21cbddd47f2338cc0f479dc58daa2bbe11cd604ca488eca0ddf'
+        },
+        {
+          name: 'PSF',
+          tokenId:
+            '38e97c5d7d3585a2cbf3f9580c82ca33985f9cb0845d4dcce220cb709f9538b0'
+        },
+        {
+          name: 'TROUT',
+          tokenId:
+            'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
+        },
+        {
+          name: 'PSFTEST',
+          tokenId:
+            'd0ef4de95b78222bfee2326ab11382f4439aa0855936e2fe6ac129a8d778baa0'
+        }
+      ]
+
+      res.status(200)
+      return res.json(list)
+    } catch (err) {
+      wlogger.error('Error in slp.ts/whitelist().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  /**
+   * @api {get} /slp/validateTxid3/{txid}  Validate single SLP transaction by txid.
+   * @apiName Validate single SLP transaction by txid.
+   * @apiGroup SLP
+   * @apiDescription Alternative validation for tokens on the whitelist
+   * This endpoint is exactly the same as /slp/validateTxid/{txid} but it uses
+   * a different SLPDB. This server only indexes the SLP tokens that are on the
+   * whitelist. You can see which tokens are on the whitelist by calling the
+   * /slp/whitelist endpoint.
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v3/slp/validateTxid3/f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a" -H "accept:application/json"
+   *
+   *
+   */
+  async validate3Single (req, res, next) {
+    try {
+      const txid = req.params.txid
+
+      // Validate input
+      if (!txid || txid === '') {
+        res.status(400)
+        return res.json({ error: 'txid can not be empty' })
+      }
+
+      wlogger.debug('Executing slp/validate/:txid with this txid: ', txid)
+
+      const query = {
+        v: 3,
+        q: {
+          db: ['c', 'u'],
+          find: {
+            'tx.h': txid
+          },
+          limit: 300,
+          project: { 'slp.valid': 1, 'tx.h': 1, 'slp.invalidReason': 1 }
+        }
+      }
+
+      const options = _this.generateCredentials()
+
+      const s = JSON.stringify(query)
+      const b64 = Buffer.from(s).toString('base64')
+      const url = `${process.env.SLPDB_WHITELIST_URL}q/${b64}`
+      const opt = {
+        method: 'get',
+        baseURL: url,
+        headers: options.headers,
+        timeout: options.timeout
+      }
+      // Get data from SLPDB.
+      const tokenRes = await _this.axios.request(opt)
+      // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
+
+      // Default return value.
+      let result = {
+        txid: txid,
+        valid: false
+      }
+
+      // Build result.
+      const concatArray = tokenRes.data.c.concat(tokenRes.data.u)
+      if (concatArray.length > 0) {
+        result = {
+          txid: concatArray[0].tx.h,
+          valid: concatArray[0].slp.valid
+        }
+        if (!result.valid) {
+          result.invalidReason = concatArray[0].slp.invalidReason
+        }
+      }
+
+      res.status(200)
+      return res.json(result)
+    } catch (err) {
+      wlogger.error('Error in slp.js/validate3Single().', err)
 
       return _this.errorHandler(err, res)
     }

@@ -487,6 +487,81 @@ describe('#SLP', () => {
     }
   })
 
+  describe('#validate3Single', () => {
+    it('should throw 400 if txid is empty', async () => {
+      req.params.txid = ''
+      const result = await slpRoute.validate3Single(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'txid can not be empty')
+    })
+
+    it('should invalidate a known invalid TXID', async () => {
+      if (process.env.TEST === 'unit') {
+        // Mock to prevent live network connection.
+        sandbox.stub(slpRoute.axios, 'request').resolves({
+          data: {
+            c: [],
+            u: []
+          }
+        })
+      }
+
+      const txid =
+        'f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a'
+
+      req.params.txid = txid
+      const result = await slpRoute.validate3Single(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.equal(result.txid, txid)
+      assert.equal(result.valid, false)
+    })
+
+    it('should validate a known valid TXID', async () => {
+      if (process.env.TEST === 'unit') {
+        // Mock to prevent live network connection.
+        sandbox
+          .stub(slpRoute.axios, 'request')
+          .resolves({ data: mockData.mockSingleValidTxid })
+      }
+
+      const txid =
+        'cdfed769ef7b69e09be06d2821b88598d9a5d711b8f9bd369763c78b7a578fbc'
+
+      req.params.txid = txid
+      const result = await slpRoute.validate3Single(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      // assert.equal(result.txid, txid)
+      assert.equal(result.valid, true)
+    })
+
+    if (process.env.TEST === 'unit') {
+      it('should cancel if validation takes too long', async () => {
+        // Mock the timeout error.
+        sandbox.stub(slpRoute.axios, 'request').throws({
+          code: 'ECONNABORTED'
+        })
+
+        const txid =
+          'eacb1085dfa296fef6d4ae2c0f4529a1bef096dd2325bdcc6dcb5241b3bdb579'
+
+        req.params.txid = txid
+        const result = await slpRoute.validate3Single(req, res)
+        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+        assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+        assert.include(
+          result.error,
+          'Could not communicate with full node',
+          'Error message expected'
+        )
+      })
+    }
+  })
+
   describe('validateBulk()', () => {
     const validateBulk = slpRoute.validateBulk
 
