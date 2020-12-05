@@ -513,7 +513,7 @@ describe('#SLP', () => {
 
       req.params.txid = txid
       const result = await slpRoute.validate3Single(req, res)
-      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.equal(result.txid, txid)
       assert.equal(result.valid, false)

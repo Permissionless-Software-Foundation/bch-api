@@ -990,6 +990,7 @@ class Slp {
       const s = JSON.stringify(query)
       const b64 = Buffer.from(s).toString('base64')
       const url = `${process.env.SLPDB_URL}q/${b64}`
+      // console.log('url: ', url)
 
       const options = _this.generateCredentials()
 
@@ -1390,6 +1391,7 @@ class Slp {
       const s = JSON.stringify(query)
       const b64 = Buffer.from(s).toString('base64')
       const url = `${process.env.SLPDB_WHITELIST_URL}q/${b64}`
+      // console.log('url: ', url)
 
       const options = _this.generateCredentials()
 
@@ -1458,7 +1460,7 @@ class Slp {
       res.status(200)
       return res.json(formattedTokens)
     } catch (err) {
-      wlogger.error('Error in slp.ts/validateBulk().', err)
+      wlogger.error('Error in slp.js/validate3Bulk().', err)
 
       return _this.errorHandler(err, res)
     }
