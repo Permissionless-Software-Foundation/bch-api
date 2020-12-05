@@ -341,6 +341,22 @@ const mockTwoRedundentTxid = {
   u: []
 }
 
+const mockPsfToken = {
+  c: [
+    {
+      _id: '5fcaf6152898f9887902986c',
+      tx: {
+        h: 'cdfed769ef7b69e09be06d2821b88598d9a5d711b8f9bd369763c78b7a578fbc'
+      },
+      slp: {
+        valid: true,
+        invalidReason: null
+      }
+    }
+  ],
+  u: []
+}
+
 const mockTxHistory = [
   {
     tx: {
@@ -541,5 +557,6 @@ module.exports = {
   mockSingleValidTxid,
   mockTwoValidTxid,
   mockTwoRedundentTxid,
-  mockTxHistory
+  mockTxHistory,
+  mockPsfToken
 }

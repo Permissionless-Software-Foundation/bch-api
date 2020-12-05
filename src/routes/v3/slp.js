@@ -75,6 +75,7 @@ class Slp {
     _this.router.get('/validateTxid/:txid', _this.validateSingle)
     _this.router.get('/validateTxid2/:txid', _this.validate2Single)
     _this.router.get('/validateTxid3/:txid', _this.validate3Single)
+    _this.router.post('/validateTxid3', _this.validate3Bulk)
     _this.router.get('/whitelist', _this.getSlpWhitelist)
     _this.router.get('/txDetails/:txid', _this.txDetails)
     _this.router.get('/tokenStats/:tokenId', _this.tokenStats)
@@ -1335,6 +1336,129 @@ class Slp {
       return res.json(result)
     } catch (err) {
       wlogger.error('Error in slp.js/validate3Single().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  /**
+   * @api {post} /slp/validateTxid3/  Validate multiple SLP transactions by txid.
+   * @apiName Validate multiple SLP transactions by txid.
+   * @apiGroup SLP
+   * @apiDescription Alternative validation for tokens on the whitelist
+   * This endpoint is exactly the same as /slp/validateTxid but it uses
+   * a different SLPDB. This server only indexes the SLP tokens that are on the
+   * whitelist. You can see which tokens are on the whitelist by calling the
+   * /slp/whitelist endpoint.
+   *
+   * @apiExample Example usage:
+   * curl -X POST "https://api.fullstack.cash/v3/slp/validateTxid3" -H "accept:application/json" -H "Content-Type: application/json" -d '{"txids":["f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a","fb0eeaa501a6e1acb721669c62a3f70741f48ae0fd7f4b8e1d72088785c51952"]}'
+   *
+   *
+   */
+  async validate3Bulk (req, res, next) {
+    try {
+      const txids = req.body.txids
+
+      // Reject if txids is not an array.
+      if (!Array.isArray(txids)) {
+        res.status(400)
+        return res.json({ error: 'txids needs to be an array' })
+      }
+
+      // Enforce array size rate limits
+      if (!_this.routeUtils.validateArraySize(req, txids)) {
+        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        return res.json({
+          error: 'Array too large.'
+        })
+      }
+
+      wlogger.debug('Executing slp/validate with these txids: ', txids)
+
+      const query = {
+        v: 3,
+        q: {
+          db: ['c', 'u'],
+          find: {
+            'tx.h': { $in: txids }
+          },
+          limit: 300,
+          project: { 'slp.valid': 1, 'tx.h': 1, 'slp.invalidReason': 1 }
+        }
+      }
+      const s = JSON.stringify(query)
+      const b64 = Buffer.from(s).toString('base64')
+      const url = `${process.env.SLPDB_WHITELIST_URL}q/${b64}`
+
+      const options = _this.generateCredentials()
+
+      // Get data from SLPDB.
+      const opt = {
+        method: 'get',
+        baseURL: url,
+        headers: options.headers,
+        timeout: options.timeout
+      }
+      const tokenRes = await _this.axios.request(opt)
+      // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
+
+      let formattedTokens = []
+
+      // Combine the arrays. Why? Generally there is nothing in the u array.
+      const concatArray = tokenRes.data.c.concat(tokenRes.data.u)
+
+      const tokenIds = []
+      if (concatArray.length > 0) {
+        concatArray.forEach((token) => {
+          tokenIds.push(token.tx.h) // txid
+
+          const validationResult = {
+            txid: token.tx.h,
+            valid: token.slp.valid
+          }
+
+          // If the txid is invalid, add the reason it's invalid.
+          if (!validationResult.valid) {
+            validationResult.invalidReason = token.slp.invalidReason
+          }
+
+          formattedTokens.push(validationResult)
+        })
+
+        // If a user-provided txid doesn't exist in the data, add it with
+        // valid:false property.
+        txids.forEach((txid) => {
+          if (!tokenIds.includes(txid)) {
+            formattedTokens.push({
+              txid: txid,
+              valid: false
+            })
+          }
+        })
+      }
+
+      // Catch a corner case of repeated txids. SLPDB will remove redundent TXIDs,
+      // which will cause the output array to be smaller than the input array.
+      if (txids.length > formattedTokens.length) {
+        const newOutput = []
+        for (let i = 0; i < txids.length; i++) {
+          const thisTxid = txids[i]
+
+          // Find the element that matches the current txid.
+          const elem = formattedTokens.filter((x) => x.txid === thisTxid)
+
+          newOutput.push(elem[0])
+        }
+
+        // Replace the original output object with the new output object.
+        formattedTokens = newOutput
+      }
+
+      res.status(200)
+      return res.json(formattedTokens)
+    } catch (err) {
+      wlogger.error('Error in slp.ts/validateBulk().', err)
 
       return _this.errorHandler(err, res)
     }
