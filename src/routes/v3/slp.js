@@ -1110,6 +1110,7 @@ class Slp {
       }
       // Get data from SLPDB.
       const tokenRes = await _this.axios.request(opt)
+      // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
 
       // Default return value.
       let result = {
