@@ -338,6 +338,230 @@ describe('#SLP', () => {
     }
   })
 
+  describe('#validate2Single', () => {
+    it('should throw 400 if txid is empty', async () => {
+      req.params.txid = ''
+      const result = await slpRoute.validate2Single(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'txid can not be empty')
+    })
+
+    it('should invalidate a known invalid TXID', async () => {
+      if (process.env.TEST === 'unit') {
+        // Mock to prevent live network connection.
+        sandbox
+          .stub(slpRoute.axios, 'request')
+          .resolves({ data: { isValid: false } })
+      }
+
+      const txid =
+        'f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a'
+
+      req.params.txid = txid
+      const result = await slpRoute.validate2Single(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.equal(result.txid, txid)
+      assert.equal(result.isValid, false)
+    })
+
+    it('should validate a known valid TXID', async () => {
+      if (process.env.TEST === 'unit') {
+        // Mock to prevent live network connection.
+        sandbox
+          .stub(slpRoute.axios, 'request')
+          .resolves({ data: { isValid: true } })
+      }
+
+      const txid =
+        '3a4b628cbcc183ab376d44ce5252325f042268307ffa4a53443e92b6d24fb488'
+
+      req.params.txid = txid
+      const result = await slpRoute.validate2Single(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.equal(result.txid, txid)
+      assert.equal(result.isValid, true)
+    })
+
+    // This test can only be run as a mocked unit test. It's too inconsistent
+    // to run as an integration test, due to the caching built into slp-validate.
+    if (process.env.TEST === 'unit') {
+      it('should cancel if validation takes too long', async () => {
+        // Mock the timeout error.
+        sandbox.stub(slpRoute.axios, 'request').throws({
+          code: 'ECONNABORTED'
+        })
+
+        const txid =
+          'eacb1085dfa296fef6d4ae2c0f4529a1bef096dd2325bdcc6dcb5241b3bdb579'
+
+        req.params.txid = txid
+        const result = await slpRoute.validate2Single(req, res)
+        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+        assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+        assert.include(
+          result.error,
+          'Could not communicate with full node',
+          'Error message expected'
+        )
+      })
+    }
+  })
+
+  describe('#validateSingle', () => {
+    it('should throw 400 if txid is empty', async () => {
+      req.params.txid = ''
+      const result = await slpRoute.validateSingle(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'txid can not be empty')
+    })
+
+    it('should invalidate a known invalid TXID', async () => {
+      if (process.env.TEST === 'unit') {
+        // Mock to prevent live network connection.
+        sandbox.stub(slpRoute.axios, 'request').resolves({
+          data: {
+            c: [],
+            u: []
+          }
+        })
+      }
+
+      const txid =
+        'f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a'
+
+      req.params.txid = txid
+      const result = await slpRoute.validateSingle(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.equal(result.txid, txid)
+      assert.equal(result.valid, false)
+    })
+
+    it('should validate a known valid TXID', async () => {
+      if (process.env.TEST === 'unit') {
+        // Mock to prevent live network connection.
+        sandbox
+          .stub(slpRoute.axios, 'request')
+          .resolves({ data: mockData.mockSingleValidTxid })
+      }
+
+      const txid =
+        '77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d'
+
+      req.params.txid = txid
+      const result = await slpRoute.validateSingle(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.equal(result.txid, txid)
+      assert.equal(result.valid, true)
+    })
+
+    if (process.env.TEST === 'unit') {
+      it('should cancel if validation takes too long', async () => {
+        // Mock the timeout error.
+        sandbox.stub(slpRoute.axios, 'request').throws({
+          code: 'ECONNABORTED'
+        })
+
+        const txid =
+          'eacb1085dfa296fef6d4ae2c0f4529a1bef096dd2325bdcc6dcb5241b3bdb579'
+
+        req.params.txid = txid
+        const result = await slpRoute.validateSingle(req, res)
+        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+        assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+        assert.include(
+          result.error,
+          'Could not communicate with full node',
+          'Error message expected'
+        )
+      })
+    }
+  })
+
+  describe('#validate3Single', () => {
+    it('should throw 400 if txid is empty', async () => {
+      req.params.txid = ''
+      const result = await slpRoute.validate3Single(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'txid can not be empty')
+    })
+
+    it('should invalidate a known invalid TXID', async () => {
+      if (process.env.TEST === 'unit') {
+        // Mock to prevent live network connection.
+        sandbox.stub(slpRoute.axios, 'request').resolves({
+          data: {
+            c: [],
+            u: []
+          }
+        })
+      }
+
+      const txid =
+        'f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a'
+
+      req.params.txid = txid
+      const result = await slpRoute.validate3Single(req, res)
+      console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.equal(result.txid, txid)
+      assert.equal(result.valid, false)
+    })
+
+    it('should validate a known valid TXID', async () => {
+      if (process.env.TEST === 'unit') {
+        // Mock to prevent live network connection.
+        sandbox
+          .stub(slpRoute.axios, 'request')
+          .resolves({ data: mockData.mockSingleValidTxid })
+      }
+
+      const txid =
+        'cdfed769ef7b69e09be06d2821b88598d9a5d711b8f9bd369763c78b7a578fbc'
+
+      req.params.txid = txid
+      const result = await slpRoute.validate3Single(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      // assert.equal(result.txid, txid)
+      assert.equal(result.valid, true)
+    })
+
+    if (process.env.TEST === 'unit') {
+      it('should cancel if validation takes too long', async () => {
+        // Mock the timeout error.
+        sandbox.stub(slpRoute.axios, 'request').throws({
+          code: 'ECONNABORTED'
+        })
+
+        const txid =
+          'eacb1085dfa296fef6d4ae2c0f4529a1bef096dd2325bdcc6dcb5241b3bdb579'
+
+        req.params.txid = txid
+        const result = await slpRoute.validate3Single(req, res)
+        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+        assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+        assert.include(
+          result.error,
+          'Could not communicate with full node',
+          'Error message expected'
+        )
+      })
+    }
+  })
+
   describe('validateBulk()', () => {
     const validateBulk = slpRoute.validateBulk
 
@@ -463,78 +687,129 @@ describe('#SLP', () => {
     })
   })
 
-  describe('#validate2Single', () => {
-    it('should throw 400 if txid is empty', async () => {
-      req.params.txid = ''
-      const result = await slpRoute.validate2Single(req, res)
+  describe('#validate3Bulk', () => {
+    const validate3Bulk = slpRoute.validate3Bulk
+
+    it('should throw 400 if txid array is empty', async () => {
+      const result = await validate3Bulk(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.hasAllKeys(result, ['error'])
-      assert.include(result.error, 'txid can not be empty')
+      assert.include(result.error, 'txids needs to be an array')
+      assert.equal(res.statusCode, 400)
     })
 
-    it('should invalidate a known invalid TXID', async () => {
-      if (process.env.TEST === 'unit') {
-        // Mock to prevent live network connection.
-        sandbox
-          .stub(slpRoute.axios, 'request')
-          .resolves({ data: { isValid: false } })
-      }
+    it('should throw 400 error if array is too large', async () => {
+      const testArray = []
+      for (var i = 0; i < 25; i++) testArray.push('')
 
-      const txid =
-        'f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a'
+      req.body.txids = testArray
 
-      req.params.txid = txid
-      const result = await slpRoute.validate2Single(req, res)
+      const result = await validate3Bulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'Array too large')
+    })
+
+    it('returns proper error when downstream service stalls', async () => {
+      // Mock the timeout error.
+      sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNABORTED' })
+
+      req.body.txids = [
+        '77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d'
+      ]
+      const result = await validate3Bulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
-      assert.equal(result.txid, txid)
-      assert.equal(result.isValid, false)
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
-    it('should validate a known valid TXID', async () => {
-      if (process.env.TEST === 'unit') {
-        // Mock to prevent live network connection.
-        sandbox
-          .stub(slpRoute.axios, 'request')
-          .resolves({ data: { isValid: true } })
-      }
+    it('returns proper error when downstream service is down', async () => {
+      // Mock the timeout error.
+      sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNREFUSED' })
 
-      const txid =
-        '3a4b628cbcc183ab376d44ce5252325f042268307ffa4a53443e92b6d24fb488'
-
-      req.params.txid = txid
-      const result = await slpRoute.validate2Single(req, res)
+      req.body.txids = [
+        '77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d'
+      ]
+      const result = await validate3Bulk(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
-      assert.equal(result.txid, txid)
-      assert.equal(result.isValid, true)
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
     })
 
-    // This test can only be run as a mocked unit test. It's too inconsistent
-    // to run as an integration test, due to the caching built into slp-validate.
-    if (process.env.TEST === 'unit') {
-      it('should cancel if validation takes too long', async () => {
-        // Mock the timeout error.
-        sandbox.stub(slpRoute.axios, 'request').throws({
-          code: 'ECONNABORTED'
+    it('should validate array with single element', async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === 'unit') {
+        sandbox.stub(slpRoute.axios, 'request').resolves({
+          data: mockData.mockPsfToken
         })
+      }
 
-        const txid =
-          'eacb1085dfa296fef6d4ae2c0f4529a1bef096dd2325bdcc6dcb5241b3bdb579'
+      req.body.txids = [
+        'cdfed769ef7b69e09be06d2821b88598d9a5d711b8f9bd369763c78b7a578fbc'
+      ]
 
-        req.params.txid = txid
-        const result = await slpRoute.validate2Single(req, res)
-        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      const result = await validate3Bulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
 
-        assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
-        assert.include(
-          result.error,
-          'Could not communicate with full node',
-          'Error message expected'
-        )
-      })
-    }
+      assert.isArray(result)
+      assert.hasAllKeys(result[0], ['txid', 'valid'])
+    })
+
+    it('should validate array with two elements', async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === 'unit') {
+        sandbox.stub(slpRoute.axios, 'request').resolves({
+          data: mockData.mockPsfToken
+        })
+      }
+
+      req.body.txids = [
+        'cdfed769ef7b69e09be06d2821b88598d9a5d711b8f9bd369763c78b7a578fbc',
+        'cdfed769ef7b69e09be06d2821b88598d9a5d711b8f9bd369763c78b7a578fbc'
+      ]
+
+      const result = await validate3Bulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.isArray(result)
+      assert.hasAllKeys(result[0], ['txid', 'valid'])
+      assert.equal(result.length, 2)
+    })
+
+    // Captures a regression bug that went out to production, captured in this
+    // GitHub Issue: https://github.com/Bitcoin-com/rest.bitcoin.com/issues/518
+    it('should return two elements if given two elements', async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === 'unit') {
+        sandbox.stub(slpRoute.axios, 'request').resolves({
+          data: mockData.mockPsfToken
+        })
+      }
+
+      req.body.txids = [
+        'cdfed769ef7b69e09be06d2821b88598d9a5d711b8f9bd369763c78b7a578fbc',
+        'cdfed769ef7b69e09be06d2821b88598d9a5d711b8f9bd369763c78b7a578fbc'
+      ]
+
+      const result = await validate3Bulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.isArray(result)
+      assert.hasAllKeys(result[0], ['txid', 'valid'])
+      assert.equal(result.length, 2)
+    })
   })
 
   describe('tokenStats()', () => {
