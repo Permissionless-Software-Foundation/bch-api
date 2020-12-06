@@ -441,7 +441,7 @@ describe('#SLP', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.equal(result.txid, txid)
-      assert.equal(result.valid, false)
+      assert.equal(result.valid, null)
     })
 
     it('should validate a known valid TXID', async () => {
@@ -516,7 +516,7 @@ describe('#SLP', () => {
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.equal(result.txid, txid)
-      assert.equal(result.valid, false)
+      assert.equal(result.valid, null)
     })
 
     it('should validate a known valid TXID', async () => {
@@ -895,6 +895,65 @@ describe('#SLP', () => {
       assert.hasAllKeys(result[0], ['txid', 'valid'])
       assert.equal(result.length, 2)
     })
+
+    if (process.env.TEST === 'unit') {
+      // This is a unit-test only test, as the results change depending on if
+      // its tested against the BCHN or ABC networks. There are integration tests
+      // for this test case in the ../integration/slp.js file.
+      it('should handle a mix of valid, invalid, and non-SLP txs', async () => {
+        // Mock the RPC call for unit tests.
+
+        sandbox.stub(slpRoute.axios, 'request').resolves({
+          data: mockData.mockValidate3Bulk
+        })
+
+        const txids = [
+          // Malformed SLP tx
+          'f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a',
+          // Normal TX (non-SLP)
+          '01cdaec2f8b311fc2d6ecc930247bd45fa696dc204ab684596e281fe1b06c1f0',
+          // Valid PSF SLP tx
+          'daf4d8b8045e7a90b7af81bfe2370178f687da0e545511bce1c9ae539eba5ffd',
+          // Valid SLP token not in whitelist
+          '3a4b628cbcc183ab376d44ce5252325f042268307ffa4a53443e92b6d24fb488',
+          // Token send on BCHN network.
+          '402c663379d9699b6e2dd38737061e5888c5a49fca77c97ab98e79e08959e019',
+          // Token send on ABC network.
+          '336bfe2168aac4c3303508a9e8548a0d33797a83b85b76a12d845c8d6674f79d',
+          // Known invalid SLP token send of PSF tokens.
+          '2bf691ad3679d928fef880b8a45b93b233f8fa0d0a92cf792313dbe77b1deb74'
+        ]
+
+        req.body.txids = txids
+        const result = await validate3Bulk(req, res)
+        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+        assert.equal(result[0].txid, txids[0])
+        assert.equal(result[0].valid, null)
+
+        assert.equal(result[1].txid, txids[1])
+        assert.equal(result[1].valid, null)
+
+        assert.equal(result[2].txid, txids[2])
+        assert.equal(result[2].valid, true)
+
+        assert.equal(result[3].txid, txids[3])
+        assert.equal(result[3].valid, null)
+
+        assert.equal(result[4].txid, txids[4])
+        assert.equal(result[4].valid, null)
+
+        assert.equal(result[5].txid, txids[5])
+        assert.equal(result[5].valid, null)
+
+        assert.equal(result[6].txid, txids[6])
+        assert.equal(result[6].valid, false)
+        assert.include(
+          result[6].invalidReason,
+          'Token outputs are greater than valid token inputs'
+        )
+      })
+    }
   })
 
   describe('tokenStats()', () => {

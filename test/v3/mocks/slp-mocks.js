@@ -588,6 +588,32 @@ const mockValidateBulk = {
   u: []
 }
 
+const mockValidate3Bulk = {
+  c: [
+    {
+      _id: '5fcaf60b2898f98879029754',
+      tx: {
+        h: 'daf4d8b8045e7a90b7af81bfe2370178f687da0e545511bce1c9ae539eba5ffd'
+      },
+      slp: {
+        valid: true,
+        invalidReason: null
+      }
+    },
+    {
+      _id: '5fcaf5382898f988790275d0',
+      tx: {
+        h: '2bf691ad3679d928fef880b8a45b93b233f8fa0d0a92cf792313dbe77b1deb74'
+      },
+      slp: {
+        valid: false,
+        invalidReason: 'Token outputs are greater than valid token inputs.'
+      }
+    }
+  ],
+  u: []
+}
+
 module.exports = {
   mockList,
   mockSingleToken,
@@ -605,5 +631,6 @@ module.exports = {
   mockTwoRedundentTxid,
   mockTxHistory,
   mockPsfToken,
-  mockValidateBulk
+  mockValidateBulk,
+  mockValidate3Bulk
 }
