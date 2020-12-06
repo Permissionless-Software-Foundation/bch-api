@@ -1006,7 +1006,7 @@ class Slp {
 
       let formattedTokens = []
 
-      // Combine the arrays. Why? Generally there is nothing in the u array.
+      // Combine the confirmed and unconfirmed collections.
       const concatArray = tokenRes.data.c.concat(tokenRes.data.u)
 
       const tokenIds = []
@@ -1028,12 +1028,15 @@ class Slp {
         })
 
         // If a user-provided txid doesn't exist in the data, add it with
-        // valid:false property.
+        // valid:null property.
+        // 'null' indicates that SLPDB does not know about the transaction. It
+        // either has not seen it or has not processed it yet. A determination
+        // can not be made.
         txids.forEach((txid) => {
           if (!tokenIds.includes(txid)) {
             formattedTokens.push({
               txid: txid,
-              valid: false
+              valid: null
             })
           }
         })
@@ -1056,8 +1059,21 @@ class Slp {
         formattedTokens = newOutput
       }
 
+      // Put the output array in the same order as the input array.
+      const outAry = []
+      for (let i = 0; i < txids.length; i++) {
+        const thisTxid = txids[i]
+
+        // Need to use Array.find() because the returned output array is out
+        // of order with respect to the txid input array.
+        const output = formattedTokens.find((elem) => elem.txid === thisTxid)
+        // console.log(`output: ${JSON.stringify(output, null, 2)}`)
+
+        outAry.push(output)
+      }
+
       res.status(200)
-      return res.json(formattedTokens)
+      return res.json(outAry)
     } catch (err) {
       wlogger.error('Error in slp.ts/validateBulk().', err)
 
@@ -1137,7 +1153,7 @@ class Slp {
       res.status(200)
       return res.json(result)
     } catch (err) {
-      wlogger.error('Error in slp.ts/validateSingle().', err)
+      wlogger.error('Error in slp.js/validateSingle().', err)
 
       return _this.errorHandler(err, res)
     }
