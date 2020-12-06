@@ -732,7 +732,7 @@ describe('#SLP', () => {
 
         // Note: This should change from null to true once SLPDB finishes indexing.
         assert.equal(result[4].txid, txids[4])
-        assert.equal(result[4].valid, null)
+        assert.equal(result[4].valid, true)
 
         assert.equal(result[5].txid, txids[5])
         assert.equal(result[5].valid, null)
