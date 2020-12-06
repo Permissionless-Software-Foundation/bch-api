@@ -1040,6 +1040,15 @@ class Slp {
             })
           }
         })
+      } else {
+        // Corner case: No results were returned from SLPDB. Mark each entry
+        // as 'null'
+        for (let i = 0; i < txids.length; i++) {
+          formattedTokens.push({
+            txid: txids[i],
+            valid: null
+          })
+        }
       }
 
       // Catch a corner case of repeated txids. SLPDB will remove redundent TXIDs,
@@ -1423,7 +1432,7 @@ class Slp {
 
       let formattedTokens = []
 
-      // Combine the arrays. Why? Generally there is nothing in the u array.
+      // Combine the confirmed and unconfirmed collections.
       const concatArray = tokenRes.data.c.concat(tokenRes.data.u)
 
       const tokenIds = []
@@ -1457,6 +1466,15 @@ class Slp {
             })
           }
         })
+      } else {
+        // Corner case: No results were returned from SLPDB. Mark each entry
+        // as 'null'
+        for (let i = 0; i < txids.length; i++) {
+          formattedTokens.push({
+            txid: txids[i],
+            valid: null
+          })
+        }
       }
 
       // Catch a corner case of repeated txids. SLPDB will remove redundent TXIDs,
@@ -1475,6 +1493,10 @@ class Slp {
         // Replace the original output object with the new output object.
         formattedTokens = newOutput
       }
+
+      // console.log(
+      //   `formattedTokens: ${JSON.stringify(formattedTokens, null, 2)}`
+      // )
 
       // Put the output array in the same order as the input array.
       const outAry = []
