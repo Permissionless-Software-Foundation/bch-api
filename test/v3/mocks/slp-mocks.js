@@ -542,6 +542,52 @@ const mockTxHistory = [
   }
 ]
 
+const mockValidateBulk = {
+  c: [
+    {
+      _id: '5fcc1ae2aff6379ca5bbb213',
+      tx: {
+        h: '336bfe2168aac4c3303508a9e8548a0d33797a83b85b76a12d845c8d6674f79d'
+      },
+      slp: {
+        valid: true,
+        invalidReason: null
+      }
+    },
+    {
+      _id: '5fc9b4db4d54eece25b52762',
+      tx: {
+        h: 'daf4d8b8045e7a90b7af81bfe2370178f687da0e545511bce1c9ae539eba5ffd'
+      },
+      slp: {
+        valid: true,
+        invalidReason: null
+      }
+    },
+    {
+      _id: '5fc989a14d54eece25af88a6',
+      tx: {
+        h: '2bf691ad3679d928fef880b8a45b93b233f8fa0d0a92cf792313dbe77b1deb74'
+      },
+      slp: {
+        valid: false,
+        invalidReason: 'Token outputs are greater than valid token inputs.'
+      }
+    },
+    {
+      _id: '5fc974d14d54eece25ad5df2',
+      tx: {
+        h: '3a4b628cbcc183ab376d44ce5252325f042268307ffa4a53443e92b6d24fb488'
+      },
+      slp: {
+        valid: true,
+        invalidReason: null
+      }
+    }
+  ],
+  u: []
+}
+
 module.exports = {
   mockList,
   mockSingleToken,
@@ -558,5 +604,6 @@ module.exports = {
   mockTwoValidTxid,
   mockTwoRedundentTxid,
   mockTxHistory,
-  mockPsfToken
+  mockPsfToken,
+  mockValidateBulk
 }

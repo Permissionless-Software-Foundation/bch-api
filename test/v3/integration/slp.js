@@ -280,10 +280,7 @@ describe('#slp', () => {
 
       req.body.txids = txids
       const result = await slp.validateBulk(req, res)
-      console.log(`result: ${JSON.stringify(result, null, 2)}`)
-
-      // assert.equal(result.txid, txid)
-      // assert.equal(result.isValid, false)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       // BCHN expected results
       if (process.env.ISBCHN) {
