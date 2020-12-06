@@ -1160,8 +1160,8 @@ class Slp {
   }
 
   /**
-   * @api {get} /slp/validateTxid2/{txid}  Validate single SLP transaction by txid.
-   * @apiName Validate single SLP transaction by txid.
+   * @api {get} /slp/validateTxid2/{txid}  Validate 2 Single
+   * @apiName Validate a single SLP transaction by txid using slp-validate.
    * @apiGroup SLP
    * @apiDescription Validate single SLP transaction by txid, using slp-validate.
    * Slower, less efficient method of validating an SLP TXID using the slp-validate
@@ -1278,8 +1278,8 @@ class Slp {
   }
 
   /**
-   * @api {get} /slp/validateTxid3/{txid}  Validate single SLP transaction by txid.
-   * @apiName Validate single SLP transaction by txid.
+   * @api {get} /slp/validateTxid3/{txid}  Validate 3 Single
+   * @apiName Validate a single txid against a whitelist SLPDB
    * @apiGroup SLP
    * @apiDescription Alternative validation for tokens on the whitelist
    * This endpoint is exactly the same as /slp/validateTxid/{txid} but it uses
@@ -1359,8 +1359,8 @@ class Slp {
   }
 
   /**
-   * @api {post} /slp/validateTxid3/  Validate multiple SLP transactions by txid.
-   * @apiName Validate multiple SLP transactions by txid.
+   * @api {post} /slp/validateTxid3/  Validate 3 Bulk
+   * @apiName Validate an array of TXIDs against a whitelist SLPDB
    * @apiGroup SLP
    * @apiDescription Alternative validation for tokens on the whitelist
    * This endpoint is exactly the same as /slp/validateTxid but it uses
