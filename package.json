@@ -28,10 +28,10 @@
     "node": ">=10.15.1"
   },
   "dependencies": {
-    "@psf/bch-js": "^4.0.0",
+    "@psf/bch-js": "^4.1.1",
     "apidoc": "^0.23.0",
     "axios": "^0.19.0",
-    "bitcore-lib-cash": "^8.20.3",
+    "bitcore-lib-cash": "^8.23.1",
     "body-parser": "^1.18.3",
     "cookie-parser": "~1.4.3",
     "cors": "^2.8.3",
