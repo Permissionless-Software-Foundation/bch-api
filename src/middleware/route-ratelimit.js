@@ -146,10 +146,9 @@ class RateLimits {
           // apply paid-access rate limits.
           if (
             origin &&
-            (origin.toString().indexOf('wallet.fullstack.cash') > -1 ||
-              origin.toString().indexOf('sandbox.fullstack.cash') > -1 ||
+            (origin.toString().indexOf('fullstack.cash') > -1 ||
               origin.toString().indexOf('splitbch.com') > -1 ||
-              origin === 'slp-api')
+              origin.toString().indexOf('slp-api') > -1)
           ) {
             pointsToConsume = 10
             res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
@@ -159,7 +158,6 @@ class RateLimits {
           if (
             // Comment out the line below when running bch-js e2e rate limit tests.
             key.toString().indexOf('::ffff:127.0.0.1') > -1 ||
-
             // Do not comment out this line.
             key.toString().indexOf('172.17.') > -1
           ) {
