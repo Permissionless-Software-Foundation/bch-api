@@ -16,6 +16,7 @@ start-local-testnet.sh
 test-fullstack-main.sh
 start-fullstack-main.sh
 start-fullstack-test.sh
+start-fullstack-testnet.sh
 start-free-main.sh
 start-local-mainnet.sh.save
 start-local-testnet.sh.save
