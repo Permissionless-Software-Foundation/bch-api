@@ -89,6 +89,7 @@ class Slp {
     )
     _this.router.post('/generateSendOpReturn', _this.generateSendOpReturn)
     _this.router.post('/hydrateUtxos', _this.hydrateUtxos)
+    _this.router.get('/status', _this.getStatus)
   }
 
   // DRY error handler.
@@ -2004,6 +2005,49 @@ class Slp {
       return res.json({
         error: 'Error in hydrateUtxos()'
       })
+    }
+  }
+
+  /**
+   * @api {get} /slp/status Get the health status of SLPDB
+   * @apiName Get the health status of SLPDB
+   * @apiGroup SLP
+   * @apiDescription Get the health status of SLPDB
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v4/slp/status" -H "accept:application/json" -H "Content-Type: application/json"
+   *
+   */
+  async getStatus (req, res, next) {
+    try {
+      const query = {
+        v: 3,
+        q: {
+          db: ['s'],
+          find: { context: 'SLPDB' },
+          limit: 10
+        }
+      }
+
+      const s = JSON.stringify(query)
+      const b64 = Buffer.from(s).toString('base64')
+      const url = `${process.env.SLPDB_URL}q/${b64}`
+      // Request options
+      const opt = {
+        method: 'get',
+        baseURL: url
+      }
+      const tokenRes = await _this.axios.request(opt)
+
+      const status = tokenRes.data.s[0]
+
+      res.status(200)
+      return res.json(status)
+    } catch (err) {
+      // console.log(err)
+      wlogger.error('Error in slp.js/getStatus().', err)
+      return _this.errorHandler(err, res)
     }
   }
 }
