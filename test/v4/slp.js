@@ -192,6 +192,7 @@ describe('#SLP', () => {
         'Error message expected'
       )
     })
+
     it('should get token balance for an address', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
@@ -1555,6 +1556,33 @@ describe('#SLP', () => {
         result.error,
         'Each element in array should have a utxos property'
       )
+    })
+  })
+
+  describe('#getStatus', () => {
+    it('should get the SLPDB status', async () => {
+      if (process.env.TEST === 'unit') {
+        // Mock to prevent live network connection.
+        sandbox
+          .stub(slpRoute.axios, 'request')
+          .resolves({ data: { s: [mockData.mockStatus] } })
+      }
+
+      const result = await slpRoute.getStatus(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'bchBlockHeight')
+    })
+
+    it('returns proper error when downstream service is down', async () => {
+      // Mock the timeout error.
+      sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNREFUSED' })
+
+      slpRoute.getStatus(req, res)
+      // const result = slpRoute.getStatus(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
     })
   })
 })

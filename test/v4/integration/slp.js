@@ -416,4 +416,13 @@ describe('#slp', () => {
       }
     })
   })
+
+  describe('#getStatus', () => {
+    it('should get the SLPDB status', async () => {
+      const result = await slp.getStatus(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'bchBlockHeight')
+    })
+  })
 })
