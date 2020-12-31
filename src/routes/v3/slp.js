@@ -17,7 +17,7 @@ const wlogger = require('../../util/winston-logging')
 const LOCAL_RESTURL = process.env.LOCAL_RESTURL
   ? process.env.LOCAL_RESTURL
   : 'https://api.fullstack.cash/v3/'
-const BCHJS = require('bch-js-joey')
+const BCHJS = require('@psf/bch-js')
 const bchjs = new BCHJS({ restURL: LOCAL_RESTURL })
 
 // Used to convert error messages to strings, to safely pass to users.
