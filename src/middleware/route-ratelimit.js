@@ -12,12 +12,17 @@
 
 'use strict'
 
+// Public npm libraries.
 const jwt = require('jsonwebtoken')
 
+// local libraries.
 const wlogger = require('../util/winston-logging')
 const config = require('../../config')
 
-const ANON_LIMITS = 50
+const ANON_LIMITS = config.anonRateLimit
+const WHITELIST_RATE_LIMIT = config.whitelistRateLimit
+const WHITELIST_DOMAINS = config.whitelistDomains
+const INTERNAL_RATE_LIMIT = 1
 
 // Redis
 const redisOptions = {
@@ -150,7 +155,10 @@ class RateLimits {
               origin.toString().indexOf('splitbch.com') > -1 ||
               origin.toString().indexOf('slp-api') > -1)
           ) {
-            pointsToConsume = 10
+          // console.log(`origin: ${JSON.stringify(origin, null, 2)}`)
+          // console.log(`whitelist: ${JSON.stringify(WHITELIST_DOMAINS, null, 2)}`)
+          // if (this.isInWhitelist(origin)) {
+            pointsToConsume = WHITELIST_RATE_LIMIT
             res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
           }
 
@@ -161,7 +169,7 @@ class RateLimits {
             // Do not comment out this line.
             key.toString().indexOf('172.17.') > -1
           ) {
-            pointsToConsume = 1
+            pointsToConsume = INTERNAL_RATE_LIMIT
             res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
           }
 
@@ -260,6 +268,29 @@ class RateLimits {
       return resource
     } catch (err) {
       wlogger.error('Error in getResource().')
+      throw err
+    }
+  }
+
+  // Returns a boolean if the origin of the request matches a domain in the
+  // whitelist.
+  isInWhitelist (origin) {
+    try {
+      const retVal = false // Default value.
+
+      if (!origin) return false
+
+      for (let i = 0; i < WHITELIST_DOMAINS.length; i++) {
+        const thisDomain = WHITELIST_DOMAINS[i]
+
+        if (origin.toString().indexOf(thisDomain)) {
+          return true
+        }
+      }
+
+      return retVal
+    } catch (err) {
+      wlogger.error('Error in route-ratelimit.js/isInWhitelist()')
       throw err
     }
   }
