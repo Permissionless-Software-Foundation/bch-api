@@ -1287,7 +1287,7 @@ describe('#SLP', () => {
     })
   })
 
-  describe('generateSendOpReturn()', () => {
+  describe('#generateSendOpReturn()', () => {
     const generateSendOpReturn = slpRoute.generateSendOpReturn
     // Validate tokenUtxos input
     it('should throw 400 if tokenUtxos is missing', async () => {
