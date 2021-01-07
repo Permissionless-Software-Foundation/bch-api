@@ -1,5 +1,6 @@
 /*
   Common configuration settings.
+  Default settings in this file can be overridden by an environment variable.
 */
 
 const config = {

@@ -17,12 +17,13 @@
     "test": "npm run lint && npm run test-v4",
     "lint": "standard --env mocha --fix",
     "test-v4": "export NETWORK=mainnet && nyc --reporter=text mocha --timeout 60000 test/v4/",
-    "test:temp": "export NETWORK=mainnet && export TEST=integration && mocha --timeout 25000 test/v4/integration/price.js",
     "test:integration": "mocha test/v4/integration",
     "test:integration:slpdb": "mocha --timeout 25000 -g '#validate2Single' test/v4/integration/slp*.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coverage:report": "export NETWORK=mainnet && nyc --reporter=html mocha --timeout 25000 test/v4/",
-    "docs": "./node_modules/.bin/apidoc -i src/routes/v4 -o docs"
+    "docs": "./node_modules/.bin/apidoc -i src/routes/v4 -o docs",
+    "test:temp1": "export NETWORK=mainnet && export TEST=integration && mocha --timeout 25000 test/v4/integration/price.js",
+    "test:temp2": "mocha test/v4/rate-limits.js"
   },
   "engines": {
     "node": ">=10.15.1"

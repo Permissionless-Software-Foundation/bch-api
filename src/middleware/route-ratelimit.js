@@ -149,15 +149,9 @@ class RateLimits {
 
           // If the request originates from one of the approved wallet apps, then
           // apply paid-access rate limits.
-          if (
-            origin &&
-            (origin.toString().indexOf('fullstack.cash') > -1 ||
-              origin.toString().indexOf('splitbch.com') > -1 ||
-              origin.toString().indexOf('slp-api') > -1)
-          ) {
           // console.log(`origin: ${JSON.stringify(origin, null, 2)}`)
           // console.log(`whitelist: ${JSON.stringify(WHITELIST_DOMAINS, null, 2)}`)
-          // if (this.isInWhitelist(origin)) {
+          if (this.isInWhitelist(origin)) {
             pointsToConsume = WHITELIST_RATE_LIMIT
             res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
           }
@@ -280,18 +274,20 @@ class RateLimits {
 
       if (!origin) return false
 
+      // console.log(`WHITELIST_DOMAINS: ${JSON.stringify(WHITELIST_DOMAINS, null, 2)}`)
+
       for (let i = 0; i < WHITELIST_DOMAINS.length; i++) {
         const thisDomain = WHITELIST_DOMAINS[i]
 
-        if (origin.toString().indexOf(thisDomain)) {
+        if (origin.toString().indexOf(thisDomain) > -1) {
           return true
         }
       }
 
       return retVal
     } catch (err) {
-      wlogger.error('Error in route-ratelimit.js/isInWhitelist()')
-      throw err
+      wlogger.error('Error in route-ratelimit.js/isInWhitelist(). Returning false by default.')
+      return false
     }
   }
 }
