@@ -1896,6 +1896,7 @@ class Slp {
         })
       }
 
+      console.log(`sendQty: ${JSON.stringify(sendQty, null, 2)}`)
       const opReturn = await _this.bchjs.SLP.TokenType1.generateSendOpReturn(
         tokenUtxos,
         sendQty
@@ -1907,6 +1908,7 @@ class Slp {
       res.status(200)
       return res.json({ script, outputs: opReturn.outputs })
     } catch (err) {
+      console.log('err: ', err)
       wlogger.error('Error in slp.js/generateSendOpReturn().', err)
 
       // Decode the error message.
