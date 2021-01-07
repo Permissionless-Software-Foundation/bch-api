@@ -151,7 +151,8 @@ class RateLimits {
           // apply paid-access rate limits.
           // console.log(`origin: ${JSON.stringify(origin, null, 2)}`)
           // console.log(`whitelist: ${JSON.stringify(WHITELIST_DOMAINS, null, 2)}`)
-          if (this.isInWhitelist(origin)) {
+          const isInWhitelist = _this.isInWhitelist(origin)
+          if (isInWhitelist) {
             pointsToConsume = WHITELIST_RATE_LIMIT
             res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
           }
