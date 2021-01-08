@@ -1896,7 +1896,8 @@ class Slp {
         })
       }
 
-      console.log(`sendQty: ${JSON.stringify(sendQty, null, 2)}`)
+      // console.log('sendQty: ', sendQty)
+      // console.log(`tokenUtxos: `, tokenUtxos)
       const opReturn = await _this.bchjs.SLP.TokenType1.generateSendOpReturn(
         tokenUtxos,
         sendQty
