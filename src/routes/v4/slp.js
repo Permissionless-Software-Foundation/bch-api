@@ -1999,9 +1999,11 @@ class Slp {
 
       // Decode the error message.
       const { msg, status } = routeUtils.decodeError(err)
+      console.log('msg: ', msg)
+      console.log('status: ', status)
       if (msg) {
         res.status(status)
-        return res.json({ error: msg })
+        return res.json({ error: msg, message: msg, success: false })
       }
 
       res.status(500)
