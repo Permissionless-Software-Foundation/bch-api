@@ -45,7 +45,7 @@ class Encryption {
     const { msg, status } = _this.routeUtils.decodeError(err)
     if (msg) {
       res.status(status)
-      return res.json({ error: msg })
+      return res.json({ success: false, error: msg })
     }
 
     // Handle error patterns specific to this route.

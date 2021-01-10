@@ -199,11 +199,11 @@ describe('#Electrumx', () => {
   })
 
   describe('#getUtxos', () => {
-    it('should throw 400 if address is empty', async () => {
+    it('should throw 422 if address is empty', async () => {
       const result = await electrumxRoute.getUtxos(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+      assert.equal(res.statusCode, 422, 'Expect 422 status code')
 
       assert.property(result, 'error')
       assert.include(result.error, 'Unsupported address format')
@@ -233,7 +233,7 @@ describe('#Electrumx', () => {
       const result = await electrumxRoute.getUtxos(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+      assert.equal(res.statusCode, 422, 'Expect 422 status code')
 
       assert.property(result, 'error')
       assert.include(result.error, 'Unsupported address format')
@@ -1063,7 +1063,7 @@ describe('#Electrumx', () => {
       const result = await electrumxRoute.getBalance(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+      assert.equal(res.statusCode, 422, 'Expect 422 status code')
 
       assert.property(result, 'error')
       assert.include(result.error, 'Unsupported address format')
@@ -1093,7 +1093,7 @@ describe('#Electrumx', () => {
       const result = await electrumxRoute.getBalance(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+      assert.equal(res.statusCode, 422, 'Expect 422 status code')
 
       assert.property(result, 'error')
       assert.include(result.error, 'Unsupported address format')
@@ -1350,7 +1350,7 @@ describe('#Electrumx', () => {
       const result = await electrumxRoute.getTransactions(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+      assert.equal(res.statusCode, 422, 'Expect 422 status code')
 
       assert.property(result, 'error')
       assert.include(result.error, 'Unsupported address format')
@@ -1380,7 +1380,7 @@ describe('#Electrumx', () => {
       const result = await electrumxRoute.getTransactions(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+      assert.equal(res.statusCode, 422, 'Expect 422 status code')
 
       assert.property(result, 'error')
       assert.include(result.error, 'Unsupported address format')
@@ -1645,7 +1645,7 @@ describe('#Electrumx', () => {
       const result = await electrumxRoute.getMempool(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+      assert.equal(res.statusCode, 422, 'Expect 422 status code')
 
       assert.property(result, 'error')
       assert.include(result.error, 'Unsupported address format')
@@ -1675,7 +1675,7 @@ describe('#Electrumx', () => {
       const result = await electrumxRoute.getMempool(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+      assert.equal(res.statusCode, 422, 'Expect 422 status code')
 
       assert.property(result, 'error')
       assert.include(result.error, 'Unsupported address format')

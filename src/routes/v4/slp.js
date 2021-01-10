@@ -2003,7 +2003,7 @@ class Slp {
       console.log('status: ', status)
       if (msg) {
         res.status(status)
-        return res.json({ error: msg })
+        return res.json({ error: msg, message: msg, success: false })
       }
 
       res.status(500)
