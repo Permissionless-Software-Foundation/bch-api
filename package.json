@@ -52,8 +52,6 @@
     "passport": "^0.4.0",
     "passport-anonymous": "^1.0.1",
     "passport-http": "^0.3.0",
-    "pg": "^8.0.0",
-    "pg-hstore": "^2.3.2",
     "rate-limiter-flexible": "^2.0.0",
     "winston": "^3.2.1",
     "winston-daily-rotate-file": "^4.0.0"
