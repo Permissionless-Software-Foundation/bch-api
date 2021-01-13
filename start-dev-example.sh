@@ -54,4 +54,10 @@ export ANON_RATE_LIMIT=50
 # 10 = 100 RPM
 export WHITELIST_RATE_LIMIT=10
 
+# Set logging parameters
+#1m means no more than 1 megabyte
+export LOG_MAX_SIZE=1m
+#5d means store no more than 5 days
+export LOG_MAX_FILES=5d
+
 npm start
