@@ -11,7 +11,10 @@ require('winston-daily-rotate-file')
 
 var NETWORK = process.env.NETWORK
 
+// Default 1 Megabyte
 var LOG_MAX_SIZE = process.env.LOG_MAX_SIZE ? process.env.LOG_MAX_SIZE : '1m'
+
+// Default 5 days.
 var LOG_MAX_FILES = process.env.LOG_MAX_FILES ? process.env.LOG_MAX_FILES : '5d'
 
 // Configure daily-rotation transport.
