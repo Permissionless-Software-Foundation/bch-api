@@ -12,12 +12,19 @@
 
 'use strict'
 
+// Public npm libraries.
 const jwt = require('jsonwebtoken')
 
+// local libraries.
 const wlogger = require('../util/winston-logging')
 const config = require('../../config')
 
+// Hard coding limits since basic-authentiation is assumed to be the primary access.
 const ANON_LIMITS = 333
+
+const WHITELIST_RATE_LIMIT = config.whitelistRateLimit
+const WHITELIST_DOMAINS = config.whitelistDomains
+const INTERNAL_RATE_LIMIT = 1
 
 // Redis
 const redisOptions = {
@@ -144,13 +151,11 @@ class RateLimits {
 
           // If the request originates from one of the approved wallet apps, then
           // apply paid-access rate limits.
-          if (
-            origin &&
-            (origin.toString().indexOf('fullstack.cash') > -1 ||
-              origin.toString().indexOf('splitbch.com') > -1 ||
-              origin.toString().indexOf('slp-api') > -1)
-          ) {
-            pointsToConsume = 10
+          // console.log(`origin: ${JSON.stringify(origin, null, 2)}`)
+          // console.log(`whitelist: ${JSON.stringify(WHITELIST_DOMAINS, null, 2)}`)
+          const isInWhitelist = _this.isInWhitelist(origin)
+          if (isInWhitelist) {
+            pointsToConsume = WHITELIST_RATE_LIMIT
             res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
           }
 
@@ -161,7 +166,7 @@ class RateLimits {
             // Do not comment out this line.
             key.toString().indexOf('172.17.') > -1
           ) {
-            pointsToConsume = 1
+            pointsToConsume = INTERNAL_RATE_LIMIT
             res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
           }
 
@@ -261,6 +266,31 @@ class RateLimits {
     } catch (err) {
       wlogger.error('Error in getResource().')
       throw err
+    }
+  }
+
+  // Returns a boolean if the origin of the request matches a domain in the
+  // whitelist.
+  isInWhitelist (origin) {
+    try {
+      const retVal = false // Default value.
+
+      if (!origin) return false
+
+      // console.log(`WHITELIST_DOMAINS: ${JSON.stringify(WHITELIST_DOMAINS, null, 2)}`)
+
+      for (let i = 0; i < WHITELIST_DOMAINS.length; i++) {
+        const thisDomain = WHITELIST_DOMAINS[i]
+
+        if (origin.toString().indexOf(thisDomain) > -1) {
+          return true
+        }
+      }
+
+      return retVal
+    } catch (err) {
+      wlogger.error('Error in route-ratelimit.js/isInWhitelist(). Returning false by default.')
+      return false
     }
   }
 }

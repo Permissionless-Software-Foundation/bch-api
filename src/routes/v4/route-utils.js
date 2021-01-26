@@ -175,8 +175,17 @@ function decodeError (err) {
       }
     }
 
+    // Handle general Error objects.
+    if (err.message) {
+      return {
+        message: err.message,
+        status: 422
+      }
+    }
+
     return { msg: false, status: 500 }
   } catch (err) {
+    console.error('unhandled error in route-utils.js/decodeError(): ', err)
     wlogger.error('unhandled error in route-utils.js/decodeError(): ', err)
     return { msg: false, status: 500 }
   }

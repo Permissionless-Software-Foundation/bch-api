@@ -1896,6 +1896,8 @@ class Slp {
         })
       }
 
+      // console.log('sendQty: ', sendQty)
+      // console.log(`tokenUtxos: `, tokenUtxos)
       const opReturn = await _this.bchjs.SLP.TokenType1.generateSendOpReturn(
         tokenUtxos,
         sendQty
@@ -1907,6 +1909,7 @@ class Slp {
       res.status(200)
       return res.json({ script, outputs: opReturn.outputs })
     } catch (err) {
+      console.log('err: ', err)
       wlogger.error('Error in slp.js/generateSendOpReturn().', err)
 
       // Decode the error message.
@@ -1996,9 +1999,11 @@ class Slp {
 
       // Decode the error message.
       const { msg, status } = routeUtils.decodeError(err)
+      console.log('msg: ', msg)
+      console.log('status: ', status)
       if (msg) {
         res.status(status)
-        return res.json({ error: msg })
+        return res.json({ error: msg, message: msg, success: false })
       }
 
       res.status(500)

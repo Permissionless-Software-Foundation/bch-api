@@ -445,6 +445,30 @@ describe('#route-ratelimits & jwt-auth', () => {
       assert.equal(res.locals.pointsToConsume, 50)
     })
   })
+
+  describe('#isInWhitelist', () => {
+    it('should return false when no argument is passed in', () => {
+      const result = rateLimits.isInWhitelist()
+
+      assert.equal(result, false)
+    })
+
+    it('should return false when origin is not in the whitelist', () => {
+      const origin = 'blah.com'
+
+      const result = rateLimits.isInWhitelist(origin)
+
+      assert.equal(result, false)
+    })
+
+    it('should return true when origin is in the whitelist', () => {
+      const origin = 'message.fullstack.cash'
+
+      const result = rateLimits.isInWhitelist(origin)
+
+      assert.equal(result, true)
+    })
+  })
 })
 
 // Generates a Basic authorization header.

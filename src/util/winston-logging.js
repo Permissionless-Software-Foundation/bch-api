@@ -11,13 +11,19 @@ require('winston-daily-rotate-file')
 
 var NETWORK = process.env.NETWORK
 
+// Default 1 Megabyte
+var LOG_MAX_SIZE = process.env.LOG_MAX_SIZE ? process.env.LOG_MAX_SIZE : '1m'
+
+// Default 5 days.
+var LOG_MAX_FILES = process.env.LOG_MAX_FILES ? process.env.LOG_MAX_FILES : '5d'
+
 // Configure daily-rotation transport.
 var transport = new winston.transports.DailyRotateFile({
   filename: `${__dirname}/../../logs/rest-${NETWORK}-%DATE%.log`,
   datePattern: 'YYYY-MM-DD',
   zippedArchive: false,
-  maxSize: '1m',
-  maxFiles: '5d',
+  maxSize: LOG_MAX_SIZE,
+  maxFiles: LOG_MAX_FILES,
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.json()

@@ -1287,7 +1287,7 @@ describe('#SLP', () => {
     })
   })
 
-  describe('generateSendOpReturn()', () => {
+  describe('#generateSendOpReturn()', () => {
     const generateSendOpReturn = slpRoute.generateSendOpReturn
     // Validate tokenUtxos input
     it('should throw 400 if tokenUtxos is missing', async () => {
@@ -1363,8 +1363,8 @@ describe('#SLP', () => {
       req.body.tokenUtxos = [
         {
           tokenId:
-            '0a321bff9761f28e06a268b14711274bb77617410a16807bd0437ef234a072b1',
-          decimals: 0,
+            '38e97c5d7d3585a2cbf3f9580c82ca33985f9cb0845d4dcce220cb709f9538b0',
+          decimals: 8,
           tokenQty: 2
         }
       ]
