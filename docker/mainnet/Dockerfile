@@ -18,6 +18,7 @@ USER safeuser
 WORKDIR /home/safeuser
 RUN git clone https://github.com/Permissionless-Software-Foundation/bch-api
 WORKDIR /home/safeuser/bch-api
+RUN git checkout basic-auth-only
 RUN npm install --silent
 
 # Generate documentation
