@@ -17,6 +17,7 @@ const wlogger = require('../../util/winston-logging')
 const LOCAL_RESTURL = process.env.LOCAL_RESTURL
   ? process.env.LOCAL_RESTURL
   : 'https://api.fullstack.cash/v4/'
+
 const BCHJS = require('@psf/bch-js')
 // const BCHJS = require('../../../../bch-js')
 const bchjs = new BCHJS({ restURL: LOCAL_RESTURL })
@@ -1307,6 +1308,7 @@ class Slp {
   async validate3Single (req, res, next) {
     try {
       const txid = req.params.txid
+      // console.log('validate3Single txid: ', txid)
 
       // Validate input
       if (!txid || txid === '') {
@@ -1388,6 +1390,7 @@ class Slp {
   async validate3Bulk (req, res, next) {
     try {
       const txids = req.body.txids
+      // console.log(`validate3Bulk txids: `, txids)
 
       // Reject if txids is not an array.
       if (!Array.isArray(txids)) {
@@ -1987,7 +1990,7 @@ class Slp {
 
         // Get SLP token details.
         const details = await _this.bchjs.SLP.Utils.tokenUtxoDetails(theseUtxos)
-        // console.log('details : ', details)
+        // console.log('details: ', details)
 
         // Replace the original UTXO data with the hydrated data.
         utxos[i].utxos = details
