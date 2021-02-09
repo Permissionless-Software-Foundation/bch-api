@@ -214,6 +214,39 @@ describe('#slp', () => {
     })
   })
 
+  describe('#hydrateUtxosWL', () => {
+    it('should return utxo details', async () => {
+      const utxos = [
+        {
+          utxos: [
+            {
+              tx_hash:
+                '89b3f0c84efe8b01b24e2d7ac08636de5781f31dbb84478e3de868ca0a7ed93a',
+              tx_pos: 1,
+              value: 546
+            }
+          ]
+        }
+      ]
+
+      req.body.utxos = utxos
+      const result = await slp.hydrateUtxosWL(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      // Test the general structure of the output.
+      assert.isArray(result.slpUtxos)
+      assert.equal(result.slpUtxos.length, 1)
+      assert.equal(result.slpUtxos[0].utxos.length, 1)
+
+      // Test the non-slp UTXO.
+      assert.property(result.slpUtxos[0].utxos[0], 'tx_hash')
+      assert.property(result.slpUtxos[0].utxos[0], 'tx_pos')
+      assert.property(result.slpUtxos[0].utxos[0], 'value')
+      assert.property(result.slpUtxos[0].utxos[0], 'isValid')
+      assert.equal(result.slpUtxos[0].utxos[0].isValid, true)
+    })
+  })
+
   describe('#validate2Single', () => {
     it('should invalidate a known invalid TXID', async () => {
       const txid =
