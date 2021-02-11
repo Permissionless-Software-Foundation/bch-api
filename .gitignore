@@ -28,6 +28,7 @@ test-fullstack-abc.sh
 test-fullstack-bchn.sh
 start-fullstack-abc.sh
 start-fullstack-bchn.sh
+start-ss-main.sh
 
 coverage
 start-my-infra
