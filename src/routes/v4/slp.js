@@ -35,7 +35,10 @@ util.inspect.defaultOptions = { depth: 5 }
 
 // Determine the Access password for a private instance of SLPDB.
 // https://gist.github.com/christroutner/fc717ca704dec3dded8b52fae387eab2
-const SLPDB_PASS = process.env.SLPDB_PASS ? process.env.SLPDB_PASS : 'BITBOX'
+// Password for General Purpose (GP) SLPDB.
+const SLPDB_PASS_GP = process.env.SLPDB_PASS_GP ? process.env.SLPDB_PASS_GP : 'BITBOX'
+// Password for Whitelist (WL) SLPDB.
+const SLPDB_PASS_WL = process.env.SLPDB_PASS_GP ? process.env.SLPDB_PASS_GP : 'BITBOX'
 
 // const rawtransactions = require('./full-node/rawtransactions')
 const RawTransactions = require('./full-node/rawtransactions')
@@ -434,7 +437,7 @@ class Slp {
       const b64 = Buffer.from(s).toString('base64')
       const url = `${process.env.SLPDB_URL}q/${b64}`
 
-      const options = _this.generateCredentials()
+      const options = _this.generateCredentialsGP()
       // Request options
       const opt = {
         method: 'get',
@@ -585,7 +588,7 @@ class Slp {
         }
       }
 
-      const options = _this.generateCredentials()
+      const options = _this.generateCredentialsGP()
 
       // Collect an array of promises, one for each request to slpserve.
       // This is a nested array of promises.
@@ -807,7 +810,7 @@ class Slp {
       const b64 = Buffer.from(s).toString('base64')
       const url = `${process.env.SLPDB_URL}q/${b64}`
 
-      const options = _this.generateCredentials()
+      const options = _this.generateCredentialsGP()
       const opt = {
         method: 'get',
         baseURL: url,
@@ -996,7 +999,7 @@ class Slp {
       const url = `${process.env.SLPDB_URL}q/${b64}`
       // console.log('url: ', url)
 
-      const options = _this.generateCredentials()
+      const options = _this.generateCredentialsGP()
 
       // Get data from SLPDB.
       const opt = {
@@ -1130,7 +1133,7 @@ class Slp {
         }
       }
 
-      const options = _this.generateCredentials()
+      const options = _this.generateCredentialsGP()
 
       const s = JSON.stringify(query)
       const b64 = Buffer.from(s).toString('base64')
@@ -1330,7 +1333,7 @@ class Slp {
         }
       }
 
-      const options = _this.generateCredentials()
+      const options = _this.generateCredentialsWL()
 
       const s = JSON.stringify(query)
       const b64 = Buffer.from(s).toString('base64')
@@ -1424,7 +1427,7 @@ class Slp {
       const url = `${process.env.SLPDB_WHITELIST_URL}q/${b64}`
       // console.log('url: ', url)
 
-      const options = _this.generateCredentials()
+      const options = _this.generateCredentialsWL()
 
       // Get data from SLPDB.
       const opt = {
@@ -1567,7 +1570,7 @@ class Slp {
       const b64 = Buffer.from(s).toString('base64')
       const url = `${process.env.SLPDB_URL}q/${b64}`
 
-      const options = _this.generateCredentials()
+      const options = _this.generateCredentialsGP()
       const opt = {
         method: 'get',
         baseURL: url,
@@ -1727,11 +1730,32 @@ class Slp {
   }
 
   // Generates a Basic Authorization header for slpserve.
-  generateCredentials () {
+  generateCredentialsGP () {
     // Generate the Basic Authentication header for a private instance of SLPDB.
     const username = 'BITBOX'
-    const password = SLPDB_PASS
+    const password = SLPDB_PASS_GP
     const combined = `${username}:${password}`
+    // console.log(`combined: ${combined}`)
+    var base64Credential = Buffer.from(combined).toString('base64')
+    var readyCredential = `Basic ${base64Credential}`
+
+    const options = {
+      headers: {
+        authorization: readyCredential
+      },
+      timeout: 15000
+    }
+
+    return options
+  }
+
+  // Generates a Basic Authorization header for slpserve.
+  generateCredentialsWL () {
+    // Generate the Basic Authentication header for a private instance of SLPDB.
+    const username = 'BITBOX'
+    const password = SLPDB_PASS_WL
+    const combined = `${username}:${password}`
+    // console.log(`combined: ${combined}`)
     var base64Credential = Buffer.from(combined).toString('base64')
     var readyCredential = `Basic ${base64Credential}`
 
