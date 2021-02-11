@@ -17,7 +17,9 @@ const wlogger = require('../../util/winston-logging')
 const LOCAL_RESTURL = process.env.LOCAL_RESTURL
   ? process.env.LOCAL_RESTURL
   : 'https://api.fullstack.cash/v4/'
+
 const BCHJS = require('@psf/bch-js')
+// const BCHJS = require('../../../../bch-js')
 const bchjs = new BCHJS({ restURL: LOCAL_RESTURL })
 
 // Used to convert error messages to strings, to safely pass to users.
@@ -33,7 +35,10 @@ util.inspect.defaultOptions = { depth: 5 }
 
 // Determine the Access password for a private instance of SLPDB.
 // https://gist.github.com/christroutner/fc717ca704dec3dded8b52fae387eab2
-const SLPDB_PASS = process.env.SLPDB_PASS ? process.env.SLPDB_PASS : 'BITBOX'
+// Password for General Purpose (GP) SLPDB.
+const SLPDB_PASS_GP = process.env.SLPDB_PASS_GP ? process.env.SLPDB_PASS_GP : 'BITBOX'
+// Password for Whitelist (WL) SLPDB.
+const SLPDB_PASS_WL = process.env.SLPDB_PASS_GP ? process.env.SLPDB_PASS_GP : 'BITBOX'
 
 // const rawtransactions = require('./full-node/rawtransactions')
 const RawTransactions = require('./full-node/rawtransactions')
@@ -89,6 +94,7 @@ class Slp {
     )
     _this.router.post('/generateSendOpReturn', _this.generateSendOpReturn)
     _this.router.post('/hydrateUtxos', _this.hydrateUtxos)
+    _this.router.post('/hydrateUtxosWL', _this.hydrateUtxosWL)
     _this.router.get('/status', _this.getStatus)
   }
 
@@ -431,7 +437,7 @@ class Slp {
       const b64 = Buffer.from(s).toString('base64')
       const url = `${process.env.SLPDB_URL}q/${b64}`
 
-      const options = _this.generateCredentials()
+      const options = _this.generateCredentialsGP()
       // Request options
       const opt = {
         method: 'get',
@@ -582,7 +588,7 @@ class Slp {
         }
       }
 
-      const options = _this.generateCredentials()
+      const options = _this.generateCredentialsGP()
 
       // Collect an array of promises, one for each request to slpserve.
       // This is a nested array of promises.
@@ -804,7 +810,7 @@ class Slp {
       const b64 = Buffer.from(s).toString('base64')
       const url = `${process.env.SLPDB_URL}q/${b64}`
 
-      const options = _this.generateCredentials()
+      const options = _this.generateCredentialsGP()
       const opt = {
         method: 'get',
         baseURL: url,
@@ -993,7 +999,7 @@ class Slp {
       const url = `${process.env.SLPDB_URL}q/${b64}`
       // console.log('url: ', url)
 
-      const options = _this.generateCredentials()
+      const options = _this.generateCredentialsGP()
 
       // Get data from SLPDB.
       const opt = {
@@ -1127,7 +1133,7 @@ class Slp {
         }
       }
 
-      const options = _this.generateCredentials()
+      const options = _this.generateCredentialsGP()
 
       const s = JSON.stringify(query)
       const b64 = Buffer.from(s).toString('base64')
@@ -1305,6 +1311,7 @@ class Slp {
   async validate3Single (req, res, next) {
     try {
       const txid = req.params.txid
+      // console.log('validate3Single txid: ', txid)
 
       // Validate input
       if (!txid || txid === '') {
@@ -1326,7 +1333,7 @@ class Slp {
         }
       }
 
-      const options = _this.generateCredentials()
+      const options = _this.generateCredentialsWL()
 
       const s = JSON.stringify(query)
       const b64 = Buffer.from(s).toString('base64')
@@ -1386,6 +1393,7 @@ class Slp {
   async validate3Bulk (req, res, next) {
     try {
       const txids = req.body.txids
+      // console.log(`validate3Bulk txids: `, txids)
 
       // Reject if txids is not an array.
       if (!Array.isArray(txids)) {
@@ -1419,7 +1427,7 @@ class Slp {
       const url = `${process.env.SLPDB_WHITELIST_URL}q/${b64}`
       // console.log('url: ', url)
 
-      const options = _this.generateCredentials()
+      const options = _this.generateCredentialsWL()
 
       // Get data from SLPDB.
       const opt = {
@@ -1562,7 +1570,7 @@ class Slp {
       const b64 = Buffer.from(s).toString('base64')
       const url = `${process.env.SLPDB_URL}q/${b64}`
 
-      const options = _this.generateCredentials()
+      const options = _this.generateCredentialsGP()
       const opt = {
         method: 'get',
         baseURL: url,
@@ -1722,11 +1730,32 @@ class Slp {
   }
 
   // Generates a Basic Authorization header for slpserve.
-  generateCredentials () {
+  generateCredentialsGP () {
     // Generate the Basic Authentication header for a private instance of SLPDB.
     const username = 'BITBOX'
-    const password = SLPDB_PASS
+    const password = SLPDB_PASS_GP
     const combined = `${username}:${password}`
+    // console.log(`combined: ${combined}`)
+    var base64Credential = Buffer.from(combined).toString('base64')
+    var readyCredential = `Basic ${base64Credential}`
+
+    const options = {
+      headers: {
+        authorization: readyCredential
+      },
+      timeout: 15000
+    }
+
+    return options
+  }
+
+  // Generates a Basic Authorization header for slpserve.
+  generateCredentialsWL () {
+    // Generate the Basic Authentication header for a private instance of SLPDB.
+    const username = 'BITBOX'
+    const password = SLPDB_PASS_WL
+    const combined = `${username}:${password}`
+    // console.log(`combined: ${combined}`)
     var base64Credential = Buffer.from(combined).toString('base64')
     var readyCredential = `Basic ${base64Credential}`
 
@@ -1985,7 +2014,7 @@ class Slp {
 
         // Get SLP token details.
         const details = await _this.bchjs.SLP.Utils.tokenUtxoDetails(theseUtxos)
-        // console.log('details : ', details)
+        // console.log('details: ', details)
 
         // Replace the original UTXO data with the hydrated data.
         utxos[i].utxos = details
@@ -2009,6 +2038,92 @@ class Slp {
       res.status(500)
       return res.json({
         error: 'Error in hydrateUtxos()'
+      })
+    }
+  }
+
+  /**
+   * @api {post} /slp/hydrateUtxosWL/ hydrateUtxosWL
+   * @apiName SLP hydrateUtxosWL
+   * @apiGroup SLP
+   * @apiDescription Hydrate UTXO data with SLP information, using only the whitelist SLPDB.
+   *
+   * This call is identical to `hydrateUtxos`, except it will only use the
+   * filtered SLPDB with a whitelist. This results in faster performance, more
+   * reliable uptime, but more frequent `isValid: null` values. Some use-cases
+   * prioritize the speed and reliability over acceptance of a wide range of
+   * SLP tokens.
+   *
+   * @apiExample Example usage:
+   * curl -X POST "https://api.fullstack.cash/v4/slp/hydrateUtxosWL" -H "accept:application/json" -H "Content-Type: application/json" -d '{"utxos":[{"utxos":[{"txid": "d56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56","vout": 3, "value": "6816", "height": 606848, "confirmations": 13, "satoshis": 6816}, {"txid": "d56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56","vout": 2, "value": "546", "height": 606848, "confirmations": 13, "satoshis": 546}]}]}'
+   *
+   *
+   */
+  async hydrateUtxosWL (req, res, next) {
+    try {
+      const utxos = req.body.utxos
+
+      // Validate inputs
+      if (!Array.isArray(utxos)) {
+        res.status(422)
+        return res.json({
+          error: 'Input must be an array.'
+        })
+      }
+
+      if (!utxos.length) {
+        res.status(422)
+        return res.json({
+          error: 'Array should not be empty'
+        })
+      }
+
+      if (utxos.length > 20) {
+        res.status(422)
+        return res.json({
+          error: 'Array too long, max length is 20'
+        })
+      }
+
+      if (!utxos[0].utxos) {
+        res.status(422)
+        return res.json({
+          error: 'Each element in array should have a utxos property'
+        })
+      }
+
+      // Loop through each address and query the UTXOs for that element.
+      for (let i = 0; i < utxos.length; i++) {
+        const theseUtxos = utxos[i].utxos
+        // console.log(`theseUtxos: ${JSON.stringify(theseUtxos, null, 2)}`)
+
+        // Get SLP token details.
+        const details = await _this.bchjs.SLP.Utils.tokenUtxoDetailsWL(theseUtxos)
+        // console.log('details : ', details)
+
+        // Replace the original UTXO data with the hydrated data.
+        utxos[i].utxos = details
+      }
+
+      res.status(200)
+      return res.json({ slpUtxos: utxos })
+    } catch (err) {
+      wlogger.error('Error in slp.js/hydrateUtxosWL().', err)
+      console.error('Error in slp.js/hydrateUtxosWL().', err)
+
+      // Decode the error message.
+      const { msg, status } = routeUtils.decodeError(err)
+      console.log('msg: ', msg)
+      console.log('status: ', status)
+      if (msg) {
+        res.status(status)
+        return res.json({ error: msg, message: msg, success: false })
+      }
+
+      res.status(500)
+      return res.json({
+        error: 'Error in hydrateUtxosWL()',
+        message: 'Error in hydrateUtxosWL()'
       })
     }
   }

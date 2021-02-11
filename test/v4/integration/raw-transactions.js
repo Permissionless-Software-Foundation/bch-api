@@ -7,21 +7,22 @@
   TODO:
   -/rawtransactions/sendRawTransaction is more appropropriate for an e2e test,
   so it is omitted here.
+  - Replace request-promise with axios.
 */
 
 'use strict'
 
-const chai = require('chai')
-const assert = chai.assert
+// const chai = require('chai')
+// const assert = chai.assert
 // const rawtransactions = require('../../../dist/routes/v2/rawtransactions')
-const rp = require('request-promise')
+// const rp = require('request-promise')
 
 // Used for debugging.
 const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
 // const mockData = require('../mocks/raw-transactions-mocks')
-
+/*
 describe('#Raw-Transactions', () => {
   describe('#root', () => {
     it('should return root', async () => {
@@ -189,3 +190,4 @@ describe('#Raw-Transactions', () => {
     })
   })
 })
+*/
