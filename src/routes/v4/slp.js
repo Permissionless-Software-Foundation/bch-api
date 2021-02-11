@@ -1755,7 +1755,7 @@ class Slp {
     const username = 'BITBOX'
     const password = SLPDB_PASS_WL
     const combined = `${username}:${password}`
-    console.log(`combined: ${combined}`)
+    // console.log(`combined: ${combined}`)
     var base64Credential = Buffer.from(combined).toString('base64')
     var readyCredential = `Basic ${base64Credential}`
 
