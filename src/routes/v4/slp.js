@@ -1218,7 +1218,7 @@ class Slp {
       }
 
       const path = `${process.env.SLP_API_URL}slp/validate/${txid}`
-      console.log(`validate2Single path: ${path}`)
+      // console.log(`validate2Single path: ${path}`)
 
       // Request options
       const opt = {
