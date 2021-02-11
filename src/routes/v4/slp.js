@@ -38,7 +38,7 @@ util.inspect.defaultOptions = { depth: 5 }
 // Password for General Purpose (GP) SLPDB.
 const SLPDB_PASS_GP = process.env.SLPDB_PASS_GP ? process.env.SLPDB_PASS_GP : 'BITBOX'
 // Password for Whitelist (WL) SLPDB.
-const SLPDB_PASS_WL = process.env.SLPDB_PASS_GP ? process.env.SLPDB_PASS_GP : 'BITBOX'
+const SLPDB_PASS_WL = process.env.SLPDB_PASS_WL ? process.env.SLPDB_PASS_WL : 'BITBOX'
 
 // const rawtransactions = require('./full-node/rawtransactions')
 const RawTransactions = require('./full-node/rawtransactions')
@@ -46,9 +46,9 @@ const rawTransactions = new RawTransactions()
 
 // Setup REST and TREST URLs used by slpjs
 // Dev note: this allows for unit tests to mock the URL.
-if (!process.env.REST_URL) process.env.REST_URL = 'https://rest.bitcoin.com/v2/'
+if (!process.env.REST_URL) process.env.REST_URL = 'https://bchn.fullstack.cash/v4/'
 if (!process.env.TREST_URL) {
-  process.env.TREST_URL = 'https://trest.bitcoin.com/v2/'
+  process.env.TREST_URL = 'https://testnet.fullstack.cash/v4/'
 }
 
 let _this
@@ -1755,7 +1755,7 @@ class Slp {
     const username = 'BITBOX'
     const password = SLPDB_PASS_WL
     const combined = `${username}:${password}`
-    // console.log(`combined: ${combined}`)
+    console.log(`combined: ${combined}`)
     var base64Credential = Buffer.from(combined).toString('base64')
     var readyCredential = `Basic ${base64Credential}`
 
