@@ -36,9 +36,13 @@ util.inspect.defaultOptions = { depth: 5 }
 // Determine the Access password for a private instance of SLPDB.
 // https://gist.github.com/christroutner/fc717ca704dec3dded8b52fae387eab2
 // Password for General Purpose (GP) SLPDB.
-const SLPDB_PASS_GP = process.env.SLPDB_PASS_GP ? process.env.SLPDB_PASS_GP : 'BITBOX'
+const SLPDB_PASS_GP = process.env.SLPDB_PASS_GP
+  ? process.env.SLPDB_PASS_GP
+  : 'BITBOX'
 // Password for Whitelist (WL) SLPDB.
-const SLPDB_PASS_WL = process.env.SLPDB_PASS_WL ? process.env.SLPDB_PASS_WL : 'BITBOX'
+const SLPDB_PASS_WL = process.env.SLPDB_PASS_WL
+  ? process.env.SLPDB_PASS_WL
+  : 'BITBOX'
 
 // const rawtransactions = require('./full-node/rawtransactions')
 const RawTransactions = require('./full-node/rawtransactions')
@@ -46,7 +50,7 @@ const rawTransactions = new RawTransactions()
 
 // Setup REST and TREST URLs used by slpjs
 // Dev note: this allows for unit tests to mock the URL.
-if (!process.env.REST_URL) process.env.REST_URL = 'https://bchn.fullstack.cash/v4/'
+if (!process.env.REST_URL) { process.env.REST_URL = 'https://bchn.fullstack.cash/v4/' }
 if (!process.env.TREST_URL) {
   process.env.TREST_URL = 'https://testnet.fullstack.cash/v4/'
 }
@@ -1213,10 +1217,13 @@ class Slp {
         msg: ''
       }
 
+      const path = `${process.env.SLP_API_URL}slp/validate/${txid}`
+      console.log(`validate2Single path: ${path}`)
+
       // Request options
       const opt = {
         method: 'get',
-        baseURL: `${process.env.SLP_API_URL}slp/validate/${txid}`,
+        baseURL: path,
         timeout: 10000 // Exit after 10 seconds.
       }
       const tokenRes = await _this.axios.request(opt)
@@ -2098,7 +2105,9 @@ class Slp {
         // console.log(`theseUtxos: ${JSON.stringify(theseUtxos, null, 2)}`)
 
         // Get SLP token details.
-        const details = await _this.bchjs.SLP.Utils.tokenUtxoDetailsWL(theseUtxos)
+        const details = await _this.bchjs.SLP.Utils.tokenUtxoDetailsWL(
+          theseUtxos
+        )
         // console.log('details : ', details)
 
         // Replace the original UTXO data with the hydrated data.
