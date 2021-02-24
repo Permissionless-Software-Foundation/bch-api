@@ -1979,6 +1979,9 @@ class Slp {
     try {
       const utxos = req.body.utxos
 
+      console.log(`req._remoteAddress: ${req._remoteAddress}`)
+      const origin = req._remoteAddress
+
       // Validate inputs
       if (!Array.isArray(utxos)) {
         res.status(422)
@@ -2013,7 +2016,7 @@ class Slp {
         const theseUtxos = utxos[i].utxos
 
         // Get SLP token details.
-        const details = await _this.bchjs.SLP.Utils.tokenUtxoDetails(theseUtxos)
+        const details = await _this.bchjs.SLP.Utils.tokenUtxoDetails(theseUtxos, origin)
         // console.log('details: ', details)
 
         // Replace the original UTXO data with the hydrated data.
