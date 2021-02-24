@@ -147,6 +147,11 @@ class RateLimits {
 
           wlogger.info(`origin: ${origin}`)
 
+          const bodyOrigin = req.body.origin
+          if (bodyOrigin) {
+            console.log(`bodyOrigin: ${bodyOrigin}`)
+          }
+
           // If the request originates from one of the approved wallet apps, then
           // apply paid-access rate limits.
           // console.log(`origin: ${JSON.stringify(origin, null, 2)}`)
