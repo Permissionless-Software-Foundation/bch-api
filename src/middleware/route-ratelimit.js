@@ -129,8 +129,16 @@ class RateLimits {
           const resource = _this.getResource(req.url)
           wlogger.debug(`resource: ${resource}`)
 
+          // Key will be the JWT ID if it exists, otherwise the IP address of the caller.
           let key = userId || req.ip
           res.locals.key = key // Feedback for tests.
+
+          // For internal calls that make a lot of internal calls, like
+          // hydrateUtxoDetails(), the origin of the caller will be passed in
+          // via the POST body.
+          if (req.body && req.body.ip) {
+            key = req.body.ip
+          }
 
           // const pointsToConsume = userId ? 1 : 30
           decoded.resource = resource
@@ -146,11 +154,6 @@ class RateLimits {
           }
 
           wlogger.info(`origin: ${origin}`)
-
-          const bodyOrigin = req.body.origin
-          if (bodyOrigin) {
-            console.log(`bodyOrigin: ${bodyOrigin}`)
-          }
 
           // If the request originates from one of the approved wallet apps, then
           // apply paid-access rate limits.
