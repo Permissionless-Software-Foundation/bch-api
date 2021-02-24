@@ -136,7 +136,8 @@ class RateLimits {
           // For internal calls that make a lot of internal calls, like
           // hydrateUtxoDetails(), the origin of the caller will be passed in
           // via the POST body.
-          if (req.body && req.body.ip) {
+          const keyIsLocal = key.includes('172.17.0.1') || key.includes('127.0.0.1')
+          if (req.body && req.body.ip && keyIsLocal) {
             key = req.body.ip
           }
           console.log(`key: ${key}`)
