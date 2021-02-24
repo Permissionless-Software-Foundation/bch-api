@@ -139,6 +139,7 @@ class RateLimits {
           if (req.body && req.body.ip) {
             key = req.body.ip
           }
+          console.log(`key: ${key}`)
 
           // const pointsToConsume = userId ? 1 : 30
           decoded.resource = resource
