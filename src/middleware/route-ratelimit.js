@@ -136,9 +136,13 @@ class RateLimits {
           // For internal calls that make a lot of internal calls, like
           // hydrateUtxoDetails(), the origin of the caller will be passed in
           // via the POST body.
-          const keyIsLocal = key.includes('172.17.0.1') || key.includes('127.0.0.1')
-          if (req.body && req.body.ip && keyIsLocal) {
-            key = req.body.ip
+          const keyIsLocal =
+            key.includes('172.17.0.1') || key.includes('127.0.0.1')
+          if (req.body && req.body.usrObj && keyIsLocal) {
+            // key = req.body.ip
+            console.log(
+              `route-ratelimit usrObj: ${JSON.stringify(req.body.usrObj, null, 2)}`
+            )
           }
           console.log(`key: ${key}`)
 
@@ -297,7 +301,9 @@ class RateLimits {
 
       return retVal
     } catch (err) {
-      wlogger.error('Error in route-ratelimit.js/isInWhitelist(). Returning false by default.')
+      wlogger.error(
+        'Error in route-ratelimit.js/isInWhitelist(). Returning false by default.'
+      )
       return false
     }
   }
