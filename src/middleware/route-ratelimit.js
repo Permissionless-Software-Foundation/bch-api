@@ -144,7 +144,7 @@ class RateLimits {
       let rateLimit = ANON_LIMITS
 
       // Only evaluate the JWT token if the user is not using Basic Authentication.
-      if (!req.locals.proLimit) {
+      if (!req.locals.proLimit && !req.body.usrObj.proLimit) {
         // Code here for the rate limiter is adapted from this example:
         // https://github.com/animir/node-rate-limiter-flexible/wiki/Overall-example#authorized-and-not-authorized-users
         try {
