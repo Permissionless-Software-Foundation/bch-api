@@ -92,6 +92,15 @@ class Encryption {
         })
       }
 
+      // Generate a user object that can be passed along with internal calls
+      // from bch-js.
+      const usrObj = {
+        ip: req._remoteAddress,
+        jwtToken: req.locals.jwtToken,
+        proLimit: req.locals.proLimit,
+        apiLevel: req.locals.apiLevel
+      }
+
       const cashAddr = _this.bchjs.Address.toCashAddress(address)
 
       // Prevent a common user error. Ensure they are using the correct network address.
@@ -110,7 +119,7 @@ class Encryption {
         cashAddr
       )
 
-      const rawTxData = await _this.bchjs.Electrumx.transactions(cashAddr)
+      const rawTxData = await _this.bchjs.Electrumx.transactions(cashAddr, usrObj)
       // console.log(`rawTxData: ${JSON.stringify(rawTxData, null, 2)}`)
 
       // Extract just the TXIDs
@@ -126,9 +135,12 @@ class Encryption {
       for (let i = 0; i < txids.length; i++) {
         const thisTx = txids[i]
 
+        // CT 2/24/21: I might want to convert this to the POST call, to take
+        // advantage of the usrObj. It does not get passed in a GET call.
         const txDetails = await _this.bchjs.RawTransactions.getRawTransaction(
           thisTx,
-          true
+          true,
+          usrObj
         )
         // console.log(`txDetails: ${JSON.stringify(txDetails, null, 2)}`)
 

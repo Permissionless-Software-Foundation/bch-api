@@ -116,7 +116,7 @@ class RateLimits {
         //
       } else if (req.body && req.body.usrObj) {
         // Same as above, but this code path is activated from internal calls to
-        // bch-js, like hydrateUtxo() which passes the user object from the
+        // bch-js, like hydrateUtxo(), which passes the user object from the
         // original API call.
 
         try {
@@ -153,23 +153,7 @@ class RateLimits {
           // Key will be the JWT ID if it exists, otherwise the IP address of the caller.
           let key = userId || req.ip
           res.locals.key = key // Feedback for tests.
-
-          // For internal calls that make a lot of internal calls, like
-          // hydrateUtxoDetails(), the origin of the caller will be passed in
-          // via the POST body.
-          const keyIsLocal =
-            key.includes('172.17.0.1') || key.includes('127.0.0.1')
-          if (req.body && req.body.usrObj && keyIsLocal) {
-            // key = req.body.ip
-            console.log(
-              `route-ratelimit usrObj: ${JSON.stringify(
-                req.body.usrObj,
-                null,
-                2
-              )}`
-            )
-          }
-          console.log(`key: ${key}`)
+          // console.log(`key: ${key}`)
 
           // const pointsToConsume = userId ? 1 : 30
           decoded.resource = resource
