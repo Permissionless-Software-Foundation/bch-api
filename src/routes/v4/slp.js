@@ -1980,9 +1980,10 @@ class Slp {
       const utxos = req.body.utxos
 
       // console.log('req: ', req)
-      console.log(`req._remoteAddress: ${req._remoteAddress}`)
-      // const ip = req._remoteAddress
+      // console.log(`req._remoteAddress: ${req._remoteAddress}`)
 
+      // Generate a user object that can be passed along with internal calls
+      // from bch-js.
       const usrObj = {
         ip: req._remoteAddress,
         jwtToken: req.locals.jwtToken,
