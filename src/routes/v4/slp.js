@@ -1986,6 +1986,18 @@ class Slp {
     try {
       const utxos = req.body.utxos
 
+      // console.log('req: ', req)
+      // console.log(`req._remoteAddress: ${req._remoteAddress}`)
+
+      // Generate a user object that can be passed along with internal calls
+      // from bch-js.
+      const usrObj = {
+        ip: req._remoteAddress,
+        jwtToken: req.locals.jwtToken,
+        proLimit: req.locals.proLimit,
+        apiLevel: req.locals.apiLevel
+      }
+
       // Validate inputs
       if (!Array.isArray(utxos)) {
         res.status(422)
@@ -2020,7 +2032,7 @@ class Slp {
         const theseUtxos = utxos[i].utxos
 
         // Get SLP token details.
-        const details = await _this.bchjs.SLP.Utils.tokenUtxoDetails(theseUtxos)
+        const details = await _this.bchjs.SLP.Utils.tokenUtxoDetails(theseUtxos, usrObj)
         // console.log('details: ', details)
 
         // Replace the original UTXO data with the hydrated data.

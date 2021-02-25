@@ -115,6 +115,27 @@ class RateLimits {
             err
           )
         }
+        //
+      } else if (req.body && req.body.usrObj) {
+        // Same as above, but this code path is activated from internal calls to
+        // bch-js, like hydrateUtxo(), which passes the user object from the
+        // original API call.
+
+        try {
+          decoded = _this.jwt.verify(
+            req.body.usrObj.jwtToken,
+            _this.config.apiTokenSecret
+          )
+          // console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
+
+          userId = decoded.id
+        } catch (err) {
+          // This handler will be triggered if the JWT token does not match the
+          // token secret.
+          wlogger.error(
+            'Error in route-ratelimit.js trying to decode JWT token in usrObj'
+          )
+        }
       } else {
         wlogger.debug('No JWT token found!')
       }
@@ -131,8 +152,10 @@ class RateLimits {
           const resource = _this.getResource(req.url)
           wlogger.debug(`resource: ${resource}`)
 
+          // Key will be the JWT ID if it exists, otherwise the IP address of the caller.
           let key = userId || req.ip
           res.locals.key = key // Feedback for tests.
+          // console.log(`key: ${key}`)
 
           // const pointsToConsume = userId ? 1 : 30
           decoded.resource = resource
@@ -289,7 +312,9 @@ class RateLimits {
 
       return retVal
     } catch (err) {
-      wlogger.error('Error in route-ratelimit.js/isInWhitelist(). Returning false by default.')
+      wlogger.error(
+        'Error in route-ratelimit.js/isInWhitelist(). Returning false by default.'
+      )
       return false
     }
   }
