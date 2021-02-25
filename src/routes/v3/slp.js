@@ -85,7 +85,7 @@ class Slp {
       _this.txsByAddressSingle
     )
     _this.router.post('/generateSendOpReturn', _this.generateSendOpReturn)
-    _this.router.post('/hydrateUtxos', _this.hydrateUtxos)
+    // _this.router.post('/hydrateUtxos', _this.hydrateUtxos)
   }
 
   // DRY error handler.
@@ -1621,6 +1621,7 @@ class Slp {
    *
    *
    */
+
   async hydrateUtxos (req, res, next) {
     try {
       const utxos = req.body.utxos
