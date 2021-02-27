@@ -29,6 +29,7 @@ test-fullstack-bchn.sh
 start-fullstack-abc.sh
 start-fullstack-bchn.sh
 start-ss-main.sh
+start-decatur-bchn.sh
 
 coverage
 start-my-infra
