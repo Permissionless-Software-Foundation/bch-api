@@ -10,9 +10,10 @@
 
 const chai = require('chai')
 const assert = chai.assert
-const utilRoute = require('../../src/routes/v4/util')
 const nock = require('nock') // HTTP mocking
 const sinon = require('sinon')
+
+const UtilRoute = require('../../src/routes/v4/util')
 
 let originalEnvVars // Used during transition from integration to unit tests.
 
@@ -24,7 +25,7 @@ const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
 // const UtilRoute = utilRoute.UtilRoute
-const utilRouteInst = new utilRoute.UtilRoute()
+const utilRouteInst = new UtilRoute()
 
 describe('#Util', () => {
   let req, res

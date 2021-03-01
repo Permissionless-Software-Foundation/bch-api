@@ -592,13 +592,15 @@ class UtilRoute {
   }
 }
 
-module.exports = {
-  router,
-  // testableComponents: {
-  //   root,
-  //   validateAddressSingle,
-  //   validateAddressBulk,
-  //   sweepWif
-  // }
-  UtilRoute
-}
+// module.exports = {
+//   router,
+//   // testableComponents: {
+//   //   root,
+//   //   validateAddressSingle,
+//   //   validateAddressBulk,
+//   //   sweepWif
+//   // }
+//   UtilRoute
+// }
+
+module.exports = UtilRoute
