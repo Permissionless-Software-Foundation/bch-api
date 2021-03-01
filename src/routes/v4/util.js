@@ -6,6 +6,7 @@ const axios = require('axios')
 
 const routeUtils = require('./route-utils')
 const wlogger = require('../../util/winston-logging')
+
 const Blockbook = require('./blockbook')
 const blockbook = new Blockbook()
 
@@ -40,6 +41,12 @@ class UtilRoute {
   constructor () {
     this.bchjs = bchjs
     this.blockbook = blockbook
+
+    this.router = router
+    this.router.get('/', this.root)
+    this.router.get('/validateAddress/:address', this.validateAddressSingle)
+    this.router.post('/validateAddress', this.validateAddressBulk)
+    this.router.post('/sweep', this.sweepWif)
 
     _this = this
   }
@@ -584,13 +591,6 @@ class UtilRoute {
     }
   }
 }
-
-const utilRoute = new UtilRoute()
-
-router.get('/', utilRoute.root)
-router.get('/validateAddress/:address', utilRoute.validateAddressSingle)
-router.post('/validateAddress', utilRoute.validateAddressBulk)
-router.post('/sweep', utilRoute.sweepWif)
 
 module.exports = {
   router,
