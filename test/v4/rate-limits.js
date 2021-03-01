@@ -2,7 +2,6 @@
 
 const chai = require('chai')
 const assert = chai.assert
-// const nock = require('nock') // HTTP mocking
 const sinon = require('sinon')
 
 // Used for debugging.
