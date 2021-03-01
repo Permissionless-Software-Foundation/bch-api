@@ -4,15 +4,22 @@
   This test file uses the environment variable TEST to switch between unit
   and integration tests. By default, TEST is set to 'unit'. Set this variable
   to 'integration' to run the tests against BCH mainnet.
+
+  These tests use this private key:
+  L1wAGEN721LHDoiN8pLwwBb87bYrU6Gs21UPcCRR7LjKypQyVaCq
+  Which corresponds to this address:
+  bitcoincash:qp2g4cnekxsjspccmtvh5k73mczz6273js4mjr353r
 */
 
 'use strict'
 
-const chai = require('chai')
-const assert = chai.assert
+// Public npm libraries
+const assert = require('chai').assert
 const nock = require('nock') // HTTP mocking
 const sinon = require('sinon')
 
+// Local libraries
+const Electrumx = require('../../src/routes/v4/electrumx')
 const UtilRoute = require('../../src/routes/v4/util')
 
 let originalEnvVars // Used during transition from integration to unit tests.
@@ -25,13 +32,16 @@ const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
 // const UtilRoute = utilRoute.UtilRoute
-const utilRouteInst = new UtilRoute()
+// const electrumx = new Electrumx()
+const utilRouteInst = new UtilRoute({ electrumx: {} })
 
 describe('#Util', () => {
   let req, res
   let sandbox
+  let electrumx
+  let utilRoute
 
-  before(() => {
+  before(async () => {
     // Save existing environment variables.
     originalEnvVars = {
       BITCOINCOM_BASEURL: process.env.BITCOINCOM_BASEURL,
@@ -48,6 +58,9 @@ describe('#Util', () => {
       process.env.RPC_USERNAME = 'fakeusername'
       process.env.RPC_PASSWORD = 'fakepassword'
     }
+
+    electrumx = new Electrumx()
+    // await electrumx.connect()
   })
 
   // Setup the mocks before each test.
@@ -65,6 +78,8 @@ describe('#Util', () => {
     if (!nock.isActive()) nock.activate()
 
     sandbox = sinon.createSandbox()
+
+    utilRoute = new UtilRoute({ electrumx })
   })
 
   afterEach(() => {
@@ -358,29 +373,29 @@ describe('#Util', () => {
         // Mock the RPC call for unit tests.
 
         sandbox
-          .stub(utilRouteInst.blockbook, 'balanceFromBlockbook')
+          .stub(utilRoute.electrumx, '_balanceFromElectrumx')
           .resolves(mockData.mockBalance)
 
         sandbox
-          .stub(utilRouteInst.blockbook, 'utxosFromBlockbook')
+          .stub(utilRoute.electrumx, '_utxosFromElectrumx')
           .resolves(mockData.mockUtxos)
 
         sandbox
-          .stub(utilRouteInst.bchjs.SLP.Utils, 'tokenUtxoDetails')
+          .stub(utilRoute.bchjs.SLP.Utils, 'tokenUtxoDetails')
           .resolves(mockData.mockIsTokenUtxos)
 
         // Mock sendRawTransaction() so that the hex does not actually get broadcast
         // to the network.
         sandbox
-          .stub(utilRouteInst.bchjs.RawTransactions, 'sendRawTransaction')
+          .stub(utilRoute.bchjs.RawTransactions, 'sendRawTransaction')
           .resolves('test-txid')
 
         req.body = {
-          wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt',
-          toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p'
+          wif: 'L1wAGEN721LHDoiN8pLwwBb87bYrU6Gs21UPcCRR7LjKypQyVaCq',
+          toAddr: 'bitcoincash:qp2g4cnekxsjspccmtvh5k73mczz6273js4mjr353r'
         }
 
-        const result = await utilRouteInst.sweepWif(req, res)
+        const result = await utilRoute.sweepWif(req, res)
         // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
         assert.equal(result, 'test-txid')
@@ -390,13 +405,13 @@ describe('#Util', () => {
         // Mock the RPC call for unit tests.
 
         sandbox
-          .stub(utilRouteInst.blockbook, 'balanceFromBlockbook')
+          .stub(utilRoute.electrumx, '_balanceFromElectrumx')
           .resolves(mockData.mockBalance)
 
         // Mock sendRawTransaction() so that the hex does not actually get broadcast
         // to the network.
         sandbox
-          .stub(utilRouteInst.bchjs.RawTransactions, 'sendRawTransaction')
+          .stub(utilRoute.bchjs.RawTransactions, 'sendRawTransaction')
           .resolves('test-txid')
 
         req.body = {
@@ -404,33 +419,30 @@ describe('#Util', () => {
           balanceOnly: true
         }
 
-        const result = await utilRouteInst.sweepWif(req, res)
+        const result = await utilRoute.sweepWif(req, res)
         // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
         assert.isNumber(result)
       })
-    }
 
-    // Unit tests only
-    if (process.env.TEST === 'unit') {
       it('should generate transaction for valid BCH-only sweep', async () => {
         sandbox
-          .stub(utilRouteInst.blockbook, 'balanceFromBlockbook')
+          .stub(utilRoute.electrumx, '_balanceFromElectrumx')
           .resolves(mockData.mockBalance)
 
         sandbox
-          .stub(utilRouteInst.blockbook, 'utxosFromBlockbook')
+          .stub(utilRoute.electrumx, '_utxosFromElectrumx')
           .resolves(mockData.mockUtxos)
 
         // Force token utxo to appear as regular BCH utxo.
         sandbox
-          .stub(utilRouteInst.bchjs.SLP.Utils, 'tokenUtxoDetails')
+          .stub(utilRoute.bchjs.SLP.Utils, 'tokenUtxoDetails')
           .resolves([false, false])
 
         // Mock sendRawTransaction() so that the hex does not actually get broadcast
         // to the network.
         sandbox
-          .stub(utilRouteInst.bchjs.RawTransactions, 'sendRawTransaction')
+          .stub(utilRoute.bchjs.RawTransactions, 'sendRawTransaction')
           .resolves('test-txid')
 
         req.body = {
@@ -438,7 +450,7 @@ describe('#Util', () => {
           toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p'
         }
 
-        const result = await utilRouteInst.sweepWif(req, res)
+        const result = await utilRoute.sweepWif(req, res)
         // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
         assert.equal(result, 'test-txid')
@@ -446,22 +458,22 @@ describe('#Util', () => {
 
       it('should throw 422 error if no non-token UTXOs', async () => {
         sandbox
-          .stub(utilRouteInst.blockbook, 'balanceFromBlockbook')
+          .stub(utilRoute.electrumx, '_balanceFromElectrumx')
           .resolves(mockData.mockBalance)
 
         sandbox
-          .stub(utilRouteInst.blockbook, 'utxosFromBlockbook')
+          .stub(utilRoute.electrumx, '_utxosFromElectrumx')
           .resolves(mockData.mockUtxos)
 
         // Force token utxo to appear as regular BCH utxo.
         sandbox
-          .stub(utilRouteInst.bchjs.SLP.Utils, 'tokenUtxoDetails')
+          .stub(utilRoute.bchjs.SLP.Utils, 'tokenUtxoDetails')
           .resolves(mockData.tokensOnly)
 
         // Mock sendRawTransaction() so that the hex does not actually get broadcast
         // to the network.
         sandbox
-          .stub(utilRouteInst.bchjs.RawTransactions, 'sendRawTransaction')
+          .stub(utilRoute.bchjs.RawTransactions, 'sendRawTransaction')
           .resolves('test-txid')
 
         req.body = {
@@ -469,7 +481,7 @@ describe('#Util', () => {
           toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p'
         }
 
-        const result = await utilRouteInst.sweepWif(req, res)
+        const result = await utilRoute.sweepWif(req, res)
         // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
         assert.equal(res.statusCode, 422)
@@ -482,22 +494,22 @@ describe('#Util', () => {
 
       it('should detect and throw error for multiple token classes', async () => {
         sandbox
-          .stub(utilRouteInst.blockbook, 'balanceFromBlockbook')
+          .stub(utilRoute.electrumx, '_balanceFromElectrumx')
           .resolves(mockData.mockBalance)
 
         sandbox
-          .stub(utilRouteInst.blockbook, 'utxosFromBlockbook')
+          .stub(utilRoute.electrumx, '_utxosFromElectrumx')
           .resolves(mockData.mockThreeUtxos)
 
         // Force token utxo to appear as regular BCH utxo.
         sandbox
-          .stub(utilRouteInst.bchjs.SLP.Utils, 'tokenUtxoDetails')
+          .stub(utilRoute.bchjs.SLP.Utils, 'tokenUtxoDetails')
           .resolves(mockData.multipleTokens)
 
         // Mock sendRawTransaction() so that the hex does not actually get broadcast
         // to the network.
         sandbox
-          .stub(utilRouteInst.bchjs.RawTransactions, 'sendRawTransaction')
+          .stub(utilRoute.bchjs.RawTransactions, 'sendRawTransaction')
           .resolves('test-txid')
 
         req.body = {
@@ -505,7 +517,7 @@ describe('#Util', () => {
           toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p'
         }
 
-        const result = await utilRouteInst.sweepWif(req, res)
+        const result = await utilRoute.sweepWif(req, res)
         // console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
         assert.equal(res.statusCode, 422)

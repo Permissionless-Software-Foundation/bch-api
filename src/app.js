@@ -52,7 +52,7 @@ const electrumxv4 = new ElectrumXV4()
 electrumxv4.connect()
 const encryptionv4 = new EncryptionV4()
 const pricev4 = new PriceV4()
-const utilV4 = new UtilV4()
+const utilV4 = new UtilV4({ electrumx: electrumxv4 })
 
 const app = express()
 
@@ -208,11 +208,11 @@ function onError (error) {
     case 'EACCES':
       console.error(`${bind} requires elevated privileges`)
       process.exit(1)
-      // break
+    // break
     case 'EADDRINUSE':
       console.error(`${bind} is already in use`)
       process.exit(1)
-      // break
+    // break
     default:
       throw error
   }

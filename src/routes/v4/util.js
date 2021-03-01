@@ -7,9 +7,6 @@ const axios = require('axios')
 const routeUtils = require('./route-utils')
 const wlogger = require('../../util/winston-logging')
 
-const Blockbook = require('./blockbook')
-const blockbook = new Blockbook()
-
 const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
@@ -38,9 +35,22 @@ const bchjs = new BCHJS()
 let _this
 
 class UtilRoute {
-  constructor () {
+  constructor (utilConfig) {
     this.bchjs = bchjs
-    this.blockbook = blockbook
+    // this.blockbook = blockbook
+
+    if (!utilConfig) {
+      throw new Error(
+        'Must pass a config object when instantiating the Util library.'
+      )
+    }
+    if (!utilConfig.electrumx) {
+      throw new Error(
+        'Must pass an instance of Electrumx when instantiating the Util library.'
+      )
+    }
+
+    this.electrumx = utilConfig.electrumx
 
     this.router = router
     this.router.get('/', this.root)
@@ -172,7 +182,7 @@ class UtilRoute {
       } = routeUtils.setEnvVars()
 
       // Loop through each address and creates an array of requests to call in parallel
-      const promises = addresses.map(async address => {
+      const promises = addresses.map(async (address) => {
         requestConfig.data.id = 'validateaddress'
         requestConfig.data.method = 'validateaddress'
         requestConfig.data.params = [address]
@@ -184,7 +194,7 @@ class UtilRoute {
       const axiosResult = await axios.all(promises)
 
       // Retrieve the data part of the result.
-      const result = axiosResult.map(x => x.data.result)
+      const result = axiosResult.map((x) => x.data.result)
 
       res.status(200)
       return res.json(result)
@@ -250,12 +260,11 @@ class UtilRoute {
       const fromAddr = bchjs.ECPair.toCashAddress(ecPair)
 
       // Get a balance on the public address
-      const balances = await _this.blockbook.balanceFromBlockbook(fromAddr)
+      const balances = await _this.electrumx._balanceFromElectrumx(fromAddr)
       // console.log(`balances: ${JSON.stringify(balances, null, 2)}`)
 
       // Total balance is the sum of the confirmed and unconfirmed balance.
-      const totalBalance =
-        Number(balances.balance) + Number(balances.unconfirmedBalance)
+      const totalBalance = balances.confirmed + balances.unconfirmed
 
       // Exit if balance is zero.
       if (isNaN(totalBalance) || totalBalance === 0) {
@@ -270,7 +279,7 @@ class UtilRoute {
       }
 
       // Get all UTXOs help by the address.
-      const utxos = await _this.blockbook.utxosFromBlockbook(fromAddr)
+      const utxos = await _this.electrumx._utxosFromElectrumx(fromAddr)
       // console.log(`utxos: ${JSON.stringify(utxos, null, 2)}`)
 
       const tokenUtxos = []
@@ -375,7 +384,7 @@ class UtilRoute {
       let utxos = options.utxos
 
       // Ensure all utxos have the satoshis property.
-      utxos = utxos.map(x => {
+      utxos = utxos.map((x) => {
         x.satoshis = Number(x.value)
         return x
       })
@@ -393,9 +402,9 @@ class UtilRoute {
       for (let i = 0; i < utxos.length; i++) {
         const utxo = utxos[i]
 
-        originalAmount = originalAmount + utxo.satoshis
+        originalAmount = originalAmount + utxo.value
 
-        transactionBuilder.addInput(utxo.txid, utxo.vout)
+        transactionBuilder.addInput(utxo.tx_hash, utxo.tx_pos)
       }
 
       if (originalAmount < 546) {
@@ -430,7 +439,7 @@ class UtilRoute {
           ecPair,
           redeemScript,
           transactionBuilder.hashTypes.SIGHASH_ALL,
-          utxo.satoshis
+          utxo.value
         )
       }
 
@@ -468,7 +477,7 @@ class UtilRoute {
       // Ensure there is only one class of token in the wallet. Throw an error if
       // there is more than one.
       const tokenId = tokenUtxos[0].tokenId
-      const otherTokens = tokenUtxos.filter(x => x.tokenId !== tokenId)
+      const otherTokens = tokenUtxos.filter((x) => x.tokenId !== tokenId)
       if (otherTokens.length > 0) {
         throw new Error(
           'Multiple token classes detected. This function only supports a single class of token.'
@@ -490,9 +499,9 @@ class UtilRoute {
       for (let i = 0; i < allUtxos.length; i++) {
         const utxo = allUtxos[i]
 
-        originalAmount = originalAmount + utxo.satoshis
+        originalAmount = originalAmount + utxo.value
 
-        transactionBuilder.addInput(utxo.txid, utxo.vout)
+        transactionBuilder.addInput(utxo.tx_hash, utxo.tx_pos)
       }
 
       if (originalAmount < 300) {
@@ -572,7 +581,7 @@ class UtilRoute {
           ecPair,
           redeemScript,
           transactionBuilder.hashTypes.SIGHASH_ALL,
-          thisUtxo.satoshis
+          thisUtxo.value
         )
       }
 
@@ -591,16 +600,5 @@ class UtilRoute {
     }
   }
 }
-
-// module.exports = {
-//   router,
-//   // testableComponents: {
-//   //   root,
-//   //   validateAddressSingle,
-//   //   validateAddressBulk,
-//   //   sweepWif
-//   // }
-//   UtilRoute
-// }
 
 module.exports = UtilRoute

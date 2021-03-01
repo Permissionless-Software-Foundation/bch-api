@@ -13,75 +13,70 @@ const mockAddress = {
   isscript: false
 }
 
+// const mockBalance = {
+//   page: 1,
+//   totalPages: 1,
+//   itemsOnPage: 1000,
+//   address: 'bitcoincash:qzp7gdl52edm24xlpkyqnza9rv43u3mdxyc77j3u6k',
+//   balance: '2546',
+//   totalReceived: '2546',
+//   totalSent: '0',
+//   unconfirmedBalance: '0',
+//   unconfirmedTxs: 0,
+//   txs: 2,
+//   txids: [
+//     'e190d13b88578132608ab912a4d2be3e55aa2792d6042d481ae21d700639de56',
+//     '44e1f48c4093fc61db1a8fa206aa402fc34e482b3f788cb38c123ca0e1a35db6'
+//   ]
+// }
+
 const mockBalance = {
-  page: 1,
-  totalPages: 1,
-  itemsOnPage: 1000,
-  address: 'bitcoincash:qzp7gdl52edm24xlpkyqnza9rv43u3mdxyc77j3u6k',
-  balance: '2546',
-  totalReceived: '2546',
-  totalSent: '0',
-  unconfirmedBalance: '0',
-  unconfirmedTxs: 0,
-  txs: 2,
-  txids: [
-    'e190d13b88578132608ab912a4d2be3e55aa2792d6042d481ae21d700639de56',
-    '44e1f48c4093fc61db1a8fa206aa402fc34e482b3f788cb38c123ca0e1a35db6'
-  ]
+  confirmed: 2546,
+  unconfirmed: 0
 }
 
 const mockUtxos = [
   {
-    txid: 'e190d13b88578132608ab912a4d2be3e55aa2792d6042d481ae21d700639de56',
-    vout: 0,
-    value: '2000',
-    height: 605873,
-    confirmations: 298,
-    satoshis: 2000
+    tx_hash: 'e190d13b88578132608ab912a4d2be3e55aa2792d6042d481ae21d700639de56',
+    tx_pos: 0,
+    value: 2000,
+    height: 605873
   },
   {
-    txid: '44e1f48c4093fc61db1a8fa206aa402fc34e482b3f788cb38c123ca0e1a35db6',
-    vout: 1,
-    value: '546',
-    height: 605873,
-    confirmations: 298,
-    satoshis: 546
+    tx_hash: '44e1f48c4093fc61db1a8fa206aa402fc34e482b3f788cb38c123ca0e1a35db6',
+    tx_pos: 1,
+    value: 546,
+    height: 605873
   }
 ]
 
 const mockThreeUtxos = [
   {
-    txid: 'e190d13b88578132608ab912a4d2be3e55aa2792d6042d481ae21d700639de56',
-    vout: 0,
-    value: '2000',
-    height: 605873,
-    confirmations: 298,
-    satoshis: 2000
+    tx_hash: 'e190d13b88578132608ab912a4d2be3e55aa2792d6042d481ae21d700639de56',
+    tx_pos: 0,
+    value: 2000,
+    height: 605873
   },
   {
-    txid: '44e1f48c4093fc61db1a8fa206aa402fc34e482b3f788cb38c123ca0e1a35db6',
-    vout: 1,
-    value: '546',
-    height: 605873,
-    confirmations: 298,
-    satoshis: 546
+    tx_hash: '44e1f48c4093fc61db1a8fa206aa402fc34e482b3f788cb38c123ca0e1a35db6',
+    tx_pos: 1,
+    value: 546,
+    height: 605873
   },
   {
-    txid: '44e1f48c4093fc61db1a8fa206aa402fc34e482b3f788cb38c123ca0e1a35db6',
-    vout: 1,
-    value: '546',
-    height: 605873,
-    confirmations: 298,
-    satoshis: 546
+    tx_hash: '44e1f48c4093fc61db1a8fa206aa402fc34e482b3f788cb38c123ca0e1a35db6',
+    tx_pos: 1,
+    value: 546,
+    height: 605873
   }
 ]
 
 const mockIsTokenUtxos = [
   false,
   {
-    txid: '44e1f48c4093fc61db1a8fa206aa402fc34e482b3f788cb38c123ca0e1a35db6',
-    vout: 1,
-    value: '546',
+    tx_hash: '44e1f48c4093fc61db1a8fa206aa402fc34e482b3f788cb38c123ca0e1a35db6',
+    tx_out: 1,
+    value: 546,
     height: 605873,
     confirmations: 298,
     satoshis: 546,
