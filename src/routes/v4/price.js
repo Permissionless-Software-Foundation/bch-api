@@ -35,6 +35,7 @@ class Price {
     this.router.get('/usd', _this.getUSD)
     this.router.get('/rates', _this.getBCHRate)
     this.router.get('/bchausd', _this.getBCHAUSD)
+    this.router.get('/bchusd', _this.getBCHUSD)
   }
 
   // DRY error handler.
