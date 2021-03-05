@@ -8,6 +8,10 @@
   The rate limits below were originially coded with the idea of charging on a
   per-resource basis. However, that was confusing to end users trying to purchase
   a subscription. So everything was simplied to two tiers: paid and anonymous
+
+  CT 3/4/21: I increased the total points from 1,000 to 100,000 to prevent systems
+  with Basic Authentication from hitting internal rate limits when calling
+  hydrateUtxos().
 */
 
 'use strict'
@@ -197,7 +201,7 @@ class RateLimits {
             `User ${key} consuming ${pointsToConsume} point for resource ${resource}.`
           )
 
-          rateLimit = Math.floor(1000 / pointsToConsume)
+          rateLimit = Math.floor(100000 / pointsToConsume)
 
           // Update the key so that rate limits track both the user and the resource.
           key = `${key}-${resource}`
