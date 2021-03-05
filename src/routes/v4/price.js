@@ -27,11 +27,15 @@ class Price {
     this.coinexPriceUrl =
       'https://api.coinex.com/v1/market/ticker?market=bchausdt'
 
+    this.bchCoinexPriceUrl =
+      'https://api.coinex.com/v1/market/ticker?market=bchusdt'
+
     this.router = express.Router()
     this.router.get('/', _this.root)
     this.router.get('/usd', _this.getUSD)
     this.router.get('/rates', _this.getBCHRate)
     this.router.get('/bchausd', _this.getBCHAUSD)
+    this.router.get('/bchusd', _this.getBCHUSD)
   }
 
   // DRY error handler.
@@ -146,6 +150,40 @@ class Price {
     } catch (err) {
       // Write out error to error log.
       wlogger.error('Error in price.js/getBCHAUSD().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  /**
+   * @api {get} /price/bchusd Get the USD price of BCH
+   * @apiName Get the USD price of BCH
+   * @apiGroup Price
+   * @apiDescription Get the USD price of BCH from Coinex.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v4/price/bchusd" -H "accept: application/json"
+   *
+   */
+  async getBCHUSD (req, res, next) {
+    try {
+      // Request options
+      const opt = {
+        method: 'get',
+        baseURL: _this.bchCoinexPriceUrl,
+        timeout: 15000
+      }
+
+      const response = await axios.request(opt)
+      // console.log(`response.data: ${JSON.stringify(response.data, null, 2)}`)
+
+      const price = Number(response.data.data.ticker.last)
+
+      return res.json({ usd: price })
+    } catch (err) {
+      // Write out error to error log.
+      wlogger.error('Error in price.js/getBCHUSD().', err)
 
       return _this.errorHandler(err, res)
     }

@@ -1986,6 +1986,11 @@ class Slp {
     try {
       const utxos = req.body.utxos
 
+      // Extract a delay value if the user passed it in.
+      const usrObjIn = req.body.usrObj
+      let utxoDelay = 0
+      if (usrObjIn && usrObjIn.utxoDelay) { utxoDelay = usrObjIn.utxoDelay }
+
       // console.log('req: ', req)
       // console.log(`req._remoteAddress: ${req._remoteAddress}`)
 
@@ -1995,7 +2000,8 @@ class Slp {
         ip: req._remoteAddress,
         jwtToken: req.locals.jwtToken,
         proLimit: req.locals.proLimit,
-        apiLevel: req.locals.apiLevel
+        apiLevel: req.locals.apiLevel,
+        utxoDelay
       }
 
       // Validate inputs
@@ -2056,7 +2062,8 @@ class Slp {
 
       res.status(500)
       return res.json({
-        error: 'Error in hydrateUtxos()'
+        error: 'Undetermined error in hydrateUtxos()',
+        message: err.message
       })
     }
   }
