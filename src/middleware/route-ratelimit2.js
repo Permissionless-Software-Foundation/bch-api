@@ -45,10 +45,10 @@ const rateLimitOptions = {
 }
 
 // Constants
-const ANON_LIMITS = config.anonRateLimit
-const WHITELIST_RATE_LIMIT = config.whitelistRateLimit
+// const ANON_LIMITS = config.anonRateLimit
+// const WHITELIST_RATE_LIMIT = config.whitelistRateLimit
 const WHITELIST_DOMAINS = config.whitelistDomains
-const INTERNAL_RATE_LIMIT = 1
+// const INTERNAL_RATE_LIMIT = 1
 
 class RateLimits {
   constructor () {
@@ -56,7 +56,7 @@ class RateLimits {
 
     this.jwt = jwt
     this.rateLimiter = new RateLimiterRedis(rateLimitOptions)
-    this.config = config
+    _this.config = config
   }
 
   // This is the main middleware funciton of this library. All other functions
@@ -134,15 +134,18 @@ class RateLimits {
 
       // Retrieve the origin.
       const origin = req.get('origin')
+      console.log(`origin: ${origin}`)
 
       // console.log(`WHITELIST_DOMAINS: ${JSON.stringify(WHITELIST_DOMAINS, null, 2)}`)
 
       for (let i = 0; i < WHITELIST_DOMAINS.length; i++) {
         const thisDomain = WHITELIST_DOMAINS[i]
 
-        if (origin.toString().indexOf(thisDomain) > -1) {
-          return true
-        }
+        // if (origin.toString().indexOf(thisDomain) > -1) {
+        //   return true
+        // }
+
+        if (origin.includes(thisDomain)) return true
       }
 
       return retVal

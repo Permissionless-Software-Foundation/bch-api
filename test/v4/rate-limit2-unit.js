@@ -59,7 +59,7 @@ describe('#rate-routelimit2', () => {
 
   describe('#checkInternalIp', () => {
     it('should return true for a request from localhost', () => {
-      req.ip = '127.0.0.1'
+      req.ip = '::ffff:127.0.0.1'
 
       const result = uut.checkInternalIp(req)
 
@@ -89,5 +89,33 @@ describe('#rate-routelimit2', () => {
 
       assert.equal(result, false)
     })
+  })
+
+  describe('#isInWhitelist', () => {
+    it('should return false when no argument is passed in', () => {
+      const result = uut.isInWhitelist()
+
+      assert.equal(result, false)
+    })
+
+    it('should return false when origin is not in the whitelist', () => {
+      req.origin = 'blah.com'
+
+      const result = uut.isInWhitelist(req)
+
+      assert.equal(result, false)
+
+      // Used to appease linter. Remove these.
+      res.blah = 4
+      next()
+    })
+
+    // it('should return true when origin is in the whitelist', () => {
+    //   req.origin = 'message.fullstack.cash'
+    //
+    //   const result = uut.isInWhitelist(req)
+    //
+    //   assert.equal(result, true)
+    // })
   })
 })

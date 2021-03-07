@@ -16,7 +16,7 @@ const config = {
     : 10,
   whitelistDomains: process.env.WHITELIST_DOMAINS
     ? process.env.WHITELIST_DOMAINS.split(',')
-    : ['fullstack.cash', 'psfoundation.cash']
+    : ['fullstack.cash', 'psfoundation.cash', '10.0.']
 }
 
 module.exports = config
