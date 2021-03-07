@@ -96,17 +96,26 @@ app.use('/', logReqInfo)
 
 const v4prefix = 'v4'
 
-// Inspect the header for a JWT token.
-app.use(`/${v4prefix}/`, jwtAuth.getTokenFromHeaders)
-
-// Instantiate the authorization middleware, used to implement pro-tier rate limiting.
-// Handles Anonymous and Basic Authorization schemes used by passport.js
+// START Rate Limits
+// Allow users to turn off rate limits with an environment variable.
+const USE_RATE_LIMITS = process.env.USE_RATE_LIMITS
+  ? process.env.USE_RATE_LIMITS
+  : true
 const auth = new AuthMW()
-app.use(`/${v4prefix}/`, auth.mw())
 
-// Rate limit on all v4 routes
-// Establish and enforce rate limits.
-app.use(`/${v4prefix}/`, rateLimits.rateLimitByResource)
+if (USE_RATE_LIMITS) {
+  // Inspect the header for a JWT token.
+  app.use(`/${v4prefix}/`, jwtAuth.getTokenFromHeaders)
+
+  // Instantiate the authorization middleware, used to implement pro-tier rate limiting.
+  // Handles Anonymous and Basic Authorization schemes used by passport.js
+  app.use(`/${v4prefix}/`, auth.mw())
+
+  // Rate limit on all v4 routes
+  // Establish and enforce rate limits.
+  app.use(`/${v4prefix}/`, rateLimits.rateLimitByResource)
+}
+// END Rate Limits
 
 // Connect v4 routes
 app.use(`/${v4prefix}/` + 'health-check', healthCheckV4)
