@@ -100,6 +100,7 @@ describe('#rate-routelimit2', () => {
 
     it('should return false when origin is not in the whitelist', () => {
       req.origin = 'blah.com'
+      req.get = sandbox.stub().returns(req.origin)
 
       const result = uut.isInWhitelist(req)
 
@@ -110,12 +111,89 @@ describe('#rate-routelimit2', () => {
       next()
     })
 
-    // it('should return true when origin is in the whitelist', () => {
-    //   req.origin = 'message.fullstack.cash'
-    //
-    //   const result = uut.isInWhitelist(req)
-    //
-    //   assert.equal(result, true)
-    // })
+    it('should return true when origin is in the whitelist', () => {
+      req.origin = 'message.fullstack.cash'
+      req.get = sandbox.stub().returns(req.origin)
+
+      const result = uut.isInWhitelist(req)
+
+      assert.equal(result, true)
+    })
+  })
+
+  describe('#trackRateLimits', () => {
+    it('should apply anonymous rate limits if no JWT token is provided', async () => {
+      req.ip = '127.0.0.1'
+
+      const result = await uut.trackRateLimits(req, res)
+      // console.log(`result: `, result)
+
+      // console.log('res.locals.pointsToConsume: ', res.locals.pointsToConsume)
+
+      assert.equal(result, false, 'Rate limits not exceeded')
+      assert.equal(
+        res.locals.pointsToConsume,
+        50,
+        'Anonymous rate limits applied'
+      )
+    })
+
+    it('should apply 100 RPM rate limits when JWT token is provided', async () => {
+      // Generate a new JWT token for the test.
+      const jwtPayload = {
+        id: '5dade3f5739e6c0ff034b9a1',
+        pointsToConsume: 10
+      }
+      const jwtToken = uut.generateJwtToken(jwtPayload)
+
+      const result = await uut.trackRateLimits(req, res, jwtToken)
+      // console.log(`result: `, result)
+
+      // console.log('res.locals.pointsToConsume: ', res.locals.pointsToConsume)
+
+      assert.equal(result, false, 'Rate limits not exceeded')
+      assert.equal(res.locals.pointsToConsume, 10, '100 RPM limits applied')
+    })
+  })
+
+  describe('#applyRateLimits', () => {
+    it('should skip rate limits if basic auth token is used', async () => {
+      req.locals.proLimit = true
+
+      // console.log('next.callCount: ', next.callCount)
+      const startCallCount = next.callCount
+
+      await uut.applyRateLimits(req, res, next)
+
+      // console.log('next.callCount: ', next.callCount)
+      const endCallCount = next.callCount
+
+      assert.isAbove(
+        endCallCount,
+        startCallCount,
+        'Expecting next to be called'
+      )
+    })
+
+    it('should skip rate limits if internal call passes basic auth token', async () => {
+      req.ip = '127.0.0.1'
+      req.body.usrObj = {
+        proLimit: true
+      }
+
+      // console.log('next.callCount: ', next.callCount)
+      const startCallCount = next.callCount
+
+      await uut.applyRateLimits(req, res, next)
+
+      // console.log('next.callCount: ', next.callCount)
+      const endCallCount = next.callCount
+
+      assert.isAbove(
+        endCallCount,
+        startCallCount,
+        'Expecting next to be called'
+      )
+    })
   })
 })

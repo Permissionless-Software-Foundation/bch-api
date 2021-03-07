@@ -87,7 +87,9 @@ class RateLimits {
 
       // Exit if the user has already authenticated with Basic Authentication.
       if (req.locals.proLimit) {
-        console.log('req.locals.proLimit = true; Using Basic Authentication instead of rate limits')
+        console.log(
+          'req.locals.proLimit = true; Using Basic Authentication instead of rate limits'
+        )
         return next()
       }
 
@@ -109,16 +111,42 @@ class RateLimits {
             // If this is an internal call that originated from a user using
             // Basic Authentication, then skip rate-limits.
             return next()
+
             //
-          } else if (req.body.usrObj.jwtToken) {
-            // Internal call originated from a user using a JWT token.
-            console.log(
-              'Internal call originated from a user using a JWT token'
-            )
+            // } else if (req.body.usrObj.jwtToken) {
+            //   // Internal call originated from a user using a JWT token.
+            //   console.log(
+            //     'Internal call originated from a user using a JWT token'
+            //   )
             //
+            //   const hasExceededRateLimit = await _this.trackRateLimits(
+            //     req,
+            //     res,
+            //     req.body.usrObj.jwtToken
+            //   )
+            //   if (!hasExceededRateLimit) {
+            //     return next()
+            //   } else {
+            //     return hasExceededRateLimit
+            //   }
+            //   //
+            // } else {
+            //   // Internal call originates from an anonymous user.
+            //   console.log('Internal call originates from an anonymous user')
+            // }
           } else {
-            // Internal call originates from an anonymous user.
-            console.log('Internal call originates from an anonymous user')
+            // Determine if user has exceeded their rate limits. Pass in the
+            // JWT token if one exists.
+            const hasExceededRateLimit = await _this.trackRateLimits(
+              req,
+              res,
+              req.body.usrObj.jwtToken
+            )
+            if (!hasExceededRateLimit) {
+              return next()
+            } else {
+              return hasExceededRateLimit
+            }
           }
         }
       }
@@ -126,7 +154,75 @@ class RateLimits {
       console.error('Error in route-ratelimit2.js/applyRateLimits(): ', err)
     }
 
+    // By default, move to the next middleware.
     next()
+  }
+
+  // A wrapper for Redis-based rate limiter. This function is called by
+  // applyRateLimits(), after it's determined the key to use.
+  // Will return false if the user has not exceeded the rate limit. Otherwise
+  // it will return the res object that should be returned by the middleware.
+  async trackRateLimits (req, res, jwtToken) {
+    // Anonymous rate limits are used by default.
+    let pointsToConsume = 50
+    let key = req.ip
+
+    try {
+      // Decode the JWT token if it exists
+      if (jwtToken) {
+        const decoded = _this.decodeJwtToken(jwtToken)
+        // console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
+
+        key = decoded.id
+        pointsToConsume = decoded.pointsToConsume
+      }
+      console.log(`rate limit key: ${key}`)
+
+      // This function will throw an error if the user exceeds the rate limit.
+      // The 429 error response is handled by the catch().
+      await _this.rateLimiter.consume(key, pointsToConsume)
+
+      res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
+
+      // Signal that the user has not exceeded their rate limits.
+      return false
+    } catch (err) {
+      console.log('err: ', err)
+
+      const rateLimit = Math.floor(1000 / pointsToConsume)
+
+      res.locals.rateLimitTriggered = true
+      // console.log('res.locals: ', res.locals)
+
+      // Rate limited was triggered
+      res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+      return res.json({
+        error: `Too many requests. Your limits are currently ${rateLimit} requests per minute. Increase rate limits at https://fullstack.cash`
+      })
+    }
+  }
+
+  // Attempts to decode a JWT token. Returns default values if it fails.
+  decodeJwtToken (jwtToken) {
+    // Default values, in case there is an error.
+    let decoded = {
+      id: '123.456.789.10',
+      email: 'test@bchtest.net',
+      apiLevel: 10,
+      rateLimit: 3,
+      pointsToConsume: 50,
+      duration: 30,
+      iat: 1615157087,
+      exp: 1617749087
+    }
+
+    try {
+      decoded = _this.jwt.verify(jwtToken, _this.config.apiTokenSecret)
+    } catch (err) {
+      console.error('Error in route-ratelimit2.js/decodeJwtTokens()')
+    }
+
+    return decoded
   }
 
   // Returns a boolean if the origin of the request matches a domain in the
@@ -139,14 +235,13 @@ class RateLimits {
       const origin = req.get('origin')
       console.log(`origin: ${origin}`)
 
+      // If the origin is not determinable, return false.
+      if (!origin) return false
+
       // console.log(`WHITELIST_DOMAINS: ${JSON.stringify(WHITELIST_DOMAINS, null, 2)}`)
 
       for (let i = 0; i < WHITELIST_DOMAINS.length; i++) {
         const thisDomain = WHITELIST_DOMAINS[i]
-
-        // if (origin.toString().indexOf(thisDomain) > -1) {
-        //   return true
-        // }
 
         if (origin.includes(thisDomain)) return true
       }
@@ -195,6 +290,33 @@ class RateLimits {
   // Clear the redis database. Used by unit tests.
   async wipeRedis () {
     await redisClient.flushdb()
+  }
+
+  // Generates a JWT token for testing purposes. This is not used in production.
+  // This function mirrors the kind of JWT token that would be generated by
+  // jwt-bch-api.
+  generateJwtToken (payload) {
+    try {
+      const jwtOptions = {
+        expiresIn: '30 days'
+      }
+
+      const jwtPayload = {
+        id: payload.id,
+        pointsToConsume: payload.pointsToConsume
+      }
+
+      const token = _this.jwt.sign(
+        jwtPayload,
+        _this.config.apiTokenSecret,
+        jwtOptions
+      )
+
+      return token
+    } catch (err) {
+      console.error('Error in generateJwtToken()')
+      throw err
+    }
   }
 }
 
