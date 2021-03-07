@@ -63,8 +63,8 @@ class RateLimits {
   // support this function.
   async applyRateLimits (req, res, next) {
     try {
-      let userId
-      const decoded = {}
+      // let userId
+      // const decoded = {}
 
       // Create a re*Q*.locals object if not passed in.
       // req.locals.proLimit will be true if the user is using Basic Authentication.
@@ -170,7 +170,7 @@ class RateLimits {
 
       return isInternal
     } catch (err) {
-      console.error(
+      wlogger.error(
         'Error in checkInternalIp(). Returning false be default. Err: ',
         err
       )
