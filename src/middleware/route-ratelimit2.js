@@ -56,13 +56,14 @@ class RateLimits {
 
     this.jwt = jwt
     this.rateLimiter = new RateLimiterRedis(rateLimitOptions)
-    _this.config = config
+    this.config = config
   }
 
   // This is the main middleware funciton of this library. All other functions
   // support this function.
   async applyRateLimits (req, res, next) {
     try {
+      console.log('Starting applyRateLimits()')
       // let userId
       // const decoded = {}
 
@@ -86,14 +87,16 @@ class RateLimits {
 
       // Exit if the user has already authenticated with Basic Authentication.
       if (req.locals.proLimit) {
+        console.log('req.locals.proLimit = true; Using Basic Authentication instead of rate limits')
         return next()
       }
 
       // Determine if the call is an external or internal API call.
-      const isInternal = this.checkInternalIp(req)
+      const isInternal = _this.checkInternalIp(req)
+      console.log(`isInternal: ${isInternal}`)
 
       // Determine if the call originates from another computer on the intranet.
-      const isWhitelistOrigin = this.isInWhitelist(req)
+      const isWhitelistOrigin = _this.isInWhitelist(req)
       console.log('isWhitelistOrigin: ', isWhitelistOrigin)
 
       // Handle the use case of internally-generated requests.
@@ -120,7 +123,7 @@ class RateLimits {
         }
       }
     } catch (err) {
-      wlogger.error('Error in route-ratelimit2.js/applyRateLimits(): ', err)
+      console.error('Error in route-ratelimit2.js/applyRateLimits(): ', err)
     }
 
     next()
@@ -170,6 +173,8 @@ class RateLimits {
       if (ip.includes('127.0.0.1')) isInternal = true
 
       if (ip.includes('172.17.')) isInternal = true
+
+      // TODO: Add 192.168.
 
       return isInternal
     } catch (err) {
