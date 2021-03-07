@@ -1,3 +1,7 @@
+/*
+  Unit tests for the rate limit middleware.
+*/
+
 'use strict'
 
 const chai = require('chai')

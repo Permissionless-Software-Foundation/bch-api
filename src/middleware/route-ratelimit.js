@@ -8,6 +8,20 @@
   The rate limits below were originially coded with the idea of charging on a
   per-resource basis. However, that was confusing to end users trying to purchase
   a subscription. So everything was simplied to two tiers: paid and anonymous
+
+  CT 3/7/21
+  This rate limits have been refactored to consider the following use cases:
+  - Users who want to buy a JWT token for 24 hour access.
+  - Users who want to buy different RPM tiers: 100, 250, 600
+  - Basic Authentication which should not have any rate limits applied.
+  - Users that run bch-api locally and do not want any rate limits applied.
+
+  The second two use cases also apply to internal rate limits. The internal rate
+  limits should not be applied to calls from those users.
+
+  A lot of attention has been paid to passing rate-limit information for the user
+  when they trigger an endpoint that makes a lot of internal API calls. Examples
+  are hydrateUtxos() and getPublicKey().
 */
 
 'use strict'
