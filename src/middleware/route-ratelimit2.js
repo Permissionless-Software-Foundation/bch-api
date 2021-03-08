@@ -63,7 +63,7 @@ class RateLimits {
   // support this function.
   async applyRateLimits (req, res, next) {
     try {
-      console.log('Starting applyRateLimits()')
+      // console.log('Starting applyRateLimits()')
       // let userId
       // const decoded = {}
 

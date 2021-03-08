@@ -121,7 +121,7 @@ if (USE_RATE_LIMITS) {
 
   // Rate limit on all v4 routes
   // Establish and enforce rate limits.
-  app.use(`/${v4prefix}/`, rateLimits.rateLimitByResource)
+  // app.use(`/${v4prefix}/`, rateLimits.rateLimitByResource)
 }
 // END Rate Limits
 
