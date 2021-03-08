@@ -53,7 +53,7 @@ const ANON_LIMITS = config.anonRateLimit
 // const WHITELIST_RATE_LIMIT = config.whitelistRateLimit
 const WHITELIST_DOMAINS = config.whitelistDomains
 const POINTS_PER_MINUTE = config.pointsPerMinute
-// const INTERNAL_RATE_LIMIT = 1
+const INTERNAL_POINTS_TO_CONSUME = 1
 
 class RateLimits {
   constructor () {
@@ -92,6 +92,7 @@ class RateLimits {
 
       // Exit if the user has already authenticated with Basic Authentication.
       if (req.locals.proLimit) {
+        console.log('External call, basic auth, skipping rate limits.')
         wlogger.debug(
           'req.locals.proLimit = true; Using Basic Authentication instead of rate limits'
         )
@@ -112,10 +113,16 @@ class RateLimits {
         // the usrObj in the body.
         if (req.body && req.body.usrObj) {
           if (req.body.usrObj.proLimit) {
+            console.log('Internal call, basic auth, skipping rate limits.')
+
             // If this is an internal call that originated from a user using
             // Basic Authentication, then skip rate-limits.
             return next()
           } else {
+            console.log(
+              'Internal call, applying rate limits. Using JWT if available.'
+            )
+
             // Determine if user has exceeded their rate limits. Pass in the
             // JWT token if one exists.
             const hasExceededRateLimit = await _this.trackRateLimits(
@@ -133,11 +140,47 @@ class RateLimits {
               return hasExceededRateLimit
             }
           }
+        } else {
+          console.log(
+            'Internal call. req.body.usrObj does not exist. Applying high-speed internal rate limits.'
+          )
+
+          const defaultPayload = {
+            id: '98.76.54.32',
+            email: 'internal@bchtest.net',
+            apiLevel: 40,
+            rateLimit: 100,
+            pointsToConsume: INTERNAL_POINTS_TO_CONSUME,
+            duration: 30
+          }
+
+          // Default values, in case there is an error.
+          const defaultJwt = _this.generateJwtToken(defaultPayload)
+
+          // Track the rate limit for this user. Pass in the JWT token, if one
+          // is available.
+          const hasExceededRateLimit = await _this.trackRateLimits(
+            req,
+            res,
+            defaultJwt
+          )
+
+          if (!hasExceededRateLimit) {
+            // Rate limits have not been exceeded. Processing can continue.
+            return next()
+          } else {
+            // trackRateLimits() returns the 'res' object with an error message
+            // and status code.
+            return hasExceededRateLimit
+          }
         }
         //
         //
       } else {
         // Handle the normal use-case of external requests
+        console.log(
+          'External call, applying rate limits. Using JWT if available.'
+        )
 
         // Track the rate limit for this user. Pass in the JWT token, if one
         // is available.
