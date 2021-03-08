@@ -4,8 +4,8 @@ const express = require('express')
 
 // Middleware
 // const { routeRateLimit } = require("./middleware/route-ratelimit")
-const RateLimits = require('./middleware/route-ratelimit')
-const rateLimits = new RateLimits()
+// const RateLimits = require('./middleware/route-ratelimit')
+// const rateLimits = new RateLimits()
 
 const RateLimits2 = require('./middleware/route-ratelimit2')
 const rateLimits2 = new RateLimits2()

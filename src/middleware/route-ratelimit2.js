@@ -17,6 +17,10 @@ The internal rate limits should not be applied to calls from those users.
 A lot of attention has been paid to passing rate-limit information for the user
 when they trigger an endpoint that makes a lot of internal API calls. Examples
 are hydrateUtxos() and getPublicKey().
+
+TODO:
+- Test against Basic Auth token
+- Add code for applying rate limits to whitelist domains.
 */
 
 // Public npm libraries.
@@ -45,9 +49,10 @@ const rateLimitOptions = {
 }
 
 // Constants
-// const ANON_LIMITS = config.anonRateLimit
+const ANON_LIMITS = config.anonRateLimit
 // const WHITELIST_RATE_LIMIT = config.whitelistRateLimit
 const WHITELIST_DOMAINS = config.whitelistDomains
+const POINTS_PER_MINUTE = config.pointsPerMinute
 // const INTERNAL_RATE_LIMIT = 1
 
 class RateLimits {
@@ -165,7 +170,7 @@ class RateLimits {
   // should be returned by the middleware.
   async trackRateLimits (req, res, jwtToken) {
     // Anonymous rate limits are used by default.
-    let pointsToConsume = 50
+    let pointsToConsume = ANON_LIMITS
     let key = req.ip // Use the IP address as the key, by default.
 
     try {
@@ -192,7 +197,7 @@ class RateLimits {
     } catch (err) {
       console.log('err: ', err)
 
-      const rateLimit = Math.floor(1000 / pointsToConsume)
+      const rateLimit = Math.floor(POINTS_PER_MINUTE / pointsToConsume)
 
       res.locals.rateLimitTriggered = true
       // console.log('res.locals: ', res.locals)
@@ -212,7 +217,7 @@ class RateLimits {
       email: 'test@bchtest.net',
       apiLevel: 10,
       rateLimit: 3,
-      pointsToConsume: 50,
+      pointsToConsume: ANON_LIMITS,
       duration: 30
     }
 
