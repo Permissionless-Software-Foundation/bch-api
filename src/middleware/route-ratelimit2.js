@@ -87,7 +87,7 @@ class RateLimits {
 
       // Exit if the user has already authenticated with Basic Authentication.
       if (req.locals.proLimit) {
-        console.log(
+        wlogger.debug(
           'req.locals.proLimit = true; Using Basic Authentication instead of rate limits'
         )
         return next()
@@ -106,34 +106,10 @@ class RateLimits {
         // Internal API calls should pass the authentication data in through the
         // the usrObj in the body.
         if (req.body && req.body.usrObj) {
-          //
           if (req.body.usrObj.proLimit) {
             // If this is an internal call that originated from a user using
             // Basic Authentication, then skip rate-limits.
             return next()
-
-            //
-            // } else if (req.body.usrObj.jwtToken) {
-            //   // Internal call originated from a user using a JWT token.
-            //   console.log(
-            //     'Internal call originated from a user using a JWT token'
-            //   )
-            //
-            //   const hasExceededRateLimit = await _this.trackRateLimits(
-            //     req,
-            //     res,
-            //     req.body.usrObj.jwtToken
-            //   )
-            //   if (!hasExceededRateLimit) {
-            //     return next()
-            //   } else {
-            //     return hasExceededRateLimit
-            //   }
-            //   //
-            // } else {
-            //   // Internal call originates from an anonymous user.
-            //   console.log('Internal call originates from an anonymous user')
-            // }
           } else {
             // Determine if user has exceeded their rate limits. Pass in the
             // JWT token if one exists.
@@ -142,12 +118,37 @@ class RateLimits {
               res,
               req.body.usrObj.jwtToken
             )
+
             if (!hasExceededRateLimit) {
+              // Rate limits have not been exceeded. Processing can continue.
               return next()
             } else {
+              // trackRateLimits() returns the 'res' object with an error message
+              // and status code.
               return hasExceededRateLimit
             }
           }
+        }
+        //
+        //
+      } else {
+        // Handle the normal use-case of external requests
+
+        // Track the rate limit for this user. Pass in the JWT token, if one
+        // is available.
+        const hasExceededRateLimit = await _this.trackRateLimits(
+          req,
+          res,
+          req.locals.jwtToken
+        )
+
+        if (!hasExceededRateLimit) {
+          // Rate limits have not been exceeded. Processing can continue.
+          return next()
+        } else {
+          // trackRateLimits() returns the 'res' object with an error message
+          // and status code.
+          return hasExceededRateLimit
         }
       }
     } catch (err) {
@@ -158,14 +159,14 @@ class RateLimits {
     next()
   }
 
-  // A wrapper for Redis-based rate limiter. This function is called by
-  // applyRateLimits(), after it's determined the key to use.
+  // A wrapper for Redis-based rate limiter.
   // Will return false if the user has not exceeded the rate limit. Otherwise
-  // it will return the res object that should be returned by the middleware.
+  // it will return the 'res' object with an error status and message, which
+  // should be returned by the middleware.
   async trackRateLimits (req, res, jwtToken) {
     // Anonymous rate limits are used by default.
     let pointsToConsume = 50
-    let key = req.ip
+    let key = req.ip // Use the IP address as the key, by default.
 
     try {
       // Decode the JWT token if it exists
@@ -173,7 +174,9 @@ class RateLimits {
         const decoded = _this.decodeJwtToken(jwtToken)
         // console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
 
+        // Preferentially use the decoded ID in the JWT payload, as the key.
         key = decoded.id
+
         pointsToConsume = decoded.pointsToConsume
       }
       console.log(`rate limit key: ${key}`)
@@ -204,25 +207,42 @@ class RateLimits {
 
   // Attempts to decode a JWT token. Returns default values if it fails.
   decodeJwtToken (jwtToken) {
-    // Default values, in case there is an error.
-    let decoded = {
+    const defaultPayload = {
       id: '123.456.789.10',
       email: 'test@bchtest.net',
       apiLevel: 10,
       rateLimit: 3,
       pointsToConsume: 50,
-      duration: 30,
-      iat: 1615157087,
-      exp: 1617749087
+      duration: 30
     }
 
     try {
-      decoded = _this.jwt.verify(jwtToken, _this.config.apiTokenSecret)
-    } catch (err) {
-      console.error('Error in route-ratelimit2.js/decodeJwtTokens()')
-    }
+      // Default values, in case there is an error.
+      const defaultJwt = _this.generateJwtToken(defaultPayload)
 
-    return decoded
+      // Generate a default payload to use, if the decoding of the user-provided
+      // jwt fails.
+      let decoded = _this.jwt.verify(defaultJwt, _this.config.apiTokenSecret)
+
+      try {
+        decoded = _this.jwt.verify(jwtToken, _this.config.apiTokenSecret)
+      } catch (err) {
+        wlogger.error('Error in route-ratelimit2.js/decodeJwtTokens(): ', err)
+      }
+
+      return decoded
+    } catch (err) {
+      wlogger.error(
+        'Unhandled error in route-ratelimit2.js/deocdeJwtToken: ',
+        err
+      )
+
+      // Making sure there is an exp property. Not sure if this will cause an
+      // issue, using a hard-coded value.
+      defaultPayload.exp = 1574269450
+
+      return defaultPayload
+    }
   }
 
   // Returns a boolean if the origin of the request matches a domain in the
@@ -301,13 +321,8 @@ class RateLimits {
         expiresIn: '30 days'
       }
 
-      const jwtPayload = {
-        id: payload.id,
-        pointsToConsume: payload.pointsToConsume
-      }
-
       const token = _this.jwt.sign(
-        jwtPayload,
+        payload,
         _this.config.apiTokenSecret,
         jwtOptions
       )

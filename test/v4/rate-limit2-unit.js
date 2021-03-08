@@ -121,6 +121,85 @@ describe('#rate-routelimit2', () => {
     })
   })
 
+  describe('#decodeJwtToken', () => {
+    it('should return the default JWT payload if decoding fails', () => {
+      const jwt =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlODhhY2JmMDIyMWMxMDAxMmFkOTNmZiIsImVtYWlsIjoiY2hyaXMudHJvdXRuZXJAZ21haWwuY29tIiwiYXBpTGV2ZWwiOjQwLCJyYXRlTGltaXQiOjMsImlhdCI6MTYxNTE1NzA4NywiZXhwIjoxNjE3NzQ5MDg3fQ.RLNGuYAa-CcLdhTGD27tDeaxT6-GIdeR8T4JWZZLDZA'
+
+      const result = uut.decodeJwtToken(jwt)
+      // console.log('result: ', result)
+
+      assert.property(result, 'id')
+      assert.equal(result.id, '123.456.789.10')
+      assert.property(result, 'email')
+      assert.equal(result.email, 'test@bchtest.net')
+      assert.property(result, 'pointsToConsume')
+      assert.equal(result.pointsToConsume, 50)
+      assert.property(result, 'duration')
+      assert.equal(result.duration, 30)
+      assert.property(result, 'exp')
+    })
+
+    it('should return the default JWT payload if no input is given', () => {
+      const result = uut.decodeJwtToken()
+      // console.log('result: ', result)
+
+      assert.property(result, 'id')
+      assert.equal(result.id, '123.456.789.10')
+      assert.property(result, 'email')
+      assert.equal(result.email, 'test@bchtest.net')
+      assert.property(result, 'pointsToConsume')
+      assert.equal(result.pointsToConsume, 50)
+      assert.property(result, 'duration')
+      assert.equal(result.duration, 30)
+      assert.property(result, 'exp')
+    })
+
+    it('should correctly decode a JWT token', () => {
+      // Generate a new JWT token for the test.
+      const jwtPayload = {
+        id: '5dade3f5739e6c0ff034b9a1',
+        pointsToConsume: 10,
+        email: 'gooduser@test.com',
+        apiLevel: 40,
+        rateLimit: 100,
+        duration: 30
+      }
+      const jwtToken = uut.generateJwtToken(jwtPayload)
+
+      const result = uut.decodeJwtToken(jwtToken)
+      // console.log('result: ', result)
+
+      assert.property(result, 'id')
+      assert.equal(result.id, jwtPayload.id)
+      assert.property(result, 'email')
+      assert.equal(result.email, jwtPayload.email)
+      assert.property(result, 'pointsToConsume')
+      assert.equal(result.pointsToConsume, jwtPayload.pointsToConsume)
+      assert.property(result, 'duration')
+      assert.equal(result.duration, jwtPayload.duration)
+      assert.property(result, 'exp')
+    })
+
+    it('should return the default payload if there is an unhandled error', () => {
+      // Force an error.
+      sandbox.stub(uut, 'generateJwtToken').throws(new Error('test error'))
+
+      const result = uut.decodeJwtToken()
+      // console.log('result: ', result)
+
+      assert.property(result, 'id')
+      assert.equal(result.id, '123.456.789.10')
+      assert.property(result, 'email')
+      assert.equal(result.email, 'test@bchtest.net')
+      assert.property(result, 'pointsToConsume')
+      assert.equal(result.pointsToConsume, 50)
+      assert.property(result, 'duration')
+      assert.equal(result.duration, 30)
+      assert.property(result, 'exp')
+    })
+  })
+
   describe('#trackRateLimits', () => {
     it('should apply anonymous rate limits if no JWT token is provided', async () => {
       req.ip = '127.0.0.1'
@@ -193,6 +272,62 @@ describe('#rate-routelimit2', () => {
         endCallCount,
         startCallCount,
         'Expecting next to be called'
+      )
+    })
+
+    it('should apply rate limits to anonymous users', async () => {
+      req.ip = '123.456.7.8'
+
+      // console.log('next.callCount: ', next.callCount)
+      const startCallCount = next.callCount
+
+      await uut.applyRateLimits(req, res, next)
+
+      // console.log('next.callCount: ', next.callCount)
+      const endCallCount = next.callCount
+
+      assert.isAbove(
+        endCallCount,
+        startCallCount,
+        'Expecting next to be called'
+      )
+
+      assert.equal(
+        res.locals.pointsToConsume,
+        50,
+        'Anonymous rate limits applied'
+      )
+    })
+
+    it('should apply rate limits when JWT token is provided', async () => {
+      // Generate a new JWT token for the test.
+      const jwtPayload = {
+        id: '5dade3f5739e6c0ff034b9a1',
+        pointsToConsume: 10
+      }
+      const jwtToken = uut.generateJwtToken(jwtPayload)
+
+      req.ip = '123.456.7.8'
+      req.locals.jwtToken = jwtToken
+
+      // console.log('next.callCount: ', next.callCount)
+      const startCallCount = next.callCount
+
+      await uut.applyRateLimits(req, res, next)
+
+      // console.log('next.callCount: ', next.callCount)
+      const endCallCount = next.callCount
+
+      assert.isAbove(
+        endCallCount,
+        startCallCount,
+        'Expecting next to be called'
+      )
+
+      assert.equal(
+        res.locals.pointsToConsume,
+        10,
+        'Anonymous rate limits applied'
       )
     })
   })
