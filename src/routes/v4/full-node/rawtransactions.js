@@ -118,7 +118,7 @@ class RawTransactions {
 
       // Enforce array size rate limits
       if (!_this.routeUtils.validateArraySize(req, hexes)) {
-        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
           error: 'Array too large.'
         })
@@ -234,7 +234,7 @@ class RawTransactions {
 
       // Enforce array size rate limits
       if (!_this.routeUtils.validateArraySize(req, hexes)) {
-        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
           error: 'Array too large.'
         })
@@ -324,7 +324,7 @@ class RawTransactions {
 
       // Enforce array size rate limits
       if (!_this.routeUtils.validateArraySize(req, txids)) {
-        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
           error: 'Array too large.'
         })
@@ -448,7 +448,7 @@ class RawTransactions {
 
       // Enforce array size rate limits
       if (!_this.routeUtils.validateArraySize(req, hexes)) {
-        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
           error: 'Array too large.'
         })
