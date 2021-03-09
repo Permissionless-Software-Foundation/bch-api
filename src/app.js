@@ -3,12 +3,8 @@
 const express = require('express')
 
 // Middleware
-// const { routeRateLimit } = require("./middleware/route-ratelimit")
-// const RateLimits = require('./middleware/route-ratelimit')
-// const rateLimits = new RateLimits()
-
-const RateLimits2 = require('./middleware/route-ratelimit2')
-const rateLimits2 = new RateLimits2()
+const RateLimits = require('./middleware/route-ratelimit')
+const rateLimits = new RateLimits()
 
 const path = require('path')
 const logger = require('morgan')
@@ -102,13 +98,13 @@ const v4prefix = 'v4'
 // START Rate Limits
 const auth = new AuthMW()
 
+// Ensure req.locals and res.locals objects exist.
+app.use(`/${v4prefix}/`, rateLimits.populateLocals)
+
 // Allow users to turn off rate limits with an environment variable.
 const DO_NOT_USE_RATE_LIMITS = process.env.DO_NOT_USE_RATE_LIMITS || false
 
 console.log(`DO_NOT_USE_RATE_LIMITS: ${DO_NOT_USE_RATE_LIMITS}`)
-
-// Ensure req.locals and res.locals objects exist.
-app.use(`/${v4prefix}/`, rateLimits2.populateLocals)
 
 if (!DO_NOT_USE_RATE_LIMITS) {
   console.log('Rate limits are being used')
@@ -120,7 +116,7 @@ if (!DO_NOT_USE_RATE_LIMITS) {
   app.use(`/${v4prefix}/`, auth.mw())
 
   // Experimental rate limits
-  app.use(`/${v4prefix}/`, rateLimits2.applyRateLimits)
+  app.use(`/${v4prefix}/`, rateLimits.applyRateLimits)
 
   // Rate limit on all v4 routes
   // Establish and enforce rate limits.

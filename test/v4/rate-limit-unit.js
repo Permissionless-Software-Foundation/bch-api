@@ -15,12 +15,12 @@ const config = require('../../config')
 const { mockReq, mockRes, mockNext } = require('./mocks/express-mocks')
 
 // Libraries under test
-const RateLimits = require('../../src/middleware/route-ratelimit2')
+const RateLimits = require('../../src/middleware/route-ratelimit')
 let uut = new RateLimits()
 
 let req, res, next
 
-describe('#rate-routelimit2', () => {
+describe('#rate-routelimit', () => {
   let sandbox
 
   before(async () => {
