@@ -68,28 +68,6 @@ class RateLimits {
   // support this function.
   async applyRateLimits (req, res, next) {
     try {
-      // console.log('Starting applyRateLimits()')
-      // let userId
-      // const decoded = {}
-
-      // Create a re*Q*.locals object if not passed in.
-      // req.locals.proLimit will be true if the user is using Basic Authentication.
-      if (!req.locals) {
-        req.locals = {
-          // default values
-          jwtToken: '',
-          proLimit: false,
-          apiLevel: 0
-        }
-      }
-
-      // Create a re*S*.locals object if it does not exist.
-      if (!res.locals) {
-        res.locals = {
-          rateLimitTriggered: false
-        }
-      }
-
       // Exit if the user has already authenticated with Basic Authentication.
       if (req.locals.proLimit) {
         console.log('External call, basic auth, skipping rate limits.')
@@ -387,6 +365,34 @@ class RateLimits {
       return token
     } catch (err) {
       console.error('Error in generateJwtToken()')
+      throw err
+    }
+  }
+
+  // Called when rate limits are not used.
+  populateLocals (req, res, next) {
+    try {
+      // Create a re*Q*.locals object if not passed in.
+      // req.locals.proLimit will be true if the user is using Basic Authentication.
+      if (!req.locals) {
+        req.locals = {
+          // default values
+          jwtToken: '',
+          proLimit: false,
+          apiLevel: 0
+        }
+      }
+
+      // Create a re*S*.locals object if it does not exist.
+      if (!res.locals) {
+        res.locals = {
+          rateLimitTriggered: false
+        }
+      }
+
+      next()
+    } catch (err) {
+      console.error('Error in populateLocals(): ', err)
       throw err
     }
   }

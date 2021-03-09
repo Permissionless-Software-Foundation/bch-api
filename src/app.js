@@ -100,15 +100,18 @@ app.use('/', logReqInfo)
 const v4prefix = 'v4'
 
 // START Rate Limits
-// Allow users to turn off rate limits with an environment variable.
-const USE_RATE_LIMITS = process.env.USE_RATE_LIMITS
-  ? process.env.USE_RATE_LIMITS
-  : true
 const auth = new AuthMW()
 
-console.log(`USE_RATE_LIMITS: ${USE_RATE_LIMITS}`)
+// Allow users to turn off rate limits with an environment variable.
+const DO_NOT_USE_RATE_LIMITS = process.env.DO_NOT_USE_RATE_LIMITS || false
 
-if (USE_RATE_LIMITS) {
+console.log(`DO_NOT_USE_RATE_LIMITS: ${DO_NOT_USE_RATE_LIMITS}`)
+
+// Ensure req.locals and res.locals objects exist.
+app.use(`/${v4prefix}/`, rateLimits2.populateLocals)
+
+if (!DO_NOT_USE_RATE_LIMITS) {
+  console.log('Rate limits are being used')
   // Inspect the header for a JWT token.
   app.use(`/${v4prefix}/`, jwtAuth.getTokenFromHeaders)
 
@@ -122,6 +125,8 @@ if (USE_RATE_LIMITS) {
   // Rate limit on all v4 routes
   // Establish and enforce rate limits.
   // app.use(`/${v4prefix}/`, rateLimits.rateLimitByResource)
+} else {
+  console.log('Rate limits are NOT being used')
 }
 // END Rate Limits
 

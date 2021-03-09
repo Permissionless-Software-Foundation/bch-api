@@ -114,6 +114,7 @@ class Encryption {
         })
       }
 
+      // console.log(
       wlogger.debug(
         'Executing encryption/getPublicKey with this address: ',
         cashAddr
@@ -180,6 +181,7 @@ class Encryption {
         publicKey: 'not found'
       })
     } catch (err) {
+      console.log('Error in encryption.js/getPublicKey().', err)
       wlogger.error('Error in encryption.js/getPublicKey().', err)
 
       return _this.errorHandler(err, res)
