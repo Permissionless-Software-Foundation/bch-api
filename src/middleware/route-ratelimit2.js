@@ -10,16 +10,17 @@ The rate limit handling is designed for these four use cases:
 - Users who want to buy a JWT token for 24 hour access.
 - Users who want to buy different RPM tiers: 100, 250, 600
 - Basic Authentication which should not have any rate limits applied.
+- Local installations that do not want any authentication or rate limits at all.
 
 The Basic Auth use cases is considered when determining internal rate limits.
 The internal rate limits should not be applied to calls from those users.
 
 A lot of attention has been paid to passing rate-limit information for the user
 when they trigger an endpoint that makes a lot of internal API calls. Examples
-are hydrateUtxos() and getPublicKey().
+are hydrateUtxos() and getPublicKey(). These keeps things fair by charging the
+same for 'light' API calls and 'heavy' API calls.
 
 TODO:
-- Test against Basic Auth token
 - Add code for applying rate limits to whitelist domains.
 */
 
@@ -52,6 +53,7 @@ const rateLimitOptions = {
 const ANON_LIMITS = config.anonRateLimit
 // const WHITELIST_RATE_LIMIT = config.whitelistRateLimit
 const WHITELIST_DOMAINS = config.whitelistDomains
+const WHITELIST_POINTS_TO_CONSUME = config.whitelistRateLimit
 const POINTS_PER_MINUTE = config.pointsPerMinute
 const INTERNAL_POINTS_TO_CONSUME = 1
 
@@ -168,6 +170,22 @@ class RateLimits {
         console.log(
           'External call, applying rate limits. Using JWT if available.'
         )
+
+        // For calls originating from a whitelist domain, apply a high-RPM
+        // JWT token to the call.
+        if (isWhitelistOrigin) {
+          const defaultPayload = {
+            id: '77.77.77.77',
+            email: 'whitelist@bchtest.net',
+            apiLevel: 40,
+            rateLimit: 100,
+            pointsToConsume: WHITELIST_POINTS_TO_CONSUME,
+            duration: 30
+          }
+
+          // Inject the high-RPM JWT token into the call.
+          req.locals.jwtToken = _this.generateJwtToken(defaultPayload)
+        }
 
         // Track the rate limit for this user. Pass in the JWT token, if one
         // is available.
