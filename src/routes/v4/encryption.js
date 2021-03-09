@@ -123,7 +123,7 @@ class Encryption {
       // console.log(`rawTxData: ${JSON.stringify(rawTxData, null, 2)}`)
 
       // Extract just the TXIDs
-      const txids = rawTxData.transactions.map((elem) => elem.tx_hash)
+      const txids = rawTxData.transactions[0].transactions.map((elem) => elem.tx_hash)
       // console.log(`txids: ${JSON.stringify(txids, null, 2)}`)
 
       // throw error if there is no transaction history.
