@@ -594,7 +594,7 @@ describe('#Electrumx', () => {
       assert.isArray(result.transactions)
     })
 
-    it('should throw 429 error if txid array is too large', async () => {
+    it('should throw 400 error if txid array is too large', async () => {
       const testArray = []
       for (var i = 0; i < 25; i++) testArray.push('')
 
@@ -603,7 +603,7 @@ describe('#Electrumx', () => {
       const result = await electrumxRoute.transactionDetailsBulk(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      expectRouteError(res, result, 'Array too large', 429)
+      expectRouteError(res, result, 'Array too large', 400)
     })
 
     it('should get details for a single txid', async () => {
@@ -841,7 +841,7 @@ describe('#Electrumx', () => {
       assert.isArray(result.headers)
     })
 
-    it('should throw 429 error if heights array is too large', async () => {
+    it('should throw 400 error if heights array is too large', async () => {
       const testArray = []
       for (var i = 0; i < 25; i++) testArray.push('')
 
@@ -849,7 +849,7 @@ describe('#Electrumx', () => {
 
       const result = await electrumxRoute.blockHeadersBulk(req, res)
 
-      expectRouteError(res, result, 'Array too large', 429)
+      expectRouteError(res, result, 'Array too large', 400)
     })
 
     it('should get details for a single height', async () => {
