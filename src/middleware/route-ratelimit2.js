@@ -141,6 +141,14 @@ class RateLimits {
             }
           }
         } else {
+          // This should be a corner case. Calls should not be going into this
+          // code path, so the system should throw up big warning signs when they
+          // do.
+          // This code path happens when an internal call is made but does not
+          // pass the usrObj. Legacy code needs to be refactored to use the usrObj
+          // and avoid this code path. This code path is 'pooled': all users
+          // share the same rate limits. Even at 1000 RPM, this pool will get
+          // exhausted easily.
           console.log(
             'Internal call. req.body.usrObj does not exist. Applying high-speed internal rate limits.'
           )
