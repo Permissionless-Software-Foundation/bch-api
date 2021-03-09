@@ -119,7 +119,7 @@ class Encryption {
         cashAddr
       )
 
-      const rawTxData = await _this.bchjs.Electrumx.transactions(cashAddr, usrObj)
+      const rawTxData = await _this.bchjs.Electrumx.transactions([cashAddr], usrObj)
       // console.log(`rawTxData: ${JSON.stringify(rawTxData, null, 2)}`)
 
       // Extract just the TXIDs
