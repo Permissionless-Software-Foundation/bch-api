@@ -135,16 +135,14 @@ class Encryption {
       for (let i = 0; i < txids.length; i++) {
         const thisTx = txids[i]
 
-        // CT 2/24/21: I might want to convert this to the POST call, to take
-        // advantage of the usrObj. It does not get passed in a GET call.
         const txDetails = await _this.bchjs.RawTransactions.getRawTransaction(
-          thisTx,
+          [thisTx],
           true,
           usrObj
         )
         // console.log(`txDetails: ${JSON.stringify(txDetails, null, 2)}`)
 
-        const vin = txDetails.vin
+        const vin = txDetails[0].vin
 
         // Loop through each input.
         for (let j = 0; j < vin.length; j++) {
