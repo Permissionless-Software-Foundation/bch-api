@@ -330,14 +330,6 @@ class RawTransactions {
         })
       }
 
-      // stub response object
-      // const returnResponse = {
-      //   status: 100,
-      //   json: {
-      //     error: ''
-      //   }
-      // }
-
       // Validate each txid in the array.
       for (let i = 0; i < txids.length; i++) {
         const txid = txids[i]
