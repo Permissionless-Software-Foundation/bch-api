@@ -9,6 +9,8 @@ const assert = require('chai').assert
 const sinon = require('sinon')
 const cloneDeep = require('lodash.clonedeep')
 
+const config = require('../../config')
+
 // Mocking data.
 const { mockReq, mockRes, mockNext } = require('./mocks/express-mocks')
 
@@ -134,7 +136,7 @@ describe('#rate-routelimit2', () => {
       assert.property(result, 'email')
       assert.equal(result.email, 'test@bchtest.net')
       assert.property(result, 'pointsToConsume')
-      assert.equal(result.pointsToConsume, 50)
+      assert.equal(result.pointsToConsume, config.anonRateLimit)
       assert.property(result, 'duration')
       assert.equal(result.duration, 30)
       assert.property(result, 'exp')
@@ -149,7 +151,7 @@ describe('#rate-routelimit2', () => {
       assert.property(result, 'email')
       assert.equal(result.email, 'test@bchtest.net')
       assert.property(result, 'pointsToConsume')
-      assert.equal(result.pointsToConsume, 50)
+      assert.equal(result.pointsToConsume, config.anonRateLimit)
       assert.property(result, 'duration')
       assert.equal(result.duration, 30)
       assert.property(result, 'exp')
@@ -193,7 +195,7 @@ describe('#rate-routelimit2', () => {
       assert.property(result, 'email')
       assert.equal(result.email, 'test@bchtest.net')
       assert.property(result, 'pointsToConsume')
-      assert.equal(result.pointsToConsume, 50)
+      assert.equal(result.pointsToConsume, config.anonRateLimit)
       assert.property(result, 'duration')
       assert.equal(result.duration, 30)
       assert.property(result, 'exp')
@@ -212,7 +214,7 @@ describe('#rate-routelimit2', () => {
       assert.equal(result, false, 'Rate limits not exceeded')
       assert.equal(
         res.locals.pointsToConsume,
-        50,
+        config.anonRateLimit,
         'Anonymous rate limits applied'
       )
     })
@@ -250,7 +252,7 @@ describe('#rate-routelimit2', () => {
       assert.isAbove(
         endCallCount,
         startCallCount,
-        'Expecting next to be called'
+        'Expecting next() to be called'
       )
     })
 
@@ -271,7 +273,7 @@ describe('#rate-routelimit2', () => {
       assert.isAbove(
         endCallCount,
         startCallCount,
-        'Expecting next to be called'
+        'Expecting next() to be called'
       )
     })
 
@@ -289,12 +291,40 @@ describe('#rate-routelimit2', () => {
       assert.isAbove(
         endCallCount,
         startCallCount,
-        'Expecting next to be called'
+        'Expecting next() to be called'
       )
 
       assert.equal(
         res.locals.pointsToConsume,
-        50,
+        config.anonRateLimit,
+        'Anonymous rate limits applied'
+      )
+    })
+
+    it('should return 429 error when anonymous users exceed rate limit', async () => {
+      req.ip = '123.456.7.8'
+
+      // force req.locals.jwtToken to be empty.
+      req.locals.jwtToken = undefined
+
+      let val
+      for (let i = 0; i < 25; i++) {
+        console.log('req.locals: ', req.locals)
+        val = await uut.applyRateLimits(req, res, next)
+      }
+      console.log('val: ', val)
+
+      assert.property(val, 'error')
+      assert.include(
+        val.error,
+        'Too many requests. Your limits are currently 20 requests per minute.'
+      )
+
+      assert.equal(res.locals.rateLimitTriggered, true, 'Rate limits triggered')
+
+      assert.equal(
+        res.locals.pointsToConsume,
+        config.anonRateLimit,
         'Anonymous rate limits applied'
       )
     })
@@ -321,13 +351,154 @@ describe('#rate-routelimit2', () => {
       assert.isAbove(
         endCallCount,
         startCallCount,
-        'Expecting next to be called'
+        'Expecting next() to be called'
       )
 
       assert.equal(
         res.locals.pointsToConsume,
         10,
         'Anonymous rate limits applied'
+      )
+    })
+
+    it('should apply internal rate limits to internal calls', async () => {
+      req.ip = '127.0.0.1'
+
+      // console.log('next.callCount: ', next.callCount)
+      const startCallCount = next.callCount
+
+      await uut.applyRateLimits(req, res, next)
+
+      // console.log('next.callCount: ', next.callCount)
+      const endCallCount = next.callCount
+
+      assert.isAbove(
+        endCallCount,
+        startCallCount,
+        'Expecting next() to be called'
+      )
+
+      assert.equal(
+        res.locals.pointsToConsume,
+        1,
+        'Internal rate limits applied'
+      )
+    })
+
+    it('should return 429 error when internal calls exceed interal rate limit', async () => {
+      req.ip = '127.0.0.1'
+
+      let val
+      for (let i = 0; i < 1025; i++) {
+        val = await uut.applyRateLimits(req, res, next)
+      }
+
+      assert.property(val, 'error')
+      assert.include(
+        val.error,
+        'Too many requests. Your limits are currently 1000 requests per minute.'
+      )
+
+      assert.equal(res.locals.rateLimitTriggered, true, 'Rate limits triggered')
+
+      assert.equal(
+        res.locals.pointsToConsume,
+        1,
+        'Internal rate limits applied'
+      )
+    })
+
+    it('should apply JWT rate limits to internal calls when JWT passes through', async () => {
+      // Generate a new JWT token for the test.
+      const jwtPayload = {
+        id: '5dade3f5739e6c0ff034b9a1',
+        pointsToConsume: 10
+      }
+      const jwtToken = uut.generateJwtToken(jwtPayload)
+
+      req.ip = '127.0.0.1'
+      req.body.usrObj = {
+        jwtToken
+      }
+
+      // console.log('next.callCount: ', next.callCount)
+      const startCallCount = next.callCount
+
+      await uut.applyRateLimits(req, res, next)
+
+      // console.log('next.callCount: ', next.callCount)
+      const endCallCount = next.callCount
+
+      assert.isAbove(
+        endCallCount,
+        startCallCount,
+        'Expecting next() to be called'
+      )
+
+      assert.equal(
+        res.locals.pointsToConsume,
+        10,
+        'User JWT rate limits applied'
+      )
+    })
+
+    it('should return 429 error when internal calls using JWT pass-through exceeds rate limit', async () => {
+      // Generate a new JWT token for the test.
+      const jwtPayload = {
+        id: '5dade3f5739e6c0ff034b9a1',
+        pointsToConsume: 10
+      }
+      const jwtToken = uut.generateJwtToken(jwtPayload)
+
+      req.ip = '127.0.0.1'
+      req.body.usrObj = {
+        jwtToken
+      }
+
+      try {
+        let val
+        for (let i = 0; i < 120; i++) {
+          val = await uut.applyRateLimits(req, res, next)
+        }
+        console.log('val: ', val)
+
+        assert.property(val, 'error')
+        assert.include(
+          val.error,
+          'Too many requests. Your limits are currently 100 requests per minute.'
+        )
+
+        assert.equal(
+          res.locals.pointsToConsume,
+          10,
+          'User JWT rate limits applied'
+        )
+      } catch (err) {
+        console.log('err: ', err)
+      }
+    })
+
+    it('should move to the next middleware when encountering an unexpected internal error', async () => {
+      // Force the creation of the res and req locals property. Covers an
+      // otherwise untested code path.
+      req.locals = undefined
+      res.locals = undefined
+
+      // Force an error
+      sandbox.stub(uut, 'checkInternalIp').throws(new Error('test error'))
+
+      // console.log('next.callCount: ', next.callCount)
+      const startCallCount = next.callCount
+
+      await uut.applyRateLimits(req, res, next)
+
+      // console.log('next.callCount: ', next.callCount)
+      const endCallCount = next.callCount
+
+      assert.isAbove(
+        endCallCount,
+        startCallCount,
+        'Expecting next() to be called'
       )
     })
   })

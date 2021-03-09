@@ -149,9 +149,10 @@ class RateLimits {
           // and avoid this code path. This code path is 'pooled': all users
           // share the same rate limits. Even at 1000 RPM, this pool will get
           // exhausted easily.
-          console.log(
+          const warnMsg =
             'Internal call. req.body.usrObj does not exist. Applying high-speed internal rate limits.'
-          )
+          console.log(warnMsg)
+          wlogger.info(warnMsg)
 
           const defaultPayload = {
             id: '98.76.54.32',
@@ -208,7 +209,7 @@ class RateLimits {
         }
       }
     } catch (err) {
-      console.error('Error in route-ratelimit2.js/applyRateLimits(): ', err)
+      wlogger.error('Error in route-ratelimit2.js/applyRateLimits(): ', err)
     }
 
     // By default, move to the next middleware.
