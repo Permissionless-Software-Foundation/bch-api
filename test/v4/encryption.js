@@ -82,7 +82,7 @@ describe('#Encryption Router', () => {
           .resolves(mockData.mockFulcrumTxHistory)
         sandbox
           .stub(encryptionRoute.bchjs.RawTransactions, 'getRawTransaction')
-          .resolves(mockData.mockTxDetails2)
+          .resolves([mockData.mockTxDetails2])
       }
 
       const result = await encryptionRoute.getPublicKey(req, res)
@@ -110,7 +110,7 @@ describe('#Encryption Router', () => {
       }
 
       const result = await encryptionRoute.getPublicKey(req, res)
-      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.property(result, 'success')
       assert.equal(result.success, false)
@@ -130,7 +130,7 @@ describe('#Encryption Router', () => {
           .resolves(mockData.mockFulcrumNoSendBalance)
         sandbox
           .stub(encryptionRoute.bchjs.RawTransactions, 'getRawTransaction')
-          .resolves(mockData.mockNoSendTx)
+          .resolves([mockData.mockNoSendTx])
       }
 
       const result = await encryptionRoute.getPublicKey(req, res)

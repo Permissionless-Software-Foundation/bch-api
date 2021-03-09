@@ -55,64 +55,68 @@ const mockFulcrumTxHistory = {
   success: true,
   transactions: [
     {
-      height: 511463,
-      tx_hash:
-        'eff00a9538487ff44243c75fb13de19b5783454c42c81b9aff9afbfd09cbaec3'
-    },
-    {
-      height: 511464,
-      tx_hash:
-        '7e9aa7a74de2b30200a2d6fc748ff35a0c753221444194f720bb7f61ef1d9153'
-    },
-    {
-      height: 513373,
-      tx_hash:
-        '6960255abe64893073921e96bf3c053c82686e0fc22a565494fbe2a31e766975'
-    },
-    {
-      height: 513373,
-      tx_hash:
-        '9ea667bcfc9cd337bd6c5583d8094c1b1942bd2015d95b54189deac5070eeff0'
-    },
-    {
-      height: 560481,
-      tx_hash:
-        'ecc1b51bac767880382bf3190ff17abf78d0936843a022a943d871116ed50368'
-    },
-    {
-      height: 560615,
-      tx_hash:
-        'b3792d28377b975560e1b6f09e48aeff8438d4c6969ca578bd406393bd50bd7d'
-    },
-    {
-      height: 561568,
-      tx_hash:
-        '8bc2134c7e48e56e1769b3d7c4c1e3a0acc68e1e58160eee6fa67f3208c07262'
-    },
-    {
-      height: 561569,
-      tx_hash:
-        'ceb0cab0e37b59caf3ca29e1a698d19ff47f2827dd09cb2f3b91b9100b1dad1c'
-    },
-    {
-      height: 561572,
-      tx_hash:
-        '0f9b49cafeb9ae1d741cdb12137c92816aa8470944c270a78ba2e610bd59190d'
-    },
-    {
-      height: 561582,
-      tx_hash:
-        'e4a0ac48ff3f42fc342717a2a3d34248e5e85bae79d59bd20e1b60e61b1c500f'
-    },
-    {
-      height: 562106,
-      tx_hash:
-        '1afcc63b244182647909539ebe3f4a44b8ea4120a95edb8d9eebe5347b9491bb'
-    },
-    {
-      height: 562106,
-      tx_hash:
-        'c42f8f16d3baa2ee343ea89ef110dfe094992379d08edd30887b8ca7ee671c9a'
+      transactions: [
+        {
+          height: 511463,
+          tx_hash:
+            'eff00a9538487ff44243c75fb13de19b5783454c42c81b9aff9afbfd09cbaec3'
+        },
+        {
+          height: 511464,
+          tx_hash:
+            '7e9aa7a74de2b30200a2d6fc748ff35a0c753221444194f720bb7f61ef1d9153'
+        },
+        {
+          height: 513373,
+          tx_hash:
+            '6960255abe64893073921e96bf3c053c82686e0fc22a565494fbe2a31e766975'
+        },
+        {
+          height: 513373,
+          tx_hash:
+            '9ea667bcfc9cd337bd6c5583d8094c1b1942bd2015d95b54189deac5070eeff0'
+        },
+        {
+          height: 560481,
+          tx_hash:
+            'ecc1b51bac767880382bf3190ff17abf78d0936843a022a943d871116ed50368'
+        },
+        {
+          height: 560615,
+          tx_hash:
+            'b3792d28377b975560e1b6f09e48aeff8438d4c6969ca578bd406393bd50bd7d'
+        },
+        {
+          height: 561568,
+          tx_hash:
+            '8bc2134c7e48e56e1769b3d7c4c1e3a0acc68e1e58160eee6fa67f3208c07262'
+        },
+        {
+          height: 561569,
+          tx_hash:
+            'ceb0cab0e37b59caf3ca29e1a698d19ff47f2827dd09cb2f3b91b9100b1dad1c'
+        },
+        {
+          height: 561572,
+          tx_hash:
+            '0f9b49cafeb9ae1d741cdb12137c92816aa8470944c270a78ba2e610bd59190d'
+        },
+        {
+          height: 561582,
+          tx_hash:
+            'e4a0ac48ff3f42fc342717a2a3d34248e5e85bae79d59bd20e1b60e61b1c500f'
+        },
+        {
+          height: 562106,
+          tx_hash:
+            '1afcc63b244182647909539ebe3f4a44b8ea4120a95edb8d9eebe5347b9491bb'
+        },
+        {
+          height: 562106,
+          tx_hash:
+            'c42f8f16d3baa2ee343ea89ef110dfe094992379d08edd30887b8ca7ee671c9a'
+        }
+      ]
     }
   ]
 }
@@ -159,16 +163,25 @@ const mockTxDetails2 = {
 
 const mockFulcrumNoTxHistory = {
   success: true,
-  transactions: []
+  transactions: [
+    {
+      transactions: [],
+      address: 'bitcoincash:qrgqqkky28jdkv3w0ctrah0mz3jcsnsklc34gtukrh'
+    }
+  ]
 }
 
 const mockFulcrumNoSendBalance = {
   success: true,
   transactions: [
     {
-      height: 633578,
-      tx_hash:
-        'a3b62cd4f4c56ba52139179db14bffd4ab22a2e077f3c62bd5cf0541bfcaf023'
+      transactions: [
+        {
+          height: 633578,
+          tx_hash:
+            'a3b62cd4f4c56ba52139179db14bffd4ab22a2e077f3c62bd5cf0541bfcaf023'
+        }
+      ]
     }
   ]
 }

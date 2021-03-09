@@ -3,7 +3,6 @@
 const express = require('express')
 
 // Middleware
-// const { routeRateLimit } = require("./middleware/route-ratelimit")
 const RateLimits = require('./middleware/route-ratelimit')
 const rateLimits = new RateLimits()
 
@@ -96,17 +95,36 @@ app.use('/', logReqInfo)
 
 const v4prefix = 'v4'
 
-// Inspect the header for a JWT token.
-app.use(`/${v4prefix}/`, jwtAuth.getTokenFromHeaders)
-
-// Instantiate the authorization middleware, used to implement pro-tier rate limiting.
-// Handles Anonymous and Basic Authorization schemes used by passport.js
+// START Rate Limits
 const auth = new AuthMW()
-app.use(`/${v4prefix}/`, auth.mw())
 
-// Rate limit on all v4 routes
-// Establish and enforce rate limits.
-app.use(`/${v4prefix}/`, rateLimits.rateLimitByResource)
+// Ensure req.locals and res.locals objects exist.
+app.use(`/${v4prefix}/`, rateLimits.populateLocals)
+
+// Allow users to turn off rate limits with an environment variable.
+const DO_NOT_USE_RATE_LIMITS = process.env.DO_NOT_USE_RATE_LIMITS || false
+
+console.log(`DO_NOT_USE_RATE_LIMITS: ${DO_NOT_USE_RATE_LIMITS}`)
+
+if (!DO_NOT_USE_RATE_LIMITS) {
+  console.log('Rate limits are being used')
+  // Inspect the header for a JWT token.
+  app.use(`/${v4prefix}/`, jwtAuth.getTokenFromHeaders)
+
+  // Instantiate the authorization middleware, used to implement pro-tier rate limiting.
+  // Handles Anonymous and Basic Authorization schemes used by passport.js
+  app.use(`/${v4prefix}/`, auth.mw())
+
+  // Experimental rate limits
+  app.use(`/${v4prefix}/`, rateLimits.applyRateLimits)
+
+  // Rate limit on all v4 routes
+  // Establish and enforce rate limits.
+  // app.use(`/${v4prefix}/`, rateLimits.rateLimitByResource)
+} else {
+  console.log('Rate limits are NOT being used')
+}
+// END Rate Limits
 
 // Connect v4 routes
 app.use(`/${v4prefix}/` + 'health-check', healthCheckV4)

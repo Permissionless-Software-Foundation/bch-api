@@ -141,7 +141,7 @@ class UtilRoute {
 
       // Enforce array size rate limits
       if (!routeUtils.validateArraySize(req, addresses)) {
-        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
           error: 'Array too large.'
         })
