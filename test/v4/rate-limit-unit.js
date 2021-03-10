@@ -380,7 +380,7 @@ describe('#rate-routelimit', () => {
 
       assert.equal(
         res.locals.pointsToConsume,
-        1,
+        10,
         'Internal rate limits applied'
       )
     })
@@ -403,7 +403,7 @@ describe('#rate-routelimit', () => {
 
       assert.equal(
         res.locals.pointsToConsume,
-        1,
+        10,
         'Internal rate limits applied'
       )
     })

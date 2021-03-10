@@ -2,9 +2,11 @@
 This file will replace the original rate-limit.js file.
 
 Sets the rate limits for the anonymous and paid tiers. Current rate limits:
-- 1000 points in 60 seconds
-- 10 points per call for paid tier (100 RPM)
-- 50 points per call for anonymous tier (20 RPM)
+- 10000 points in 60 seconds
+- 500 points per call for anonymous tier (20 RPM)
+- 100 points per call for tier 40 (100 RPM)
+- 40 points per call for tier 50 (250 RPM)
+- 16 points per call for tier 60 (625 RPM)
 
 The rate limit handling is designed for these four use cases:
 - Users who want to buy a JWT token for 24 hour access.
@@ -41,11 +43,10 @@ const redisOptions = {
   port: process.env.REDIS_PORT ? process.env.REDIS_PORT : 6379,
   host: process.env.REDIS_HOST ? process.env.REDIS_HOST : '127.0.0.1'
 }
-console.log(`redisOptions: ${JSON.stringify(redisOptions, null, 2)}`)
 const redisClient = new Redis(redisOptions)
 const rateLimitOptions = {
   storeClient: redisClient,
-  points: 1000, // Number of points
+  points: config.pointsPerMinute, // Number of points
   duration: 60 // Per minute (per 60 seconds)
 }
 
@@ -55,7 +56,7 @@ const ANON_LIMITS = config.anonRateLimit
 const WHITELIST_DOMAINS = config.whitelistDomains
 const WHITELIST_POINTS_TO_CONSUME = config.whitelistRateLimit
 const POINTS_PER_MINUTE = config.pointsPerMinute
-const INTERNAL_POINTS_TO_CONSUME = 1
+const INTERNAL_POINTS_TO_CONSUME = 10
 
 class RateLimits {
   constructor () {
