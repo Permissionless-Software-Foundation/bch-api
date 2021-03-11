@@ -175,6 +175,8 @@ function decodeError (err) {
       }
     }
 
+    console.log(`JSON of error: ${JSON.stringify(err, null, 2)}`)
+
     // Handle 429 errors thrown by nginx
     if (err.error) {
       console.log('decodeError: err: ', err)
