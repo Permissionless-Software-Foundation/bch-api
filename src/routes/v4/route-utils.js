@@ -118,6 +118,8 @@ function getAxiosOptions () {
 // If there is a failure, obj.msg is false.
 function decodeError (err) {
   try {
+    console.log(`JSON of error: ${JSON.stringify(err, null, 2)}`)
+
     // Attempt to extract the full node error message.
     if (
       err.response &&
@@ -174,8 +176,6 @@ function decodeError (err) {
         status: 503
       }
     }
-
-    console.log(`JSON of error: ${JSON.stringify(err, null, 2)}`)
 
     // Handle 429 errors thrown by nginx
     if (err.error) {
