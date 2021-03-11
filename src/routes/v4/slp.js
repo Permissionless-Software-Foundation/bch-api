@@ -108,6 +108,9 @@ class Slp {
 
     // Attempt to decode the error message.
     const { msg, status } = _this.routeUtils.decodeError(err)
+    console.log('slp.js/errorHandler msg from decodeError: ', msg)
+    console.log('slp.js/errorHandler status from decodeError: ', status)
+
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
