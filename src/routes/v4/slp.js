@@ -104,7 +104,7 @@ class Slp {
 
   // DRY error handler.
   errorHandler (err, res) {
-    console.error('Entering slp.js/errorHandler(). err: ', err)
+    // console.error('Entering slp.js/errorHandler(). err: ', err)
 
     // Attempt to decode the error message.
     const { msg, status } = _this.routeUtils.decodeError(err)
