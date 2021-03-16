@@ -169,6 +169,29 @@ class RouteUtils {
       return { msg: false, status: 500 }
     }
   }
+
+  // Dynamically set these based on env vars. Allows unit testing.
+  setEnvVars () {
+    const BitboxHTTP = axios.create({
+      baseURL: process.env.RPC_BASEURL,
+      timeout: 15000
+    })
+    const username = process.env.RPC_USERNAME
+    const password = process.env.RPC_PASSWORD
+
+    const requestConfig = {
+      method: 'post',
+      auth: {
+        username: username,
+        password: password
+      },
+      data: {
+        jsonrpc: '1.0'
+      }
+    }
+
+    return { BitboxHTTP, username, password, requestConfig }
+  }
 }
 
 module.exports = RouteUtils
