@@ -154,6 +154,23 @@ class RouteUtils {
         }
       }
 
+      // Handle 429 errors thrown by nginx
+      if (err.error) {
+        // console.log('decodeError: err: ', err)
+
+        if (err.error.includes('429 Too Many Requests')) {
+          const internalMsg =
+            '429 error thrown by nginx caught by route-utils.js/decodeError()'
+          console.error(internalMsg)
+          wlogger.error(internalMsg)
+
+          return {
+            msg: '429 Too Many Requests',
+            status: 429
+          }
+        }
+      }
+
       // Handle general Error objects.
       if (err.message) {
         return {
@@ -168,6 +185,29 @@ class RouteUtils {
       wlogger.error('unhandled error in route-utils.js/decodeError(): ', err)
       return { msg: false, status: 500 }
     }
+  }
+
+  // Dynamically set these based on env vars. Allows unit testing.
+  setEnvVars () {
+    const BitboxHTTP = axios.create({
+      baseURL: process.env.RPC_BASEURL,
+      timeout: 15000
+    })
+    const username = process.env.RPC_USERNAME
+    const password = process.env.RPC_PASSWORD
+
+    const requestConfig = {
+      method: 'post',
+      auth: {
+        username: username,
+        password: password
+      },
+      data: {
+        jsonrpc: '1.0'
+      }
+    }
+
+    return { BitboxHTTP, username, password, requestConfig }
   }
 }
 

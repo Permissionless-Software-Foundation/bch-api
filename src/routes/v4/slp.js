@@ -104,8 +104,13 @@ class Slp {
 
   // DRY error handler.
   errorHandler (err, res) {
+    // console.error('Entering slp.js/errorHandler(). err: ', err)
+
     // Attempt to decode the error message.
     const { msg, status } = _this.routeUtils.decodeError(err)
+    console.log('slp.js/errorHandler msg from decodeError: ', msg)
+    console.log('slp.js/errorHandler status from decodeError: ', status)
+
     if (msg) {
       res.status(status)
       return res.json({ error: msg })
@@ -2051,12 +2056,13 @@ class Slp {
       return res.json({ slpUtxos: utxos })
     } catch (err) {
       wlogger.error('Error in slp.js/hydrateUtxos().', err)
-      console.error('Error in slp.js/hydrateUtxos().', err)
+      // console.error('Error in slp.js/hydrateUtxos().', err)
 
       // Decode the error message.
       const { msg, status } = routeUtils.decodeError(err)
-      console.log('msg: ', msg)
-      console.log('status: ', status)
+      // console.log('msg: ', msg)
+      // console.log('status: ', status)
+
       if (msg) {
         res.status(status)
         return res.json({ error: msg, message: msg, success: false })
