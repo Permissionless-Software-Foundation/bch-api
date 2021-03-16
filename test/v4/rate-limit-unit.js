@@ -137,7 +137,7 @@ describe('#rate-routelimit', () => {
       // assert.equal(result.email, 'test@bchtest.net')
       // assert.property(result, 'pointsToConsume')
       // assert.equal(result.pointsToConsume, config.anonRateLimit)
-      assert.property(result, 'duration')
+      // assert.property(result, 'duration')
       // assert.equal(result.duration, 30)
       assert.property(result, 'exp')
     })
