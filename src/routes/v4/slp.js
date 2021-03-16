@@ -2055,22 +2055,18 @@ class Slp {
       res.status(200)
       return res.json({ slpUtxos: utxos })
     } catch (err) {
-      console.log('ping01')
       wlogger.error('Error in slp.js/hydrateUtxos().', err)
-      console.error('Error in slp.js/hydrateUtxos().', err)
-
-      console.log('ping02')
+      // console.error('Error in slp.js/hydrateUtxos().', err)
 
       // Decode the error message.
       const { msg, status } = routeUtils.decodeError(err)
-      console.log('msg: ', msg)
-      console.log('status: ', status)
+      // console.log('msg: ', msg)
+      // console.log('status: ', status)
+
       if (msg) {
         res.status(status)
         return res.json({ error: msg, message: msg, success: false })
       }
-
-      console.log('ping03')
 
       res.status(500)
       return res.json({
