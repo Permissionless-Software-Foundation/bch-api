@@ -285,7 +285,86 @@ const mockAncestors = [
   'e68dad4a7292105cfa84fcaef7f99e5d4f2ece9613ca625d4d2ebf61efa84118',
   'fe94caf5da672be3772d2304a6272eb8bc3d3f5cb4a886f39b7981e1485cf74b'
 ]
-
+const mockBlockInfo = {
+  verbosity0: '20000000',
+  verbosity1: {
+    hash: '00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09',
+    confirmations: 1,
+    size: 3725,
+    strippedsize: 3725,
+    weight: 3725,
+    height: 6725,
+    version: 1,
+    versionHex: '00000000',
+    merkleroot: 'xxxx',
+    tx: [
+      '2afb8264508e2bf3e5288ccad01ed2ab766745b6b9747666b519d59212012c01',
+      '18f40b1ae56bba3fa1934b737fbe46ed8d5ca40fa9aed95073eeb5a119530cd3',
+      '349720d878547752607a69eb19e330592fee271fb5376cdfd811bee423558ed8',
+      '35571c80e7d0e9247b467454ef147d1d5833c775bc2d4164b1bebd4c1f69164f',
+      '480937e8efacdafeeb97d401ff0dd9ea8e8ddb27244cefa67a03621315bdb0e6',
+      '523327469d0b90c0de9a905c2fe6e227278fc5b55b9d9911ca151e1c26647065',
+      '61de4af971d94dbc741762f21dcef08b74b62863a56a1cb3496becdd8d47a858',
+      '69f70a288403b5bba23030ccd05d2e5cb00394620fdae3b050cff9432cc590ce',
+      '94472a90fbdba2eb2cba68308415181faedf3585c66b89efcbdb927a0c10ba23',
+      'bc6f781f9e2f2df460f89995c5e1c7224e48ccbe1aa2a575961f3f5330259864',
+      'f2d945a79bec5454a9ab4d570a150d81124daa308f1c81106a977d6413476944'
+    ],
+    time: 111,
+    mediantime: 111,
+    nonce: 111,
+    bits: '1d00ffff',
+    difficulty: 99.999,
+    chainwork: 'xxxx',
+    nTx: 1,
+    previousblockhash:
+      '00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09',
+    nextblockhash:
+      '00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09'
+  },
+  verbosity2: {
+    hash: '00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09',
+    confirmations: 1,
+    size: 3725,
+    strippedsize: 3725,
+    weight: 3725,
+    height: 6725,
+    version: 1,
+    versionHex: '00000000',
+    merkleroot: 'xxxx',
+    tx: [
+      {
+        hex:
+          '01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff0704ffff001d0104ffffffff0100f2052a0100000043410496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858eeac00000000',
+        txid:
+          '0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098',
+        hash:
+          '0e3e2357e806b6cdb1f70b54c3a3a17b6714ee1f0e68bebb44a74b1efd512098',
+        size: 134,
+        version: 1,
+        locktime: 0,
+        vin: [],
+        vout: [],
+        blockhash:
+          '00000000839a8e6886ab5951d76f411475428afc90947ee320161bbf18eb6048',
+        confirmations: 581882,
+        time: 1231469665,
+        blocktime: 1231469665
+      }
+    ],
+    time: 111,
+    mediantime: 111,
+    nonce: 111,
+    bits: '1d00ffff',
+    difficulty: 99.999,
+    chainwork: 'xxxx',
+    nTx: 1,
+    previousblockhash:
+      '00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09',
+    nextblockhash:
+      '00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09'
+  }
+}
 module.exports = {
   mockBlockHash,
   mockBlockchainInfo,
@@ -296,5 +375,6 @@ module.exports = {
   mockBlockHeader,
   mockTxOut,
   mockTxOutProof,
-  mockAncestors
+  mockAncestors,
+  mockBlockInfo
 }
