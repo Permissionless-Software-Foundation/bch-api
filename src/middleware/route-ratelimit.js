@@ -82,11 +82,11 @@ class RateLimits {
 
       // Determine if the call is an external or internal API call.
       const isInternal = _this.checkInternalIp(req)
-      console.log(`isInternal: ${isInternal}`)
+      // console.log(`isInternal: ${isInternal}`)
 
       // Determine if the call originates from another computer on the intranet.
       const isWhitelistOrigin = _this.isInWhitelist(req)
-      console.log('isWhitelistOrigin: ', isWhitelistOrigin)
+      // console.log('isWhitelistOrigin: ', isWhitelistOrigin)
 
       // Handle the use case of internally-generated requests.
       if (isInternal) {
@@ -94,15 +94,15 @@ class RateLimits {
         // the usrObj in the body.
         if (req.body && req.body.usrObj) {
           if (req.body.usrObj.proLimit) {
-            console.log('Internal call, basic auth, skipping rate limits.')
+            // console.log('Internal call, basic auth, skipping rate limits.')
 
             // If this is an internal call that originated from a user using
             // Basic Authentication, then skip rate-limits.
             return next()
           } else {
-            console.log(
-              'Internal call, applying rate limits. Using JWT if available.'
-            )
+            // console.log(
+            //   'Internal call, applying rate limits. Using JWT if available.'
+            // )
 
             // Determine if user has exceeded their rate limits. Pass in the
             // JWT token if one exists.
@@ -130,10 +130,10 @@ class RateLimits {
           // and avoid this code path. This code path is 'pooled': all users
           // share the same rate limits. Even at 1000 RPM, this pool will get
           // exhausted easily.
-          const warnMsg =
-            'Internal call. req.body.usrObj does not exist. Applying high-speed internal rate limits.'
-          console.log(warnMsg)
-          wlogger.info(warnMsg)
+          // const warnMsg =
+          //   'Internal call. req.body.usrObj does not exist. Applying high-speed internal rate limits.'
+          // console.log(warnMsg)
+          // wlogger.info(warnMsg)
 
           const defaultPayload = {
             id: '98.76.54.32',
@@ -168,9 +168,9 @@ class RateLimits {
         //
       } else {
         // Handle the normal use-case of external requests
-        console.log(
-          'External call, applying rate limits. Using JWT if available.'
-        )
+        // console.log(
+        //   'External call, applying rate limits. Using JWT if available.'
+        // )
 
         // For calls originating from a whitelist domain, apply a high-RPM
         // JWT token to the call.
@@ -233,7 +233,7 @@ class RateLimits {
 
         pointsToConsume = decoded.pointsToConsume
       }
-      console.log(`rate limit key: ${key}`)
+      // console.log(`rate limit key: ${key}`)
 
       // This function will throw an error if the user exceeds the rate limit.
       // The 429 error response is handled by the catch().
@@ -244,7 +244,7 @@ class RateLimits {
       // Signal that the user has not exceeded their rate limits.
       return false
     } catch (err) {
-      console.log('err: ', err)
+      // console.log('err: ', err)
 
       const rateLimit = Math.floor(POINTS_PER_MINUTE / pointsToConsume)
 
@@ -307,7 +307,8 @@ class RateLimits {
 
       // Retrieve the origin.
       const origin = req.get('origin')
-      console.log(`origin: ${origin}`)
+
+      if (!process.env.TEST) console.log('origin:', origin)
 
       // If the origin is not determinable, return false.
       if (!origin) return false
