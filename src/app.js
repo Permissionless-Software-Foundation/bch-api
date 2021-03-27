@@ -189,9 +189,11 @@ server.listen(port)
 server.on('error', onError)
 server.on('listening', onListening)
 
-// Set the time before a timeout error is generated. This impacts testing and
-// the handling of timeout errors. Is 10 seconds too agressive?
-server.setTimeout(30 * 1000)
+// Set the time before a timeout error is generated.
+// 10 seconds is way too agressive. 30 Seconds was used for a while, but with
+// being able to set a timeout between UTXOs for tokenUtxoDetails, the timeout
+// needed to be extended.
+server.setTimeout(1000 * 60 * 5) // 5 minutes
 
 /**
  * Normalize a port into a number, string, or false.
