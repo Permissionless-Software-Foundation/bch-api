@@ -1823,7 +1823,8 @@ describe('#BlockchainRouter', () => {
       assert.equal(result.length, 2)
     })
   })
-  describe('getBlock()', () => {
+
+  describe('#getBlock()', () => {
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
@@ -1841,6 +1842,7 @@ describe('#BlockchainRouter', () => {
         'Error message expected'
       )
     })
+
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
@@ -1857,6 +1859,7 @@ describe('#BlockchainRouter', () => {
         'Error message expected'
       )
     })
+
     it('should throw 400 if blockhash is empty', async () => {
       const result = await uut.getBlock(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -1864,15 +1867,17 @@ describe('#BlockchainRouter', () => {
       assert.hasAllKeys(result, ['error'])
       assert.include(result.error, 'blockhash can not be empty')
     })
-    it('return block info with verbosity 0', async () => {
+
+    it('should return block info with verbosity 0', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox
           .stub(uut.axios, 'request')
           .resolves({ data: { result: mockData.mockBlockInfo.verbosity0 } })
       }
+
       req.body.blockhash =
-        '000000000000000002a5fe0bdd6e3f04342a975c0f55e57f97e73bb90041676b'
+        '0000000000000000008e8d83cba6d45a9314bc2ef4538d4e0577c6bed8593536'
       req.body.verbosity = 0
 
       const result = await uut.getBlock(req, res)
@@ -1880,15 +1885,17 @@ describe('#BlockchainRouter', () => {
 
       assert.isString(result)
     })
-    it('return block info with verbosity 1', async () => {
+
+    it('should return block info with verbosity 1', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox
           .stub(uut.axios, 'request')
           .resolves({ data: { result: mockData.mockBlockInfo.verbosity1 } })
       }
+
       req.body.blockhash =
-        '000000000000000002a5fe0bdd6e3f04342a975c0f55e57f97e73bb90041676b'
+        '0000000000000000008e8d83cba6d45a9314bc2ef4538d4e0577c6bed8593536'
       req.body.verbosity = 1
 
       const result = await uut.getBlock(req, res)
@@ -1901,8 +1908,6 @@ describe('#BlockchainRouter', () => {
         'confirmations property expected'
       )
       assert.property(result, 'size', 'size property expected')
-      assert.property(result, 'strippedsize', 'strippedsize property expected')
-      assert.property(result, 'weight', 'weight property expected')
       assert.property(result, 'height', 'height property expected')
       assert.property(result, 'version', 'version property expected')
       assert.property(result, 'versionHex', 'versionHex property expected')
@@ -1927,16 +1932,17 @@ describe('#BlockchainRouter', () => {
       )
     })
 
-    it('return block info with verbosity 2', async () => {
+    it('should return block info with verbosity 2', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox
           .stub(uut.axios, 'request')
           .resolves({ data: { result: mockData.mockBlockInfo.verbosity1 } })
       }
+
       req.body.blockhash =
-        '000000000000000002a5fe0bdd6e3f04342a975c0f55e57f97e73bb90041676b'
-      req.body.verbosity = 1
+        '0000000000000000008e8d83cba6d45a9314bc2ef4538d4e0577c6bed8593536'
+      req.body.verbosity = 2
 
       const result = await uut.getBlock(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -1948,8 +1954,6 @@ describe('#BlockchainRouter', () => {
         'confirmations property expected'
       )
       assert.property(result, 'size', 'size property expected')
-      assert.property(result, 'strippedsize', 'strippedsize property expected')
-      assert.property(result, 'weight', 'weight property expected')
       assert.property(result, 'height', 'height property expected')
       assert.property(result, 'version', 'version property expected')
       assert.property(result, 'versionHex', 'versionHex property expected')
@@ -1973,15 +1977,17 @@ describe('#BlockchainRouter', () => {
         'nextblockhash property expected'
       )
     })
-    it('return block info without verbosity especified', async () => {
+
+    it('should return block info without verbosity especified', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox
           .stub(uut.axios, 'request')
           .resolves({ data: { result: mockData.mockBlockInfo.verbosity1 } })
       }
+
       req.body.blockhash =
-        '000000000000000002a5fe0bdd6e3f04342a975c0f55e57f97e73bb90041676b'
+        '0000000000000000008e8d83cba6d45a9314bc2ef4538d4e0577c6bed8593536'
 
       const result = await uut.getBlock(req, res)
       // console.log(`result: ${JSON.stringify(result, null, 2)}`)
@@ -1993,8 +1999,6 @@ describe('#BlockchainRouter', () => {
         'confirmations property expected'
       )
       assert.property(result, 'size', 'size property expected')
-      assert.property(result, 'strippedsize', 'strippedsize property expected')
-      assert.property(result, 'weight', 'weight property expected')
       assert.property(result, 'height', 'height property expected')
       assert.property(result, 'version', 'version property expected')
       assert.property(result, 'versionHex', 'versionHex property expected')

@@ -956,7 +956,10 @@ class Blockchain {
     try {
       // Validate input parameter
       const blockhash = req.body.blockhash
-      const verbosity = req.body.verbosity || 1 // default
+      let verbosity = req.body.verbosity
+
+      // Default to a value of 1 if another verbosity level is not defined.
+      if (!verbosity && verbosity !== 0) verbosity = 1
 
       if (!blockhash || blockhash === '') {
         res.status(400)
@@ -976,7 +979,7 @@ class Blockchain {
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error('Error in blockchain.ts/getMempoolEntrySingle().', err)
+      wlogger.error('Error in blockchain.js/getBlock()', err)
 
       return _this.errorHandler(err, res)
     }
