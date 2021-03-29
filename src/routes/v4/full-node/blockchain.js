@@ -53,6 +53,7 @@ class Blockchain {
     this.router.post('/getTxOutProof', this.getTxOutProofBulk)
     this.router.get('/verifyTxOutProof/:proof', this.verifyTxOutProofSingle)
     this.router.post('/verifyTxOutProof', this.verifyTxOutProofBulk)
+    this.router.post('/getBlock', this.getBlock)
   }
 
   root (req, res, next) {
@@ -933,6 +934,52 @@ class Blockchain {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
       wlogger.error('Error in blockchain.ts/verifyTxOutProofBulk().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  /**
+   * @api {post} /blockchain/getBlock/ Get block details
+   * @apiName getBlock
+   * @apiGroup Blockchain
+   * @apiDescription Returns block details
+   *
+   * @apiExample Example usage:
+   * curl "https://api.fullstack.cash/v4/blockchain/getblock/" -X POST -H "Content-Type: application/json" --data-binary '{"blockhash":"000000000000000002a5fe0bdd6e3f04342a975c0f55e57f97e73bb90041676b","verbosity":0 }'
+   *
+   * @apiParam {String} blockhash Block hash (required)
+   * @apiParam {Number} verbosity Default 1 (optional)
+   *
+   */
+  async getBlock (req, res, next) {
+    try {
+      // Validate input parameter
+      const blockhash = req.body.blockhash
+      let verbosity = req.body.verbosity
+
+      // Default to a value of 1 if another verbosity level is not defined.
+      if (!verbosity && verbosity !== 0) verbosity = 1
+
+      if (!blockhash || blockhash === '') {
+        res.status(400)
+        return res.json({ error: 'blockhash can not be empty' })
+      }
+
+      // Axios options
+      const options = _this.routeUtils.getAxiosOptions()
+
+      options.data.id = 'getblock'
+      options.data.method = 'getblock'
+      options.data.params = [blockhash, verbosity]
+
+      const response = await _this.axios.request(options)
+
+      return res.json(response.data.result)
+    } catch (err) {
+      // Write out error to error log.
+      // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
+      wlogger.error('Error in blockchain.js/getBlock()', err)
 
       return _this.errorHandler(err, res)
     }

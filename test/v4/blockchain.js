@@ -1823,4 +1823,204 @@ describe('#BlockchainRouter', () => {
       assert.equal(result.length, 2)
     })
   })
+
+  describe('#getBlock()', () => {
+    it('returns proper error when downstream service stalls', async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
+
+      req.body.blockhash =
+        '000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c1e000000067139f230701a2819a76795564bd2f67ded7eeae68596f368eddb3dd5bc54e59320e896f71d61cfc3ae3d4a90fca08b1aa35ba91256d8939d2cad11e638c0081f66724abdef55cf7b8b9fed064bce0369171434f8b289c1330ccef765f8e97a2c0d794d81aafb535855f7daa6bb51e40f77c6b59d7af7f62d0eb726a4fc4df82353d56fcbda7c7ea6bd935d61af8fb3b295637e6f323b10231135b3f10a034cfb238f635830c0595e52c6c31247cf677b555f7a287076e20cd0e1d3cc9af7260f02b700'
+
+      const result = await uut.getBlock(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+
+    it('returns proper error when downstream service is down', async () => {
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
+
+      req.body.blockhash =
+        '000000202ed2723e7590e2b937f6821a99d6764cb8799bf30f8e300000000000000000001d311c02df9a1e3f57b8dbdcf97ec8dbc3109a26779724c63e560b29ad9ea501e2af955d286403183049e39c1e000000067139f230701a2819a76795564bd2f67ded7eeae68596f368eddb3dd5bc54e59320e896f71d61cfc3ae3d4a90fca08b1aa35ba91256d8939d2cad11e638c0081f66724abdef55cf7b8b9fed064bce0369171434f8b289c1330ccef765f8e97a2c0d794d81aafb535855f7daa6bb51e40f77c6b59d7af7f62d0eb726a4fc4df82353d56fcbda7c7ea6bd935d61af8fb3b295637e6f323b10231135b3f10a034cfb238f635830c0595e52c6c31247cf677b555f7a287076e20cd0e1d3cc9af7260f02b700'
+      const result = await uut.getBlock(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+
+    it('should throw 400 if blockhash is empty', async () => {
+      const result = await uut.getBlock(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'blockhash can not be empty')
+    })
+
+    it('should return block info with verbosity 0', async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === 'unit') {
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockBlockInfo.verbosity0 } })
+      }
+
+      req.body.blockhash =
+        '0000000000000000008e8d83cba6d45a9314bc2ef4538d4e0577c6bed8593536'
+      req.body.verbosity = 0
+
+      const result = await uut.getBlock(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isString(result)
+    })
+
+    it('should return block info with verbosity 1', async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === 'unit') {
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockBlockInfo.verbosity1 } })
+      }
+
+      req.body.blockhash =
+        '0000000000000000008e8d83cba6d45a9314bc2ef4538d4e0577c6bed8593536'
+      req.body.verbosity = 1
+
+      const result = await uut.getBlock(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'hash', 'hash property expected')
+      assert.property(
+        result,
+        'confirmations',
+        'confirmations property expected'
+      )
+      assert.property(result, 'size', 'size property expected')
+      assert.property(result, 'height', 'height property expected')
+      assert.property(result, 'version', 'version property expected')
+      assert.property(result, 'versionHex', 'versionHex property expected')
+      assert.property(result, 'merkleroot', 'merkleroot property expected')
+      assert.property(result, 'tx', 'tx property expected')
+      assert.property(result, 'time', 'time property expected')
+      assert.property(result, 'mediantime', 'mediantime property expected')
+      assert.property(result, 'nonce', 'nonce property expected')
+      assert.property(result, 'bits', 'bits property expected')
+      assert.property(result, 'difficulty', 'difficulty property expected')
+      assert.property(result, 'chainwork', 'chainwork property expected')
+      assert.property(result, 'nTx', 'nTx property expected')
+      assert.property(
+        result,
+        'previousblockhash',
+        'previousblockhash property expected'
+      )
+      assert.property(
+        result,
+        'nextblockhash',
+        'nextblockhash property expected'
+      )
+    })
+
+    it('should return block info with verbosity 2', async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === 'unit') {
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockBlockInfo.verbosity1 } })
+      }
+
+      req.body.blockhash =
+        '0000000000000000008e8d83cba6d45a9314bc2ef4538d4e0577c6bed8593536'
+      req.body.verbosity = 2
+
+      const result = await uut.getBlock(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'hash', 'hash property expected')
+      assert.property(
+        result,
+        'confirmations',
+        'confirmations property expected'
+      )
+      assert.property(result, 'size', 'size property expected')
+      assert.property(result, 'height', 'height property expected')
+      assert.property(result, 'version', 'version property expected')
+      assert.property(result, 'versionHex', 'versionHex property expected')
+      assert.property(result, 'merkleroot', 'merkleroot property expected')
+      assert.property(result, 'tx', 'tx property expected')
+      assert.property(result, 'time', 'time property expected')
+      assert.property(result, 'mediantime', 'mediantime property expected')
+      assert.property(result, 'nonce', 'nonce property expected')
+      assert.property(result, 'bits', 'bits property expected')
+      assert.property(result, 'difficulty', 'difficulty property expected')
+      assert.property(result, 'chainwork', 'chainwork property expected')
+      assert.property(result, 'nTx', 'nTx property expected')
+      assert.property(
+        result,
+        'previousblockhash',
+        'previousblockhash property expected'
+      )
+      assert.property(
+        result,
+        'nextblockhash',
+        'nextblockhash property expected'
+      )
+    })
+
+    it('should return block info without verbosity especified', async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === 'unit') {
+        sandbox
+          .stub(uut.axios, 'request')
+          .resolves({ data: { result: mockData.mockBlockInfo.verbosity1 } })
+      }
+
+      req.body.blockhash =
+        '0000000000000000008e8d83cba6d45a9314bc2ef4538d4e0577c6bed8593536'
+
+      const result = await uut.getBlock(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'hash', 'hash property expected')
+      assert.property(
+        result,
+        'confirmations',
+        'confirmations property expected'
+      )
+      assert.property(result, 'size', 'size property expected')
+      assert.property(result, 'height', 'height property expected')
+      assert.property(result, 'version', 'version property expected')
+      assert.property(result, 'versionHex', 'versionHex property expected')
+      assert.property(result, 'merkleroot', 'merkleroot property expected')
+      assert.property(result, 'tx', 'tx property expected')
+      assert.property(result, 'time', 'time property expected')
+      assert.property(result, 'mediantime', 'mediantime property expected')
+      assert.property(result, 'nonce', 'nonce property expected')
+      assert.property(result, 'bits', 'bits property expected')
+      assert.property(result, 'difficulty', 'difficulty property expected')
+      assert.property(result, 'chainwork', 'chainwork property expected')
+      assert.property(result, 'nTx', 'nTx property expected')
+      assert.property(
+        result,
+        'previousblockhash',
+        'previousblockhash property expected'
+      )
+      assert.property(
+        result,
+        'nextblockhash',
+        'nextblockhash property expected'
+      )
+    })
+  })
 })
