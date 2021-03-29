@@ -129,7 +129,7 @@ describe('#rate-routelimit', () => {
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlODhhY2JmMDIyMWMxMDAxMmFkOTNmZiIsImVtYWlsIjoiY2hyaXMudHJvdXRuZXJAZ21haWwuY29tIiwiYXBpTGV2ZWwiOjQwLCJyYXRlTGltaXQiOjMsImlhdCI6MTYxNTE1NzA4NywiZXhwIjoxNjE3NzQ5MDg3fQ.RLNGuYAa-CcLdhTGD27tDeaxT6-GIdeR8T4JWZZLDZA'
 
       const result = uut.decodeJwtToken(jwt)
-      console.log('result: ', result)
+      // console.log('result: ', result)
 
       assert.property(result, 'id')
       // assert.equal(result.id, '123.456.789.10')
@@ -309,10 +309,10 @@ describe('#rate-routelimit', () => {
 
       let val
       for (let i = 0; i < 25; i++) {
-        console.log('req.locals: ', req.locals)
+        // console.log('req.locals: ', req.locals)
         val = await uut.applyRateLimits(req, res, next)
       }
-      console.log('val: ', val)
+      // console.log('val: ', val)
 
       assert.property(val, 'error')
       assert.include(
@@ -446,7 +446,7 @@ describe('#rate-routelimit', () => {
       // Generate a new JWT token for the test.
       const jwtPayload = {
         id: '5dade3f5739e6c0ff034b9a1',
-        pointsToConsume: 10
+        pointsToConsume: 100
       }
       const jwtToken = uut.generateJwtToken(jwtPayload)
 
@@ -460,7 +460,7 @@ describe('#rate-routelimit', () => {
         for (let i = 0; i < 120; i++) {
           val = await uut.applyRateLimits(req, res, next)
         }
-        console.log('val: ', val)
+        // console.log('val: ', val)
 
         assert.property(val, 'error')
         assert.include(
@@ -470,11 +470,12 @@ describe('#rate-routelimit', () => {
 
         assert.equal(
           res.locals.pointsToConsume,
-          10,
+          100,
           'User JWT rate limits applied'
         )
       } catch (err) {
         console.log('err: ', err)
+        assert.fail('Unexpected result')
       }
     })
 
