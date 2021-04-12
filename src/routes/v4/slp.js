@@ -1780,8 +1780,6 @@ class Slp {
 
   // Format the response from SLPDB into an object.
   async formatToRestObject (slpDBFormat) {
-    _this.BigNumber.set({ DECIMAL_PLACES: 8 })
-
     // console.log(`slpDBFormat.data: ${JSON.stringify(slpDBFormat.data, null, 2)}`)
 
     const transaction = slpDBFormat.data.u.length
