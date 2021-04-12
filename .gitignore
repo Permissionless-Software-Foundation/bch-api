@@ -16,6 +16,7 @@ start-local-testnet.sh
 test-fullstack-main.sh
 start-fullstack-main.sh
 start-fullstack-test.sh
+start-fullstack-testnet.sh
 start-free-main.sh
 start-local-mainnet.sh.save
 start-local-testnet.sh.save
@@ -27,7 +28,8 @@ test-fullstack-abc.sh
 test-fullstack-bchn.sh
 start-fullstack-abc.sh
 start-fullstack-bchn.sh
-start.sh
+start-ss-main.sh
+start-decatur-bchn.sh
 
 coverage
 start-my-infra
