@@ -56,7 +56,7 @@ const ANON_LIMITS = config.anonRateLimit
 const WHITELIST_DOMAINS = config.whitelistDomains
 const WHITELIST_POINTS_TO_CONSUME = config.whitelistRateLimit
 const POINTS_PER_MINUTE = config.pointsPerMinute
-const INTERNAL_POINTS_TO_CONSUME = 10
+const INTERNAL_POINTS_TO_CONSUME = config.internalRateLimit
 
 class RateLimits {
   constructor () {

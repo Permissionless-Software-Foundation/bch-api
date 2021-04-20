@@ -16,6 +16,9 @@ const config = {
   whitelistRateLimit: process.env.WHITELIST_RATE_LIMIT
     ? Number(process.env.WHITELIST_RATE_LIMIT)
     : 10,
+  internalRateLimit: process.env.INTERNAL_RATE_LIMIT
+    ? Number(process.env.INTERNAL_RATE_LIMIT)
+    : 10,
   pointsPerMinute: process.env.POINTS_PER_MINUTE
     ? Number(process.env.POINTS_PER_MINUTE)
     : 10000,
