@@ -15,7 +15,11 @@ var NETWORK = process.env.NETWORK
 var LOG_MAX_SIZE = process.env.LOG_MAX_SIZE ? process.env.LOG_MAX_SIZE : '1m'
 
 // Default 5 days.
-var LOG_MAX_FILES = process.env.LOG_MAX_FILES ? process.env.LOG_MAX_FILES : '5d'
+// This was causing a problem with popularity. Creating over a gigabyte of files.
+// var LOG_MAX_FILES = process.env.LOG_MAX_FILES ? process.env.LOG_MAX_FILES : '5d'
+
+// 250 files @ 1Meg each = 250 megs
+var LOG_MAX_FILES = process.env.LOG_MAX_FILES ? process.env.LOG_MAX_FILES : '250'
 
 // Configure daily-rotation transport.
 var transport = new winston.transports.DailyRotateFile({
