@@ -87,6 +87,15 @@ The rate limits for [api.fullstack.cash](https://api.fullstack.cash) are control
 
 - `Authorization: Token <JWT token>`
 
+### cURL example
+Here is an example using curl for using the JWT token when making a call to the REST API:
+
+```
+export BCHJSTOKEN=eyJhbGciOiJ....
+
+curl "https://bchn.fullstack.cash/v4/electrumx/balance/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -X GET -H "Content-Type: application/json" -H "Authorization: Token ${BCHJSTOKEN}"
+```
+
 ## Support
 Have questions? Need help? Join our community support
 [Telegram channel](https://t.me/bch_js_toolkit)
