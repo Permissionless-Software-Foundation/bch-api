@@ -100,6 +100,8 @@ class Slp {
     _this.router.post('/hydrateUtxos', _this.hydrateUtxos)
     _this.router.post('/hydrateUtxosWL', _this.hydrateUtxosWL)
     _this.router.get('/status', _this.getStatus)
+    _this.router.get('/nftChildren/:tokenId', _this.getNftChildren)
+    _this.router.get('/nftGroup/:tokenId', _this.getNftGroup)
   }
 
   // DRY error handler.
@@ -132,6 +134,10 @@ class Slp {
     delete token.tokenDetails.transactionType
     delete token.tokenDetails.batonVout
     delete token.tokenDetails.sendOutputs
+
+    if (token.tokenDetails.versionType === 65 && token.nftParentId) {
+      token.tokenDetails.nftParentId = token.nftParentId
+    }
 
     token.tokenDetails.blockCreated = token.tokenStats.block_created
     token.tokenDetails.blockLastActiveSend =
@@ -296,7 +302,7 @@ class Slp {
               'tokenDetails.tokenIdHex': tokenId
             }
           },
-          project: { tokenDetails: 1, tokenStats: 1, _id: 0 },
+          project: { tokenDetails: 1, tokenStats: 1, nftParentId: 1, _id: 0 },
           limit: 1000
         }
       }
@@ -2219,6 +2225,121 @@ class Slp {
     } catch (err) {
       // console.log(err)
       wlogger.error('Error in slp.js/getStatus().', err)
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  /**
+   * @api {get} /slp/nftChildren/{tokenId} Get all NFT children for a given NFT group
+   * @apiName Get all NFT children for a given NFT group
+   * @apiGroup SLP
+   * @apiDescription Get all NFT children for a given NFT group
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v4/slp/nftChildren/68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a" -H "accept:application/json"
+   *
+   */
+  async getNftChildren (req, res, next) {
+    try {
+      // Validate the input data.
+      const tokenId = req.params.tokenId
+
+      if (!tokenId || tokenId === '') {
+        res.status(400)
+        return res.json({ error: 'tokenId can not be empty' })
+      }
+
+      const token = await _this.lookupToken(tokenId)
+      // console.log(`token: ${JSON.stringify(token, null, 2)}`)
+
+      if (!token || token.id === 'not found' || token.versionType !== 129) {
+        res.status(400)
+        return res.json({ error: 'NFT group does not exists' })
+      }
+
+      const query = {
+        v: 3,
+        q: {
+          db: ['t'],
+          aggregate: [
+            { $match: { nftParentId: tokenId } },
+            { $skip: 0 }, // TODO: pass start point
+            { $limit: 100 } // TODO: pass count limit
+          ]
+        }
+      }
+
+      const s = JSON.stringify(query)
+      const b64 = Buffer.from(s).toString('base64')
+      const url = `${process.env.SLPDB_URL}q/${b64}`
+      // Request options
+      const opt = {
+        method: 'get',
+        baseURL: url
+      }
+      const childrenIds = []
+      const childrenRes = await _this.axios.request(opt)
+      // console.log(`childrenRes.data: ${JSON.stringify(childrenRes.data, null, 2)}`)
+      if (!childrenRes || !childrenRes.data || !childrenRes.data.t) return { error: 'No children data in the group' }
+
+      res.status(200)
+
+      childrenRes.data.t.forEach(function (token) {
+        // console.log(`info: ${JSON.stringify(token, null, 2)}`)
+        if (token.tokenDetails.versionType === 65 && token.tokenDetails.transactionType === 'GENESIS') {
+          childrenIds.push(token.tokenDetails.tokenIdHex)
+        }
+      })
+      return res.json({ nftChildren: childrenIds })
+    } catch (err) {
+      // console.log(err)
+      wlogger.error('Error in slp.js/getNftChildren().', err)
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  /**
+   * @api {get} /slp/nftGroup/{tokenId} Get the NFT group for a given NFT child token
+   * @apiName Get the NFT group for a given NFT child token
+   * @apiGroup SLP
+   * @apiDescription Get the NFT group for a given NFT child token
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v4/slp/nftGroup/45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9" -H "accept:application/json"
+   *
+   */
+  async getNftGroup (req, res, next) {
+    try {
+      // Validate the input data.
+      const tokenId = req.params.tokenId
+
+      if (!tokenId || tokenId === '') {
+        res.status(400)
+        return res.json({ error: 'tokenId can not be empty' })
+      }
+
+      const token = await _this.lookupToken(tokenId)
+      // console.log(`token: ${JSON.stringify(token, null, 2)}`)
+
+      if (!token || token.id === 'not found' || token.versionType !== 65 || !token.nftParentId) {
+        res.status(400)
+        return res.json({ error: 'NFT child does not exists' })
+      }
+
+      const parentToken = await _this.lookupToken(token.nftParentId)
+      // console.log(`parentToken: ${JSON.stringify(token, null, 2)}`)
+      if (!parentToken || parentToken.id === 'not found' || parentToken.versionType !== 129) {
+        res.status(400)
+        return res.json({ error: 'NFT group does not exists' })
+      }
+
+      res.status(200)
+      return { nftGroup: parentToken }
+    } catch (err) {
+      // console.log(err)
+      wlogger.error('Error in slp.js/getNftGroup().', err)
       return _this.errorHandler(err, res)
     }
   }

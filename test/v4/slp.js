@@ -1760,6 +1760,256 @@ describe('#SLP', () => {
       assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
     })
   })
+
+  describe('getNftChildren()', () => {
+    it('should throw 400 if tokenID is empty', async () => {
+      req.params.tokenId = ''
+      const result = await slpRoute.getNftChildren(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'tokenId can not be empty')
+    })
+    it('returns proper error when downstream service stalls', async () => {
+      // Mock the timeout error.
+      sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNABORTED' })
+
+      req.params.tokenId =
+        '68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a'
+
+      const result = await slpRoute.getNftChildren(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+    it('returns proper error when downstream service is down', async () => {
+      // Mock the timeout error.
+      sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNREFUSED' })
+
+      req.params.tokenId =
+        '68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a'
+
+      const result = await slpRoute.getNftChildren(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+    it('should return error on non-existing NFT group token', async () => {
+      if (process.env.TEST === 'unit') {
+        sandbox.stub(slpRoute, 'lookupToken').resolves(
+          { id: 'not found' }
+        )
+      }
+
+      req.params.tokenId =
+        '68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a'
+
+      const result = await slpRoute.getNftChildren(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      assert.include(
+        result.error,
+        'NFT group does not exists',
+        'Error message expected'
+      )
+    })
+    it('should return error on non-group NFT token', async () => {
+      if (process.env.TEST === 'unit') {
+        sandbox.stub(slpRoute, 'lookupToken').resolves(
+          mockData.mockNftChildren[0]
+        )
+      }
+
+      req.params.tokenId =
+        '68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a'
+
+      const result = await slpRoute.getNftChildren(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      assert.include(
+        result.error,
+        'NFT group does not exists',
+        'Error message expected'
+      )
+    })
+    it('should return error on invalid NFT group data', async () => {
+      if (process.env.TEST === 'unit') {
+        sandbox.stub(slpRoute, 'lookupToken').resolves(
+          mockData.mockNftGroup
+        )
+        sandbox.stub(slpRoute.axios, 'request').resolves({
+          data: { u: 'invalid' }
+        })
+      }
+
+      req.params.tokenId =
+        '68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a'
+
+      const result = await slpRoute.getNftChildren(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      assert.include(
+        result.error,
+        'No children data in the group',
+        'Error message expected'
+      )
+    })
+    it('should get NFT children IDs in given NFT group', async () => {
+      if (process.env.TEST === 'unit') {
+        sandbox.stub(slpRoute, 'lookupToken').resolves(
+          mockData.mockNftGroup
+        )
+        sandbox.stub(slpRoute.axios, 'request').resolves({
+          data: {
+            t: [
+              {
+                tokenDetails: mockData.mockNftChildren[0],
+                nftParentId: mockData.mockNftGroup.id
+              },
+              {
+                tokenDetails: mockData.mockNftChildren[1],
+                nftParentId: mockData.mockNftGroup.id
+              }
+            ]
+          }
+        })
+      }
+
+      req.params.tokenId =
+        '68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a'
+
+      const result = await slpRoute.getNftChildren(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      assert.isArray(result.nftChildren)
+      assert.equal(result.nftChildren.length, 2)
+      assert.equal(result.nftChildren[0], '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9')
+      assert.equal(result.nftChildren[1], '928ce61fe1006b1325a0ba0dce700bf83986a6f0691ba26e121c9ac035d12a55')
+    })
+  })
+
+  describe('getNftGroup()', () => {
+    it('should throw 400 if tokenID is empty', async () => {
+      req.params.tokenId = ''
+      const result = await slpRoute.getNftGroup(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error'])
+      assert.include(result.error, 'tokenId can not be empty')
+    })
+    it('returns proper error when downstream service stalls', async () => {
+      // Mock the timeout error.
+      sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNABORTED' })
+
+      req.params.tokenId =
+        '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9'
+
+      const result = await slpRoute.getNftGroup(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+    it('returns proper error when downstream service is down', async () => {
+      // Mock the timeout error.
+      sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNREFUSED' })
+
+      req.params.tokenId =
+        '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9'
+
+      const result = await slpRoute.getNftGroup(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+    it('should return error on non-existing NFT child token', async () => {
+      if (process.env.TEST === 'unit') {
+        sandbox.stub(slpRoute, 'lookupToken').resolves(
+          { id: 'not found' }
+        )
+      }
+
+      req.params.tokenId =
+        '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9'
+
+      const result = await slpRoute.getNftGroup(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      assert.include(
+        result.error,
+        'NFT child does not exists',
+        'Error message expected'
+      )
+    })
+    it('should return error on invalid NFT child token', async () => {
+      if (process.env.TEST === 'unit') {
+        sandbox.stub(slpRoute, 'lookupToken').resolves(
+          mockData.mockNftGroup
+        )
+      }
+
+      req.params.tokenId =
+        '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9'
+
+      const result = await slpRoute.getNftGroup(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      assert.include(
+        result.error,
+        'NFT child does not exists',
+        'Error message expected'
+      )
+    })
+    it('should return error on invalid parent', async () => {
+      req.params.tokenId =
+        '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9'
+
+      if (process.env.TEST === 'unit') {
+        const callback = sandbox.stub(slpRoute, 'lookupToken')
+        callback.withArgs(req.params.tokenId).resolves(mockData.mockNftChildren[0])
+        // parent is non-valid NFT group (type != 129)
+        callback.withArgs(mockData.mockNftGroup.id).resolves(mockData.mockNftChildren[0])
+      }
+
+      const result = await slpRoute.getNftGroup(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      assert.include(
+        result.error,
+        'NFT group does not exists',
+        'Error message expected'
+      )
+    })
+    it('should get NFT group information for tokenId', async () => {
+      req.params.tokenId =
+        '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9'
+
+      if (process.env.TEST === 'unit') {
+        const callback = sandbox.stub(slpRoute, 'lookupToken')
+        callback.withArgs(req.params.tokenId).resolves(mockData.mockNftChildren[0])
+        callback.withArgs(mockData.mockNftGroup.id).resolves(mockData.mockNftGroup)
+      }
+      const result = await slpRoute.getNftGroup(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      assert.property(result, 'nftGroup')
+      assert.property(result.nftGroup, 'id')
+      assert.equal(result.nftGroup.id, mockData.mockNftGroup.id)
+      assert.property(result.nftGroup, 'versionType')
+      assert.equal(result.nftGroup.versionType, 129)
+      assert.property(result.nftGroup, 'symbol')
+      assert.property(result.nftGroup, 'initialTokenQty')
+    })
+  })
 })
 
 /*
