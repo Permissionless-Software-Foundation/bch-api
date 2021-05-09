@@ -15,7 +15,9 @@ util.inspect.defaultOptions = { depth: 1 }
 
 // Exit if SLPDB URL is not defined.
 if (!process.env.SLPDB_URL) {
-  throw new Error('SLPDB_URL and SLPDB_PASS must be defined in order to run these tests.')
+  throw new Error(
+    'SLPDB_URL and SLPDB_PASS must be defined in order to run these tests.'
+  )
 }
 
 const SLP = require('../../../src/routes/v4/slp')
@@ -34,18 +36,29 @@ describe('#nft', () => {
 
   describe('#getNftChildren', () => {
     it('should get NFT children list', async () => {
-      req.params.tokenId = '68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a'
+      req.params.tokenId =
+        '68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a'
+
       const result = await slp.getNftChildren(req, res)
       // console.log(`result: ${util.inspect(result)}`)
+
       assert.isArray(result.nftChildren)
       assert.equal(result.nftChildren.length, 2)
-      assert.equal(result.nftChildren[0], '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9')
-      assert.equal(result.nftChildren[1], '928ce61fe1006b1325a0ba0dce700bf83986a6f0691ba26e121c9ac035d12a55')
+      assert.equal(
+        result.nftChildren[0],
+        '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9'
+      )
+      assert.equal(
+        result.nftChildren[1],
+        '928ce61fe1006b1325a0ba0dce700bf83986a6f0691ba26e121c9ac035d12a55'
+      )
     })
   })
+
   describe('#getNftGroup', () => {
     it('should get NFT group token info', async () => {
-      req.params.tokenId = '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9'
+      req.params.tokenId =
+        '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9'
       // req.params.tokenId = '928ce61fe1006b1325a0ba0dce700bf83986a6f0691ba26e121c9ac035d12a55'
       const result = await slp.getNftGroup(req, res)
       // console.log(`result: ${util.inspect(result)}`)
@@ -53,7 +66,10 @@ describe('#nft', () => {
       assert.property(result.nftGroup, 'id')
       assert.property(result.nftGroup, 'versionType')
       assert.property(result.nftGroup, 'symbol')
-      assert.equal(result.nftGroup.id, '68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a')
+      assert.equal(
+        result.nftGroup.id,
+        '68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a'
+      )
       assert.equal(result.nftGroup.versionType, 129)
       assert.equal(result.nftGroup.symbol, 'PSF.TEST.GROUP')
     })

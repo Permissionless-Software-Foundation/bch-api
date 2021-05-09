@@ -23,8 +23,8 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coverage:report": "export NETWORK=mainnet && nyc --reporter=html mocha --timeout 25000 test/v4/",
     "docs": "./node_modules/.bin/apidoc -i src/routes/v4 -o docs",
-    "test:temp1": "export NETWORK=mainnet && export TEST=integration && mocha --exit --timeout 25000 -g '#hydrateUtxos-' test/v4/integration/",
-    "test:temp2": "mocha -g '#rate-routelimit' --timeout 30000 test/v4/"
+    "test:temp1": "export NETWORK=mainnet && export TEST=integration && mocha --exit --timeout 25000 -g '#getNftChildren' test/v4/integration/",
+    "test:temp2": "mocha -g '#getNftGroup' --exit --timeout 30000 test/v4/"
   },
   "engines": {
     "node": ">=10.15.1"
