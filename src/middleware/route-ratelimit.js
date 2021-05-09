@@ -154,6 +154,7 @@ class RateLimits {
             res,
             defaultJwt
           )
+          // console.log(`hasExceededRateLimit: `, hasExceededRateLimit)
 
           if (!hasExceededRateLimit) {
             // Rate limits have not been exceeded. Processing can continue.
@@ -195,6 +196,7 @@ class RateLimits {
           res,
           req.locals.jwtToken
         )
+        // console.log('hasExceededRateLimit: ', hasExceededRateLimit)
 
         if (!hasExceededRateLimit) {
           // Rate limits have not been exceeded. Processing can continue.
@@ -220,7 +222,11 @@ class RateLimits {
   async trackRateLimits (req, res, jwtToken) {
     // Anonymous rate limits are used by default.
     let pointsToConsume = ANON_LIMITS
+    // console.log('pointsToConsume: ', pointsToConsume)
+
     let key = req.ip // Use the IP address as the key, by default.
+
+    // console.log('jwtToken: ', jwtToken)
 
     try {
       // Decode the JWT token if it exists
@@ -238,6 +244,10 @@ class RateLimits {
       // This function will throw an error if the user exceeds the rate limit.
       // The 429 error response is handled by the catch().
       await _this.rateLimiter.consume(key, pointsToConsume)
+
+      // Debugging
+      // const rateLimitData = await _this.rateLimiter.consume(key, pointsToConsume)
+      // console.log(`rateLimitData: `, rateLimitData)
 
       res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
 
