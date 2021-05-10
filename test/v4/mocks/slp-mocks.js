@@ -66,6 +66,69 @@ const mockSingleToken = {
   ]
 }
 
+const mockNftGroup = {
+  decimals: 0,
+  timestamp: '2021-05-03 10:36:01',
+  timestamp_unix: 1620038161,
+  versionType: 129,
+  documentUri: 'psfoundation.cash',
+  symbol: 'PSF.TEST.GROUP',
+  name: 'PSF Test NFT Group',
+  containsBaton: true,
+  id: '68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a',
+  documentHash: null,
+  initialTokenQty: 1000000,
+  blockCreated: 686117,
+  totalMinted: null,
+  totalBurned: null,
+  circulatingSupply: null
+}
+
+const mockNftChildren = [
+  {
+    decimals: 0,
+    timestamp: '2021-05-03 11:59:30',
+    timestamp_unix: 1620043170,
+    versionType: 65,
+    documentUri: 'psfoundation.cash',
+    symbol: 'PSF.TEST.CHILD.1',
+    name: 'PSF Test NFT Child #1',
+    containsBaton: false,
+    id: '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9',
+    documentHash: null,
+    initialTokenQty: 1,
+    nftParentId: '68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a',
+    blockCreated: 686130,
+    totalMinted: null,
+    totalBurned: null,
+    circulatingSupply: null,
+    // only in axios.data.t
+    transactionType: 'GENESIS',
+    tokenIdHex: '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9'
+  },
+  {
+    decimals: 0,
+    timestamp: '2021-05-03 11:59:30',
+    timestamp_unix: 1620043170,
+    versionType: 65,
+    documentUri: 'psfoundation.cash',
+    symbol: 'PSF.TEST.CHILD.2',
+    name: 'PSF Test NFT Child #2',
+    containsBaton: false,
+    id: '928ce61fe1006b1325a0ba0dce700bf83986a6f0691ba26e121c9ac035d12a55',
+    documentHash: null,
+    initialTokenQty: 1,
+    nftParentId: '68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a',
+    blockCreated: 686130,
+    totalMinted: null,
+    totalBurned: null,
+    circulatingSupply: null,
+    // only in axios.data.t
+    transactionType: 'GENESIS',
+    tokenIdHex: '928ce61fe1006b1325a0ba0dce700bf83986a6f0691ba26e121c9ac035d12a55'
+  }
+]
+
 const mockSingleTokenError = {
   t: []
 }
@@ -1038,5 +1101,7 @@ module.exports = {
   mockPsfToken,
   mockValidateBulk,
   mockValidate3Bulk,
-  mockStatus
+  mockStatus,
+  mockNftGroup,
+  mockNftChildren
 }
