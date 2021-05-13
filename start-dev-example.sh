@@ -15,6 +15,11 @@ export RPC_BASEURL=http://$RPC_IP/
 export RPC_USERNAME=bitcoin
 export RPC_PASSWORD=password
 
+# (optional) If load-balancing multiple full nodes, it's best to pick a single
+# one for broadcasting transactions to the network. Prevents accidental
+# double spends.
+#export RPC_SENDURL=http://$RPC_IP/
+
 # SLPDB
 export SLPDB_PASS_GP=somelongpassword
 export SLPDB_URL=http://<SLPDB IP>:12300/
