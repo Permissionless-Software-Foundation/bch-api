@@ -568,11 +568,14 @@ class RawTransactions {
   // accidental double spends can be reduced.
   sendTxOptions (options) {
     try {
-      if (process.env.RPC_SENDURL) {
-        console.log(`original options: ${JSON.stringify(options, null, 2)}`)
+      const sendUrl = process.env.RPC_SENDURL
+
+      if (sendUrl !== 'undefined' && sendUrl !== undefined) {
+        // console.log(`original options: ${JSON.stringify(options, null, 2)}`)
+
         options.baseURL = process.env.RPC_SENDURL
 
-        console.log(`modified options: ${JSON.stringify(options, null, 2)}`)
+        // console.log(`modified options: ${JSON.stringify(options, null, 2)}`)
       }
 
       return options
