@@ -50,7 +50,9 @@ const rawTransactions = new RawTransactions()
 
 // Setup REST and TREST URLs used by slpjs
 // Dev note: this allows for unit tests to mock the URL.
-if (!process.env.REST_URL) { process.env.REST_URL = 'https://bchn.fullstack.cash/v4/' }
+if (!process.env.REST_URL) {
+  process.env.REST_URL = 'https://bchn.fullstack.cash/v4/'
+}
 if (!process.env.TREST_URL) {
   process.env.TREST_URL = 'https://testnet.fullstack.cash/v4/'
 }
@@ -2281,16 +2283,21 @@ class Slp {
       const childrenIds = []
       const childrenRes = await _this.axios.request(opt)
       // console.log(`childrenRes.data: ${JSON.stringify(childrenRes.data, null, 2)}`)
-      if (!childrenRes || !childrenRes.data || !childrenRes.data.t) return { error: 'No children data in the group' }
-
-      res.status(200)
+      if (!childrenRes || !childrenRes.data || !childrenRes.data.t) {
+        return { error: 'No children data in the group' }
+      }
 
       childrenRes.data.t.forEach(function (token) {
         // console.log(`info: ${JSON.stringify(token, null, 2)}`)
-        if (token.tokenDetails.versionType === 65 && token.tokenDetails.transactionType === 'GENESIS') {
+        if (
+          token.tokenDetails.versionType === 65 &&
+          token.tokenDetails.transactionType === 'GENESIS'
+        ) {
           childrenIds.push(token.tokenDetails.tokenIdHex)
         }
       })
+
+      res.status(200)
       return res.json({ nftChildren: childrenIds })
     } catch (err) {
       // console.log(err)
@@ -2323,20 +2330,29 @@ class Slp {
       const token = await _this.lookupToken(tokenId)
       // console.log(`token: ${JSON.stringify(token, null, 2)}`)
 
-      if (!token || token.id === 'not found' || token.versionType !== 65 || !token.nftParentId) {
+      if (
+        !token ||
+        token.id === 'not found' ||
+        token.versionType !== 65 ||
+        !token.nftParentId
+      ) {
         res.status(400)
         return res.json({ error: 'NFT child does not exists' })
       }
 
       const parentToken = await _this.lookupToken(token.nftParentId)
       // console.log(`parentToken: ${JSON.stringify(token, null, 2)}`)
-      if (!parentToken || parentToken.id === 'not found' || parentToken.versionType !== 129) {
+      if (
+        !parentToken ||
+        parentToken.id === 'not found' ||
+        parentToken.versionType !== 129
+      ) {
         res.status(400)
         return res.json({ error: 'NFT group does not exists' })
       }
 
       res.status(200)
-      return { nftGroup: parentToken }
+      return res.json({ nftGroup: parentToken })
     } catch (err) {
       // console.log(err)
       wlogger.error('Error in slp.js/getNftGroup().', err)
