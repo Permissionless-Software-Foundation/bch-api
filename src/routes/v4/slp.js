@@ -2284,7 +2284,8 @@ class Slp {
       const childrenRes = await _this.axios.request(opt)
       // console.log(`childrenRes.data: ${JSON.stringify(childrenRes.data, null, 2)}`)
       if (!childrenRes || !childrenRes.data || !childrenRes.data.t) {
-        return { error: 'No children data in the group' }
+        res.status(400)
+        return res.json({ error: 'No children data in the group' })
       }
 
       childrenRes.data.t.forEach(function (token) {
