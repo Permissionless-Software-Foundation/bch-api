@@ -35,6 +35,31 @@ describe('#nft', () => {
   })
 
   describe('#getNftChildren', () => {
+    it('should return error on non-existing NFT group token', async () => {
+      req.params.tokenId =
+        '68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0b'
+      const result = await slp.getNftChildren(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.include(
+        result.error,
+        'NFT group does not exists',
+        'Error message expected'
+      )
+    })
+    it('should return error on non-group NFT token', async () => {
+      req.params.tokenId =
+        '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9'
+
+      const result = await slp.getNftChildren(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.include(
+        result.error,
+        'NFT group does not exists',
+        'Error message expected'
+      )
+    })
     it('should get NFT children list', async () => {
       req.params.tokenId =
         '68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a'
@@ -56,6 +81,18 @@ describe('#nft', () => {
   })
 
   describe('#getNftGroup', () => {
+    it('should return error on non-existing NFT child token', async () => {
+      req.params.tokenId =
+        '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a8'
+      const result = await slp.getNftGroup(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.include(
+        result.error,
+        'NFT child does not exists',
+        'Error message expected'
+      )
+    })
     it('should get NFT group token info', async () => {
       req.params.tokenId =
         '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9'
