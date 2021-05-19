@@ -32,15 +32,15 @@ util.inspect.defaultOptions = { depth: 1 }
 
 // A wrapper for asserting that the correct response is returned when an error
 // is expected.
-function expectRouteError (res, result, expectedError, code = 400) {
-  assert.equal(res.statusCode, code, `HTTP status code ${code} expected.`)
-
-  assert.property(result, 'error')
-  assert.include(result.error, expectedError)
-
-  assert.property(result, 'success')
-  assert.equal(result.success, false)
-}
+// function expectRouteError (res, result, expectedError, code = 400) {
+//   assert.equal(res.statusCode, code, `HTTP status code ${code} expected.`)
+//
+//   assert.property(result, 'error')
+//   assert.include(result.error, expectedError)
+//
+//   assert.property(result, 'success')
+//   assert.equal(result.success, false)
+// }
 
 describe('#Electrumx', () => {
   let req, res
@@ -54,20 +54,19 @@ describe('#Electrumx', () => {
     if (!process.env.NETWORK) process.env.NETWORK = 'testnet'
 
     // Connect to electrumx servers if this is an integration test.
-    if (process.env.TEST === 'integration') {
-      await electrumxRoute.connect()
-      console.log('Connected to ElectrumX server')
-    }
+    // if (process.env.TEST === 'integration') {
+    //   await electrumxRoute.connect()
+    //   console.log('Connected to ElectrumX server')
+    // }
   })
 
   after(async () => {
     // console.log(`electrumxRoute.electrumx: `, electrumxRoute.electrumx)
-
     // Disconnect from the electrumx server if this is an integration test.
-    if (process.env.TEST === 'integration') {
-      await electrumxRoute.disconnect()
-      console.log('Disconnected from ElectrumX server')
-    }
+    // if (process.env.TEST === 'integration') {
+    //   await electrumxRoute.disconnect()
+    //   console.log('Disconnected from ElectrumX server')
+    // }
   })
 
   // Setup the mocks before each test.
@@ -95,15 +94,15 @@ describe('#Electrumx', () => {
   })
 
   // A wrapper for stubbing with the Sinon sandbox.
-  function stubMethodForUnitTests (obj, method, value) {
-    if (process.env.TEST !== 'unit') return false
-
-    electrumxRoute.isReady = true // Force flag.
-
-    sandbox.stub(obj, method).resolves(value)
-
-    return true
-  }
+  // function stubMethodForUnitTests (obj, method, value) {
+  //   if (process.env.TEST !== 'unit') return false
+  //
+  //   electrumxRoute.isReady = true // Force flag.
+  //
+  //   sandbox.stub(obj, method).resolves(value)
+  //
+  //   return true
+  // }
 
   describe('#root', () => {
     // root route handler.
@@ -116,29 +115,106 @@ describe('#Electrumx', () => {
     })
   })
 
-  // describe('#addressToScripthash', () => {
-  //   it('should accurately return a scripthash for a P2PKH address', () => {
-  //     const addr = 'bitcoincash:qpr270a5sxphltdmggtj07v4nskn9gmg9yx4m5h7s4'
-  //
-  //     const scripthash = electrumxRoute.addressToScripthash(addr)
-  //
-  //     const expectedOutput =
-  //       'bce4d5f2803bd1ed7c1ba00dcb3edffcbba50524af7c879d6bb918d04f138965'
-  //
-  //     assert.equal(scripthash, expectedOutput)
-  //   })
-  //
-  //   it('should accurately return a scripthash for a P2SH address', () => {
-  //     const addr = 'bitcoincash:pz0z7u9p96h2p6hfychxdrmwgdlzpk5luc5yks2wxq'
-  //
-  //     const scripthash = electrumxRoute.addressToScripthash(addr)
-  //
-  //     const expectedOutput =
-  //       '8bc2235c8e7d5634d9ec429fc0171f2c58e728d4f1e2fb7e440e313133cfa4f0'
-  //
-  //     assert.equal(scripthash, expectedOutput)
-  //   })
-  // })
+  describe('#getBalance', () => {
+    it('should throw 400 if address is empty', async () => {
+      const result = await electrumxRoute.getBalance(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 422, 'Expect 422 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Unsupported address format')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw 400 on array input', async () => {
+      req.params.address = ['qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c']
+
+      const result = await electrumxRoute.getBalance(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'address can not be an array')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw an error for an invalid address', async () => {
+      req.params.address = '02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
+
+      const result = await electrumxRoute.getBalance(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 422, 'Expect 422 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Unsupported address format')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should detect a network mismatch', async () => {
+      req.params.address = 'bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'
+
+      const result = await electrumxRoute.getBalance(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Invalid network', 'Proper error message')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should pass errors from electrum-cash to user', async () => {
+      // Address has invalid checksum.
+      req.params.address =
+        'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
+
+      // Call the details API.
+      const result = await electrumxRoute.getBalance(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Unsupported address format')
+    })
+
+    it('should get balance for a single address', async () => {
+      req.params.address =
+        'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.axios, 'get')
+          .resolves({ data: mockData.balance })
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.getBalance(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'balance')
+      assert.property(result.balance, 'confirmed')
+      assert.property(result.balance, 'unconfirmed')
+    })
+  })
 
   // describe('#_utxosFromElectrumx', () => {
   //   it('should throw error for invalid address', async () => {
@@ -1055,107 +1131,6 @@ describe('#Electrumx', () => {
   //
   //     assert.property(result, 'confirmed')
   //     assert.property(result, 'unconfirmed')
-  //   })
-  // })
-
-  // describe('#getBalance', () => {
-  //   it('should throw 400 if address is empty', async () => {
-  //     const result = await electrumxRoute.getBalance(req, res)
-  //     // console.log(`result: ${util.inspect(result)}`)
-  //
-  //     assert.equal(res.statusCode, 422, 'Expect 422 status code')
-  //
-  //     assert.property(result, 'error')
-  //     assert.include(result.error, 'Unsupported address format')
-  //
-  //     assert.property(result, 'success')
-  //     assert.equal(result.success, false)
-  //   })
-  //
-  //   it('should throw 400 on array input', async () => {
-  //     req.params.address = ['qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c']
-  //
-  //     const result = await electrumxRoute.getBalance(req, res)
-  //     // console.log(`result: ${util.inspect(result)}`)
-  //
-  //     assert.equal(res.statusCode, 400, 'Expect 400 status code')
-  //
-  //     assert.property(result, 'error')
-  //     assert.include(result.error, 'address can not be an array')
-  //
-  //     assert.property(result, 'success')
-  //     assert.equal(result.success, false)
-  //   })
-  //
-  //   it('should throw an error for an invalid address', async () => {
-  //     req.params.address = '02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
-  //
-  //     const result = await electrumxRoute.getBalance(req, res)
-  //     // console.log(`result: ${util.inspect(result)}`)
-  //
-  //     assert.equal(res.statusCode, 422, 'Expect 422 status code')
-  //
-  //     assert.property(result, 'error')
-  //     assert.include(result.error, 'Unsupported address format')
-  //
-  //     assert.property(result, 'success')
-  //     assert.equal(result.success, false)
-  //   })
-  //
-  //   it('should detect a network mismatch', async () => {
-  //     req.params.address = 'bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'
-  //
-  //     const result = await electrumxRoute.getBalance(req, res)
-  //     // console.log(`result: ${util.inspect(result)}`)
-  //
-  //     assert.equal(res.statusCode, 400, 'Expect 400 status code')
-  //
-  //     assert.property(result, 'error')
-  //     assert.include(result.error, 'Invalid network', 'Proper error message')
-  //
-  //     assert.property(result, 'success')
-  //     assert.equal(result.success, false)
-  //   })
-  //
-  //   it('should pass errors from electrum-cash to user', async () => {
-  //     // Address has invalid checksum.
-  //     req.params.address =
-  //       'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
-  //
-  //     // Call the details API.
-  //     const result = await electrumxRoute.getBalance(req, res)
-  //     // console.log(`result: ${JSON.stringify(result, null, 2)}`)
-  //
-  //     assert.property(result, 'success')
-  //     assert.equal(result.success, false)
-  //
-  //     assert.property(result, 'error')
-  //     assert.include(result.error, 'Unsupported address format')
-  //   })
-  //
-  //   it('should get balance for a single address', async () => {
-  //     req.params.address =
-  //       'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
-  //
-  //     // Mock unit tests to prevent live network calls.
-  //     if (process.env.TEST === 'unit') {
-  //       electrumxRoute.isReady = true // Force flag.
-  //
-  //       sandbox
-  //         .stub(electrumxRoute, '_balanceFromElectrumx')
-  //         .resolves(mockData.balance)
-  //     }
-  //
-  //     // Call the details API.
-  //     const result = await electrumxRoute.getBalance(req, res)
-  //     // console.log(`result: ${JSON.stringify(result, null, 2)}`)
-  //
-  //     assert.property(result, 'success')
-  //     assert.equal(result.success, true)
-  //
-  //     assert.property(result, 'balance')
-  //     assert.property(result.balance, 'confirmed')
-  //     assert.property(result.balance, 'unconfirmed')
   //   })
   // })
 
