@@ -10,7 +10,7 @@
 
 const chai = require('chai')
 const assert = chai.assert
-const xpubRoute = require('../../src/routes/v4/xpub')
+const xpubRoute = require('../../src/routes/v5/xpub')
 const nock = require('nock') // HTTP mocking
 
 // let originalUrl // Used during transition from integration to unit tests.
@@ -119,7 +119,8 @@ describe('#XPUBRouter', () => {
     })
 */
     it('should create an address from xpub', async () => {
-      req.params.xpub = 'tpubDHTK2jqg73w3GwoiHfAMbMYML1HN8FhrUxD9rFgbSgHXdwwrY6pAFqKDfUHhqw7vreaZty5hPGjb1S7ZPQeMmu6TFHAKfY9tJpYbvaGjPRM'
+      req.params.xpub =
+        'tpubDHTK2jqg73w3GwoiHfAMbMYML1HN8FhrUxD9rFgbSgHXdwwrY6pAFqKDfUHhqw7vreaZty5hPGjb1S7ZPQeMmu6TFHAKfY9tJpYbvaGjPRM'
 
       // Mock the Insight URL for unit tests.
       // TODO add unit test

@@ -19,8 +19,8 @@ const nock = require('nock') // HTTP mocking
 const sinon = require('sinon')
 
 // Local libraries
-const Electrumx = require('../../src/routes/v4/electrumx')
-const UtilRoute = require('../../src/routes/v4/util')
+const Electrumx = require('../../src/routes/v5/electrumx')
+const UtilRoute = require('../../src/routes/v5/util')
 
 let originalEnvVars // Used during transition from integration to unit tests.
 

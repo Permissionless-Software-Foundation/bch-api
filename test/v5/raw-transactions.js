@@ -14,7 +14,7 @@
 
 const chai = require('chai')
 const assert = chai.assert
-const Rawtransactions = require('../../src/routes/v4/full-node/rawtransactions')
+const Rawtransactions = require('../../src/routes/v5/full-node/rawtransactions')
 const uut = new Rawtransactions()
 
 // const nock = require('nock') // HTTP mocking
