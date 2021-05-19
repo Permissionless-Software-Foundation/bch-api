@@ -10,7 +10,7 @@
 
 const chai = require('chai')
 const assert = chai.assert
-const MiningRoute = require('../../src/routes/v4/full-node/mining')
+const MiningRoute = require('../../src/routes/v5/full-node/mining')
 const uut = new MiningRoute()
 
 // const nock = require('nock') // HTTP mocking

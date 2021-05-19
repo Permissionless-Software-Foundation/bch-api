@@ -13,7 +13,7 @@ const chai = require('chai')
 const assert = chai.assert
 const sinon = require('sinon')
 
-const Price = require('../../src/routes/v4/price')
+const Price = require('../../src/routes/v5/price')
 let uut
 
 // Mocking data.

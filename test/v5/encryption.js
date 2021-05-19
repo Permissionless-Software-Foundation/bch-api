@@ -19,7 +19,7 @@ const sinon = require('sinon')
 if (!process.env.TEST) process.env.TEST = 'unit'
 
 // Only load blockbook library after setting BLOCKBOOK_URL env var.
-const EncryptionRoute = require('../../src/routes/v4/encryption')
+const EncryptionRoute = require('../../src/routes/v5/encryption')
 const encryptionRoute = new EncryptionRoute()
 
 // Mocking data.

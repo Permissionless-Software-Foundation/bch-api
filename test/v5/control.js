@@ -11,7 +11,7 @@
 
 const chai = require('chai')
 const assert = chai.assert
-const ControlRoute = require('../../src/routes/v4/full-node/control')
+const ControlRoute = require('../../src/routes/v5/full-node/control')
 const uut = new ControlRoute()
 const sinon = require('sinon')
 

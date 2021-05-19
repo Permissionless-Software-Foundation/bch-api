@@ -40,11 +40,11 @@ if (process.env.TEST === 'unit') {
 }
 
 // Prepare the slpRoute for stubbing dependcies on slpjs.
-const SlpRoute = require('../../src/routes/v4/slp')
+const SlpRoute = require('../../src/routes/v5/slp')
 const slpRoute = new SlpRoute()
 
 // const pathStub = {} // Used to stub methods within slpjs.
-// const slpRouteStub = proxyquire('../../src/routes/v4/slp', { slpjs: pathStub })
+// const slpRouteStub = proxyquire('../../src/routes/v5/slp', { slpjs: pathStub })
 
 // Mocking data.
 const { mockReq, mockRes } = require('./mocks/express-mocks')

@@ -12,7 +12,7 @@ const chai = require('chai')
 const assert = chai.assert
 const sinon = require('sinon')
 
-const Blockchain = require('../../src/routes/v4/full-node/blockchain')
+const Blockchain = require('../../src/routes/v5/full-node/blockchain')
 const uut = new Blockchain()
 
 const util = require('util')
