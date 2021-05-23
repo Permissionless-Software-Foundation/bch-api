@@ -243,20 +243,6 @@ describe('#Electrumx', () => {
       assert.property(result, 'success')
       assert.equal(result.success, false)
     })
-    /*     it('should throw 400 if array provided is empty', async () => {
-      req.body.addresses = []
-
-      const result = await electrumxRoute.balanceBulk(req, res)
-      // console.log(`result: ${util.inspect(result)}`)
-
-      assert.equal(res.statusCode, 400, 'Expect 400 status code')
-
-      assert.property(result, 'error')
-      assert.include(result.error, 'addresses needs to be an array')
-
-      assert.property(result, 'success')
-      assert.equal(result.success, false)
-    }) */
 
     it('should throw 400 error if addresses array is too large', async () => {
       const testArray = []
