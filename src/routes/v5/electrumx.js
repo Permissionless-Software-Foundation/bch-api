@@ -26,15 +26,13 @@ let _this
 
 class Electrum {
   constructor () {
-    _this = this
-
-    _this.config = config
-    _this.axios = axios
-    _this.routeUtils = routeUtils
-    _this.bchjs = bchjs
+    this.config = config
+    this.axios = axios
+    this.routeUtils = routeUtils
+    this.bchjs = bchjs
     // _this.bitcore = bitcore
 
-    _this.fulcrumApi = 'http://fulcrum-api.fullstackbch.nl/v1/'
+    this.fulcrumApi = 'http://fulcrum-api.fullstackbch.nl/v1/'
 
     // _this.electrumx = new ElectrumCash(
     //   'bch-api',
@@ -48,21 +46,23 @@ class Electrum {
     // _this.isReady = false
     // _this.connectToServers()
 
-    _this.router = router
-    _this.router.get('/', _this.root)
-    _this.router.get('/balance/:address', _this.getBalance)
-    _this.router.post('/balance', _this.balanceBulk)
-    // _this.router.get('/utxos/:address', _this.getUtxos)
-    // _this.router.post('/utxos', _this.utxosBulk)
-    // _this.router.get('/tx/data/:txid', _this.getTransactionDetails)
-    // _this.router.post('/tx/data', _this.transactionDetailsBulk)
-    // _this.router.post('/tx/broadcast', _this.broadcastTransaction)
-    // _this.router.get('/block/headers/:height', _this.getBlockHeaders)
-    // _this.router.post('/block/headers', _this.blockHeadersBulk)
-    // _this.router.get('/transactions/:address', _this.getTransactions)
-    // _this.router.post('/transactions', _this.transactionsBulk)
-    // _this.router.get('/unconfirmed/:address', _this.getMempool)
-    // _this.router.post('/unconfirmed', _this.mempoolBulk)
+    this.router = router
+    this.router.get('/', this.root)
+    this.router.get('/balance/:address', this.getBalance)
+    this.router.post('/balance', this.balanceBulk)
+    // this.router.get('/utxos/:address', this.getUtxos)
+    // this.router.post('/utxos', this.utxosBulk)
+    // this.router.get('/tx/data/:txid', this.getTransactionDetails)
+    // this.router.post('/tx/data', this.transactionDetailsBulk)
+    // this.router.post('/tx/broadcast', this.broadcastTransaction)
+    // this.router.get('/block/headers/:height', this.getBlockHeaders)
+    // this.router.post('/block/headers', this.blockHeadersBulk)
+    // this.router.get('/transactions/:address', this.getTransactions)
+    // this.router.post('/transactions', this.transactionsBulk)
+    // this.router.get('/unconfirmed/:address', this.getMempool)
+    // this.router.post('/unconfirmed', this.mempoolBulk)
+
+    _this = this
   }
 
   /**
@@ -73,7 +73,7 @@ class Electrum {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/electrumx/balance/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/electrumx/balance/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
    *
    */
   // GET handler for single balance
@@ -109,8 +109,8 @@ class Electrum {
         cashAddr
       )
 
-      const response = await this.axios.get(
-        `${this.fulcrumApi}electrumx/balance/${address}`
+      const response = await _this.axios.get(
+        `${_this.fulcrumApi}electrumx/balance/${address}`
       )
 
       res.status(200)
@@ -131,7 +131,7 @@ class Electrum {
    * Limited to 20 items per request.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/electrumx/balance" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
+   * curl -X POST "https://api.fullstack.cash/v5/electrumx/balance" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
    *
    *
    */
@@ -189,10 +189,11 @@ class Electrum {
         }
       }
 
-      const response = await this.axios.post(
-        `${this.fulcrumApi}electrumx/balance/`,
+      const response = await _this.axios.post(
+        `${_this.fulcrumApi}electrumx/balance/`,
         { addresses }
       )
+
       res.status(200)
       return res.json(response.data)
     } catch (err) {
@@ -244,7 +245,7 @@ class Electrum {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/electrumx/utxos/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/electrumx/utxos/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
    *
    */
   // GET handler for single balance
@@ -313,7 +314,7 @@ class Electrum {
    * Limited to 20 items per request.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/electrumx/utxos" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
+   * curl -X POST "https://api.fullstack.cash/v5/electrumx/utxos" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
    *
    *
    */
@@ -438,7 +439,7 @@ class Electrum {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/electrumx/tx/data/a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/electrumx/tx/data/a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d" -H "accept: application/json"
    *
    */
   // GET handler for single transaction
@@ -498,7 +499,7 @@ class Electrum {
    * Limited to 20 items per request.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/electrumx/tx/data" -H "accept: application/json" -H "Content-Type: application/json" -d '{"txids":["a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d","a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d"], "verbose":false}'
+   * curl -X POST "https://api.fullstack.cash/v5/electrumx/tx/data" -H "accept: application/json" -H "Content-Type: application/json" -d '{"txids":["a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d","a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d"], "verbose":false}'
    *
    *
    */
@@ -599,7 +600,7 @@ class Electrum {
    * @apiDescription Broadcast a raw transaction and return the transaction ID on success or error on failure.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/electrumx/tx/broadcast" -H "accept: application/json" -H "Content-Type: application/json" -d '{"txHex":"020000000265d13ef402840c8a51f39779afb7ae4d49e4b0a3c24a3d0e7742038f2c679667010000006441dd1dd72770cadede1a7fd0363574846c48468a398ddfa41a9677c74cac8d2652b682743725a3b08c6c2021a629011e11a264d9036e9d5311e35b5f4937ca7b4e4121020797d8fd4d2fa6fd7cdeabe2526bfea2b90525d6e8ad506ec4ee3c53885aa309ffffffff65d13ef402840c8a51f39779afb7ae4d49e4b0a3c24a3d0e7742038f2c679667000000006441347d7f218c11c04487c1ad8baac28928fb10e5054cd4494b94d078cfa04ccf68e064fb188127ff656c0b98e9ce87f036d183925d0d0860605877d61e90375f774121028a53f95eb631b460854fc836b2e5d31cad16364b4dc3d970babfbdcc3f2e4954ffffffff035ac355000000000017a914189ce02e332548f4804bac65cba68202c9dbf822878dfd0800000000001976a914285bb350881b21ac89724c6fb6dc914d096cd53b88acf9ef3100000000001976a91445f1f1c4a9b9419a5088a3e9c24a293d7a150e6488ac00000000"}'
+   * curl -X POST "https://api.fullstack.cash/v5/electrumx/tx/broadcast" -H "accept: application/json" -H "Content-Type: application/json" -d '{"txHex":"020000000265d13ef402840c8a51f39779afb7ae4d49e4b0a3c24a3d0e7742038f2c679667010000006441dd1dd72770cadede1a7fd0363574846c48468a398ddfa41a9677c74cac8d2652b682743725a3b08c6c2021a629011e11a264d9036e9d5311e35b5f4937ca7b4e4121020797d8fd4d2fa6fd7cdeabe2526bfea2b90525d6e8ad506ec4ee3c53885aa309ffffffff65d13ef402840c8a51f39779afb7ae4d49e4b0a3c24a3d0e7742038f2c679667000000006441347d7f218c11c04487c1ad8baac28928fb10e5054cd4494b94d078cfa04ccf68e064fb188127ff656c0b98e9ce87f036d183925d0d0860605877d61e90375f774121028a53f95eb631b460854fc836b2e5d31cad16364b4dc3d970babfbdcc3f2e4954ffffffff035ac355000000000017a914189ce02e332548f4804bac65cba68202c9dbf822878dfd0800000000001976a914285bb350881b21ac89724c6fb6dc914d096cd53b88acf9ef3100000000001976a91445f1f1c4a9b9419a5088a3e9c24a293d7a150e6488ac00000000"}'
    *
    */
   // POST handler for broadcasting a single transaction
@@ -690,7 +691,7 @@ class Electrum {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/electrumx/block/header/42?count=2" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/electrumx/block/header/42?count=2" -H "accept: application/json"
    *
    */
   // GET handler for single block headers
@@ -756,7 +757,7 @@ class Electrum {
    * Limited to 20 items per request.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/electrumx/block/headers" -H "accept: application/json" -H "Content-Type: application/json" -d '{"heights":[{ "height": 42, count: 2 }, { "height": 100, count: 5 }]}'
+   * curl -X POST "https://api.fullstack.cash/v5/electrumx/block/headers" -H "accept: application/json" -H "Content-Type: application/json" -d '{"heights":[{ "height": 42, count: 2 }, { "height": 100, count: 5 }]}'
    *
    */
   // POST handler for bulk queries on block headers
@@ -855,7 +856,7 @@ class Electrum {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/electrumx/transactions/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/electrumx/transactions/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
    *
    */
   // GET handler for single balance
@@ -925,7 +926,7 @@ class Electrum {
    * Limited to 20 items per request.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/electrumx/transactions" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
+   * curl -X POST "https://api.fullstack.cash/v5/electrumx/transactions" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
    *
    *
    */
@@ -1048,7 +1049,7 @@ class Electrum {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/electrumx/unconfirmed/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/electrumx/unconfirmed/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
    *
    */
   // GET handler for single balance
@@ -1118,7 +1119,7 @@ class Electrum {
    * Limited to 20 items per request.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/electrumx/unconfirmed" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
+   * curl -X POST "https://api.fullstack.cash/v5/electrumx/unconfirmed" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
    *
    *
    */
