@@ -26,7 +26,19 @@ const balance = {
     unconfirmed: 0
   }
 }
-
+const balances = {
+  success: true,
+  balances: [
+    {
+      balance: { confirmed: 7000, unconfirmed: 0 },
+      address: 'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
+    },
+    {
+      balance: { confirmed: 7000, unconfirmed: 0 },
+      address: 'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+    }
+  ]
+}
 const txHistory = [
   {
     height: 601861,
@@ -128,5 +140,6 @@ module.exports = {
   txHistory,
   mempool,
   txDetails,
-  blockHeaders
+  blockHeaders,
+  balances
 }
