@@ -215,6 +215,161 @@ describe('#Electrumx', () => {
       assert.property(result.balance, 'unconfirmed')
     })
   })
+  describe('#balanceBulk', () => {
+    it('should throw 400 if addresses is empty', async () => {
+      const result = await electrumxRoute.balanceBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'addresses needs to be an array')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw 400 if input provided is not array', async () => {
+      req.body.addresses = 'qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
+
+      const result = await electrumxRoute.balanceBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'addresses needs to be an array')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+    /*     it('should throw 400 if array provided is empty', async () => {
+      req.body.addresses = []
+
+      const result = await electrumxRoute.balanceBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'addresses needs to be an array')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    }) */
+
+    it('should throw 400 error if addresses array is too large', async () => {
+      const testArray = []
+      for (var i = 0; i < 25; i++) testArray.push('')
+
+      req.body.addresses = testArray
+
+      const result = await electrumxRoute.balanceBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Array too large')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw an error for an invalid address', async () => {
+      req.body.addresses = ['02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c']
+
+      const result = await electrumxRoute.balanceBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Invalid BCH address')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should detect a network mismatch', async () => {
+      req.body.addresses = [
+        'bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'
+      ]
+
+      const result = await electrumxRoute.balanceBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Invalid network', 'Proper error message')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should pass errors from electrum-cash to user', async () => {
+      // Address has invalid checksum.
+      req.body.addresses = [
+        'bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur2'
+      ]
+
+      // Call the details API.
+      const result = await electrumxRoute.balanceBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Invalid BCH address')
+    })
+    it('should handle error', async () => {
+      req.body.addresses = [
+        'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7',
+        'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+      ]
+      // Force error
+      sandbox.stub(electrumxRoute.axios, 'post').throws(new Error('Test error'))
+
+      // Call the details API.
+      const result = await electrumxRoute.balanceBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Test error')
+    })
+    it('should get balance for an array of addresses', async () => {
+      req.body.addresses = [
+        'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7',
+        'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+      ]
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.axios, 'post')
+          .resolves({ data: mockData.balances })
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.balanceBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'balances')
+      assert.property(result.balances[0], 'balance')
+      assert.property(result.balances[0], 'address')
+
+      assert.property(result.balances[0].balance, 'confirmed')
+      assert.property(result.balances[0].balance, 'unconfirmed')
+    })
+  })
 
   // describe('#_utxosFromElectrumx', () => {
   //   it('should throw error for invalid address', async () => {

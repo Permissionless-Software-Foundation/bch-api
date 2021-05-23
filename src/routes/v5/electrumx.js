@@ -51,7 +51,7 @@ class Electrum {
     _this.router = router
     _this.router.get('/', _this.root)
     _this.router.get('/balance/:address', _this.getBalance)
-    // _this.router.post('/balance', _this.balanceBulk)
+    _this.router.post('/balance', _this.balanceBulk)
     // _this.router.get('/utxos/:address', _this.getUtxos)
     // _this.router.post('/utxos', _this.utxosBulk)
     // _this.router.get('/tx/data/:txid', _this.getTransactionDetails)
@@ -136,82 +136,72 @@ class Electrum {
    *
    */
   // POST handler for bulk queries on address balance
-  // async balanceBulk (req, res, next) {
-  //   try {
-  //     let addresses = req.body.addresses
-  //
-  //     // Reject if addresses is not an array.
-  //     if (!Array.isArray(addresses)) {
-  //       res.status(400)
-  //       return res.json({
-  //         error: 'addresses needs to be an array. Use GET for single address.'
-  //       })
-  //     }
-  //
-  //     // Enforce array size rate limits
-  //     if (!_this.routeUtils.validateArraySize(req, addresses)) {
-  //       res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
-  //       return res.json({
-  //         error: 'Array too large.'
-  //       })
-  //     }
-  //
-  //     wlogger.debug(
-  //       'Executing electrumx.js/balanceBulk with these addresses: ',
-  //       addresses
-  //     )
-  //
-  //     // Validate each element in the address array.
-  //     for (let i = 0; i < addresses.length; i++) {
-  //       const thisAddress = addresses[i]
-  //
-  //       // Ensure the input is a valid BCH address.
-  //       try {
-  //         _this.bchjs.Address.toLegacyAddress(thisAddress)
-  //       } catch (err) {
-  //         res.status(400)
-  //         return res.json({
-  //           error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`
-  //         })
-  //       }
-  //
-  //       // Prevent a common user error. Ensure they are using the correct network address.
-  //       const networkIsValid = _this.routeUtils.validateNetwork(thisAddress)
-  //       if (!networkIsValid) {
-  //         res.status(400)
-  //         return res.json({
-  //           error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`
-  //         })
-  //       }
-  //     }
-  //
-  //     // Loops through each address and creates an array of Promises, querying
-  //     // ElectrumX API in parallel.
-  //     addresses = addresses.map(async (address, index) => {
-  //       // console.log(`address: ${address}`)
-  //       const balance = await _this._balanceFromElectrumx(address)
-  //
-  //       return {
-  //         balance,
-  //         address
-  //       }
-  //     })
-  //
-  //     // Wait for all parallel Insight requests to return.
-  //     const result = await Promise.all(addresses)
-  //
-  //     // Return the array of retrieved address information.
-  //     res.status(200)
-  //     return res.json({
-  //       success: true,
-  //       balances: result
-  //     })
-  //   } catch (err) {
-  //     wlogger.error('Error in electrumx.js/balanceBulk().', err)
-  //
-  //     return _this.errorHandler(err, res)
-  //   }
-  // }
+  async balanceBulk (req, res, next) {
+    try {
+      const addresses = req.body.addresses
+
+      // Reject if addresses is not an array.
+      if (!Array.isArray(addresses)) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'addresses needs to be an array. Use GET for single address.'
+        })
+      }
+
+      // Enforce array size rate limits
+      if (!_this.routeUtils.validateArraySize(req, addresses)) {
+        res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        return res.json({
+          success: false,
+          error: 'Array too large.'
+        })
+      }
+
+      wlogger.debug(
+        'Executing electrumx.js/balanceBulk with these addresses: ',
+        addresses
+      )
+
+      // Validate each element in the address array.
+      for (let i = 0; i < addresses.length; i++) {
+        const thisAddress = addresses[i]
+
+        // Ensure the input is a valid BCH address.
+        try {
+          _this.bchjs.Address.toLegacyAddress(thisAddress)
+        } catch (err) {
+          res.status(400)
+          return res.json({
+            success: false,
+            error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`
+          })
+        }
+
+        // Prevent a common user error. Ensure they are using the correct network address.
+        const networkIsValid = _this.routeUtils.validateNetwork(thisAddress)
+        if (!networkIsValid) {
+          res.status(400)
+          return res.json({
+            success: false,
+            error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`
+          })
+        }
+      }
+
+      const response = await this.axios.post(
+        `${this.fulcrumApi}electrumx/balance/`,
+        { addresses }
+      )
+      res.status(200)
+      return res.json(response.data)
+    } catch (err) {
+      // Write out error to error log.
+      wlogger.error('Error in electrumx.js/balanceBulk().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
 
   // Returns a promise that resolves to UTXO data for an address. Expects input
   // to be a cash address, and input validation to have already been done by
