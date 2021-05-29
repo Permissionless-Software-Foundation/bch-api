@@ -19,6 +19,43 @@ const utxos = [
   }
 ]
 
+const utxosArray = {
+  success: true,
+  utxos: [
+    {
+      utxos: [
+        {
+          height: 601861,
+          tx_hash:
+            '6181c669614fa18039a19b23eb06806bfece1f7514ab457c3bb82a40fe171a6d',
+          tx_pos: 0,
+          value: 1000
+        }
+      ],
+      address: 'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
+    },
+    {
+      utxos: [
+        {
+          height: 604392,
+          tx_hash:
+            '7774e449c5a3065144cefbc4c0c21e6b69c987f095856778ef9f45ddd8ae1a41',
+          tx_pos: 0,
+          value: 1000
+        },
+        {
+          height: 630834,
+          tx_hash:
+            '4fe60a51e0d8f5134bfd8e5f872d6e502d7f01b28a6afebb27f4438a4f638d53',
+          tx_pos: 0,
+          value: 6000
+        }
+      ],
+      address: 'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+    }
+  ]
+}
+
 const balance = {
   success: true,
   balance: {
@@ -136,6 +173,7 @@ const blockHeaders = [
 
 module.exports = {
   utxos,
+  utxosArray,
   balance,
   txHistory,
   mempool,

@@ -24,8 +24,8 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coverage:report": "export NETWORK=mainnet && nyc --reporter=html mocha --timeout 25000 test/v4/",
     "docs": "./node_modules/.bin/apidoc -i src/routes/v4 -o docs",
-    "test:temp1": "export NETWORK=mainnet && export TEST=integration && mocha -g '#balanceBulk' --exit --timeout 30000 test/v5/",
-    "test:temp2": "export NETWORK=mainnet && mocha -g '#balanceBulk' --exit --timeout 30000 test/v5/"
+    "test:temp1": "export NETWORK=mainnet && export TEST=integration && mocha -g '#utxosBulk' --exit --timeout 30000 test/v5/",
+    "test:temp2": "export NETWORK=mainnet && mocha -g '#utxosBulk' --exit --timeout 30000 test/v5/"
   },
   "engines": {
     "node": ">=10.15.1"
