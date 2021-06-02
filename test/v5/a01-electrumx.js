@@ -609,6 +609,274 @@ describe('#Electrumx', () => {
     })
   })
 
+  describe('#getTransactionDetails', () => {
+    it('should throw 400 if tx is empty', async () => {
+      const result = await electrumxRoute.getTransactionDetails(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'txid must be a string')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw 400 on array input', async () => {
+      req.params.txid = [
+        'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d'
+      ]
+
+      const result = await electrumxRoute.getTransactionDetails(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'txid must be a string')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should pass errors from electrum-cash to user', async () => {
+      req.params.txid = '02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
+
+      const result = await electrumxRoute.getTransactionDetails(req, res)
+
+      assert.property(result, 'error')
+      assert.include(result.error.error, 'Invalid tx hash')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should get details for a single tx', async () => {
+      req.params.txid =
+        'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d'
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.axios, 'get')
+          .resolves({ data: { success: true, details: mockData.txDetails } })
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.getTransactionDetails(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'details')
+      assert.property(result.details, 'blockhash')
+      assert.property(result.details, 'blocktime')
+      assert.property(result.details, 'confirmations')
+      assert.property(result.details, 'hash')
+      assert.property(result.details, 'hex')
+      assert.property(result.details, 'locktime')
+      assert.property(result.details, 'size')
+      assert.property(result.details, 'time')
+      assert.property(result.details, 'txid')
+      assert.property(result.details, 'version')
+      assert.property(result.details, 'vin')
+      assert.property(result.details, 'vout')
+    })
+  })
+
+  describe('#transactionDetailsBulk', () => {
+    it('should throw 400 if txids is empty', async () => {
+      const result = await electrumxRoute.transactionDetailsBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'txids needs to be an array')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw 400 if input provided is not array', async () => {
+      req.body.txids =
+        'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d'
+
+      const result = await electrumxRoute.transactionDetailsBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'txids needs to be an array')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw 400 error if addresses array is too large', async () => {
+      const testArray = []
+      for (var i = 0; i < 25; i++) testArray.push('')
+
+      req.body.txids = testArray
+
+      const result = await electrumxRoute.transactionDetailsBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Array too large')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should handle error', async () => {
+      req.body.txids = [
+        'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d',
+        'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d'
+      ]
+      // Force error
+      sandbox.stub(electrumxRoute.axios, 'post').throws(new Error('Test error'))
+
+      // Call the details API.
+      const result = await electrumxRoute.transactionDetailsBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Test error')
+    })
+    /*     it('should pass errors from electrum-cash to user', async () => {
+      req.body.txids = [
+        '02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c',
+        '02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
+      ]
+
+      // Call the details API.
+      const result = await electrumxRoute.transactionDetailsBulk(req, res)
+      console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Test error')
+    }) */
+    it('should get details for an array of tx', async () => {
+      req.body.txids = [
+        'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d'
+      ]
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.axios, 'post')
+          .resolves({ data: mockData.txDetailsBulk })
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.transactionDetailsBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'transactions')
+      const tx = result.transactions[0]
+
+      assert.property(tx, 'details')
+      assert.property(tx.details, 'blockhash')
+      assert.property(tx.details, 'blocktime')
+      assert.property(tx.details, 'confirmations')
+      assert.property(tx.details, 'hash')
+      assert.property(tx.details, 'hex')
+      assert.property(tx.details, 'locktime')
+      assert.property(tx.details, 'size')
+      assert.property(tx.details, 'time')
+      assert.property(tx.details, 'txid')
+      assert.property(tx.details, 'version')
+      assert.property(tx.details, 'vin')
+      assert.property(tx.details, 'vout')
+    })
+  })
+
+  describe('#broadcastTransaction', () => {
+    it('should throw 400 if txHex is empty', async () => {
+      const result = await electrumxRoute.broadcastTransaction(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'request body must be a string')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw 400 on invalid input type', async () => {
+      req.body.txHex = [mockData.txDetails.hex]
+
+      const result = await electrumxRoute.broadcastTransaction(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'request body must be a string')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should pass errors from electrum-cash to user', async () => {
+      req.body.txHex = mockData.txDetails.hex.substring(10)
+      const result = await electrumxRoute.broadcastTransaction(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error.error, 'the transaction was rejected')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should broadcast transaction', async function () {
+      req.body.txHex = mockData.txDetails.hex
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.axios, 'post')
+          .resolves({ data: { success: true, txid: mockData.txDetails.hash } })
+      } else {
+        return this.skip()
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.broadcastTransaction(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'txid')
+      assert.isString(result.txid)
+    })
+  })
+
   // describe('#_utxosFromElectrumx', () => {
   //   it('should throw error for invalid address', async () => {
   //     try {
