@@ -176,6 +176,10 @@ const blockHeaders = [
   '01000000f528fac1bcb685d0cd6c792320af0300a5ce15d687c7149548904e31000000004e8985a786d864f21e9cbb7cbdf4bc9265fe681b7a0893ac55a8e919ce035c2f85de6849ffff001d385ccb7c'
 ]
 
+const blockHeadersBulk = {
+  success: true,
+  headers: [{ headers: blockHeaders }, { headers: blockHeaders }]
+}
 module.exports = {
   utxos,
   utxosArray,
@@ -185,5 +189,6 @@ module.exports = {
   txDetails,
   txDetailsBulk,
   blockHeaders,
+  blockHeadersBulk,
   balances
 }

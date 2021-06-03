@@ -55,8 +55,8 @@ class Electrum {
     this.router.get('/tx/data/:txid', this.getTransactionDetails)
     this.router.post('/tx/data', this.transactionDetailsBulk)
     this.router.post('/tx/broadcast', this.broadcastTransaction)
-    // this.router.get('/block/headers/:height', this.getBlockHeaders)
-    // this.router.post('/block/headers', this.blockHeadersBulk)
+    this.router.get('/block/headers/:height', this.getBlockHeaders)
+    this.router.post('/block/headers', this.blockHeadersBulk)
     // this.router.get('/transactions/:address', this.getTransactions)
     // this.router.post('/transactions', this.transactionsBulk)
     // this.router.get('/unconfirmed/:address', this.getMempool)
@@ -633,63 +633,51 @@ class Electrum {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v5/electrumx/block/header/42?count=2" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/electrumx/block/headers/42?count=2" -H "accept: application/json"
    *
    */
   // GET handler for single block headers
-  // async getBlockHeaders (req, res, next) {
-  //   try {
-  //     const height = Number(req.params.height)
-  //     const count = req.query.count === undefined ? 1 : Number(req.query.count)
-  //
-  //     // Reject if height is not a number
-  //     if (Number.isNaN(height) || height < 0) {
-  //       res.status(400)
-  //       return res.json({
-  //         success: false,
-  //         error: 'height must be a positive number'
-  //       })
-  //     }
-  //
-  //     // Reject if height is not a number
-  //     if (Number.isNaN(count) || count < 0) {
-  //       res.status(400)
-  //       return res.json({
-  //         success: false,
-  //         error: 'count must be a positive number'
-  //       })
-  //     }
-  //
-  //     wlogger.debug(
-  //       'Executing electrumx/getBlockHeaders with this height: ',
-  //       height
-  //     )
-  //
-  //     // Get data from ElectrumX server.
-  //     const electrumResponse = await _this._blockHeadersFromElectrum(height, count)
-  //     // console.log(`_transactionDetailsFromElectrum(): ${JSON.stringify(electrumResponse, null, 2)}`)
-  //
-  //     // Pass the error message if ElectrumX reports an error.
-  //     if (electrumResponse instanceof Error) {
-  //       res.status(400)
-  //       return res.json({
-  //         success: false,
-  //         error: electrumResponse.message
-  //       })
-  //     }
-  //
-  //     res.status(200)
-  //     return res.json({
-  //       success: true,
-  //       headers: electrumResponse
-  //     })
-  //   } catch (err) {
-  //     // Write out error to error log.
-  //     wlogger.error('Error in elecrumx.js/getBlockHeader().', err)
-  //
-  //     return _this.errorHandler(err, res)
-  //   }
-  // }
+  async getBlockHeaders (req, res, next) {
+    try {
+      const height = Number(req.params.height)
+      const count = req.query.count === undefined ? 1 : Number(req.query.count)
+
+      // Reject if height is not a number
+      if (Number.isNaN(height) || height < 0) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'height must be a positive number'
+        })
+      }
+
+      // Reject if height is not a number
+      if (Number.isNaN(count) || count < 0) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'count must be a positive number'
+        })
+      }
+
+      wlogger.debug(
+        'Executing electrumx/getBlockHeaders with this height: ',
+        height
+      )
+
+      const response = await _this.axios.get(
+        `${_this.fulcrumApi}electrumx/block/headers/${height}?count=${count}`
+      )
+
+      res.status(200)
+      return res.json(response.data)
+    } catch (err) {
+      // Write out error to error log.
+      wlogger.error('Error in elecrumx.js/getBlockHeader().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
 
   /**
    * @api {post} /electrumx/block/headers Get block headers for an array of height + count pairs
@@ -699,63 +687,50 @@ class Electrum {
    * Limited to 20 items per request.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v5/electrumx/block/headers" -H "accept: application/json" -H "Content-Type: application/json" -d '{"heights":[{ "height": 42, count: 2 }, { "height": 100, count: 5 }]}'
+   * curl -X POST "https://api.fullstack.cash/v5/electrumx/block/headers" -H "accept: application/json" -H "Content-Type: application/json" -d '{"heights":[{ "height": 42, "count": 2 }, { "height": 100, "count": 5 }]}'
    *
    */
   // POST handler for bulk queries on block headers
-  // async blockHeadersBulk (req, res, next) {
-  //   try {
-  //     const heights = req.body.heights
-  //
-  //     // Reject if heights is not an array.
-  //     if (!Array.isArray(heights)) {
-  //       res.status(400)
-  //       return res.json({
-  //         success: false,
-  //         error: 'heights needs to be an array. Use GET for single height.'
-  //       })
-  //     }
-  //
-  //     // Enforce array size rate limits
-  //     if (!_this.routeUtils.validateArraySize(req, heights)) {
-  //       res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
-  //       return res.json({
-  //         success: false,
-  //         error: 'Array too large.'
-  //       })
-  //     }
-  //
-  //     wlogger.debug(
-  //       'Executing electrumx.js/blockHeadersBulk with these txids: ',
-  //       heights
-  //     )
-  //
-  //     // Loops through each address and creates an array of Promises, querying
-  //     // the Electrum server in parallel.
-  //     const transactions = heights.map(async (obj) => {
-  //       const headers = await _this._blockHeadersFromElectrum(
-  //         obj.height,
-  //         obj.count
-  //       )
-  //
-  //       return { headers }
-  //     })
-  //
-  //     // Wait for all parallel Electrum requests to return.
-  //     const result = await Promise.all(transactions)
-  //
-  //     // Return the array of retrieved transaction details.
-  //     res.status(200)
-  //     return res.json({
-  //       success: true,
-  //       headers: result
-  //     })
-  //   } catch (err) {
-  //     wlogger.error('Error in electrumx.js/blockHeadersBulk().', err)
-  //
-  //     return _this.errorHandler(err, res)
-  //   }
-  // }
+  async blockHeadersBulk (req, res, next) {
+    try {
+      const heights = req.body.heights
+
+      // Reject if heights is not an array.
+      if (!Array.isArray(heights)) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'heights needs to be an array. Use GET for single height.'
+        })
+      }
+
+      // Enforce array size rate limits
+      if (!_this.routeUtils.validateArraySize(req, heights)) {
+        res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        return res.json({
+          success: false,
+          error: 'Array too large.'
+        })
+      }
+
+      wlogger.debug(
+        'Executing electrumx.js/blockHeadersBulk with these txids: ',
+        heights
+      )
+
+      const response = await _this.axios.post(
+        `${_this.fulcrumApi}electrumx/block/headers`,
+        { heights }
+      )
+
+      res.status(200)
+      return res.json(response.data)
+    } catch (err) {
+      wlogger.error('Error in electrumx.js/blockHeadersBulk().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
 
   // Returns a promise that resolves an array of transaction history for an
   // address. Expects input to be a cash address, and input validation to have
