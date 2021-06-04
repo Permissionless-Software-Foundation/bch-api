@@ -752,22 +752,7 @@ describe('#Electrumx', () => {
       assert.property(result, 'error')
       assert.include(result.error, 'Test error')
     })
-    /*     it('should pass errors from electrum-cash to user', async () => {
-      req.body.txids = [
-        '02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c',
-        '02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
-      ]
 
-      // Call the details API.
-      const result = await electrumxRoute.transactionDetailsBulk(req, res)
-      console.log(`result: ${JSON.stringify(result, null, 2)}`)
-
-      assert.property(result, 'success')
-      assert.equal(result.success, false)
-
-      assert.property(result, 'error')
-      assert.include(result.error, 'Test error')
-    }) */
     it('should get details for an array of tx', async () => {
       req.body.txids = [
         'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d'
@@ -874,6 +859,247 @@ describe('#Electrumx', () => {
 
       assert.property(result, 'txid')
       assert.isString(result.txid)
+    })
+  })
+
+  describe('#getBlockHeaders', () => {
+    it('should throw 400 if height is empty', async () => {
+      const result = await electrumxRoute.getBlockHeaders(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'height must be a positive number')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+    it('should throw 400 if height is not a number', async () => {
+      req.params.height = 'wrong type'
+
+      const result = await electrumxRoute.getBlockHeaders(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'height must be a positive number')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+    it('should throw 400 if height is negative', async () => {
+      req.params.height = -1
+
+      const result = await electrumxRoute.getBlockHeaders(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'height must be a positive number')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw 400 if count is not a number', async () => {
+      req.params.height = 2
+      req.query.count = 'wrong type'
+
+      const result = await electrumxRoute.getBlockHeaders(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'count must be a positive number')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw 400 if count is negative', async () => {
+      req.params.height = 2
+      req.query.count = -1
+
+      const result = await electrumxRoute.getBlockHeaders(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'count must be a positive number')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should pass errors from electrum-cash to user', async () => {
+      req.params.height = 99999999999999
+      req.query.count = 99999999999999
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox.stub(electrumxRoute.axios, 'get').resolves({
+          data: { success: false, error: { error: 'Invalid height' } }
+        })
+      }
+      // Call the details API.
+      const result = await electrumxRoute.getBlockHeaders(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+
+      assert.property(result, 'error')
+      assert.include(result.error.error, 'Invalid height')
+    })
+    it('should handle error', async () => {
+      req.params.height = 42
+      req.query.count = 2
+      // Force error
+      sandbox.stub(electrumxRoute.axios, 'get').throws(new Error('Test error'))
+
+      // Call the details API.
+      const result = await electrumxRoute.getBlockHeaders(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Test error')
+    })
+
+    it('should get headers for a single block height with count 2', async () => {
+      req.params.height = 42
+      req.query.count = 2
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox.stub(electrumxRoute.axios, 'get').resolves({
+          data: { success: true, headers: mockData.blockHeaders }
+        })
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.getBlockHeaders(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'headers')
+      assert.isArray(result.headers)
+      assert.deepEqual(result.headers, mockData.blockHeaders)
+    })
+  })
+  describe('#blockHeadersBulk', () => {
+    it('should throw 400 for an empty body', async () => {
+      const result = await electrumxRoute.blockHeadersBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'heights needs to be an array')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should NOT throw 400 error for an invalid height', async () => {
+      req.body = {
+        heights: [{ height: -10, count: 2 }]
+      }
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox.stub(electrumxRoute.axios, 'post').resolves({
+          data: { success: true, headers: [{ headers: {} }] }
+        })
+      }
+      const result = await electrumxRoute.blockHeadersBulk(req, res)
+      console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 200, 'Expect 200 status code')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'headers')
+      assert.isArray(result.headers)
+      assert.property(result.headers[0], 'headers')
+    })
+
+    it('should throw 400 error if heights array is too large', async () => {
+      const testArray = []
+      for (var i = 0; i < 25; i++) testArray.push('')
+
+      req.body.heights = testArray
+
+      const result = await electrumxRoute.blockHeadersBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Array too large')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should handle error', async () => {
+      req.body = {
+        heights: [
+          { height: 42, count: 2 },
+          { height: 42, count: 2 }
+        ]
+      }
+
+      // Force error
+      sandbox.stub(electrumxRoute.axios, 'post').throws(new Error('Test error'))
+
+      // Call the details API.
+      const result = await electrumxRoute.blockHeadersBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Test error')
+    })
+    it('should get block heights', async () => {
+      req.body = {
+        heights: [
+          { height: 42, count: 2 },
+          { height: 42, count: 2 }
+        ]
+      }
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+        sandbox
+          .stub(electrumxRoute.axios, 'post')
+          .resolves({ data: mockData.blockHeadersBulk })
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.blockHeadersBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'headers')
+      assert.isArray(result.headers)
+      assert.property(result.headers[0], 'headers')
     })
   })
 
