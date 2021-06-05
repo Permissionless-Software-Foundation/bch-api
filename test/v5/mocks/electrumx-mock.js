@@ -180,6 +180,31 @@ const blockHeadersBulk = {
   success: true,
   headers: [{ headers: blockHeaders }, { headers: blockHeaders }]
 }
+
+const transactions = [
+  {
+    height: 603416,
+    tx_hash: 'eef683d236d88e978bd406419f144057af3fe1b62ef59162941c1a9f05ded62c'
+  },
+  {
+    height: 646894,
+    tx_hash: '4c695fae636f3e8e2edc571d11756b880ccaae744390f3950d798ce7b5e25754'
+  }
+]
+
+const transactionsBulk = {
+  success: true,
+  transactions: [
+    {
+      transactions,
+      address: 'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
+    },
+    {
+      transactions,
+      address: 'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
+    }
+  ]
+}
 module.exports = {
   utxos,
   utxosArray,
@@ -190,5 +215,7 @@ module.exports = {
   txDetailsBulk,
   blockHeaders,
   blockHeadersBulk,
-  balances
+  balances,
+  transactions,
+  transactionsBulk
 }
