@@ -84,8 +84,8 @@ class RouteUtils {
       if (network === 'mainnet' && addrIsMain) return true
 
       // Return true if the network and address both match regtest
-      const addrIsMain = this.bchjs.Address.isRegTestAddress(cashAddr)
-      if (network === 'regtest' && addrIsMain) return true
+      const addrIsRegtest = this.bchjs.Address.isRegTestAddress(cashAddr)
+      if (network === 'regtest' && addrIsRegtest) return true
 
       return false
     } catch (err) {
