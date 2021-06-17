@@ -32,7 +32,12 @@ class Electrum {
     this.bchjs = bchjs
     // _this.bitcore = bitcore
 
-    this.fulcrumApi = 'http://fulcrum-api.fullstackbch.nl/v1/'
+    this.fulcrumApi = process.env.FULCRUM_API
+    if (!this.fulcrumApi) {
+      throw new Error(
+        'FULCRUM_API env var not set. Can not connect to Fulcrum indexer.'
+      )
+    }
 
     // _this.electrumx = new ElectrumCash(
     //   'bch-api',
