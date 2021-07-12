@@ -23,7 +23,7 @@
     "test:integration:nft": "mocha --timeout 25000 -g '#nft' test/v4/integration/nft.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coverage:report": "export NETWORK=mainnet && nyc --reporter=html mocha --timeout 25000 test/v4/",
-    "docs": "./node_modules/.bin/apidoc -i src/routes/v4 -o docs",
+    "docs": "./node_modules/.bin/apidoc -i src/routes/v5 -o docs",
     "test:temp1": "export NETWORK=mainnet && export TEST=integration && mocha -g '#utxosBulk' --exit --timeout 30000 test/v5/",
     "test:temp2": "export NETWORK=mainnet && mocha -g '#utxosBulk' --exit --timeout 30000 test/v5/"
   },
@@ -86,6 +86,6 @@
   },
   "apidoc": {
     "title": "bch-api",
-    "url": "https://api.fullstack.cash/v4"
+    "url": "https://api.fullstack.cash/v5"
   }
 }

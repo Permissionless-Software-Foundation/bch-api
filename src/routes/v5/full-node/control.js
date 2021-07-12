@@ -75,42 +75,6 @@ class Control {
       return _this.errorHandler(error, res)
     }
   }
-  // router.get('/getMemoryInfo', (req, res, next) => {
-  //   BitboxHTTP({
-  //     method: 'post',
-  //     auth: {
-  //       username: username,
-  //       password: password
-  //     },
-  //     data: {
-  //       jsonrpc: "1.0",
-  //       id:"getmemoryinfo",
-  //       method: "getmemoryinfo"
-  //     }
-  //   })
-  //   .then((response) => {
-  //     res.json(response.data.result);
-  //   })
-  //   .catch((error) => {
-  //     res.send(error.response.data.error.message);
-  //   });
-  // });
-  //
-  // router.get('/help', (req, res, next) => {
-  //   BITBOX.Control.help()
-  //   .then((result) => {
-  //     res.json(result);
-  //   }, (err) => { console.log(err);
-  //   });
-  // });
-  //
-  // router.post('/stop', (req, res, next) => {
-  //   BITBOX.Control.stop()
-  //   .then((result) => {
-  //     res.json(result);
-  //   }, (err) => { console.log(err);
-  //   });
-  // });
 }
 
 module.exports = Control
