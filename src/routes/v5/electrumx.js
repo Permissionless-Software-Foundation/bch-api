@@ -34,6 +34,7 @@ class Electrum {
 
     this.fulcrumApi = process.env.FULCRUM_API
     if (!this.fulcrumApi) {
+      // console.warn('FULCRUM_API env var not set. Can not connect to Fulcrum indexer.')
       throw new Error(
         'FULCRUM_API env var not set. Can not connect to Fulcrum indexer.'
       )
@@ -451,11 +452,13 @@ class Electrum {
       const response = await _this.axios.get(
         `${_this.fulcrumApi}electrumx/tx/data/${txid}`
       )
-      // console.log(`_transactionDetailsFromElectrum(): ${JSON.stringify(electrumResponse, null, 2)}`)
+      // console.log(`response.data: ${JSON.stringify(response.data, null, 2)}`)
 
       res.status(200)
       return res.json(response.data)
     } catch (err) {
+      console.log('err: ', err)
+
       // Write out error to error log.
       wlogger.error('Error in elecrumx.js/getTransactionDetails().', err)
 
@@ -1085,6 +1088,9 @@ class Electrum {
   errorHandler (err, res) {
     // Attempt to decode the error message.
     const { msg, status } = _this.routeUtils.decodeError(err)
+    // console.log('errorHandler msg: ', msg)
+    // console.log('errorHandler status: ', status)
+
     if (msg) {
       res.status(status)
       return res.json({ success: false, error: msg })
