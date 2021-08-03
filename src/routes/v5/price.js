@@ -64,7 +64,7 @@ class Price {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/price/usd" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/price/usd" -H "accept: application/json"
    *
    */
   async getUSD (req, res, next) {
@@ -96,7 +96,7 @@ class Price {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/price/rates" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/price/rates" -H "accept: application/json"
    *
    */
   // Get rates for several different currencies
@@ -129,7 +129,7 @@ class Price {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/price/bchausd" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/price/bchausd" -H "accept: application/json"
    *
    */
   async getBCHAUSD (req, res, next) {
@@ -163,7 +163,7 @@ class Price {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/price/bchusd" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/price/bchusd" -H "accept: application/json"
    *
    */
   async getBCHUSD (req, res, next) {

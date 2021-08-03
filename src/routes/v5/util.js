@@ -14,7 +14,7 @@ util.inspect.defaultOptions = { depth: 1 }
 
 const BCHJS = require('@psf/bch-js')
 const bchjs = new BCHJS()
-// const BCHJS_TESTNET = 'https://testnet.bchjs.cash/v4/'
+// const BCHJS_TESTNET = 'https://testnet.bchjs.cash/v5/'
 
 // const bchjsHTTP = axios.create({
 //   baseURL: process.env.RPC_BASEURL
@@ -75,7 +75,7 @@ class UtilRoute {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/util/validateAddress/bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/util/validateAddress/bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c" -H "accept: application/json"
    *
    *
    */
@@ -124,8 +124,8 @@ class UtilRoute {
    *
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/util/validateAddress" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c","bitcoincash:qrehqueqhw629p6e57994436w730t4rzasnly00ht0"]}'
-   * curl -X POST "https://api.fullstack.cash/v4/util/validateAddress" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c","bitcoincash:qrehqueqhw629p6e57994436w730t4rzasnly00ht0"],"from": 1, "to": 5}'
+   * curl -X POST "https://api.fullstack.cash/v5/util/validateAddress" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c","bitcoincash:qrehqueqhw629p6e57994436w730t4rzasnly00ht0"]}'
+   * curl -X POST "https://api.fullstack.cash/v5/util/validateAddress" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qzs02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c","bitcoincash:qrehqueqhw629p6e57994436w730t4rzasnly00ht0"],"from": 1, "to": 5}'
    *
    *
    */
@@ -227,8 +227,8 @@ class UtilRoute {
    *
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/util/sweep" -H "accept: application/json" -H "Content-Type: application/json" -d '{"wif":"Kz52sdXLAiKtH82iAFRi6aTZanWtW5Eyv37KWdpY6tTv7pjoHste", "balanceOnly": true}'
-   * curl -X POST "https://api.fullstack.cash/v4/util/sweep" -H "accept: application/json" -H "Content-Type: application/json" -d '{"wif":"Kz52sdXLAiKtH82iAFRi6aTZanWtW5Eyv37KWdpY6tTv7pjoHste", "toAddr": "bitcoincash:qpt8m4kqu963geedyrur6pdggqmv5kxwnq0rn322qu"}'
+   * curl -X POST "https://api.fullstack.cash/v5/util/sweep" -H "accept: application/json" -H "Content-Type: application/json" -d '{"wif":"Kz52sdXLAiKtH82iAFRi6aTZanWtW5Eyv37KWdpY6tTv7pjoHste", "balanceOnly": true}'
+   * curl -X POST "https://api.fullstack.cash/v5/util/sweep" -H "accept: application/json" -H "Content-Type: application/json" -d '{"wif":"Kz52sdXLAiKtH82iAFRi6aTZanWtW5Eyv37KWdpY6tTv7pjoHste", "toAddr": "bitcoincash:qpt8m4kqu963geedyrur6pdggqmv5kxwnq0rn322qu"}'
    *
    *
    */

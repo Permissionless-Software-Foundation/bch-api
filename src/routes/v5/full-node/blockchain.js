@@ -81,7 +81,7 @@ class Blockchain {
    * block chain.
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/blockchain/getBestBlockHash" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/blockchain/getBestBlockHash" -H "accept: application/json"
    *
    * @apiSuccess {String}   bestBlockHash           000000000000000002bc884334336d99c9a9c616670a9244c6a8c1fc35aa91a1
    */
@@ -112,7 +112,7 @@ class Blockchain {
    * @apiDescription Returns an object containing various state info regarding blockchain processing.
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/blockchain/getBlockchainInfo" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/blockchain/getBlockchainInfo" -H "accept: application/json"
    *
    * @apiSuccess {Object}   object                      Object containing data
    * @apiSuccess {String}   object.chain                "main"
@@ -156,7 +156,7 @@ class Blockchain {
    * @apiDescription Returns the number of blocks in the longest blockchain.
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/blockchain/getBlockCount" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/blockchain/getBlockCount" -H "accept: application/json"
    *
    * @apiSuccess {Number} bestBlockCount  587665
    */
@@ -189,7 +189,7 @@ class Blockchain {
    * returns an Object with information about blockheader hash.
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/blockchain/getBlockHeader/000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201?verbose=true" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/blockchain/getBlockHeader/000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201?verbose=true" -H "accept: application/json"
    *
    * @apiParam {String} hash block hash
    * @apiParam {Boolean} verbose Return verbose data
@@ -250,7 +250,7 @@ class Blockchain {
    * returns an Object with information about blockheader hash.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/blockchain/getBlockHeader" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"hashes\":[\"000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201\",\"00000000000000000568f0a96bf4348847bc84e455cbfec389f27311037a20f3\"],\"verbose\":true}"
+   * curl -X POST "https://api.fullstack.cash/v5/blockchain/getBlockHeader" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"hashes\":[\"000000000000000005e14d3f9fdfb70745308706615cfa9edca4f4558332b201\",\"00000000000000000568f0a96bf4348847bc84e455cbfec389f27311037a20f3\"],\"verbose\":true}"
    *
    * @apiParam {String} hash block hash
    * @apiParam {Boolean} verbose Return verbose data
@@ -342,7 +342,7 @@ class Blockchain {
    * including the main chain as well as orphaned branches.
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/blockchain/getChainTips" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/blockchain/getChainTips" -H "accept: application/json"
    *
    */
   async getChainTips (req, res, next) {
@@ -373,7 +373,7 @@ class Blockchain {
    * power on the network.
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/blockchain/getDifficulty" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/blockchain/getDifficulty" -H "accept: application/json"
    *
    */
   async getDifficulty (req, res, next) {
@@ -405,7 +405,7 @@ class Blockchain {
    * mempool (unconfirmed)
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/blockchain/getMempoolEntry/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/blockchain/getMempoolEntry/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
    *
    */
   async getMempoolEntrySingle (req, res, next) {
@@ -443,7 +443,7 @@ class Blockchain {
    * @apiDescription Returns mempool data for multiple transactions
    *
    * @apiExample Example usage:
-   * curl -X POST https://api.fullstack.cash/v4/blockchain/getMempoolEntry -H "Content-Type: application/json" -d "{\"txids\":[\"a5f972572ee1753e2fd2457dd61ce5f40fa2f8a30173d417e49feef7542c96a1\",\"5165dc531aad05d1149bb0f0d9b7bda99c73e2f05e314bcfb5b4bb9ca5e1af5e\"]}"
+   * curl -X POST https://api.fullstack.cash/v5/blockchain/getMempoolEntry -H "Content-Type: application/json" -d "{\"txids\":[\"a5f972572ee1753e2fd2457dd61ce5f40fa2f8a30173d417e49feef7542c96a1\",\"5165dc531aad05d1149bb0f0d9b7bda99c73e2f05e314bcfb5b4bb9ca5e1af5e\"]}"
    */
   async getMempoolEntryBulk (req, res, next) {
     try {
@@ -516,7 +516,7 @@ class Blockchain {
    * against the 25 ancestor chain-limit.
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/blockchain/getMempoolAncestors/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/blockchain/getMempoolAncestors/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
    *
    */
   async getMempoolAncestorsSingle (req, res, next) {
@@ -558,7 +558,7 @@ class Blockchain {
    * @apiDescription Returns details on the active state of the TX memory pool.
    *
    * @apiExample Example usage:
-   * curl -X GET https://api.fullstack.cash/v4/getMempoolInfo -H "accept: application/json"
+   * curl -X GET https://api.fullstack.cash/v5/getMempoolInfo -H "accept: application/json"
    *
    */
   async getMempoolInfo (req, res, next) {
@@ -588,7 +588,7 @@ class Blockchain {
    * @apiDescription Returns details on the active state of the TX memory pool.
    *
    * @apiExample Example usage:
-   * curl -X GET https://api.fullstack.cash/v4/getMempoolInfo -H "accept: application/json"
+   * curl -X GET https://api.fullstack.cash/v5/getMempoolInfo -H "accept: application/json"
    *
    */
 
@@ -600,7 +600,7 @@ class Blockchain {
    * of string transaction ids.
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/getRawMempool/?verbose=true" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/getRawMempool/?verbose=true" -H "accept: application/json"
    *
    * @apiParam {Boolean} verbose Return verbose data
    *
@@ -636,7 +636,7 @@ class Blockchain {
    * @apiDescription Returns details about an unspent transaction output.
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/blockchain/getTxOut/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33/0?mempool=false" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/blockchain/getTxOut/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33/0?mempool=false" -H "accept: application/json"
    *
    * @apiParam {String} txid Transaction id (required)
    * @apiParam {Number} n Output number (required)
@@ -693,7 +693,7 @@ class Blockchain {
    * @apiDescription Returns details about an unspent transaction output (UTXO).
    *
    * @apiExample Example usage:
-   * curl "https://api.fullstack.cash/v4/blockchain/getTxOut/" -X POST -H "Content-Type: application/json" --data-binary '{"txid":"d5228d2cdc77fbe5a9aa79f19b0933b6802f9f0067f42847fc4fe343664723e5","vout":0,"mempool":true}'
+   * curl "https://api.fullstack.cash/v5/blockchain/getTxOut/" -X POST -H "Content-Type: application/json" --data-binary '{"txid":"d5228d2cdc77fbe5a9aa79f19b0933b6802f9f0067f42847fc4fe343664723e5","vout":0,"mempool":true}'
    *
    * @apiParam {String} txid Transaction id (required)
    * @apiParam {Number} vout of transaction (required)
@@ -747,7 +747,7 @@ class Blockchain {
    * @apiDescription Returns a hex-encoded proof that 'txid' was included in a block.
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/blockchain/getTxOutProofSingle/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/blockchain/getTxOutProofSingle/fe28050b93faea61fa88c4c630f0e1f0a1c24d0082dd0e10d369e13212128f33" -H "accept: application/json"
    *
    * @apiParam {String} txid Transaction id (required)
    *
@@ -946,7 +946,7 @@ class Blockchain {
    * @apiDescription Returns block details
    *
    * @apiExample Example usage:
-   * curl "https://api.fullstack.cash/v4/blockchain/getblock/" -X POST -H "Content-Type: application/json" --data-binary '{"blockhash":"000000000000000002a5fe0bdd6e3f04342a975c0f55e57f97e73bb90041676b","verbosity":0 }'
+   * curl "https://api.fullstack.cash/v5/blockchain/getblock/" -X POST -H "Content-Type: application/json" --data-binary '{"blockhash":"000000000000000002a5fe0bdd6e3f04342a975c0f55e57f97e73bb90041676b","verbosity":0 }'
    *
    * @apiParam {String} blockhash Block hash (required)
    * @apiParam {Number} verbosity Default 1 (optional)
