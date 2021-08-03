@@ -14,7 +14,7 @@
   "scripts": {
     "start": "node ./src/app.js",
     "dev": "nodemon ./dist/app.js",
-    "test": "npm run lint && npm run test-v4",
+    "test": "npm run lint && npm run test-v5",
     "lint": "standard --env mocha --fix",
     "test-v4": "export NETWORK=mainnet && nyc --reporter=text mocha --exit --timeout 60000 test/v4/",
     "test-v5": "export NETWORK=mainnet && nyc --reporter=text mocha --exit --timeout 60000 test/v5/",
