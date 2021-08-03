@@ -19,7 +19,7 @@ const nock = require('nock') // HTTP mocking
 const sinon = require('sinon')
 
 // Local libraries
-const Electrumx = require('../../src/routes/v5/electrumx')
+// const Electrumx = require('../../src/routes/v5/electrumx')
 const UtilRoute = require('../../src/routes/v5/util')
 
 let originalEnvVars // Used during transition from integration to unit tests.
@@ -38,8 +38,8 @@ const utilRouteInst = new UtilRoute({ electrumx: {} })
 describe('#Util', () => {
   let req, res
   let sandbox
-  let electrumx
-  let utilRoute
+  // let electrumx
+  // let utilRoute
 
   before(async () => {
     // Save existing environment variables.
@@ -59,7 +59,7 @@ describe('#Util', () => {
       process.env.RPC_PASSWORD = 'fakepassword'
     }
 
-    electrumx = new Electrumx()
+    // electrumx = new Electrumx()
     // await electrumx.connect()
   })
 
@@ -79,7 +79,7 @@ describe('#Util', () => {
 
     sandbox = sinon.createSandbox()
 
-    utilRoute = new UtilRoute({ electrumx })
+    // utilRoute = new UtilRoute({ electrumx })
   })
 
   afterEach(() => {
@@ -321,212 +321,5 @@ describe('#Util', () => {
         'isscript'
       ])
     })
-  })
-
-  describe('#sweepWif', () => {
-    it('should throw 400 if WIF is not included', async () => {
-      req.body = {}
-
-      const result = await utilRouteInst.sweepWif(req, res)
-
-      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(
-        result.error,
-        'WIF needs to a proper compressed WIF starting with K or L',
-        'Proper error message'
-      )
-    })
-
-    it('should throw 400 if WIF is malformed', async () => {
-      req.body = {
-        wif: 'abc123'
-      }
-
-      const result = await utilRouteInst.sweepWif(req, res)
-
-      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(
-        result.error,
-        'WIF needs to a proper compressed WIF starting with K or L',
-        'Proper error message'
-      )
-    })
-
-    it('should throw 400 if destination address is not included', async () => {
-      req.body = {
-        wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt'
-      }
-
-      const result = await utilRouteInst.sweepWif(req, res)
-
-      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
-      assert.include(
-        result.error,
-        'address can not be empty',
-        'Proper error message'
-      )
-    })
-
-    // Unit test only.
-    if (process.env.TEST === 'unit') {
-      it('should generate transaction for valid token sweep', async () => {
-        // Mock the RPC call for unit tests.
-
-        sandbox
-          .stub(utilRoute.electrumx, '_balanceFromElectrumx')
-          .resolves(mockData.mockBalance)
-
-        sandbox
-          .stub(utilRoute.electrumx, '_utxosFromElectrumx')
-          .resolves(mockData.mockUtxos)
-
-        sandbox
-          .stub(utilRoute.bchjs.SLP.Utils, 'tokenUtxoDetails')
-          .resolves(mockData.mockIsTokenUtxos)
-
-        // Mock sendRawTransaction() so that the hex does not actually get broadcast
-        // to the network.
-        sandbox
-          .stub(utilRoute.bchjs.RawTransactions, 'sendRawTransaction')
-          .resolves('test-txid')
-
-        req.body = {
-          wif: 'L1wAGEN721LHDoiN8pLwwBb87bYrU6Gs21UPcCRR7LjKypQyVaCq',
-          toAddr: 'bitcoincash:qp2g4cnekxsjspccmtvh5k73mczz6273js4mjr353r'
-        }
-
-        const result = await utilRoute.sweepWif(req, res)
-        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
-
-        assert.equal(result, 'test-txid')
-      })
-
-      it('should return balance if balance-only is true', async () => {
-        // Mock the RPC call for unit tests.
-
-        sandbox
-          .stub(utilRoute.electrumx, '_balanceFromElectrumx')
-          .resolves(mockData.mockBalance)
-
-        // Mock sendRawTransaction() so that the hex does not actually get broadcast
-        // to the network.
-        sandbox
-          .stub(utilRoute.bchjs.RawTransactions, 'sendRawTransaction')
-          .resolves('test-txid')
-
-        req.body = {
-          wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt',
-          balanceOnly: true
-        }
-
-        const result = await utilRoute.sweepWif(req, res)
-        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
-
-        assert.isNumber(result)
-      })
-
-      it('should generate transaction for valid BCH-only sweep', async () => {
-        sandbox
-          .stub(utilRoute.electrumx, '_balanceFromElectrumx')
-          .resolves(mockData.mockBalance)
-
-        sandbox
-          .stub(utilRoute.electrumx, '_utxosFromElectrumx')
-          .resolves(mockData.mockUtxos)
-
-        // Force token utxo to appear as regular BCH utxo.
-        sandbox
-          .stub(utilRoute.bchjs.SLP.Utils, 'tokenUtxoDetails')
-          .resolves([false, false])
-
-        // Mock sendRawTransaction() so that the hex does not actually get broadcast
-        // to the network.
-        sandbox
-          .stub(utilRoute.bchjs.RawTransactions, 'sendRawTransaction')
-          .resolves('test-txid')
-
-        req.body = {
-          wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt',
-          toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p'
-        }
-
-        const result = await utilRoute.sweepWif(req, res)
-        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
-
-        assert.equal(result, 'test-txid')
-      })
-
-      it('should throw 422 error if no non-token UTXOs', async () => {
-        sandbox
-          .stub(utilRoute.electrumx, '_balanceFromElectrumx')
-          .resolves(mockData.mockBalance)
-
-        sandbox
-          .stub(utilRoute.electrumx, '_utxosFromElectrumx')
-          .resolves(mockData.mockUtxos)
-
-        // Force token utxo to appear as regular BCH utxo.
-        sandbox
-          .stub(utilRoute.bchjs.SLP.Utils, 'tokenUtxoDetails')
-          .resolves(mockData.tokensOnly)
-
-        // Mock sendRawTransaction() so that the hex does not actually get broadcast
-        // to the network.
-        sandbox
-          .stub(utilRoute.bchjs.RawTransactions, 'sendRawTransaction')
-          .resolves('test-txid')
-
-        req.body = {
-          wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt',
-          toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p'
-        }
-
-        const result = await utilRoute.sweepWif(req, res)
-        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
-
-        assert.equal(res.statusCode, 422)
-        assert.property(result, 'error')
-        assert.include(
-          result.error,
-          'Tokens found, but no BCH UTXOs found. Add BCH to wallet to move tokens'
-        )
-      })
-
-      it('should detect and throw error for multiple token classes', async () => {
-        sandbox
-          .stub(utilRoute.electrumx, '_balanceFromElectrumx')
-          .resolves(mockData.mockBalance)
-
-        sandbox
-          .stub(utilRoute.electrumx, '_utxosFromElectrumx')
-          .resolves(mockData.mockThreeUtxos)
-
-        // Force token utxo to appear as regular BCH utxo.
-        sandbox
-          .stub(utilRoute.bchjs.SLP.Utils, 'tokenUtxoDetails')
-          .resolves(mockData.multipleTokens)
-
-        // Mock sendRawTransaction() so that the hex does not actually get broadcast
-        // to the network.
-        sandbox
-          .stub(utilRoute.bchjs.RawTransactions, 'sendRawTransaction')
-          .resolves('test-txid')
-
-        req.body = {
-          wif: 'L5GEFg1tETLWBugmhSo9Zc4ms968qVmfmTroDxsJ982AiudAQGyt',
-          toAddr: 'bitcoincash:qz2qn6zt4qmacf4r6c0e2pdcqsgnkxaa3ql2xpee6p'
-        }
-
-        const result = await utilRoute.sweepWif(req, res)
-        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
-
-        assert.equal(res.statusCode, 422)
-        assert.property(result, 'error')
-        assert.include(
-          result.error,
-          'Multiple token classes detected. This function only supports a single class of token'
-        )
-      })
-    }
   })
 })
