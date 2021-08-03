@@ -25,7 +25,7 @@ class Price {
 
     this.priceUrl = 'https://api.coinbase.com/v2/exchange-rates?currency=BCH'
     this.coinexPriceUrl =
-      'https://api.coinex.com/v1/market/ticker?market=bchausdt'
+      'https://api.coinex.com/v1/market/ticker?market=xecusdt'
 
     this.bchCoinexPriceUrl =
       'https://api.coinex.com/v1/market/ticker?market=bchusdt'

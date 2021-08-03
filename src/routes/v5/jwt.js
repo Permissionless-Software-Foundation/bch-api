@@ -63,7 +63,7 @@ class JWT {
    * JWT token.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v5/jwt/info" -H "accept: application/json" -H "Content-Type: application/json" -d '{"jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYwZGRmZmI2NzRhM2Q2MDAxOTY3NjE1NCIsImVtYWlsIjoiY2hyaXNAYmNodGVzdC5uZXQiLCJhcGlMZXZlbCI6NjAsInJhdGVMaW1pdCI6MywicG9pbnRzVG9Db25zdW1lIjoxNiwiZHVyYXRpb24iOjMwLCJpYXQiOjE2MjU0MzQ2MzYsImV4cCI6MTYyODAyNjYzNn0.1WLugTkQKVG0yMXD1h5nxfho3gRzvSvs8NMa9obVhPM"}'
+   * curl -X POST "https://api.fullstack.cash/v5/jwt/info" -H "accept: application/json" -H "Content-Type: application/json" -d '{"jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYwZGRmZmI2NzRhM2Q2MDAxOTY3NjE1NCIsImVtYWlsIjoiY2hyaXNAYmNodGVzdC5uZXQiLCJhcGlMZXZlbCI6NjAsInJhdGVMaW1pdCI6MywicG9pbnRzVG9Db25zdW1lIjoxNiwiZHVyYXRpb24iOjMwLCJpYXQiOjE2MjU0MzQ2MzYsImv5cCI6MTYyODAyNjYzNn0.1WLugTkQKVG0yMXD1h5nxfho3gRzvSvs8NMa9obVhPM"}'
    *
    */
   async jwtInfo (req, res, next) {

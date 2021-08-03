@@ -77,7 +77,7 @@ class Mining {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/mining/getMiningInfo" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/mining/getMiningInfo" -H "accept: application/json"
    *
    *
    */
@@ -107,7 +107,7 @@ class Mining {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/mining/getNetworkHashps?nblocks=120&height=-1" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/mining/getNetworkHashps?nblocks=120&height=-1" -H "accept: application/json"
    *
    *
    */
