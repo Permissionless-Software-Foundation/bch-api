@@ -21,7 +21,7 @@ const getTokenFromHeaders = (req, res, next) => {
       if (authStr.split(' ')[0] === 'Token') {
         const token = authStr.split(' ')[1]
 
-        // console.log(`JWT found: ${token}`)
+        console.log(`JWT found: ${token}`)
 
         // Create the req.locals property if it does not yet exist.
         if (!req.locals) {
