@@ -221,7 +221,9 @@ class RateLimits {
   // should be returned by the middleware.
   async trackRateLimits (req, res, jwtToken) {
     const debugInfo = {
-      jwtToken
+      jwtToken,
+      userObj: req.body.usrObj,
+      locals: req.locals
     }
 
     // Anonymous rate limits are used by default.
