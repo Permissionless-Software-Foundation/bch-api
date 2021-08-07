@@ -270,9 +270,9 @@ class RateLimits {
       res.locals.rateLimitTriggered = true
       // console.log('res.locals: ', res.locals)
 
-      console.log(
-        `rate limit debug info: ${JSON.stringify(debugInfo, null, 2)}`
-      )
+      // console.log(
+      //   `rate limit debug info: ${JSON.stringify(debugInfo, null, 2)}`
+      // )
 
       // Rate limited was triggered
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
