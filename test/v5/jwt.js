@@ -73,16 +73,18 @@ describe('#JWTRouter', () => {
       const result = await uut.jwtInfo(req, res)
       // console.log('result: ', result)
 
-      assert.property(result, 'id')
-      assert.property(result, 'email')
-      assert.property(result, 'apiLevel')
-      assert.property(result, 'rateLimit')
-      assert.property(result, 'pointsToConsume')
-      assert.property(result, 'duration')
-      assert.property(result, 'iat')
-      assert.property(result, 'exp')
-      assert.property(result, 'expiration')
-      assert.property(result, 'createdAt')
+      assert.equal(result.error, 'jwt expired')
+
+      // assert.property(result, 'id')
+      // assert.property(result, 'email')
+      // assert.property(result, 'apiLevel')
+      // assert.property(result, 'rateLimit')
+      // assert.property(result, 'pointsToConsume')
+      // assert.property(result, 'duration')
+      // assert.property(result, 'iat')
+      // assert.property(result, 'exp')
+      // assert.property(result, 'expiration')
+      // assert.property(result, 'createdAt')
     })
 
     it('should return an error with malformed JWT token', async () => {
