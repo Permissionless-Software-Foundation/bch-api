@@ -19,17 +19,18 @@ const config = require('../../../../config')
 const RouteUtils = require('../../../util/route-utils')
 const routeUtils = new RouteUtils()
 
-// const BCHJS = require("@psf/bch-js");
-// const bchjs = new BCHJS();
+const BCHJS = require('@psf/bch-js')
+const bchjs = new BCHJS()
 
 let _this
 
 class BcashSlp {
   constructor () {
+    _this = this
     this.config = config
     this.axios = axios
     this.routeUtils = routeUtils
-    // this.bchjs = bchjs;
+    this.bchjs = bchjs
     // _this.bitcore = bitcore
 
     this.bcashServer = process.env.BCASH_SERVER
@@ -88,23 +89,70 @@ class BcashSlp {
       // https://gist.github.com/christroutner/dcb25a895900e557d7b43341ee85fa79
 
       wlogger.debug(
-        'Executing electrumx/getUtxos with this address: ',
+        'Executing bcash/slp.js/getUtxos(). with this address: ',
         cashAddr
       )
 
       // Get data from ElectrumX server.
       const response = await _this.axios.get(
-        `${_this.fulcrumApi}electrumx/utxos/${address}`
+        `${_this.bcashServer}coin/address/${cashAddr}?slp=true`
       )
-      // console.log('response', response, _this.fulcrumApi)
-
+      // Get address UTXOs
+      const utxos = response.data
+      // Hydrate UTXOs
+      const hydratedUtxos = await _this.hydrateUTXOS(utxos)
       res.status(200)
-      return res.json(response.data)
+      return res.json(hydratedUtxos)
     } catch (err) {
       // Write out error to error log.
-      wlogger.error('Error in elecrumx.js/getUtxos().', err)
+      wlogger.error('Error in bcash/slp.js/getUtxos().', err)
 
       return _this.errorHandler(err, res)
+    }
+  }
+
+  // Maps and filter the SLP UTXOs of an UTXOs array
+  // get information about the SLP UTXOs
+  async hydrateUTXOS (UTXOS) {
+    try {
+      if (!Array.isArray(UTXOS)) {
+        throw new Error('UTXOs must be an array of slp utxos')
+      }
+      const slpUtxos = UTXOS.filter((val) => val.slp)
+      const hydrated = []
+
+      // Find information of each token
+      for (let i = 0; i < slpUtxos.length; i++) {
+        const slp = slpUtxos[i].slp
+        const info = await _this.getTokenInfo(slp.tokenId)
+        const obj = Object.assign(slp, info)
+
+        slpUtxos[i].slp = obj
+        hydrated.push(slpUtxos[i])
+      }
+      return hydrated
+    } catch (error) {
+      console.log(error)
+      throw error
+    }
+  }
+
+  // Get information of a token
+  async getTokenInfo (tokenId) {
+    try {
+      if (!tokenId || typeof tokenId !== 'string') {
+        throw new Error('tokenId must be string')
+      }
+
+      const result = await _this.axios.get(
+        `${_this.bcashServer}token/${tokenId}`
+      )
+      const tokenInfo = result.data
+      // console.log('token info', tokenInfo)
+      return tokenInfo
+    } catch (error) {
+      console.log(error)
+      throw error
     }
   }
 
