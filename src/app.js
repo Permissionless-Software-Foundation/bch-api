@@ -54,6 +54,7 @@ const ElectrumXV5 = require('./routes/v5/electrumx')
 const EncryptionV5 = require('./routes/v5/encryption')
 const PriceV5 = require('./routes/v5/price')
 const JWTV5 = require('./routes/v5/jwt')
+const BcashSLP = require('./routes/v5/bcash/slp')
 // const Ninsight = require('./routes/v5/ninsight')
 
 require('dotenv').config()
@@ -82,6 +83,7 @@ const pricev5 = new PriceV5()
 const utilV5 = new UtilV5({ electrumx: electrumxv5 })
 const dsproofV5 = new DSProofV5()
 const jwtV5 = new JWTV5()
+const bcashSLP = new BcashSLP()
 const app = express()
 
 app.locals.env = process.env
@@ -195,6 +197,8 @@ app.use(`/${v5prefix}/` + 'jwt', jwtV5.router)
 
 // const ninsight = new Ninsight()
 app.use(`/${v5prefix}/` + 'ninsight', ninsight.router)
+
+app.use(`/${v5prefix}/` + 'bcash/slp', bcashSLP.router)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
