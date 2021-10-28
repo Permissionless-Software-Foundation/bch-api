@@ -39,6 +39,7 @@ class UtilRoute {
     this.router.get('/', this.root)
     this.router.get('/validateAddress/:address', this.validateAddressSingle)
     this.router.post('/validateAddress', this.validateAddressBulk)
+    this.router.get('/getCurrencyInfo', this.getCurrencyInfo)
     // this.router.post('/sweep', this.sweepWif)
 
     // _this = this
@@ -47,6 +48,55 @@ class UtilRoute {
   root (req, res, next) {
     return res.json({ status: 'util' })
   }
+
+  /**
+    * @api {get} /util/getCurrencyInfo  Get information about the currency.
+    * @apiName getCurrencyInfo
+    * @apiGroup Util
+    * @apiDescription Returns an object containing information about the currency.
+    *
+    *
+    * @apiExample Example usage:
+    * curl -X GET "https://api.fullstack.cash/v5/util/getCurrencyInfo" -H "accept: application/json"
+    *
+    *
+    */
+   async getCurrencyInfo (req, res, next) {
+     try {
+ 
+       const {
+         BitboxHTTP,
+         // username,
+         // password,
+         requestConfig
+       } = routeUtils.setEnvVars()
+ 
+       requestConfig.data.id = 'getcurrencyinfo'
+       requestConfig.data.method = 'getcurrencyinfo'
+ 
+       const response = await BitboxHTTP(requestConfig)
+       
+       if (response.data.result.satoshisperunit === 100) {
+         response.data.result.ecash = 1;
+       } else {
+         response.data.result.ecash = 0;
+       }
+       
+       return res.json(response.data.result)
+     } catch (err) {
+       // Attempt to decode the error message.
+       const { msg, status } = routeUtils.decodeError(err)
+       if (msg) {
+         res.status(status)
+         return res.json({ error: msg })
+       }
+ 
+       wlogger.error('Error in util.ts/getCurrencyInfo().', err)
+ 
+       res.status(500)
+       return res.json({ error: util.inspect(err) })
+     }
+   }
 
   /**
    * @api {get} /util/validateAddress/{address}  Get information about single bitcoin cash address.
