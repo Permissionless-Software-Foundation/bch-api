@@ -12,8 +12,9 @@
 const chai = require('chai')
 const assert = chai.assert
 const sinon = require('sinon')
-
+const nock = require('nock') // HTTP mocking
 const Price = require('../../src/routes/v5/price')
+
 let uut
 
 // Mocking data.
@@ -31,6 +32,7 @@ describe('#PriceRouter', () => {
   before(() => {
     // Set default environment variables for unit tests.
     if (!process.env.TEST) process.env.TEST = 'unit'
+    process.env.RPC_BASEURL = 'http://fakenode:fakeport'
   })
 
   // Setup the mocks before each test.
@@ -44,12 +46,19 @@ describe('#PriceRouter', () => {
     req.body = {}
     req.query = {}
 
+    // Activate nock if it's inactive.
+    if (!nock.isActive()) nock.activate()
+
     sandbox = sinon.createSandbox()
 
     uut = new Price()
   })
 
   afterEach(() => {
+    // Clean up HTTP mocks.
+    nock.cleanAll() // clear interceptor list.
+    nock.restore()
+
     // Restore Sandbox
     sandbox.restore()
   })
@@ -341,6 +350,36 @@ describe('#PriceRouter', () => {
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.isNumber(result.usd)
+    })
+  })
+
+  describe('#getCurrencyInfo', async () => {
+    it('should throw 500 when network issues', async () => {
+      await uut.getCurrencyInfo(req, res)
+
+      assert.isAbove(
+        res.statusCode,
+        499,
+        'HTTP status code 500 or greater expected.'
+      )
+      // console.log(res)
+      assert.include(
+        res.output.error,
+        'Network error: Could not communicate with full node or other external service'
+      )
+    })
+
+    it('should get the currency settings of the full node', async () => {
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === 'unit') {
+        // intercept the RPC_BASEURL parameter
+        nock(`${process.env.RPC_BASEURL}`)
+          .post((uri) => uri.includes('/'))
+          .reply(200, { result: mockData.mockCurrencyInfo })
+      }
+
+      const result = await uut.getCurrencyInfo(req, res)
+      assert.hasAllKeys(result, ['ticker', 'satoshisperunit', 'decimals'])
     })
   })
 })

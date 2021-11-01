@@ -36,6 +36,7 @@ class Price {
     this.router.get('/rates', _this.getBCHRate)
     this.router.get('/bchausd', _this.getBCHAUSD)
     this.router.get('/bchusd', _this.getBCHUSD)
+    this.router.get('/getcurrencyinfo', this.getCurrencyInfo)
   }
 
   // DRY error handler.
@@ -54,6 +55,41 @@ class Price {
   // Root API endpoint. Simply acknowledges that it exists.
   root (req, res, next) {
     return res.json({ status: 'price' })
+  }
+
+  /**
+    * @api {get} /price/getcurrencyinfo  Get information about the currency.
+    * @apiName getcurrencyinfo
+    * @apiGroup Price
+    * @apiDescription Returns an object containing the currency's ticker, satoshisperunit and decimals.
+    *
+    *
+    * @apiExample Example usage:
+    * curl -X GET "https://api.fullstack.cash/v5/price/getcurrencyinfo" -H "accept: application/json"
+    *
+    *
+    */
+  async getCurrencyInfo (req, res, next) {
+    try {
+      const {
+        BitboxHTTP,
+        // username,
+        // password,
+        requestConfig
+      } = routeUtils.setEnvVars()
+
+      requestConfig.data.id = 'getcurrencyinfo'
+      requestConfig.data.method = 'getcurrencyinfo'
+
+      const response = await BitboxHTTP(requestConfig)
+
+      return res.json(response.data.result)
+    } catch (err) {
+      // Write out error to error log.
+      wlogger.error('Error in price.js/getCurrencyInfo().', err)
+
+      return _this.errorHandler(err, res)
+    }
   }
 
   /**

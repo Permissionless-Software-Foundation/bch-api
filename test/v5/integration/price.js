@@ -11,7 +11,7 @@ const assert = require('chai').assert
 const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-const Price = require('../../../src/routes/v4/price')
+const Price = require('../../../src/routes/v5/price')
 const price = new Price()
 
 const { mockReq, mockRes } = require('../mocks/express-mocks')
@@ -48,6 +48,15 @@ describe('#price', () => {
       console.log(`result: ${util.inspect(result)}`)
 
       assert.isNumber(result.usd)
+    })
+  })
+  describe('#getCurrencyInfo', () => {
+    it('should get the full node currency settings', async () => {
+      const result = await price.getCurrencyInfo(req, res)
+      console.log(`result: ${util.inspect(result)}`)
+
+      assert.isNumber(result.satoshisperunit)
+      assert.isNumber(result.decimals)
     })
   })
 })
