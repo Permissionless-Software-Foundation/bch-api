@@ -30,25 +30,18 @@ const mockData = require('./mocks/electrumx-mock')
 const util = require('util')
 util.inspect.defaultOptions = { depth: 1 }
 
-// A wrapper for asserting that the correct response is returned when an error
-// is expected.
-// function expectRouteError (res, result, expectedError, code = 400) {
-//   assert.equal(res.statusCode, code, `HTTP status code ${code} expected.`)
-//
-//   assert.property(result, 'error')
-//   assert.include(result.error, expectedError)
-//
-//   assert.property(result, 'success')
-//   assert.equal(result.success, false)
-// }
+if (!process.env.FULCRUM_API) process.env.FULCRUM_API = 'http://localhost'
 
 describe('#Electrumx', () => {
   let req, res
   let sandbox
   const electrumxRoute = new ElecrumxRoute()
+  // let electrumxRoute
 
   before(async () => {
-    if (!process.env.TEST) process.env.TEST = 'unit'
+    if (!process.env.TEST) {
+      process.env.TEST = 'unit'
+    }
     console.log(`Testing type is: ${process.env.TEST}`)
 
     if (!process.env.NETWORK) process.env.NETWORK = 'testnet'
@@ -641,9 +634,25 @@ describe('#Electrumx', () => {
     })
 
     it('should pass errors from electrum-cash to user', async () => {
+      if (process.env.TEST === 'unit') {
+        sandbox.stub(electrumxRoute.axios, 'get').rejects({
+          response: {
+            data: {
+              error: {
+                message: {
+                  success: false,
+                  error: 'Invalid tx hash'
+                }
+              }
+            }
+          }
+        })
+      }
+
       req.params.txid = '02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
 
       const result = await electrumxRoute.getTransactionDetails(req, res)
+      // console.log('result: ', result)
 
       assert.property(result, 'error')
       assert.include(result.error.error, 'Invalid tx hash')
@@ -823,11 +832,28 @@ describe('#Electrumx', () => {
     })
 
     it('should pass errors from electrum-cash to user', async () => {
+      if (process.env.TEST === 'unit') {
+        sandbox.stub(electrumxRoute.axios, 'post').rejects({
+          response: {
+            data: {
+              error: {
+                message: {
+                  success: false,
+                  error:
+                    'the transaction was rejected by network rules.\n\nTX decode failed\n'
+                }
+              }
+            }
+          }
+        })
+      }
+
       req.body.txHex = mockData.txDetails.hex.substring(10)
       const result = await electrumxRoute.broadcastTransaction(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.equal(res.statusCode, 400, 'Expect 400 status code')
+      // assert.equal(res.statusCode, 503, 'Expect 503 status code')
 
       assert.property(result, 'error')
       assert.include(result.error.error, 'the transaction was rejected')

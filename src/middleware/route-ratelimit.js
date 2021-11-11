@@ -220,11 +220,18 @@ class RateLimits {
   // it will return the 'res' object with an error status and message, which
   // should be returned by the middleware.
   async trackRateLimits (req, res, jwtToken) {
+    const debugInfo = {
+      jwtToken,
+      userObj: req.body.usrObj,
+      locals: req.locals
+    }
+
     // Anonymous rate limits are used by default.
     let pointsToConsume = ANON_LIMITS
     // console.log('pointsToConsume: ', pointsToConsume)
 
     let key = req.ip // Use the IP address as the key, by default.
+    debugInfo.ip = req.ip
 
     // console.log('jwtToken: ', jwtToken)
 
@@ -236,8 +243,10 @@ class RateLimits {
 
         // Preferentially use the decoded ID in the JWT payload, as the key.
         key = decoded.id
+        debugInfo.id = key
 
         pointsToConsume = decoded.pointsToConsume
+        debugInfo.pointsToConsume = pointsToConsume
       }
       // console.log(`rate limit key: ${key}`)
 
@@ -260,6 +269,10 @@ class RateLimits {
 
       res.locals.rateLimitTriggered = true
       // console.log('res.locals: ', res.locals)
+
+      // console.log(
+      //   `rate limit debug info: ${JSON.stringify(debugInfo, null, 2)}`
+      // )
 
       // Rate limited was triggered
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330

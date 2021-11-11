@@ -179,6 +179,11 @@ class RouteUtils {
             msg: '429 Too Many Requests',
             status: 429
           }
+        } else if (err.error.includes('Network error:')) {
+          return {
+            msg: err.error,
+            status: 503
+          }
         }
       }
 

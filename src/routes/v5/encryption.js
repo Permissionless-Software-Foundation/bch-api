@@ -18,7 +18,7 @@ const routeUtils = new RouteUtils()
 const BCHJS = require('@psf/bch-js')
 const restURL = process.env.LOCAL_RESTURL
   ? process.env.LOCAL_RESTURL
-  : 'https://api.fullstack.cash/v4/'
+  : 'https://api.fullstack.cash/v5/'
 const bchjs = new BCHJS({ restURL })
 
 let _this
@@ -76,7 +76,7 @@ class Encryption {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/encryption/publickey/bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/encryption/publickey/bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf" -H "accept: application/json"
    *
    */
   async getPublicKey (req, res, next) {

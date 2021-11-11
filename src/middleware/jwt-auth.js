@@ -12,6 +12,8 @@
 // req.locals.jwtToken property.
 const getTokenFromHeaders = (req, res, next) => {
   try {
+    // console.log('req.headers: ', req.headers)
+
     // Only executes if the authorization header exists.
     if (req.headers.authorization) {
       // Retrieve the auth string from the header object.

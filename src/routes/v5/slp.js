@@ -16,7 +16,7 @@ const wlogger = require('../../util/winston-logging')
 // Instantiate a local copy of bch-js using the local REST API server.
 const LOCAL_RESTURL = process.env.LOCAL_RESTURL
   ? process.env.LOCAL_RESTURL
-  : 'https://api.fullstack.cash/v4/'
+  : 'https://api.fullstack.cash/v5/'
 
 const BCHJS = require('@psf/bch-js')
 // const BCHJS = require('../../../../bch-js')
@@ -51,10 +51,10 @@ const rawTransactions = new RawTransactions()
 // Setup REST and TREST URLs used by slpjs
 // Dev note: this allows for unit tests to mock the URL.
 if (!process.env.REST_URL) {
-  process.env.REST_URL = 'https://bchn.fullstack.cash/v4/'
+  process.env.REST_URL = 'https://bchn.fullstack.cash/v5/'
 }
 if (!process.env.TREST_URL) {
-  process.env.TREST_URL = 'https://testnet.fullstack.cash/v4/'
+  process.env.TREST_URL = 'https://testnet.fullstack.cash/v5/'
 }
 
 let _this
@@ -181,7 +181,7 @@ class Slp {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/slp/list/259908ae44f46ef585edef4bcc1e50dc06e4c391ac4be929fae27235b8158cf1" -H "accept:application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/slp/list/259908ae44f46ef585edef4bcc1e50dc06e4c391ac4be929fae27235b8158cf1" -H "accept:application/json"
    *
    *
    */
@@ -214,7 +214,7 @@ class Slp {
    *
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/slp/list" -H "accept:application/json" -H "Content-Type: application/json" -d '{"tokenIds":["7380843cd1089a1a01783f86af37734dc99667a1cdc577391b5f6ea42fc1bfb4","9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0"]}'
+   * curl -X POST "https://api.fullstack.cash/v5/slp/list" -H "accept:application/json" -H "Content-Type: application/json" -d '{"tokenIds":["7380843cd1089a1a01783f86af37734dc99667a1cdc577391b5f6ea42fc1bfb4","9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0"]}'
    *
    *
    */
@@ -362,7 +362,7 @@ class Slp {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/slp/balancesForAddress/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m" -H "accept:application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/slp/balancesForAddress/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m" -H "accept:application/json"
    *
    *
    */
@@ -546,7 +546,7 @@ class Slp {
    *
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/slp/balancesForAddress" -d "{\"addresses\":[\"simpleledger:qqss4zp80hn6szsa4jg2s9fupe7g5tcg5ucdyl3r57\"]}" -H "accept:application/json"
+   * curl -X POST "https://api.fullstack.cash/v5/slp/balancesForAddress" -d "{\"addresses\":[\"simpleledger:qqss4zp80hn6szsa4jg2s9fupe7g5tcg5ucdyl3r57\"]}" -H "accept:application/json"
    *
    *
    */
@@ -761,7 +761,7 @@ class Slp {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/slp/balancesForToken/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0" -H "accept:application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/slp/balancesForToken/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0" -H "accept:application/json"
    *
    *
    */
@@ -868,7 +868,7 @@ class Slp {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/slp/convert/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m" -H "accept:application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/slp/convert/simpleledger:qz9tzs6d5097ejpg279rg0rnlhz546q4fsnck9wh5m" -H "accept:application/json"
    *
    *
    */
@@ -914,7 +914,7 @@ class Slp {
    *
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/slp/convert" -H "accept:application/json" -H "Content-Type: application/json" -d '{"addresses":["simpleledger:qrxa0unrn67rtn85v7asfddhhth43ecnxua0antk2l"]}'
+   * curl -X POST "https://api.fullstack.cash/v5/slp/convert" -H "accept:application/json" -H "Content-Type: application/json" -d '{"addresses":["simpleledger:qrxa0unrn67rtn85v7asfddhhth43ecnxua0antk2l"]}'
    *
    *
    */
@@ -976,7 +976,7 @@ class Slp {
    *
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/slp/validateTxid" -H "accept:application/json" -H "Content-Type: application/json" -d '{"txids":["f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a","fb0eeaa501a6e1acb721669c62a3f70741f48ae0fd7f4b8e1d72088785c51952"]}'
+   * curl -X POST "https://api.fullstack.cash/v5/slp/validateTxid" -H "accept:application/json" -H "Content-Type: application/json" -d '{"txids":["f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a","fb0eeaa501a6e1acb721669c62a3f70741f48ae0fd7f4b8e1d72088785c51952"]}'
    *
    *
    */
@@ -1122,7 +1122,7 @@ class Slp {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/slp/validateTxid/f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a" -H "accept:application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/slp/validateTxid/f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a" -H "accept:application/json"
    *
    *
    */
@@ -1203,7 +1203,7 @@ class Slp {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/slp/validateTxid2/f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a" -H "accept:application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/slp/validateTxid2/f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a" -H "accept:application/json"
    *
    *
    */
@@ -1268,7 +1268,7 @@ class Slp {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/slp/whitelist" -H "accept:application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/slp/whitelist" -H "accept:application/json"
    *
    */
   async getSlpWhitelist (req, res, next) {
@@ -1321,7 +1321,7 @@ class Slp {
    * /slp/whitelist endpoint.
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/slp/validateTxid3/f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a" -H "accept:application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/slp/validateTxid3/f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a" -H "accept:application/json"
    *
    *
    */
@@ -1403,7 +1403,7 @@ class Slp {
    * /slp/whitelist endpoint.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/slp/validateTxid3" -H "accept:application/json" -H "Content-Type: application/json" -d '{"txids":["f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a","fb0eeaa501a6e1acb721669c62a3f70741f48ae0fd7f4b8e1d72088785c51952"]}'
+   * curl -X POST "https://api.fullstack.cash/v5/slp/validateTxid3" -H "accept:application/json" -H "Content-Type: application/json" -d '{"txids":["f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a","fb0eeaa501a6e1acb721669c62a3f70741f48ae0fd7f4b8e1d72088785c51952"]}'
    *
    *
    */
@@ -1554,7 +1554,7 @@ class Slp {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/slp/txDetails/8ab4ac5dea3f9024e3954ee5b61452955d659a34561f79ef62ac44e133d0980e" -H "accept:application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/slp/txDetails/8ab4ac5dea3f9024e3954ee5b61452955d659a34561f79ef62ac44e133d0980e" -H "accept:application/json"
    *
    *
    */
@@ -1646,7 +1646,7 @@ class Slp {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/slp/tokenStats/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0" -H "accept:application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/slp/tokenStats/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0" -H "accept:application/json"
    *
    *
    */
@@ -1677,7 +1677,7 @@ class Slp {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/slp/transactions/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0/simpleledger:qrxa0unrn67rtn85v7asfddhhth43ecnxua0antk2l" -H "accept:application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/slp/transactions/9ba379fe8171176d4e7e6771d9a24cd0e044c7b788d5f86a3fdf80904832b2c0/simpleledger:qrxa0unrn67rtn85v7asfddhhth43ecnxua0antk2l" -H "accept:application/json"
    *
    *
    */
@@ -1901,7 +1901,7 @@ class Slp {
    * (1 or 2) will also be returned.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/slp/generateSendOpReturn" -H "accept:application/json" -H "Content-Type: application/json" -d '{"tokenUtxos":[{"tokenId": "0a321bff9761f28e06a268b14711274bb77617410a16807bd0437ef234a072b1","decimals": 0, "tokenQty": 2}], "sendQty": 1.5}'
+   * curl -X POST "https://api.fullstack.cash/v5/slp/generateSendOpReturn" -H "accept:application/json" -H "Content-Type: application/json" -d '{"tokenUtxos":[{"tokenId": "0a321bff9761f28e06a268b14711274bb77617410a16807bd0437ef234a072b1","decimals": 0, "tokenQty": 2}], "sendQty": 1.5}'
    *
    *
    */
@@ -1986,7 +1986,7 @@ class Slp {
    * not been confirmed.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/slp/hydrateUtxos" -H "accept:application/json" -H "Content-Type: application/json" -d '{"utxos":[{"utxos":[{"txid": "d56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56","vout": 3, "value": "6816", "height": 606848, "confirmations": 13, "satoshis": 6816}, {"txid": "d56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56","vout": 2, "value": "546", "height": 606848, "confirmations": 13, "satoshis": 546}]}]}'
+   * curl -X POST "https://api.fullstack.cash/v5/slp/hydrateUtxos" -H "accept:application/json" -H "Content-Type: application/json" -d '{"utxos":[{"utxos":[{"txid": "d56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56","vout": 3, "value": "6816", "height": 606848, "confirmations": 13, "satoshis": 6816}, {"txid": "d56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56","vout": 2, "value": "546", "height": 606848, "confirmations": 13, "satoshis": 546}]}]}'
    *
    *
    */
@@ -2095,7 +2095,7 @@ class Slp {
    * SLP tokens.
    *
    * @apiExample Example usage:
-   * curl -X POST "https://api.fullstack.cash/v4/slp/hydrateUtxosWL" -H "accept:application/json" -H "Content-Type: application/json" -d '{"utxos":[{"utxos":[{"txid": "d56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56","vout": 3, "value": "6816", "height": 606848, "confirmations": 13, "satoshis": 6816}, {"txid": "d56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56","vout": 2, "value": "546", "height": 606848, "confirmations": 13, "satoshis": 546}]}]}'
+   * curl -X POST "https://api.fullstack.cash/v5/slp/hydrateUtxosWL" -H "accept:application/json" -H "Content-Type: application/json" -d '{"utxos":[{"utxos":[{"txid": "d56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56","vout": 3, "value": "6816", "height": 606848, "confirmations": 13, "satoshis": 6816}, {"txid": "d56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56","vout": 2, "value": "546", "height": 606848, "confirmations": 13, "satoshis": 546}]}]}'
    *
    *
    */
@@ -2196,7 +2196,7 @@ class Slp {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/slp/status" -H "accept:application/json" -H "Content-Type: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/slp/status" -H "accept:application/json" -H "Content-Type: application/json"
    *
    */
   async getStatus (req, res, next) {
@@ -2239,7 +2239,7 @@ class Slp {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/slp/nftChildren/68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a" -H "accept:application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/slp/nftChildren/68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a" -H "accept:application/json"
    *
    */
   async getNftChildren (req, res, next) {
@@ -2315,7 +2315,7 @@ class Slp {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v4/slp/nftGroup/45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9" -H "accept:application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/slp/nftGroup/45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9" -H "accept:application/json"
    *
    */
   async getNftGroup (req, res, next) {
