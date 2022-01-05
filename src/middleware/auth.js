@@ -1,22 +1,25 @@
 /*
-  CT 2/4/20 Note: This library handles anonymous and Basic auth. This library
-  can be phased out with the chage to JWT tokens and the new rate-limit library.
-
-  Handle authorization for bypassing rate limits.
+  This library handles anonymous and Basic Authentication.
 
   1) Default is 'Anonymous Authentication', which unlocks the freemimum tier by
   default.
+
   2) Hard-coded 'Basic Authentication' is a token that does not expire and is
-  provided to buisiness partners.
+  provided for clients who run their own isolated infrastructure without rate
+  limits, but still need a way from preventing the random public from using
+  their API.
+
   3) JWT-based 'Local Authentication' is used for normal users that pay to
   access the premium pro-tier services.
 
   This file uses the passport npm library to check the header of each REST API
-  call for the prescence of a Basic authorization header:
+  call for the prescence of a Basic Authentication header:
   https://en.wikipedia.org/wiki/Basic_access_authentication
 
   If the header is found and validated, the req.locals.proLimit Boolean value
-  is set and passed to the route-ratelimits.ts middleware.
+  is set and passed to the route-ratelimit.js middleware. route-ratelimit.js
+  is for fine-grain JWT-based rate limits. If req.locals.proLimit is set to
+  true, then those rate limits will be skipped.
 */
 
 'use strict'
@@ -76,8 +79,9 @@ class AuthMW {
         req.locals.proLimit = false
 
         // Evaluate the username and password and set the rate limit accordingly.
-        // if (username === "BITBOX" && password === PRO_PASS) {
         if (username === 'fullstackcash') {
+          // Can set several different passwords in the environment variable.
+          // Loop through each one to see if one matches.
           for (let i = 0; i < PRO_PASS.length; i++) {
             const thisPass = PRO_PASS[i]
 

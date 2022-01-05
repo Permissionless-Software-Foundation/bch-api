@@ -114,16 +114,17 @@ class Encryption {
         })
       }
 
+      // console.log(
       wlogger.debug(
         'Executing encryption/getPublicKey with this address: ',
         cashAddr
       )
 
-      const rawTxData = await _this.bchjs.Electrumx.transactions(cashAddr, usrObj)
+      const rawTxData = await _this.bchjs.Electrumx.transactions([cashAddr], usrObj)
       // console.log(`rawTxData: ${JSON.stringify(rawTxData, null, 2)}`)
 
       // Extract just the TXIDs
-      const txids = rawTxData.transactions.map((elem) => elem.tx_hash)
+      const txids = rawTxData.transactions[0].transactions.map((elem) => elem.tx_hash)
       // console.log(`txids: ${JSON.stringify(txids, null, 2)}`)
 
       // throw error if there is no transaction history.
@@ -135,16 +136,14 @@ class Encryption {
       for (let i = 0; i < txids.length; i++) {
         const thisTx = txids[i]
 
-        // CT 2/24/21: I might want to convert this to the POST call, to take
-        // advantage of the usrObj. It does not get passed in a GET call.
         const txDetails = await _this.bchjs.RawTransactions.getRawTransaction(
-          thisTx,
+          [thisTx],
           true,
           usrObj
         )
         // console.log(`txDetails: ${JSON.stringify(txDetails, null, 2)}`)
 
-        const vin = txDetails.vin
+        const vin = txDetails[0].vin
 
         // Loop through each input.
         for (let j = 0; j < vin.length; j++) {
@@ -182,6 +181,7 @@ class Encryption {
         publicKey: 'not found'
       })
     } catch (err) {
+      // console.log('Error in encryption.js/getPublicKey().', err)
       wlogger.error('Error in encryption.js/getPublicKey().', err)
 
       return _this.errorHandler(err, res)

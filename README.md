@@ -82,6 +82,20 @@ installation.
 
 `docker-compose up`
 
+## Rate Limits
+The rate limits for [api.fullstack.cash](https://api.fullstack.cash) are controlled by a JWT token. You can increase your rate limits by [purchasing a JWT token](https://https://fullstack.cash). If you're using bch-js, [check the readme for instructions on increasing rate limits](https://github.com/Permissionless-Software-Foundation/bch-js#api-key). For interacting with bch-api directly, you can then include the JWT token in the HTTP header like this:
+
+- `Authorization: Token <JWT token>`
+
+### cURL example
+Here is an example using curl for using the JWT token when making a call to the REST API:
+
+```
+export BCHJSTOKEN=eyJhbGciOiJ....
+
+curl "https://bchn.fullstack.cash/v4/electrumx/balance/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -X GET -H "Content-Type: application/json" -H "Authorization: Token ${BCHJSTOKEN}"
+```
+
 ## Support
 Have questions? Need help? Join our community support
 [Telegram channel](https://t.me/bch_js_toolkit)

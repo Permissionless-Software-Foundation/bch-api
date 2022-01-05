@@ -250,6 +250,7 @@ describe('#Raw-Transactions', () => {
         'Proper error message'
       )
     })
+
     it('returns proper error when downstream service stalls', async () => {
       req.body.hexes = [
         '0200000001b9b598d7d6d72fc486b2b3a3c03c79b5bade6ec9a77ced850515ab5e64edcc21010000006b483045022100a7b1b08956abb8d6f322aa709d8583c8ea492ba0585f1a6f4f9983520af74a5a0220411aee4a9a54effab617b0508c504c31681b15f9b187179b4874257badd4139041210360cfc66fdacb650bc4c83b4e351805181ee696b7d5ab4667c57b2786f51c413dffffffff0210270000000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac786e9800000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac00000000'
@@ -1046,10 +1047,12 @@ describe('#Raw-Transactions', () => {
       // Save the existing RPC URL.
       const savedUrl = process.env.BITCOINCOM_BASEURL
       const savedUrl2 = process.env.RPC_BASEURL
+      const savedUrl3 = process.env.RPC_SENDURL
 
       // Manipulate the URL to cause a 500 network error.
       process.env.BITCOINCOM_BASEURL = 'http://fakeurl/api/'
       process.env.RPC_BASEURL = 'http://fakeurl/api/'
+      process.env.RPC_SENDURL = 'http://fakeurl/api/'
 
       req.params.hex =
         '020000000136697692fed77bc4f5b6885295d0c56d1d0280fb578f445ce42be4eb6db381f2010000006a4730440220473adba0e7da14f0abf4817bbd591741ecb8da6544b998f10341f6704f5f05280220405221c626cb7edcf333367ebd469aff3f5a2169e37ee58eebb811ffc2fbc9e0412102202ff86325c5d903171fa5a2895c4efb3765105115460dc96f113048ddb69b47feffffff027a621b00000000001976a914e0a8ffc3b91e35f46618d6db90f66397989abf0588ac38041300000000001976a914a741f282af390bc7ea8c4375a3a56401d668564288ac2c330900'
@@ -1059,6 +1062,7 @@ describe('#Raw-Transactions', () => {
       // Restore the saved URL.
       process.env.BITCOINCOM_BASEURL = savedUrl
       process.env.RPC_BASEURL = savedUrl2
+      process.env.RPC_SENDURL = savedUrl3
 
       assert.isAbove(
         res.statusCode,

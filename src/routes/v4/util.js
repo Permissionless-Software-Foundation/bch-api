@@ -4,7 +4,9 @@ const express = require('express')
 const router = express.Router()
 const axios = require('axios')
 
-const routeUtils = require('./route-utils')
+const RouteUtils = require('../../util/route-utils')
+const routeUtils = new RouteUtils()
+
 const wlogger = require('../../util/winston-logging')
 
 const util = require('util')
@@ -141,7 +143,7 @@ class UtilRoute {
 
       // Enforce array size rate limits
       if (!routeUtils.validateArraySize(req, addresses)) {
-        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
           error: 'Array too large.'
         })

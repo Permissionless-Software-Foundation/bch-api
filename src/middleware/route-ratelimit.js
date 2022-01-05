@@ -1,327 +1,444 @@
 /*
-  Sets the rate limits for the anonymous and paid tiers. Current rate limits:
-  - 1000 points in 60 seconds
-  - 10 points per call for paid tier (100 RPM)
-  - 50 points per call for anonymous tier (20 RPM)
+This file will replace the original rate-limit.js file.
 
-  Background:
-  The rate limits below were originially coded with the idea of charging on a
-  per-resource basis. However, that was confusing to end users trying to purchase
-  a subscription. So everything was simplied to two tiers: paid and anonymous
+Sets the rate limits for the anonymous and paid tiers. Current rate limits:
+- 10000 points in 60 seconds
+- 500 points per call for anonymous tier (20 RPM)
+- 100 points per call for tier 40 (100 RPM)
+- 40 points per call for tier 50 (250 RPM)
+- 16 points per call for tier 60 (625 RPM)
 
-  CT 3/4/21: I increased the total points from 1,000 to 100,000 to prevent systems
-  with Basic Authentication from hitting internal rate limits when calling
-  hydrateUtxos().
+The rate limit handling is designed for these four use cases:
+- Users who want to buy a JWT token for 24 hour access.
+- Users who want to buy different RPM tiers: 100, 250, 600
+- Basic Authentication which should not have any rate limits applied.
+- Local installations that do not want any authentication or rate limits at all.
+
+The Basic Auth use cases is considered when determining internal rate limits.
+The internal rate limits should not be applied to calls from those users.
+
+A lot of attention has been paid to passing rate-limit information for the user
+when they trigger an endpoint that makes a lot of internal API calls. Examples
+are hydrateUtxos() and getPublicKey(). These keeps things fair by charging the
+same for 'light' API calls and 'heavy' API calls.
+
+TODO:
+- Add code for applying rate limits to whitelist domains.
 */
 
-'use strict'
-
 // Public npm libraries.
-const jwt = require('jsonwebtoken')
+const jwt = require("jsonwebtoken");
+const Redis = require("ioredis");
+const { RateLimiterRedis } = require("rate-limiter-flexible");
 
 // local libraries.
-const wlogger = require('../util/winston-logging')
-const config = require('../../config')
+const wlogger = require("../util/winston-logging");
+const config = require("../../config");
 
-// Hard coding limits since basic-authentiation is assumed to be the primary access.
-const ANON_LIMITS = 333
+let _this; // Global pointer to instance of class, when 'this' context is lost.
 
-const WHITELIST_RATE_LIMIT = config.whitelistRateLimit
-const WHITELIST_DOMAINS = config.whitelistDomains
-const INTERNAL_RATE_LIMIT = 1
-
-// Redis
+// Setup Redis to track rate limits for each user.
 const redisOptions = {
   enableOfflineQueue: false,
   port: process.env.REDIS_PORT ? process.env.REDIS_PORT : 6379,
-  host: process.env.REDIS_HOST ? process.env.REDIS_HOST : '127.0.0.1'
-}
-console.log(`redisOptions: ${JSON.stringify(redisOptions, null, 2)}`)
-
-const Redis = require('ioredis')
-const redisClient = new Redis(redisOptions)
-
-// Rate limiter middleware lib.
-const { RateLimiterRedis } = require('rate-limiter-flexible')
+  host: process.env.REDIS_HOST ? process.env.REDIS_HOST : "127.0.0.1",
+};
+const redisClient = new Redis(redisOptions);
 const rateLimitOptions = {
   storeClient: redisClient,
-  points: 1000, // Number of points
-  duration: 60 // Per minute (per 60 seconds)
-}
+  points: config.pointsPerMinute, // Number of points
+  duration: 60, // Per minute (per 60 seconds)
+};
 
-let _this
+// Constants
+const ANON_LIMITS = config.anonRateLimit;
+// const WHITELIST_RATE_LIMIT = config.whitelistRateLimit
+const WHITELIST_DOMAINS = config.whitelistDomains;
+const WHITELIST_POINTS_TO_CONSUME = config.whitelistRateLimit;
+const POINTS_PER_MINUTE = config.pointsPerMinute;
+const INTERNAL_POINTS_TO_CONSUME = config.internalRateLimit;
 
 class RateLimits {
-  constructor () {
-    _this = this
+  constructor() {
+    _this = this;
 
-    this.jwt = jwt
-    this.rateLimiter = new RateLimiterRedis(rateLimitOptions)
-    this.config = config
+    this.jwt = jwt;
+    this.rateLimiter = new RateLimiterRedis(rateLimitOptions);
+    this.config = config;
   }
 
-  // Used to disconnect from the Redis DB.
-  // Called by unit tests so that node.js thread doesn't live forever.
-  closeRedis () {
-    redisClient.disconnect()
-  }
-
-  async wipeRedis () {
-    await redisClient.flushdb()
-  }
-
-  // This is the new rate limit function that uses the rate-limiter-flexible npm
-  // library. It uses fine-grain rate limiting based on the resources being
-  // consumed.
-  async rateLimitByResource (req, res, next) {
+  // This is the main middleware funciton of this library. All other functions
+  // support this function.
+  async applyRateLimits(req, res, next) {
     try {
-      let userId
-      let decoded = {}
-
-      // Create a req.locals object if not passed in.
-      if (!req.locals) {
-        req.locals = {
-          // default values
-          jwtToken: '',
-          proLimit: false,
-          apiLevel: 0
-        }
+      // Exit if the user has already authenticated with Basic Authentication.
+      if (req.locals.proLimit) {
+        console.log("External call, basic auth, skipping rate limits.");
+        wlogger.debug(
+          "req.locals.proLimit = true; Using Basic Authentication instead of rate limits"
+        );
+        return next();
       }
 
-      // Create a res.locals object if it does not exist. This is used for
-      // debugging.
-      if (!res.locals) {
-        res.locals = {
-          rateLimitTriggered: false
-        }
-      }
+      // Determine if the call is an external or internal API call.
+      const isInternal = _this.checkInternalIp(req);
+      // console.log(`isInternal: ${isInternal}`)
 
-      // Decode the JWT token if one exists.
-      if (req.locals.jwtToken) {
-        try {
-          decoded = _this.jwt.verify(
-            req.locals.jwtToken,
-            _this.config.apiTokenSecret
-          )
-          // console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
+      // Determine if the call originates from another computer on the intranet.
+      const isWhitelistOrigin = _this.isInWhitelist(req);
+      // console.log('isWhitelistOrigin: ', isWhitelistOrigin)
 
-          userId = decoded.id
-        } catch (err) {
-          // This handler will be triggered if the JWT token does not match the
-          // token secret.
-          wlogger.error(
-            `Last three letters of token secret: ${_this.config.apiTokenSecret.slice(
-              -3
-            )}`
-          )
-          wlogger.error(
-            'Error trying to decode JWT token in route-ratelimit.js/newRateLimit(): ',
-            err
-          )
+      // Handle the use case of internally-generated requests.
+      if (isInternal) {
+        // Internal API calls should pass the authentication data in through the
+        // the usrObj in the body.
+        if (req.body && req.body.usrObj) {
+          if (req.body.usrObj.proLimit) {
+            // console.log('Internal call, basic auth, skipping rate limits.')
+
+            // If this is an internal call that originated from a user using
+            // Basic Authentication, then skip rate-limits.
+            return next();
+          } else {
+            // console.log(
+            //   'Internal call, applying rate limits. Using JWT if available.'
+            // )
+
+            // Determine if user has exceeded their rate limits. Pass in the
+            // JWT token if one exists.
+            const hasExceededRateLimit = await _this.trackRateLimits(
+              req,
+              res,
+              req.body.usrObj.jwtToken
+            );
+
+            if (!hasExceededRateLimit) {
+              // Rate limits have not been exceeded. Processing can continue.
+              return next();
+            } else {
+              // trackRateLimits() returns the 'res' object with an error message
+              // and status code.
+              return hasExceededRateLimit;
+            }
+          }
+        } else {
+          // This should be a corner case. Calls should not be going into this
+          // code path, so the system should throw up big warning signs when they
+          // do.
+          // This code path happens when an internal call is made but does not
+          // pass the usrObj. Legacy code needs to be refactored to use the usrObj
+          // and avoid this code path. This code path is 'pooled': all users
+          // share the same rate limits. Even at 1000 RPM, this pool will get
+          // exhausted easily.
+          // const warnMsg =
+          //   'Internal call. req.body.usrObj does not exist. Applying high-speed internal rate limits.'
+          // console.log(warnMsg)
+          // wlogger.info(warnMsg)
+
+          const defaultPayload = {
+            id: "98.76.54.32",
+            email: "internal@bchtest.net",
+            apiLevel: 40,
+            rateLimit: 100,
+            pointsToConsume: INTERNAL_POINTS_TO_CONSUME,
+            duration: 30,
+          };
+
+          // Default values, in case there is an error.
+          const defaultJwt = _this.generateJwtToken(defaultPayload);
+
+          // Track the rate limit for this user. Pass in the JWT token, if one
+          // is available.
+          const hasExceededRateLimit = await _this.trackRateLimits(
+            req,
+            res,
+            defaultJwt
+          );
+          // console.log(`hasExceededRateLimit: `, hasExceededRateLimit)
+
+          if (!hasExceededRateLimit) {
+            // Rate limits have not been exceeded. Processing can continue.
+            return next();
+          } else {
+            // trackRateLimits() returns the 'res' object with an error message
+            // and status code.
+            return hasExceededRateLimit;
+          }
         }
         //
-      } else if (req.body && req.body.usrObj) {
-        // Same as above, but this code path is activated from internal calls to
-        // bch-js, like hydrateUtxo(), which passes the user object from the
-        // original API call.
-
-        try {
-          decoded = _this.jwt.verify(
-            req.body.usrObj.jwtToken,
-            _this.config.apiTokenSecret
-          )
-          // console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
-
-          userId = decoded.id
-        } catch (err) {
-          // This handler will be triggered if the JWT token does not match the
-          // token secret.
-          wlogger.error(
-            'Error in route-ratelimit.js trying to decode JWT token in usrObj'
-          )
-        }
+        //
       } else {
-        wlogger.debug('No JWT token found!')
-      }
+        // Handle the normal use-case of external requests
+        // console.log(
+        //   'External call, applying rate limits. Using JWT if available.'
+        // )
 
-      // Default value is 50 points per request = 20 RPM
-      let rateLimit = ANON_LIMITS
+        // For calls originating from a whitelist domain, apply a high-RPM
+        // JWT token to the call.
+        if (isWhitelistOrigin) {
+          const defaultPayload = {
+            id: "77.77.77.77",
+            email: "whitelist@bchtest.net",
+            apiLevel: 40,
+            rateLimit: 100,
+            pointsToConsume: WHITELIST_POINTS_TO_CONSUME,
+            duration: 30,
+          };
 
-      // Only evaluate the JWT token if the user is not using Basic Authentication.
-      if (!req.locals.proLimit && !req.body.usrObj.proLimit) {
-        // Code here for the rate limiter is adapted from this example:
-        // https://github.com/animir/node-rate-limiter-flexible/wiki/Overall-example#authorized-and-not-authorized-users
-        try {
-          // The resource being consumed: full node, indexer, SLPDB, etc.
-          const resource = _this.getResource(req.url)
-          wlogger.debug(`resource: ${resource}`)
-
-          // Key will be the JWT ID if it exists, otherwise the IP address of the caller.
-          let key = userId || req.ip
-          res.locals.key = key // Feedback for tests.
-          // console.log(`key: ${key}`)
-
-          // const pointsToConsume = userId ? 1 : 30
-          decoded.resource = resource
-          let pointsToConsume = _this.calcPoints(decoded)
-          res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
-
-          // Retrieve the origin.
-          let origin = req.get('origin')
-
-          // Handle calls coming from the intranet.
-          if (origin === undefined && key.indexOf('10.0.0.5') > -1) {
-            origin = 'slp-api'
-          }
-
-          wlogger.info(`origin: ${origin}`)
-
-          // If the request originates from one of the approved wallet apps, then
-          // apply paid-access rate limits.
-          // console.log(`origin: ${JSON.stringify(origin, null, 2)}`)
-          // console.log(`whitelist: ${JSON.stringify(WHITELIST_DOMAINS, null, 2)}`)
-          const isInWhitelist = _this.isInWhitelist(origin)
-          if (isInWhitelist) {
-            pointsToConsume = WHITELIST_RATE_LIMIT
-            res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
-          }
-
-          // For internal calls, increase rate limits to as fast as possible.
-          if (
-            // Comment out the line below when running bch-js e2e rate limit tests.
-            key.toString().indexOf('::ffff:127.0.0.1') > -1 ||
-            // Do not comment out this line.
-            key.toString().indexOf('172.17.') > -1
-          ) {
-            pointsToConsume = INTERNAL_RATE_LIMIT
-            res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
-          }
-
-          wlogger.info(
-            `User ${key} consuming ${pointsToConsume} point for resource ${resource}.`
-          )
-
-          rateLimit = Math.floor(100000 / pointsToConsume)
-
-          // Update the key so that rate limits track both the user and the resource.
-          key = `${key}-${resource}`
-
-          await _this.rateLimiter.consume(key, pointsToConsume)
-        } catch (err) {
-          // console.log('err: ', err)
-
-          // Used for returning data for tests.
-          res.locals.rateLimitTriggered = true
-          // console.log('res.locals: ', res.locals)
-
-          // Rate limited was triggered
-          res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
-          return res.json({
-            error: `Too many requests. Your limits are currently ${rateLimit} requests per minute. Increase rate limits at https://fullstack.cash`
-          })
+          // Inject the high-RPM JWT token into the call.
+          req.locals.jwtToken = _this.generateJwtToken(defaultPayload);
         }
-      }
-    } catch (err) {
-      wlogger.error('Error in route-ratelimit.js/newRateLimit(): ', err)
-      // throw err
-    }
 
-    next()
-  }
+        // Track the rate limit for this user. Pass in the JWT token, if one
+        // is available.
+        const hasExceededRateLimit = await _this.trackRateLimits(
+          req,
+          res,
+          req.locals.jwtToken
+        );
+        // console.log('hasExceededRateLimit: ', hasExceededRateLimit)
 
-  // Calculates the points consumed, based on the jwt information and the route
-  // requested.
-  calcPoints (jwtInfo) {
-    let retVal = ANON_LIMITS // By default, use anonymous tier.
-
-    try {
-      // console.log(`jwtInfo: ${JSON.stringify(jwtInfo, null, 2)}`)
-
-      const apiLevel = jwtInfo.apiLevel
-      const resource = jwtInfo.resource
-
-      const level30Routes = ['insight', 'bitcore', 'blockbook', 'electrumx']
-      const level40Routes = ['slp']
-
-      wlogger.debug(`apiLevel: ${apiLevel}`)
-
-      // Only evaluate if user is using a JWT token.
-      if (jwtInfo.id) {
-        // SLP indexer routes
-        if (level40Routes.includes(resource)) {
-          if (apiLevel >= 40) retVal = 10
-          // else if (apiLevel >= 10) retVal = 10
-          else retVal = ANON_LIMITS
-
-          // Normal indexer routes
-        } else if (level30Routes.includes(resource)) {
-          if (apiLevel >= 30) retVal = 10
-          else retVal = ANON_LIMITS
-
-          // Full node tier
-        } else if (apiLevel >= 20) {
-          retVal = 10
-
-          // Free tier, full node only.
+        if (!hasExceededRateLimit) {
+          // Rate limits have not been exceeded. Processing can continue.
+          return next();
         } else {
-          retVal = ANON_LIMITS
+          // trackRateLimits() returns the 'res' object with an error message
+          // and status code.
+          return hasExceededRateLimit;
         }
       }
-
-      return retVal
     } catch (err) {
-      wlogger.error('Error in route-ratelimit.js/calcPoints()')
-      // throw err
-      retVal = ANON_LIMITS
+      wlogger.error("Error in route-ratelimit2.js/applyRateLimits(): ", err);
     }
 
-    return retVal
+    // By default, move to the next middleware.
+    next();
   }
 
-  // This function parses the req.url property to identify what resource
-  // the user is requesting.
-  // This was created as a function so that it can be unit tested. Not sure
-  // what kind of variations will be seen in production.
-  getResource (url) {
+  // A wrapper for Redis-based rate limiter.
+  // Will return false if the user has not exceeded the rate limit. Otherwise
+  // it will return the 'res' object with an error status and message, which
+  // should be returned by the middleware.
+  async trackRateLimits(req, res, jwtToken) {
+    const debugInfo = {
+      jwtToken,
+      userObj: req.body.usrObj,
+      locals: req.locals,
+    };
+
+    // Anonymous rate limits are used by default.
+    let pointsToConsume = ANON_LIMITS;
+    // console.log('pointsToConsume: ', pointsToConsume)
+
+    let key = req.ip; // Use the IP address as the key, by default.
+    debugInfo.ip = req.ip;
+
+    // console.log('jwtToken: ', jwtToken)
+
     try {
-      wlogger.debug(`url: ${JSON.stringify(url, null, 2)}`)
+      // Decode the JWT token if it exists
+      if (jwtToken) {
+        const decoded = _this.decodeJwtToken(jwtToken);
+        // console.log(`decoded: ${JSON.stringify(decoded, null, 2)}`)
 
-      const splitUrl = url.split('/')
-      const resource = splitUrl[1]
+        // Preferentially use the decoded ID in the JWT payload, as the key.
+        key = decoded.id;
+        debugInfo.id = key;
 
-      return resource
+        pointsToConsume = decoded.pointsToConsume;
+        debugInfo.pointsToConsume = pointsToConsume;
+      }
+      // console.log(`rate limit key: ${key}`)
+
+      // This function will throw an error if the user exceeds the rate limit.
+      // The 429 error response is handled by the catch().
+      await _this.rateLimiter.consume(key, pointsToConsume);
+
+      // Debugging
+      // const rateLimitData = await _this.rateLimiter.consume(key, pointsToConsume)
+      // console.log(`rateLimitData: `, rateLimitData)
+
+      res.locals.pointsToConsume = pointsToConsume; // Feedback for tests.
+
+      // Signal that the user has not exceeded their rate limits.
+      return false;
     } catch (err) {
-      wlogger.error('Error in getResource().')
-      throw err
+      // console.log('err: ', err)
+
+      const rateLimit = Math.floor(POINTS_PER_MINUTE / pointsToConsume);
+
+      res.locals.rateLimitTriggered = true;
+      // console.log('res.locals: ', res.locals)
+
+      // console.log(
+      //   `rate limit debug info: ${JSON.stringify(debugInfo, null, 2)}`
+      // )
+
+      // Rate limited was triggered
+      res.status(429); // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+      return res.json({
+        error: `Too many requests. Your limits are currently ${rateLimit} requests per minute. Increase rate limits at https://fullstack.cash`,
+      });
+    }
+  }
+
+  // Attempts to decode a JWT token. Returns default values if it fails.
+  decodeJwtToken(jwtToken) {
+    const defaultPayload = {
+      id: "123.456.789.10",
+      email: "test@bchtest.net",
+      apiLevel: 10,
+      rateLimit: 3,
+      pointsToConsume: ANON_LIMITS,
+      duration: 30,
+    };
+
+    try {
+      // Default values, in case there is an error.
+      const defaultJwt = _this.generateJwtToken(defaultPayload);
+
+      // Generate a default payload to use, if the decoding of the user-provided
+      // jwt fails.
+      let decoded = _this.jwt.verify(defaultJwt, _this.config.apiTokenSecret);
+
+      try {
+        decoded = _this.jwt.verify(jwtToken, _this.config.apiTokenSecret);
+      } catch (err) {
+        wlogger.error("Error in route-ratelimit2.js/decodeJwtTokens(): ", err);
+      }
+
+      return decoded;
+    } catch (err) {
+      wlogger.error(
+        "Unhandled error in route-ratelimit2.js/deocdeJwtToken: ",
+        err
+      );
+
+      // Making sure there is an exp property. Not sure if this will cause an
+      // issue, using a hard-coded value.
+      defaultPayload.exp = 1574269450;
+
+      return defaultPayload;
     }
   }
 
   // Returns a boolean if the origin of the request matches a domain in the
   // whitelist.
-  isInWhitelist (origin) {
+  isInWhitelist(req) {
     try {
-      const retVal = false // Default value.
+      const retVal = false; // Default value.
 
-      if (!origin) return false
+      // Retrieve the origin.
+      const origin = req.get("origin");
+
+      if (!process.env.TEST) console.log("origin:", origin);
+
+      // If the origin is not determinable, return false.
+      if (!origin) return false;
 
       // console.log(`WHITELIST_DOMAINS: ${JSON.stringify(WHITELIST_DOMAINS, null, 2)}`)
 
       for (let i = 0; i < WHITELIST_DOMAINS.length; i++) {
-        const thisDomain = WHITELIST_DOMAINS[i]
+        const thisDomain = WHITELIST_DOMAINS[i];
 
-        if (origin.toString().indexOf(thisDomain) > -1) {
-          return true
-        }
+        if (origin.includes(thisDomain)) return true;
       }
 
-      return retVal
+      return retVal;
     } catch (err) {
       wlogger.error(
-        'Error in route-ratelimit.js/isInWhitelist(). Returning false by default.'
-      )
-      return false
+        "Error in route-ratelimit.js/isInWhitelist(). Returning false by default."
+      );
+      return false;
+    }
+  }
+
+  // Checks the request object to see if it's IP address matches an internal
+  // IP address. That means the call is an internal API call and should be
+  // treated differently than an external API call.
+  checkInternalIp(req) {
+    try {
+      // Default value
+      let isInternal = false;
+
+      const ip = req.ip;
+
+      if (ip.includes("127.0.0.1")) isInternal = true;
+
+      if (ip.includes("172.17.")) isInternal = true;
+
+      // TODO: Add 192.168.
+
+      return isInternal;
+    } catch (err) {
+      wlogger.error(
+        "Error in checkInternalIp(). Returning false be default. Err: ",
+        err
+      );
+      return false;
+    }
+  }
+
+  // Used to disconnect from the Redis DB.
+  // Called by unit tests so that node.js thread doesn't live forever.
+  closeRedis() {
+    redisClient.disconnect();
+  }
+
+  // Clear the redis database. Used by unit tests.
+  async wipeRedis() {
+    await redisClient.flushdb();
+  }
+
+  // Generates a JWT token for testing purposes. This is not used in production.
+  // This function mirrors the kind of JWT token that would be generated by
+  // jwt-bch-api.
+  generateJwtToken(payload) {
+    try {
+      const jwtOptions = {
+        expiresIn: "30 days",
+      };
+
+      const token = _this.jwt.sign(
+        payload,
+        _this.config.apiTokenSecret,
+        jwtOptions
+      );
+
+      return token;
+    } catch (err) {
+      console.error("Error in generateJwtToken()");
+      throw err;
+    }
+  }
+
+  // Called when rate limits are not used.
+  populateLocals(req, res, next) {
+    try {
+      // Create a re*Q*.locals object if not passed in.
+      // req.locals.proLimit will be true if the user is using Basic Authentication.
+      if (!req.locals) {
+        req.locals = {
+          // default values
+          jwtToken: "",
+          proLimit: false,
+          apiLevel: 0,
+        };
+      }
+
+      // Create a re*S*.locals object if it does not exist.
+      if (!res.locals) {
+        res.locals = {
+          rateLimitTriggered: false,
+        };
+      }
+
+      next();
+    } catch (err) {
+      console.error("Error in populateLocals(): ", err);
+      throw err;
     }
   }
 }
 
-module.exports = RateLimits
+module.exports = RateLimits;

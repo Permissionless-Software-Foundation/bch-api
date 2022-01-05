@@ -3,7 +3,6 @@
 const express = require('express')
 
 // Middleware
-// const { routeRateLimit } = require("./middleware/route-ratelimit")
 const RateLimits = require('./middleware/route-ratelimit')
 const rateLimits = new RateLimits()
 
@@ -40,6 +39,24 @@ const EncryptionV4 = require('./routes/v4/encryption')
 const PriceV4 = require('./routes/v4/price')
 const Ninsight = require('./routes/v4/ninsight')
 
+// v5
+const healthCheckV5 = require('./routes/v5/health-check')
+const BlockchainV5 = require('./routes/v5/full-node/blockchain')
+const ControlV5 = require('./routes/v5/full-node/control')
+const MiningV5 = require('./routes/v5/full-node/mining')
+const networkV5 = require('./routes/v5/full-node/network')
+const RawtransactionsV5 = require('./routes/v5/full-node/rawtransactions')
+const DSProofV5 = require('./routes/v5/full-node/dsproof')
+const UtilV5 = require('./routes/v5/util')
+const SlpV5 = require('./routes/v5/slp')
+const xpubV5 = require('./routes/v5/xpub')
+const ElectrumXV5 = require('./routes/v5/electrumx')
+const EncryptionV5 = require('./routes/v5/encryption')
+const PriceV5 = require('./routes/v5/price')
+const JWTV5 = require('./routes/v5/jwt')
+const BcashSLP = require('./routes/v5/bcash/slp')
+// const Ninsight = require('./routes/v5/ninsight')
+
 require('dotenv').config()
 
 // Instantiate v4 route libraries.
@@ -54,6 +71,19 @@ const encryptionv4 = new EncryptionV4()
 const pricev4 = new PriceV4()
 const utilV4 = new UtilV4({ electrumx: electrumxv4 })
 
+// Instantiate v5 route libraries.
+const blockchainV5 = new BlockchainV5()
+const controlV5 = new ControlV5()
+const miningV5 = new MiningV5()
+const rawtransactionsV5 = new RawtransactionsV5()
+const slpV5 = new SlpV5()
+const electrumxv5 = new ElectrumXV5()
+const encryptionv5 = new EncryptionV5()
+const pricev5 = new PriceV5()
+const utilV5 = new UtilV5({ electrumx: electrumxv5 })
+const dsproofV5 = new DSProofV5()
+const jwtV5 = new JWTV5()
+const bcashSLP = new BcashSLP()
 const app = express()
 
 app.locals.env = process.env
@@ -95,18 +125,42 @@ app.use(express.static(path.join(__dirname, 'public')))
 app.use('/', logReqInfo)
 
 const v4prefix = 'v4'
+const v5prefix = 'v5'
 
-// Inspect the header for a JWT token.
-app.use(`/${v4prefix}/`, jwtAuth.getTokenFromHeaders)
-
-// Instantiate the authorization middleware, used to implement pro-tier rate limiting.
-// Handles Anonymous and Basic Authorization schemes used by passport.js
+// START Rate Limits
 const auth = new AuthMW()
-app.use(`/${v4prefix}/`, auth.mw())
 
-// Rate limit on all v4 routes
-// Establish and enforce rate limits.
-app.use(`/${v4prefix}/`, rateLimits.rateLimitByResource)
+// Ensure req.locals and res.locals objects exist.
+app.use(`/${v4prefix}/`, rateLimits.populateLocals)
+app.use(`/${v5prefix}/`, rateLimits.populateLocals)
+
+// Allow users to turn off rate limits with an environment variable.
+const DO_NOT_USE_RATE_LIMITS = process.env.DO_NOT_USE_RATE_LIMITS || false
+
+console.log(`DO_NOT_USE_RATE_LIMITS: ${DO_NOT_USE_RATE_LIMITS}`)
+
+if (!DO_NOT_USE_RATE_LIMITS) {
+  console.log('Rate limits are being used')
+  // Inspect the header for a JWT token.
+  app.use(`/${v4prefix}/`, jwtAuth.getTokenFromHeaders)
+  app.use(`/${v5prefix}/`, jwtAuth.getTokenFromHeaders)
+
+  // Instantiate the authorization middleware, used to implement pro-tier rate limiting.
+  // Handles Anonymous and Basic Authorization schemes used by passport.js
+  app.use(`/${v4prefix}/`, auth.mw())
+  app.use(`/${v5prefix}/`, auth.mw())
+
+  // Experimental rate limits
+  app.use(`/${v4prefix}/`, rateLimits.applyRateLimits)
+  app.use(`/${v5prefix}/`, rateLimits.applyRateLimits)
+
+  // Rate limit on all v4 routes
+  // Establish and enforce rate limits.
+  // app.use(`/${v4prefix}/`, rateLimits.rateLimitByResource)
+} else {
+  console.log('Rate limits are NOT being used')
+}
+// END Rate Limits
 
 // Connect v4 routes
 app.use(`/${v4prefix}/` + 'health-check', healthCheckV4)
@@ -124,6 +178,27 @@ app.use(`/${v4prefix}/` + 'util', utilV4.router)
 
 const ninsight = new Ninsight()
 app.use(`/${v4prefix}/` + 'ninsight', ninsight.router)
+
+// Connect v5 routes
+app.use(`/${v5prefix}/` + 'health-check', healthCheckV5)
+app.use(`/${v5prefix}/` + 'blockchain', blockchainV5.router)
+app.use(`/${v5prefix}/` + 'control', controlV5.router)
+app.use(`/${v5prefix}/` + 'mining', miningV5.router)
+app.use(`/${v5prefix}/` + 'network', networkV5)
+app.use(`/${v5prefix}/` + 'rawtransactions', rawtransactionsV5.router)
+app.use(`/${v5prefix}/` + 'slp', slpV5.router)
+app.use(`/${v5prefix}/` + 'xpub', xpubV5.router)
+app.use(`/${v5prefix}/` + 'electrumx', electrumxv5.router)
+app.use(`/${v5prefix}/` + 'encryption', encryptionv5.router)
+app.use(`/${v5prefix}/` + 'price', pricev5.router)
+app.use(`/${v5prefix}/` + 'util', utilV5.router)
+app.use(`/${v5prefix}/` + 'dsproof', dsproofV5.router)
+app.use(`/${v5prefix}/` + 'jwt', jwtV5.router)
+
+// const ninsight = new Ninsight()
+app.use(`/${v5prefix}/` + 'ninsight', ninsight.router)
+
+app.use(`/${v5prefix}/` + 'bcash/slp', bcashSLP.router)
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
@@ -171,9 +246,11 @@ server.listen(port)
 server.on('error', onError)
 server.on('listening', onListening)
 
-// Set the time before a timeout error is generated. This impacts testing and
-// the handling of timeout errors. Is 10 seconds too agressive?
-server.setTimeout(30 * 1000)
+// Set the time before a timeout error is generated.
+// 10 seconds is way too agressive. 30 Seconds was used for a while, but with
+// being able to set a timeout between UTXOs for tokenUtxoDetails, the timeout
+// needed to be extended.
+server.setTimeout(1000 * 60 * 5) // 5 minutes
 
 /**
  * Normalize a port into a number, string, or false.

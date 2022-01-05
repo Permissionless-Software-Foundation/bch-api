@@ -14,22 +14,24 @@
   "scripts": {
     "start": "node ./src/app.js",
     "dev": "nodemon ./dist/app.js",
-    "test": "npm run lint && npm run test-v4",
+    "test": "npm run lint && npm run test-v5",
     "lint": "standard --env mocha --fix",
-    "test-v4": "export NETWORK=mainnet && nyc --reporter=text mocha --timeout 60000 test/v4/",
+    "test-v4": "export NETWORK=mainnet && nyc --reporter=text mocha --exit --timeout 60000 test/v4/",
+    "test-v5": "export NETWORK=mainnet && nyc --reporter=text mocha --exit --timeout 60000 test/v5/",
     "test:integration": "mocha test/v4/integration",
     "test:integration:slpdb": "mocha --timeout 25000 -g '#validate2Single' test/v4/integration/slp*.js",
+    "test:integration:nft": "mocha --timeout 25000 -g '#nft' test/v4/integration/nft.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coverage:report": "export NETWORK=mainnet && nyc --reporter=html mocha --timeout 25000 test/v4/",
-    "docs": "./node_modules/.bin/apidoc -i src/routes/v4 -o docs",
-    "test:temp1": "export NETWORK=mainnet && export TEST=integration && mocha --exit --timeout 25000 -g '#hydrateUtxosWL' test/v4/integration/",
-    "test:temp2": "mocha test/v4/rate-limits.js"
+    "docs": "./node_modules/.bin/apidoc -i src/routes/v5 -o docs",
+    "test:temp1": "export NETWORK=mainnet && export TEST=integration && mocha -g '#utxosBulk' --exit --timeout 30000 test/v5/",
+    "test:temp2": "export NETWORK=mainnet && mocha -g '#utxosBulk' --exit --timeout 30000 test/v5/"
   },
   "engines": {
     "node": ">=10.15.1"
   },
   "dependencies": {
-    "@psf/bch-js": "^4.15.21",
+    "@psf/bch-js": "^4.20.7",
     "apidoc": "^0.26.0",
     "axios": "^0.21.1",
     "bitcore-lib-cash": "^8.23.1",
@@ -66,10 +68,11 @@
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-standard": "^4.0.0",
     "fs-extra": "^9.0.0",
+    "lodash.clonedeep": "^4.5.0",
     "nock": "^13.0.5",
     "nyc": "^15.0.0",
     "prettier": "^2.0.0",
-    "semantic-release": "^17.3.9",
+    "semantic-release": "^17.4.2",
     "sinon": "^9.0.0",
     "standard": "^14.3.1"
   },
@@ -83,6 +86,6 @@
   },
   "apidoc": {
     "title": "bch-api",
-    "url": "https://api.fullstack.cash/v4"
+    "url": "https://api.fullstack.cash/v5"
   }
 }

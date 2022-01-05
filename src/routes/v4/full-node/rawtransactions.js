@@ -118,7 +118,7 @@ class RawTransactions {
 
       // Enforce array size rate limits
       if (!_this.routeUtils.validateArraySize(req, hexes)) {
-        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
           error: 'Array too large.'
         })
@@ -140,7 +140,7 @@ class RawTransactions {
       const options = _this.routeUtils.getAxiosOptions()
 
       // Loop through each height and creates an array of requests to call in parallel
-      const promises = hexes.map(async hex => {
+      const promises = hexes.map(async (hex) => {
         options.data.id = 'decoderawtransaction'
         options.data.method = 'decoderawtransaction'
         options.data.params = [hex]
@@ -152,7 +152,7 @@ class RawTransactions {
       const axiosResult = await _this.axios.all(promises)
 
       // Retrieve the data part of the result.
-      const result = axiosResult.map(x => x.data.result)
+      const result = axiosResult.map((x) => x.data.result)
 
       res.status(200)
       return res.json(result)
@@ -234,7 +234,7 @@ class RawTransactions {
 
       // Enforce array size rate limits
       if (!_this.routeUtils.validateArraySize(req, hexes)) {
-        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
           error: 'Array too large.'
         })
@@ -254,7 +254,7 @@ class RawTransactions {
       const options = _this.routeUtils.getAxiosOptions()
 
       // Loop through each hex and create an array of promises
-      const promises = hexes.map(async hex => {
+      const promises = hexes.map(async (hex) => {
         options.data.id = 'decodescript'
         options.data.method = 'decodescript'
         options.data.params = [hex]
@@ -267,7 +267,7 @@ class RawTransactions {
       const resolved = await Promise.all(promises)
 
       // Retrieve the data from each resolved promise.
-      const result = resolved.map(x => x.data.result)
+      const result = resolved.map((x) => x.data.result)
 
       res.status(200)
       return res.json(result)
@@ -324,19 +324,11 @@ class RawTransactions {
 
       // Enforce array size rate limits
       if (!_this.routeUtils.validateArraySize(req, txids)) {
-        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
           error: 'Array too large.'
         })
       }
-
-      // stub response object
-      // const returnResponse = {
-      //   status: 100,
-      //   json: {
-      //     error: ''
-      //   }
-      // }
 
       // Validate each txid in the array.
       for (let i = 0; i < txids.length; i++) {
@@ -356,7 +348,7 @@ class RawTransactions {
       }
 
       // Loop through each txid and create an array of promises
-      const promises = txids.map(async txid =>
+      const promises = txids.map(async (txid) =>
         _this.getRawTransactionsFromNode(txid, verbose)
       )
 
@@ -444,11 +436,12 @@ class RawTransactions {
         return res.json({ error: 'hex must be an array' })
       }
 
-      const options = _this.routeUtils.getAxiosOptions()
+      let options = _this.routeUtils.getAxiosOptions()
+      options = _this.sendTxOptions(options)
 
       // Enforce array size rate limits
       if (!_this.routeUtils.validateArraySize(req, hexes)) {
-        res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
           error: 'Array too large.'
         })
@@ -544,7 +537,8 @@ class RawTransactions {
         })
       }
 
-      const options = _this.routeUtils.getAxiosOptions()
+      let options = _this.routeUtils.getAxiosOptions()
+      options = _this.sendTxOptions(options)
 
       // RPC call
       options.data.id = 'sendrawtransaction'
@@ -563,6 +557,31 @@ class RawTransactions {
         err
       )
       return _this.errorHandler(err, res)
+    }
+  }
+
+  // This method modifies the default axios options. It attempts to inject
+  // a specific full node to use when broadcasting transactions. This is useful
+  // because it leverages the built-in protections that a full node has against
+  // accidental double spends. It mitigates a corner-case when rapidly spending
+  // TXs on load balanced nodes. By piping all TX sends through a single node,
+  // accidental double spends can be reduced.
+  sendTxOptions (options) {
+    try {
+      const sendUrl = process.env.RPC_SENDURL
+
+      if (sendUrl !== 'undefined' && sendUrl !== undefined) {
+        // console.log(`original options: ${JSON.stringify(options, null, 2)}`)
+
+        options.baseURL = process.env.RPC_SENDURL
+
+        // console.log(`modified options: ${JSON.stringify(options, null, 2)}`)
+      }
+
+      return options
+    } catch (err) {
+      wlogger.error('Error in rawtransactions.js/sendTxOptions()')
+      throw err
     }
   }
 }

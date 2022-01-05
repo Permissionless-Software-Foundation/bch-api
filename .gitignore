@@ -30,6 +30,7 @@ start-fullstack-abc.sh
 start-fullstack-bchn.sh
 start-ss-main.sh
 start-decatur-bchn.sh
+shell-scripts/
 
 coverage
 start-my-infra
