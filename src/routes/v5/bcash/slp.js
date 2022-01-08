@@ -1,5 +1,5 @@
 /*
-  Electrum API route
+  bcash node routes for working with SLP tokens.
 */
 
 'use strict'

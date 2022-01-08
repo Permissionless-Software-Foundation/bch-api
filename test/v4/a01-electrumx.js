@@ -359,7 +359,7 @@ describe('#Electrumx', () => {
 
     it('should throw 400 error if addresses array is too large', async () => {
       const testArray = []
-      for (var i = 0; i < 25; i++) testArray.push('')
+      for (let i = 0; i < 25; i++) testArray.push('')
 
       req.body.addresses = testArray
 
@@ -596,7 +596,7 @@ describe('#Electrumx', () => {
 
     it('should throw 400 error if txid array is too large', async () => {
       const testArray = []
-      for (var i = 0; i < 25; i++) testArray.push('')
+      for (let i = 0; i < 25; i++) testArray.push('')
 
       req.body.txids = testArray
 
@@ -843,7 +843,7 @@ describe('#Electrumx', () => {
 
     it('should throw 400 error if heights array is too large', async () => {
       const testArray = []
-      for (var i = 0; i < 25; i++) testArray.push('')
+      for (let i = 0; i < 25; i++) testArray.push('')
 
       req.body.heights = testArray
 
@@ -1206,7 +1206,7 @@ describe('#Electrumx', () => {
 
     it('should throw 400 error if addresses array is too large', async () => {
       const testArray = []
-      for (var i = 0; i < 25; i++) testArray.push('')
+      for (let i = 0; i < 25; i++) testArray.push('')
 
       req.body.addresses = testArray
 
@@ -1494,7 +1494,7 @@ describe('#Electrumx', () => {
 
     it('should throw 400 error if addresses array is too large', async () => {
       const testArray = []
-      for (var i = 0; i < 25; i++) testArray.push('')
+      for (let i = 0; i < 25; i++) testArray.push('')
 
       req.body.addresses = testArray
 
@@ -1781,7 +1781,7 @@ describe('#Electrumx', () => {
 
     it('should throw 400 error if addresses array is too large', async () => {
       const testArray = []
-      for (var i = 0; i < 25; i++) testArray.push('')
+      for (let i = 0; i < 25; i++) testArray.push('')
 
       req.body.addresses = testArray
 
