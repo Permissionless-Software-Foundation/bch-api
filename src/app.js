@@ -200,6 +200,9 @@ app.use(`/${v5prefix}/` + 'ninsight', ninsight.router)
 
 app.use(`/${v5prefix}/` + 'bcash/slp', bcashSLP.router)
 
+// Daniel:
+// app.use(`/${v5prefix}/` + 'psfslp', psfSlp.router)
+
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
   const err = {
