@@ -1,5 +1,5 @@
 /*
-  Electrum API route
+  bcash node routes for working with SLP tokens.
 */
 
 'use strict'
@@ -33,14 +33,6 @@ class BcashSlp {
     this.bchjs = bchjs
     // _this.bitcore = bitcore
 
-    this.bcashServer = process.env.BCASH_SERVER
-    if (!this.bcashServer) {
-      // console.warn('FULCRUM_API env var not set. Can not connect to Fulcrum indexer.')
-      throw new Error(
-        'BCASH_SERVER env var not set. Can not connect to bcash full node.'
-      )
-    }
-
     this.router = router
     this.router.get('/', this.root)
     this.router.get('/utxos/:address', this.getUtxos)
@@ -62,6 +54,14 @@ class BcashSlp {
   async getUtxos (req, res, next) {
     try {
       const address = req.params.address
+
+      this.bcashServer = process.env.BCASH_SERVER
+      if (!this.bcashServer) {
+        // console.warn('FULCRUM_API env var not set. Can not connect to Fulcrum indexer.')
+        throw new Error(
+          'BCASH_SERVER env var not set. Can not connect to bcash full node.'
+        )
+      }
 
       // Reject if address is an array.
       if (Array.isArray(address)) {
@@ -142,6 +142,14 @@ class BcashSlp {
     try {
       if (!tokenId || typeof tokenId !== 'string') {
         throw new Error('tokenId must be string')
+      }
+
+      this.bcashServer = process.env.BCASH_SERVER
+      if (!this.bcashServer) {
+        // console.warn('FULCRUM_API env var not set. Can not connect to Fulcrum indexer.')
+        throw new Error(
+          'BCASH_SERVER env var not set. Can not connect to bcash full node.'
+        )
       }
 
       const result = await _this.axios.get(

@@ -1,30 +1,30 @@
-"use strict";
+'use strict'
 
-const express = require("express");
-const router = express.Router();
-const axios = require("axios");
-const BigNumber = require("bignumber.js");
+const express = require('express')
+const router = express.Router()
+const axios = require('axios')
+const BigNumber = require('bignumber.js')
 
-const RouteUtils = require("../../util/route-utils");
-const routeUtils = new RouteUtils();
+const RouteUtils = require('../../util/route-utils')
+const routeUtils = new RouteUtils()
 
-const Slpdb = require("./services/slpdb");
+const Slpdb = require('./services/slpdb')
 
 // const strftime = require('strftime')
-const wlogger = require("../../util/winston-logging");
+const wlogger = require('../../util/winston-logging')
 
 // Instantiate a local copy of bch-js using the local REST API server.
 const LOCAL_RESTURL = process.env.LOCAL_RESTURL
   ? process.env.LOCAL_RESTURL
-  : "https://api.fullstack.cash/v4/";
+  : 'https://api.fullstack.cash/v4/'
 
-const BCHJS = require("@psf/bch-js");
+const BCHJS = require('@psf/bch-js')
 // const BCHJS = require('../../../../bch-js')
-const bchjs = new BCHJS({ restURL: LOCAL_RESTURL });
+const bchjs = new BCHJS({ restURL: LOCAL_RESTURL })
 
 // Used to convert error messages to strings, to safely pass to users.
-const util = require("util");
-util.inspect.defaultOptions = { depth: 5 };
+const util = require('util')
+util.inspect.defaultOptions = { depth: 5 }
 
 // Setup JSON RPC
 // const BitboxHTTP = axios.create({
@@ -38,142 +38,139 @@ util.inspect.defaultOptions = { depth: 5 };
 // Password for General Purpose (GP) SLPDB.
 const SLPDB_PASS_GP = process.env.SLPDB_PASS_GP
   ? process.env.SLPDB_PASS_GP
-  : "BITBOX";
+  : 'BITBOX'
 // Password for Whitelist (WL) SLPDB.
 const SLPDB_PASS_WL = process.env.SLPDB_PASS_WL
   ? process.env.SLPDB_PASS_WL
-  : "BITBOX";
+  : 'BITBOX'
 
 // const rawtransactions = require('./full-node/rawtransactions')
-const RawTransactions = require("./full-node/rawtransactions");
-const rawTransactions = new RawTransactions();
+const RawTransactions = require('./full-node/rawtransactions')
+const rawTransactions = new RawTransactions()
 
 // Setup REST and TREST URLs used by slpjs
 // Dev note: this allows for unit tests to mock the URL.
 if (!process.env.REST_URL) {
-  process.env.REST_URL = "https://bchn.fullstack.cash/v4/";
+  process.env.REST_URL = 'https://bchn.fullstack.cash/v4/'
 }
 if (!process.env.TREST_URL) {
-  process.env.TREST_URL = "https://testnet.fullstack.cash/v4/";
+  process.env.TREST_URL = 'https://testnet.fullstack.cash/v4/'
 }
 
-let _this;
+let _this
 
 class Slp {
-  constructor() {
-    _this = this;
+  constructor () {
+    _this = this
 
     // Encapsulate external libraries.
-    _this.axios = axios;
-    _this.routeUtils = routeUtils;
-    _this.BigNumber = BigNumber;
-    _this.bchjs = bchjs;
-    _this.rawTransactions = rawTransactions;
-    _this.slpdb = new Slpdb();
+    _this.axios = axios
+    _this.routeUtils = routeUtils
+    _this.BigNumber = BigNumber
+    _this.bchjs = bchjs
+    _this.rawTransactions = rawTransactions
+    _this.slpdb = new Slpdb()
 
-    _this.router = router;
+    _this.router = router
 
-    _this.router.get("/", _this.root);
+    _this.router.get('/', _this.root)
     // _this.router.get('/list', _this.list)
-    _this.router.get("/list/:tokenId", _this.listSingleToken);
-    _this.router.post("/list", _this.listBulkToken);
-    _this.router.get("/balancesForAddress/:address", _this.balancesForAddress);
-    _this.router.post("/balancesForAddress", _this.balancesForAddressBulk);
+    _this.router.get('/list/:tokenId', _this.listSingleToken)
+    _this.router.post('/list', _this.listBulkToken)
+    _this.router.get('/balancesForAddress/:address', _this.balancesForAddress)
+    _this.router.post('/balancesForAddress', _this.balancesForAddressBulk)
+    _this.router.get('/balancesForToken/:tokenId', _this.balancesForTokenSingle)
+    _this.router.get('/convert/:address', _this.convertAddressSingle)
+    _this.router.post('/convert', _this.convertAddressBulk)
+    _this.router.post('/validateTxid', _this.validateBulk)
+    _this.router.get('/validateTxid/:txid', _this.validateSingle)
+    _this.router.get('/validateTxid2/:txid', _this.validate2Single)
+    _this.router.get('/validateTxid3/:txid', _this.validate3Single)
+    _this.router.post('/validateTxid3', _this.validate3Bulk)
+    _this.router.get('/whitelist', _this.getSlpWhitelist)
+    _this.router.get('/txDetails/:txid', _this.txDetails)
+    _this.router.get('/tokenStats/:tokenId', _this.tokenStats)
     _this.router.get(
-      "/balancesForToken/:tokenId",
-      _this.balancesForTokenSingle
-    );
-    _this.router.get("/convert/:address", _this.convertAddressSingle);
-    _this.router.post("/convert", _this.convertAddressBulk);
-    _this.router.post("/validateTxid", _this.validateBulk);
-    _this.router.get("/validateTxid/:txid", _this.validateSingle);
-    _this.router.get("/validateTxid2/:txid", _this.validate2Single);
-    _this.router.get("/validateTxid3/:txid", _this.validate3Single);
-    _this.router.post("/validateTxid3", _this.validate3Bulk);
-    _this.router.get("/whitelist", _this.getSlpWhitelist);
-    _this.router.get("/txDetails/:txid", _this.txDetails);
-    _this.router.get("/tokenStats/:tokenId", _this.tokenStats);
-    _this.router.get(
-      "/transactions/:tokenId/:address",
+      '/transactions/:tokenId/:address',
       _this.txsTokenIdAddressSingle
-    );
+    )
     _this.router.get(
-      "/transactionHistoryAllTokens/:address",
+      '/transactionHistoryAllTokens/:address',
       _this.txsByAddressSingle
-    );
-    _this.router.post("/generateSendOpReturn", _this.generateSendOpReturn);
-    _this.router.post("/hydrateUtxos", _this.hydrateUtxos);
-    _this.router.post("/hydrateUtxosWL", _this.hydrateUtxosWL);
-    _this.router.get("/status", _this.getStatus);
-    _this.router.get("/nftChildren/:tokenId", _this.getNftChildren);
-    _this.router.get("/nftGroup/:tokenId", _this.getNftGroup);
+    )
+    _this.router.post('/generateSendOpReturn', _this.generateSendOpReturn)
+    _this.router.post('/hydrateUtxos', _this.hydrateUtxos)
+    _this.router.post('/hydrateUtxosWL', _this.hydrateUtxosWL)
+    _this.router.get('/status', _this.getStatus)
+    _this.router.get('/nftChildren/:tokenId', _this.getNftChildren)
+    _this.router.get('/nftGroup/:tokenId', _this.getNftGroup)
   }
 
   // DRY error handler.
-  errorHandler(err, res) {
+  errorHandler (err, res) {
     // console.error('Entering slp.js/errorHandler(). err: ', err)
 
     // Attempt to decode the error message.
-    const { msg, status } = _this.routeUtils.decodeError(err);
-    console.log("slp.js/errorHandler msg from decodeError: ", msg);
-    console.log("slp.js/errorHandler status from decodeError: ", status);
+    const { msg, status } = _this.routeUtils.decodeError(err)
+    console.log('slp.js/errorHandler msg from decodeError: ', msg)
+    console.log('slp.js/errorHandler status from decodeError: ', status)
 
     if (msg) {
-      res.status(status);
-      return res.json({ error: msg });
+      res.status(status)
+      return res.json({ error: msg })
     }
 
-    res.status(500);
-    return res.json({ error: util.inspect(err) });
+    res.status(500)
+    return res.json({ error: util.inspect(err) })
   }
 
-  formatTokenOutput(token) {
-    token.tokenDetails.id = token.tokenDetails.tokenIdHex;
-    delete token.tokenDetails.tokenIdHex;
-    token.tokenDetails.documentHash = token.tokenDetails.documentSha256Hex;
-    delete token.tokenDetails.documentSha256Hex;
+  formatTokenOutput (token) {
+    token.tokenDetails.id = token.tokenDetails.tokenIdHex
+    delete token.tokenDetails.tokenIdHex
+    token.tokenDetails.documentHash = token.tokenDetails.documentSha256Hex
+    delete token.tokenDetails.documentSha256Hex
     token.tokenDetails.initialTokenQty = parseFloat(
       token.tokenDetails.genesisOrMintQuantity
-    );
-    delete token.tokenDetails.genesisOrMintQuantity;
-    delete token.tokenDetails.transactionType;
-    delete token.tokenDetails.batonVout;
-    delete token.tokenDetails.sendOutputs;
+    )
+    delete token.tokenDetails.genesisOrMintQuantity
+    delete token.tokenDetails.transactionType
+    delete token.tokenDetails.batonVout
+    delete token.tokenDetails.sendOutputs
 
     if (token.tokenDetails.versionType === 65 && token.nftParentId) {
-      token.tokenDetails.nftParentId = token.nftParentId;
+      token.tokenDetails.nftParentId = token.nftParentId
     }
 
-    token.tokenDetails.blockCreated = token.tokenStats.block_created;
+    token.tokenDetails.blockCreated = token.tokenStats.block_created
     token.tokenDetails.blockLastActiveSend =
-      token.tokenStats.block_last_active_send;
+      token.tokenStats.block_last_active_send
     token.tokenDetails.blockLastActiveMint =
-      token.tokenStats.block_last_active_mint;
+      token.tokenStats.block_last_active_mint
     token.tokenDetails.txnsSinceGenesis =
-      token.tokenStats.qty_valid_txns_since_genesis;
+      token.tokenStats.qty_valid_txns_since_genesis
     token.tokenDetails.validAddresses =
-      token.tokenStats.qty_valid_token_addresses;
+      token.tokenStats.qty_valid_token_addresses
     token.tokenDetails.totalMinted = parseFloat(
       token.tokenStats.qty_token_minted
-    );
+    )
     token.tokenDetails.totalBurned = parseFloat(
       token.tokenStats.qty_token_burned
-    );
+    )
     token.tokenDetails.circulatingSupply = parseFloat(
       token.tokenStats.qty_token_circulating_supply
-    );
+    )
     token.tokenDetails.mintingBatonStatus =
-      token.tokenStats.minting_baton_status;
+      token.tokenStats.minting_baton_status
 
-    delete token.tokenStats.block_last_active_send;
-    delete token.tokenStats.block_last_active_mint;
-    delete token.tokenStats.qty_valid_txns_since_genesis;
-    delete token.tokenStats.qty_valid_token_addresses;
-    return token;
+    delete token.tokenStats.block_last_active_send
+    delete token.tokenStats.block_last_active_mint
+    delete token.tokenStats.qty_valid_txns_since_genesis
+    delete token.tokenStats.qty_valid_token_addresses
+    return token
   }
 
-  root(req, res, next) {
-    return res.json({ status: "slp" });
+  root (req, res, next) {
+    return res.json({ status: 'slp' })
   }
 
   /**
@@ -188,22 +185,22 @@ class Slp {
    *
    *
    */
-  async listSingleToken(req, res, next) {
+  async listSingleToken (req, res, next) {
     try {
-      const tokenId = req.params.tokenId;
+      const tokenId = req.params.tokenId
 
-      if (!tokenId || tokenId === "") {
-        res.status(400);
-        return res.json({ error: "tokenId can not be empty" });
+      if (!tokenId || tokenId === '') {
+        res.status(400)
+        return res.json({ error: 'tokenId can not be empty' })
       }
 
-      const t = await _this.lookupToken(tokenId);
+      const t = await _this.lookupToken(tokenId)
 
-      res.status(200);
-      return res.json(t);
+      res.status(200)
+      return res.json(t)
     } catch (err) {
-      wlogger.error("Error in slp.ts/listSingleToken().", err);
-      return _this.errorHandler(err, res);
+      wlogger.error('Error in slp.ts/listSingleToken().', err)
+      return _this.errorHandler(err, res)
 
       // return res.json({ error: `Error in /list/:tokenId: ${err.message}` })
     }
@@ -221,139 +218,139 @@ class Slp {
    *
    *
    */
-  async listBulkToken(req, res, next) {
+  async listBulkToken (req, res, next) {
     try {
-      const tokenIds = req.body.tokenIds;
+      const tokenIds = req.body.tokenIds
 
       // Reject if tokenIds is not an array.
       if (!Array.isArray(tokenIds)) {
-        res.status(400);
+        res.status(400)
         return res.json({
-          error: "tokenIds needs to be an array. Use GET for single tokenId.",
-        });
+          error: 'tokenIds needs to be an array. Use GET for single tokenId.'
+        })
       }
 
       // Enforce array size rate limits
       if (!_this.routeUtils.validateArraySize(req, tokenIds)) {
-        res.status(400); // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: "Array too large.",
-        });
+          error: 'Array too large.'
+        })
       }
 
       const query = {
         v: 3,
         q: {
-          db: ["t"],
+          db: ['t'],
           find: {
-            "tokenDetails.tokenIdHex": {
-              $in: tokenIds,
-            },
+            'tokenDetails.tokenIdHex': {
+              $in: tokenIds
+            }
           },
           project: { tokenDetails: 1, tokenStats: 1, _id: 0 },
-          sort: { "tokenStats.block_created": -1 },
-          limit: 10000,
-        },
-      };
+          sort: { 'tokenStats.block_created': -1 },
+          limit: 10000
+        }
+      }
 
-      const s = JSON.stringify(query);
-      const b64 = Buffer.from(s).toString("base64");
-      const url = `${process.env.SLPDB_URL}q/${b64}`;
+      const s = JSON.stringify(query)
+      const b64 = Buffer.from(s).toString('base64')
+      const url = `${process.env.SLPDB_URL}q/${b64}`
       // Request options
       const opt = {
-        method: "get",
-        baseURL: url,
-      };
-      const tokenRes = await _this.axios.request(opt);
+        method: 'get',
+        baseURL: url
+      }
+      const tokenRes = await _this.axios.request(opt)
 
-      const formattedTokens = [];
-      const txids = [];
+      const formattedTokens = []
+      const txids = []
 
       if (tokenRes.data.t.length) {
         tokenRes.data.t.forEach((token) => {
-          txids.push(token.tokenDetails.tokenIdHex);
-          token = _this.formatTokenOutput(token);
-          formattedTokens.push(token.tokenDetails);
-        });
+          txids.push(token.tokenDetails.tokenIdHex)
+          token = _this.formatTokenOutput(token)
+          formattedTokens.push(token.tokenDetails)
+        })
       }
 
       tokenIds.forEach((tokenId) => {
         if (!txids.includes(tokenId)) {
           formattedTokens.push({
             id: tokenId,
-            valid: false,
-          });
+            valid: false
+          })
         }
-      });
+      })
 
-      res.status(200);
-      return res.json(formattedTokens);
+      res.status(200)
+      return res.json(formattedTokens)
     } catch (err) {
-      wlogger.error("Error in slp.ts/listBulkToken().", err);
-      return _this.errorHandler(err, res);
+      wlogger.error('Error in slp.ts/listBulkToken().', err)
+      return _this.errorHandler(err, res)
 
       // return res.json({ error: `Error in /list/:tokenId: ${err.message}` })
     }
   }
 
-  async lookupToken(tokenId) {
+  async lookupToken (tokenId) {
     try {
       const query = {
         v: 3,
         q: {
-          db: ["t"],
+          db: ['t'],
           find: {
             $query: {
-              "tokenDetails.tokenIdHex": tokenId,
-            },
+              'tokenDetails.tokenIdHex': tokenId
+            }
           },
           project: { tokenDetails: 1, tokenStats: 1, nftParentId: 1, _id: 0 },
-          limit: 1000,
-        },
-      };
+          limit: 1000
+        }
+      }
 
-      const s = JSON.stringify(query);
-      const b64 = Buffer.from(s).toString("base64");
-      const url = `${process.env.SLPDB_URL}q/${b64}`;
+      const s = JSON.stringify(query)
+      const b64 = Buffer.from(s).toString('base64')
+      const url = `${process.env.SLPDB_URL}q/${b64}`
 
       // console.log(`url: ${url}`)
       // Request options
       const opt = {
-        method: "get",
-        baseURL: url,
-      };
-      const tokenRes = await _this.axios.request(opt);
+        method: 'get',
+        baseURL: url
+      }
+      const tokenRes = await _this.axios.request(opt)
       // console.log(`tokenRes.data: ${util.inspect(tokenRes.data,null,2)}`)
       // console.log(
       //  `tokenRes.data.t[0]: ${util.inspect(tokenRes.data.t[0], null, 2)}`
       // )
 
-      const formattedTokens = [];
+      const formattedTokens = []
 
       if (tokenRes.data.t.length) {
         tokenRes.data.t.forEach((token) => {
-          token = _this.formatTokenOutput(token);
-          formattedTokens.push(token.tokenDetails);
-        });
+          token = _this.formatTokenOutput(token)
+          formattedTokens.push(token.tokenDetails)
+        })
       }
 
-      let t;
+      let t
       formattedTokens.forEach((token) => {
-        if (token.id === tokenId) t = token;
-      });
+        if (token.id === tokenId) t = token
+      })
 
       // If token could not be found.
       if (t === undefined) {
         t = {
-          id: "not found",
-        };
+          id: 'not found'
+        }
       }
 
-      return t;
+      return t
     } catch (err) {
-      wlogger.error("Error in slp.ts/lookupToken().", err);
+      wlogger.error('Error in slp.ts/lookupToken().', err)
       // console.log(`Error in slp.ts/lookupToken()`)
-      throw err;
+      throw err
     }
   }
 
@@ -370,170 +367,169 @@ class Slp {
    *
    */
   // Retrieve token balances for all tokens for a single address.
-  async balancesForAddress(req, res, next) {
+  async balancesForAddress (req, res, next) {
     try {
       // Validate the input data.
-      const address = req.params.address;
-      if (!address || address === "") {
-        res.status(400);
-        return res.json({ error: "address can not be empty" });
+      const address = req.params.address
+      if (!address || address === '') {
+        res.status(400)
+        return res.json({ error: 'address can not be empty' })
       }
 
       // Ensure the input is a valid BCH address.
       try {
-        _this.bchjs.SLP.Address.toCashAddress(address);
+        _this.bchjs.SLP.Address.toCashAddress(address)
       } catch (err) {
-        res.status(400);
+        res.status(400)
         return res.json({
-          error: `Invalid BCH address. Double check your address is valid: ${address}`,
-        });
+          error: `Invalid BCH address. Double check your address is valid: ${address}`
+        })
       }
 
       // Prevent a common user error. Ensure they are using the correct network address.
-      const cashAddr = _this.bchjs.SLP.Address.toCashAddress(address);
-      const networkIsValid = _this.routeUtils.validateNetwork(cashAddr);
+      const cashAddr = _this.bchjs.SLP.Address.toCashAddress(address)
+      const networkIsValid = _this.routeUtils.validateNetwork(cashAddr)
       if (!networkIsValid) {
-        res.status(400);
+        res.status(400)
         return res.json({
           error:
-            "Invalid network. Trying to use a testnet address on mainnet, or vice versa.",
-        });
+            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+        })
       }
 
       const query = {
         v: 3,
         q: {
-          db: ["g"],
+          db: ['g'],
           aggregate: [
             {
               $match: {
-                "graphTxn.outputs": {
+                'graphTxn.outputs': {
                   $elemMatch: {
                     address: _this.bchjs.SLP.Address.toSLPAddress(address),
-                    status: "UNSPENT",
-                    slpAmount: { $gte: 0 },
-                  },
-                },
-              },
+                    status: 'UNSPENT',
+                    slpAmount: { $gte: 0 }
+                  }
+                }
+              }
             },
             {
-              $unwind: "$graphTxn.outputs",
+              $unwind: '$graphTxn.outputs'
             },
             {
               $match: {
-                "graphTxn.outputs.address": _this.bchjs.SLP.Address.toSLPAddress(
-                  address
-                ),
-                "graphTxn.outputs.status": "UNSPENT",
-                "graphTxn.outputs.slpAmount": { $gte: 0 },
-              },
+                'graphTxn.outputs.address':
+                  _this.bchjs.SLP.Address.toSLPAddress(address),
+                'graphTxn.outputs.status': 'UNSPENT',
+                'graphTxn.outputs.slpAmount': { $gte: 0 }
+              }
             },
             {
               $project: {
-                amount: "$graphTxn.outputs.slpAmount",
-                address: "$graphTxn.outputs.address",
-                txid: "$graphTxn.txid",
-                vout: "$graphTxn.outputs.vout",
-                tokenId: "$tokenDetails.tokenIdHex",
-              },
+                amount: '$graphTxn.outputs.slpAmount',
+                address: '$graphTxn.outputs.address',
+                txid: '$graphTxn.txid',
+                vout: '$graphTxn.outputs.vout',
+                tokenId: '$tokenDetails.tokenIdHex'
+              }
             },
             {
               $group: {
-                _id: "$tokenId",
+                _id: '$tokenId',
                 balanceString: {
-                  $sum: "$amount",
+                  $sum: '$amount'
                 },
                 slpAddress: {
-                  $first: "$address",
-                },
-              },
-            },
+                  $first: '$address'
+                }
+              }
+            }
           ],
-          limit: 10000,
-        },
-      };
+          limit: 10000
+        }
+      }
 
-      const s = JSON.stringify(query);
-      const b64 = Buffer.from(s).toString("base64");
-      const url = `${process.env.SLPDB_URL}q/${b64}`;
+      const s = JSON.stringify(query)
+      const b64 = Buffer.from(s).toString('base64')
+      const url = `${process.env.SLPDB_URL}q/${b64}`
 
-      const options = _this.generateCredentialsGP();
+      const options = _this.generateCredentialsGP()
       // Request options
       const opt = {
-        method: "get",
+        method: 'get',
         baseURL: url,
         headers: options.headers,
-        timeout: options.timeout,
-      };
-      const tokenRes = await _this.axios.request(opt);
+        timeout: options.timeout
+      }
+      const tokenRes = await _this.axios.request(opt)
       // console.log(`tokenRes.data.g: ${JSON.stringify(tokenRes.data.g, null, 2)}`)
 
-      const tokenIds = [];
+      const tokenIds = []
       if (tokenRes.data.g.length > 0) {
         tokenRes.data.g = tokenRes.data.g.map((token) => {
-          token.tokenId = token._id;
-          tokenIds.push(token.tokenId);
-          token.balance = parseFloat(token.balanceString);
+          token.tokenId = token._id
+          tokenIds.push(token.tokenId)
+          token.balance = parseFloat(token.balanceString)
 
-          delete token._id;
+          delete token._id
 
-          return token;
-        });
+          return token
+        })
 
         const promises = tokenIds.map(async (tokenId) => {
           const query2 = {
             v: 3,
             q: {
-              db: ["t"],
+              db: ['t'],
               find: {
                 $query: {
-                  "tokenDetails.tokenIdHex": tokenId,
-                },
+                  'tokenDetails.tokenIdHex': tokenId
+                }
               },
               project: {
-                "tokenDetails.decimals": 1,
-                "tokenDetails.tokenIdHex": 1,
-                _id: 0,
+                'tokenDetails.decimals': 1,
+                'tokenDetails.tokenIdHex': 1,
+                _id: 0
               },
-              limit: 1000,
-            },
-          };
+              limit: 1000
+            }
+          }
 
-          const s2 = JSON.stringify(query2);
-          const b642 = Buffer.from(s2).toString("base64");
-          const url2 = `${process.env.SLPDB_URL}q/${b642}`;
+          const s2 = JSON.stringify(query2)
+          const b642 = Buffer.from(s2).toString('base64')
+          const url2 = `${process.env.SLPDB_URL}q/${b642}`
           // Request options
           const opt = {
-            method: "get",
+            method: 'get',
             baseURL: url2,
             headers: options.headers,
-            timeout: options.timeout,
-          };
-          const tokenRes2 = await _this.axios.request(opt);
+            timeout: options.timeout
+          }
+          const tokenRes2 = await _this.axios.request(opt)
           // console.log(`tokenRes2.data: ${JSON.stringify(tokenRes2.data, null, 2)}`)
 
-          return tokenRes2.data;
-        });
+          return tokenRes2.data
+        })
 
-        const details = await _this.axios.all(promises);
+        const details = await _this.axios.all(promises)
 
         tokenRes.data.g = tokenRes.data.g.map((token) => {
           details.forEach((detail) => {
             if (detail.t[0].tokenDetails.tokenIdHex === token.tokenId) {
-              token.decimalCount = detail.t[0].tokenDetails.decimals;
+              token.decimalCount = detail.t[0].tokenDetails.decimals
             }
-          });
-          return token;
-        });
+          })
+          return token
+        })
 
-        return res.json(tokenRes.data.g);
+        return res.json(tokenRes.data.g)
       }
 
-      return res.json("No balance for this address");
+      return res.json('No balance for this address')
     } catch (err) {
-      wlogger.error("Error in slp.ts/balancesForAddress().", err);
+      wlogger.error('Error in slp.ts/balancesForAddress().', err)
 
-      return _this.errorHandler(err, res);
+      return _this.errorHandler(err, res)
 
       // return res.json({
       //   error: `Error in /address/:address: ${err.message}`
@@ -553,62 +549,62 @@ class Slp {
    *
    *
    */
-  async balancesForAddressBulk(req, res, next) {
+  async balancesForAddressBulk (req, res, next) {
     try {
-      const addresses = req.body.addresses;
+      const addresses = req.body.addresses
 
       // Reject if addresses is not an array.
       if (!Array.isArray(addresses)) {
-        res.status(400);
-        return res.json({ error: "addresses needs to be an array" });
+        res.status(400)
+        return res.json({ error: 'addresses needs to be an array' })
       }
 
       // Enforce array size rate limits
       if (!_this.routeUtils.validateArraySize(req, addresses)) {
-        res.status(400); // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: "Array too large.",
-        });
+          error: 'Array too large.'
+        })
       }
 
       wlogger.debug(
-        "Executing slp/balancesForAddresss with these addresses: ",
+        'Executing slp/balancesForAddresss with these addresses: ',
         addresses
-      );
+      )
 
       // Loop through each address and do error checking.
       for (let i = 0; i < addresses.length; i++) {
-        const address = addresses[i];
+        const address = addresses[i]
 
         // Validate the input data.
-        if (!address || address === "") {
-          res.status(400);
-          return res.json({ error: "address can not be empty" });
+        if (!address || address === '') {
+          res.status(400)
+          return res.json({ error: 'address can not be empty' })
         }
 
         // Ensure the input is a valid BCH address.
         try {
-          _this.bchjs.SLP.Address.toCashAddress(address);
+          _this.bchjs.SLP.Address.toCashAddress(address)
         } catch (err) {
-          res.status(400);
+          res.status(400)
           return res.json({
-            error: `Invalid BCH address. Double check your address is valid: ${address}`,
-          });
+            error: `Invalid BCH address. Double check your address is valid: ${address}`
+          })
         }
 
         // Prevent a common user error. Ensure they are using the correct network address.
-        const cashAddr = _this.bchjs.SLP.Address.toCashAddress(address);
-        const networkIsValid = _this.routeUtils.validateNetwork(cashAddr);
+        const cashAddr = _this.bchjs.SLP.Address.toCashAddress(address)
+        const networkIsValid = _this.routeUtils.validateNetwork(cashAddr)
         if (!networkIsValid) {
-          res.status(400);
+          res.status(400)
           return res.json({
             error:
-              "Invalid network. Trying to use a testnet address on mainnet, or vice versa.",
-          });
+              'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+          })
         }
       }
 
-      const options = _this.generateCredentialsGP();
+      const options = _this.generateCredentialsGP()
 
       // Collect an array of promises, one for each request to slpserve.
       // This is a nested array of promises.
@@ -616,79 +612,78 @@ class Slp {
         const query = {
           v: 3,
           q: {
-            db: ["g"],
+            db: ['g'],
             aggregate: [
               {
                 $match: {
-                  "graphTxn.outputs": {
+                  'graphTxn.outputs': {
                     $elemMatch: {
                       address: _this.bchjs.SLP.Address.toSLPAddress(address),
-                      status: "UNSPENT",
-                      slpAmount: { $gte: 0 },
-                    },
-                  },
-                },
+                      status: 'UNSPENT',
+                      slpAmount: { $gte: 0 }
+                    }
+                  }
+                }
               },
               {
-                $unwind: "$graphTxn.outputs",
+                $unwind: '$graphTxn.outputs'
               },
               {
                 $match: {
-                  "graphTxn.outputs.address": _this.bchjs.SLP.Address.toSLPAddress(
-                    address
-                  ),
-                  "graphTxn.outputs.status": "UNSPENT",
-                  "graphTxn.outputs.slpAmount": { $gte: 0 },
-                },
+                  'graphTxn.outputs.address':
+                    _this.bchjs.SLP.Address.toSLPAddress(address),
+                  'graphTxn.outputs.status': 'UNSPENT',
+                  'graphTxn.outputs.slpAmount': { $gte: 0 }
+                }
               },
               {
                 $project: {
-                  amount: "$graphTxn.outputs.slpAmount",
-                  address: "$graphTxn.outputs.address",
-                  txid: "$graphTxn.txid",
-                  vout: "$graphTxn.outputs.vout",
-                  tokenId: "$tokenDetails.tokenIdHex",
-                },
+                  amount: '$graphTxn.outputs.slpAmount',
+                  address: '$graphTxn.outputs.address',
+                  txid: '$graphTxn.txid',
+                  vout: '$graphTxn.outputs.vout',
+                  tokenId: '$tokenDetails.tokenIdHex'
+                }
               },
               {
                 $group: {
-                  _id: "$tokenId",
+                  _id: '$tokenId',
                   balanceString: {
-                    $sum: "$amount",
+                    $sum: '$amount'
                   },
                   slpAddress: {
-                    $first: "$address",
-                  },
-                },
-              },
+                    $first: '$address'
+                  }
+                }
+              }
             ],
-            limit: 10000,
-          },
-        };
+            limit: 10000
+          }
+        }
 
-        const s = JSON.stringify(query);
-        const b64 = Buffer.from(s).toString("base64");
-        const url = `${process.env.SLPDB_URL}q/${b64}`;
+        const s = JSON.stringify(query)
+        const b64 = Buffer.from(s).toString('base64')
+        const url = `${process.env.SLPDB_URL}q/${b64}`
         // Request options
         const opt = {
-          method: "get",
+          method: 'get',
           baseURL: url,
           headers: options.headers,
-          timeout: options.timeout,
-        };
-        const tokenRes = await _this.axios.request(opt);
+          timeout: options.timeout
+        }
+        const tokenRes = await _this.axios.request(opt)
         // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
 
-        const tokenIds = [];
+        const tokenIds = []
 
         if (tokenRes.data.g.length > 0) {
           tokenRes.data.g = tokenRes.data.g.map((token) => {
-            token.tokenId = token._id;
-            tokenIds.push(token.tokenId);
-            token.balance = parseFloat(token.balanceString);
-            delete token._id;
-            return token;
-          });
+            token.tokenId = token._id
+            tokenIds.push(token.tokenId)
+            token.balance = parseFloat(token.balanceString)
+            delete token._id
+            return token
+          })
         }
 
         // Collect another array of promises.
@@ -696,60 +691,60 @@ class Slp {
           const query2 = {
             v: 3,
             q: {
-              db: ["t"],
+              db: ['t'],
               find: {
                 $query: {
-                  "tokenDetails.tokenIdHex": tokenId,
-                },
+                  'tokenDetails.tokenIdHex': tokenId
+                }
               },
               project: {
-                "tokenDetails.decimals": 1,
-                "tokenDetails.tokenIdHex": 1,
-                _id: 0,
+                'tokenDetails.decimals': 1,
+                'tokenDetails.tokenIdHex': 1,
+                _id: 0
               },
-              limit: 1000,
-            },
-          };
+              limit: 1000
+            }
+          }
 
-          const s2 = JSON.stringify(query2);
-          const b642 = Buffer.from(s2).toString("base64");
-          const url2 = `${process.env.SLPDB_URL}q/${b642}`;
+          const s2 = JSON.stringify(query2)
+          const b642 = Buffer.from(s2).toString('base64')
+          const url2 = `${process.env.SLPDB_URL}q/${b642}`
           const opt = {
-            method: "get",
+            method: 'get',
             baseURL: url2,
             headers: options.headers,
-            timeout: options.timeout,
-          };
-          const tokenRes2 = await _this.axios.request(opt);
+            timeout: options.timeout
+          }
+          const tokenRes2 = await _this.axios.request(opt)
           // console.log(`tokenRes2.data: ${JSON.stringify(tokenRes2.data, null, 2)}`)
 
-          return tokenRes2.data;
-        });
+          return tokenRes2.data
+        })
 
         // Wait for all the promises to resolve.
-        const details = await Promise.all(promises);
+        const details = await Promise.all(promises)
 
         tokenRes.data.g = tokenRes.data.g.map((token) => {
           details.forEach((detail) => {
             if (detail.t[0].tokenDetails.tokenIdHex === token.tokenId) {
-              token.decimalCount = detail.t[0].tokenDetails.decimals;
+              token.decimalCount = detail.t[0].tokenDetails.decimals
             }
-          });
+          })
 
-          return token;
-        });
+          return token
+        })
 
-        return tokenRes.data.g;
-      });
+        return tokenRes.data.g
+      })
 
       // Wait for all the promises to resolve.
-      const axiosResult = await _this.axios.all(balancesPromises);
+      const axiosResult = await _this.axios.all(balancesPromises)
 
-      return res.json(axiosResult);
+      return res.json(axiosResult)
     } catch (err) {
-      wlogger.error("Error in slp.js/balancesForAddressBulk().", err);
+      wlogger.error('Error in slp.js/balancesForAddressBulk().', err)
 
-      return _this.errorHandler(err, res);
+      return _this.errorHandler(err, res)
       // return res.json({
       //   error: `Error in POST balancesForAddress: ${err.message}`
       // })
@@ -769,94 +764,94 @@ class Slp {
    *
    */
   // Retrieve token balances for all addresses by single tokenId.
-  async balancesForTokenSingle(req, res, next) {
+  async balancesForTokenSingle (req, res, next) {
     try {
       // Validate the input data.
-      const tokenId = req.params.tokenId;
-      if (!tokenId || tokenId === "") {
-        res.status(400);
-        return res.json({ error: "tokenId can not be empty" });
+      const tokenId = req.params.tokenId
+      if (!tokenId || tokenId === '') {
+        res.status(400)
+        return res.json({ error: 'tokenId can not be empty' })
       }
 
       const query = {
         v: 3,
         q: {
-          db: ["g"],
+          db: ['g'],
           aggregate: [
             {
               $match: {
-                "graphTxn.outputs": {
+                'graphTxn.outputs': {
                   $elemMatch: {
-                    status: "UNSPENT",
-                    slpAmount: { $gte: 0 },
-                  },
+                    status: 'UNSPENT',
+                    slpAmount: { $gte: 0 }
+                  }
                 },
-                "tokenDetails.tokenIdHex": tokenId,
-              },
+                'tokenDetails.tokenIdHex': tokenId
+              }
             },
             {
-              $unwind: "$graphTxn.outputs",
+              $unwind: '$graphTxn.outputs'
             },
             {
               $match: {
-                "graphTxn.outputs.status": "UNSPENT",
-                "graphTxn.outputs.slpAmount": { $gte: 0 },
-                "tokenDetails.tokenIdHex": tokenId,
-              },
+                'graphTxn.outputs.status': 'UNSPENT',
+                'graphTxn.outputs.slpAmount': { $gte: 0 },
+                'tokenDetails.tokenIdHex': tokenId
+              }
             },
             {
               $project: {
-                token_balance: "$graphTxn.outputs.slpAmount",
-                address: "$graphTxn.outputs.address",
-                txid: "$graphTxn.txid",
-                vout: "$graphTxn.outputs.vout",
-                tokenId: "$tokenDetails.tokenIdHex",
-              },
+                token_balance: '$graphTxn.outputs.slpAmount',
+                address: '$graphTxn.outputs.address',
+                txid: '$graphTxn.txid',
+                vout: '$graphTxn.outputs.vout',
+                tokenId: '$tokenDetails.tokenIdHex'
+              }
             },
             {
               $group: {
-                _id: "$address",
+                _id: '$address',
                 token_balance: {
-                  $sum: "$token_balance",
-                },
-              },
-            },
+                  $sum: '$token_balance'
+                }
+              }
+            }
           ],
-          limit: 10000,
-        },
-      };
+          limit: 10000
+        }
+      }
 
-      const s = JSON.stringify(query);
-      const b64 = Buffer.from(s).toString("base64");
-      const url = `${process.env.SLPDB_URL}q/${b64}`;
+      const s = JSON.stringify(query)
+      const b64 = Buffer.from(s).toString('base64')
+      const url = `${process.env.SLPDB_URL}q/${b64}`
 
-      const options = _this.generateCredentialsGP();
+      const options = _this.generateCredentialsGP()
       const opt = {
-        method: "get",
+        method: 'get',
         baseURL: url,
         headers: options.headers,
-        timeout: options.timeout,
-      };
+        timeout: options.timeout
+      }
       // Get data from SLPDB.
-      const tokenRes = await _this.axios.request(opt);
+      const tokenRes = await _this.axios.request(opt)
       // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
 
       const resBalances = tokenRes.data.g.map((addy, index) => {
-        delete addy.satoshis_balance;
-        addy.tokenBalanceString = addy.token_balance;
-        addy.slpAddress = addy._id;
-        addy.tokenId = tokenId;
-        delete addy._id;
-        delete addy.token_balance;
+        delete addy.satoshis_balance
+        addy.tokenBalanceString = addy.token_balance
+        addy.slpAddress = addy._id
+        addy.tokenId = tokenId
+        delete addy._id
+        delete addy.token_balance
 
-        return addy;
-      });
+        return addy
+      })
 
-      return res.json(resBalances);
+      return res.json(resBalances)
     } catch (err) {
-      wlogger.error("Error in slp.ts/balancesForTokenSingle().", err);
+      wlogger.error('Error in slp.ts/balancesForTokenSingle().', err)
 
-      return _this.errorHandler(err, res);
+      return _this.errorHandler(err, res)
       // return res.json({
       //   error: `Error in /balancesForToken/:tokenId: ${err.message}`
       // })
@@ -875,34 +870,34 @@ class Slp {
    *
    *
    */
-  async convertAddressSingle(req, res, next) {
+  async convertAddressSingle (req, res, next) {
     try {
-      const address = req.params.address;
+      const address = req.params.address
 
       // Validate input
-      if (!address || address === "") {
-        res.status(400);
-        return res.json({ error: "address can not be empty" });
+      if (!address || address === '') {
+        res.status(400)
+        return res.json({ error: 'address can not be empty' })
       }
 
-      const slpAddr = _this.bchjs.SLP.Address.toSLPAddress(address);
+      const slpAddr = _this.bchjs.SLP.Address.toSLPAddress(address)
 
       const obj = {
-        slpAddress: "",
-        cashAddress: "",
-        legacyAddress: "",
-      };
-      obj.slpAddress = slpAddr;
-      obj.cashAddress = _this.bchjs.SLP.Address.toCashAddress(slpAddr);
+        slpAddress: '',
+        cashAddress: '',
+        legacyAddress: ''
+      }
+      obj.slpAddress = slpAddr
+      obj.cashAddress = _this.bchjs.SLP.Address.toCashAddress(slpAddr)
       obj.legacyAddress = _this.bchjs.SLP.Address.toLegacyAddress(
         obj.cashAddress
-      );
+      )
 
-      res.status(200);
-      return res.json(obj);
+      res.status(200)
+      return res.json(obj)
     } catch (err) {
-      wlogger.error("Error in slp.ts/convertAddressSingle().", err);
-      return _this.errorHandler(err, res);
+      wlogger.error('Error in slp.ts/convertAddressSingle().', err)
+      return _this.errorHandler(err, res)
       // return res.json({
       //   error: `Error in /address/convert/:address: ${err.message}`
       // })
@@ -921,54 +916,54 @@ class Slp {
    *
    *
    */
-  async convertAddressBulk(req, res, next) {
-    const addresses = req.body.addresses;
+  async convertAddressBulk (req, res, next) {
+    const addresses = req.body.addresses
 
     // Reject if hashes is not an array.
     if (!Array.isArray(addresses)) {
-      res.status(400);
+      res.status(400)
       return res.json({
-        error: "addresses needs to be an array. Use GET for single address.",
-      });
+        error: 'addresses needs to be an array. Use GET for single address.'
+      })
     }
 
     // Enforce array size rate limits
     if (!_this.routeUtils.validateArraySize(req, addresses)) {
-      res.status(400); // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+      res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
       return res.json({
-        error: "Array too large.",
-      });
+        error: 'Array too large.'
+      })
     }
 
     // Convert each address in the array.
-    const convertedAddresses = [];
+    const convertedAddresses = []
     for (let i = 0; i < addresses.length; i++) {
-      const address = addresses[i];
+      const address = addresses[i]
 
       // Validate input
-      if (!address || address === "") {
-        res.status(400);
-        return res.json({ error: "address can not be empty" });
+      if (!address || address === '') {
+        res.status(400)
+        return res.json({ error: 'address can not be empty' })
       }
 
-      const slpAddr = _this.bchjs.SLP.Address.toSLPAddress(address);
+      const slpAddr = _this.bchjs.SLP.Address.toSLPAddress(address)
 
       const obj = {
-        slpAddress: "",
-        cashAddress: "",
-        legacyAddress: "",
-      };
-      obj.slpAddress = slpAddr;
-      obj.cashAddress = _this.bchjs.SLP.Address.toCashAddress(slpAddr);
+        slpAddress: '',
+        cashAddress: '',
+        legacyAddress: ''
+      }
+      obj.slpAddress = slpAddr
+      obj.cashAddress = _this.bchjs.SLP.Address.toCashAddress(slpAddr)
       obj.legacyAddress = _this.bchjs.SLP.Address.toLegacyAddress(
         obj.cashAddress
-      );
+      )
 
-      convertedAddresses.push(obj);
+      convertedAddresses.push(obj)
     }
 
-    res.status(200);
-    return res.json(convertedAddresses);
+    res.status(200)
+    return res.json(convertedAddresses)
   }
 
   /**
@@ -983,76 +978,76 @@ class Slp {
    *
    *
    */
-  async validateBulk(req, res, next) {
+  async validateBulk (req, res, next) {
     try {
-      const txids = req.body.txids;
+      const txids = req.body.txids
 
       // Reject if txids is not an array.
       if (!Array.isArray(txids)) {
-        res.status(400);
-        return res.json({ error: "txids needs to be an array" });
+        res.status(400)
+        return res.json({ error: 'txids needs to be an array' })
       }
 
       // Enforce array size rate limits
       if (!_this.routeUtils.validateArraySize(req, txids)) {
-        res.status(400); // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: "Array too large.",
-        });
+          error: 'Array too large.'
+        })
       }
 
-      wlogger.debug("Executing slp/validate with these txids: ", txids);
+      wlogger.debug('Executing slp/validate with these txids: ', txids)
 
       const query = {
         v: 3,
         q: {
-          db: ["c", "u"],
+          db: ['c', 'u'],
           find: {
-            "tx.h": { $in: txids },
+            'tx.h': { $in: txids }
           },
           limit: 300,
-          project: { "slp.valid": 1, "tx.h": 1, "slp.invalidReason": 1 },
-        },
-      };
-      const s = JSON.stringify(query);
-      const b64 = Buffer.from(s).toString("base64");
-      const url = `${process.env.SLPDB_URL}q/${b64}`;
+          project: { 'slp.valid': 1, 'tx.h': 1, 'slp.invalidReason': 1 }
+        }
+      }
+      const s = JSON.stringify(query)
+      const b64 = Buffer.from(s).toString('base64')
+      const url = `${process.env.SLPDB_URL}q/${b64}`
       // console.log('url: ', url)
 
-      const options = _this.generateCredentialsGP();
+      const options = _this.generateCredentialsGP()
 
       // Get data from SLPDB.
       const opt = {
-        method: "get",
+        method: 'get',
         baseURL: url,
         headers: options.headers,
-        timeout: options.timeout,
-      };
-      const tokenRes = await _this.axios.request(opt);
+        timeout: options.timeout
+      }
+      const tokenRes = await _this.axios.request(opt)
       // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
 
-      let formattedTokens = [];
+      let formattedTokens = []
 
       // Combine the confirmed and unconfirmed collections.
-      const concatArray = tokenRes.data.c.concat(tokenRes.data.u);
+      const concatArray = tokenRes.data.c.concat(tokenRes.data.u)
 
-      const tokenIds = [];
+      const tokenIds = []
       if (concatArray.length > 0) {
         concatArray.forEach((token) => {
-          tokenIds.push(token.tx.h); // txid
+          tokenIds.push(token.tx.h) // txid
 
           const validationResult = {
             txid: token.tx.h,
-            valid: token.slp.valid,
-          };
+            valid: token.slp.valid
+          }
 
           // If the txid is invalid, add the reason it's invalid.
           if (!validationResult.valid) {
-            validationResult.invalidReason = token.slp.invalidReason;
+            validationResult.invalidReason = token.slp.invalidReason
           }
 
-          formattedTokens.push(validationResult);
-        });
+          formattedTokens.push(validationResult)
+        })
 
         // If a user-provided txid doesn't exist in the data, add it with
         // valid:null property.
@@ -1063,57 +1058,57 @@ class Slp {
           if (!tokenIds.includes(txid)) {
             formattedTokens.push({
               txid: txid,
-              valid: null,
-            });
+              valid: null
+            })
           }
-        });
+        })
       } else {
         // Corner case: No results were returned from SLPDB. Mark each entry
         // as 'null'
         for (let i = 0; i < txids.length; i++) {
           formattedTokens.push({
             txid: txids[i],
-            valid: null,
-          });
+            valid: null
+          })
         }
       }
 
       // Catch a corner case of repeated txids. SLPDB will remove redundent TXIDs,
       // which will cause the output array to be smaller than the input array.
       if (txids.length > formattedTokens.length) {
-        const newOutput = [];
+        const newOutput = []
         for (let i = 0; i < txids.length; i++) {
-          const thisTxid = txids[i];
+          const thisTxid = txids[i]
 
           // Find the element that matches the current txid.
-          const elem = formattedTokens.filter((x) => x.txid === thisTxid);
+          const elem = formattedTokens.filter((x) => x.txid === thisTxid)
 
-          newOutput.push(elem[0]);
+          newOutput.push(elem[0])
         }
 
         // Replace the original output object with the new output object.
-        formattedTokens = newOutput;
+        formattedTokens = newOutput
       }
 
       // Put the output array in the same order as the input array.
-      const outAry = [];
+      const outAry = []
       for (let i = 0; i < txids.length; i++) {
-        const thisTxid = txids[i];
+        const thisTxid = txids[i]
 
         // Need to use Array.find() because the returned output array is out
         // of order with respect to the txid input array.
-        const output = formattedTokens.find((elem) => elem.txid === thisTxid);
+        const output = formattedTokens.find((elem) => elem.txid === thisTxid)
         // console.log(`output: ${JSON.stringify(output, null, 2)}`)
 
-        outAry.push(output);
+        outAry.push(output)
       }
 
-      res.status(200);
-      return res.json(outAry);
+      res.status(200)
+      return res.json(outAry)
     } catch (err) {
-      wlogger.error("Error in slp.ts/validateBulk().", err);
+      wlogger.error('Error in slp.ts/validateBulk().', err)
 
-      return _this.errorHandler(err, res);
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -1129,69 +1124,69 @@ class Slp {
    *
    *
    */
-  async validateSingle(req, res, next) {
+  async validateSingle (req, res, next) {
     try {
-      const txid = req.params.txid;
+      const txid = req.params.txid
 
       // Validate input
-      if (!txid || txid === "") {
-        res.status(400);
-        return res.json({ error: "txid can not be empty" });
+      if (!txid || txid === '') {
+        res.status(400)
+        return res.json({ error: 'txid can not be empty' })
       }
 
-      wlogger.debug("Executing slp/validate/:txid with this txid: ", txid);
+      wlogger.debug('Executing slp/validate/:txid with this txid: ', txid)
 
       const query = {
         v: 3,
         q: {
-          db: ["c", "u"],
+          db: ['c', 'u'],
           find: {
-            "tx.h": txid,
+            'tx.h': txid
           },
           limit: 300,
-          project: { "slp.valid": 1, "tx.h": 1, "slp.invalidReason": 1 },
-        },
-      };
+          project: { 'slp.valid': 1, 'tx.h': 1, 'slp.invalidReason': 1 }
+        }
+      }
 
-      const options = _this.generateCredentialsGP();
+      const options = _this.generateCredentialsGP()
 
-      const s = JSON.stringify(query);
-      const b64 = Buffer.from(s).toString("base64");
-      const url = `${process.env.SLPDB_URL}q/${b64}`;
+      const s = JSON.stringify(query)
+      const b64 = Buffer.from(s).toString('base64')
+      const url = `${process.env.SLPDB_URL}q/${b64}`
       const opt = {
-        method: "get",
+        method: 'get',
         baseURL: url,
         headers: options.headers,
-        timeout: options.timeout,
-      };
+        timeout: options.timeout
+      }
       // Get data from SLPDB.
-      const tokenRes = await _this.axios.request(opt);
+      const tokenRes = await _this.axios.request(opt)
       // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
 
       // Default return value.
       let result = {
         txid: txid,
-        valid: null,
-      };
+        valid: null
+      }
 
       // Build result.
-      const concatArray = tokenRes.data.c.concat(tokenRes.data.u);
+      const concatArray = tokenRes.data.c.concat(tokenRes.data.u)
       if (concatArray.length > 0) {
         result = {
           txid: concatArray[0].tx.h,
-          valid: concatArray[0].slp.valid,
-        };
+          valid: concatArray[0].slp.valid
+        }
         if (!result.valid) {
-          result.invalidReason = concatArray[0].slp.invalidReason;
+          result.invalidReason = concatArray[0].slp.invalidReason
         }
       }
 
-      res.status(200);
-      return res.json(result);
+      res.status(200)
+      return res.json(result)
     } catch (err) {
-      wlogger.error("Error in slp.js/validateSingle().", err);
+      wlogger.error('Error in slp.js/validateSingle().', err)
 
-      return _this.errorHandler(err, res);
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -1210,49 +1205,49 @@ class Slp {
    *
    *
    */
-  async validate2Single(req, res, next) {
+  async validate2Single (req, res, next) {
     try {
-      const txid = req.params.txid;
+      const txid = req.params.txid
 
       // Validate input
-      if (!txid || txid === "") {
-        res.status(400);
-        return res.json({ error: "txid can not be empty" });
+      if (!txid || txid === '') {
+        res.status(400)
+        return res.json({ error: 'txid can not be empty' })
       }
 
       wlogger.debug(
-        "Executing slp/validate2Single/:txid with this txid: ",
+        'Executing slp/validate2Single/:txid with this txid: ',
         txid
-      );
+      )
 
       // null by default.
       // Default return value.
       const result = {
         txid: txid,
         isValid: null,
-        msg: "",
-      };
+        msg: ''
+      }
 
       // Request options
       const opt = {
-        method: "get",
+        method: 'get',
         baseURL: `${process.env.SLP_API_URL}slp/validate/${txid}`,
-        timeout: 45000, // Exit after 45 seconds.
-      };
-      const tokenRes = await _this.axios.request(opt);
+        timeout: 45000 // Exit after 45 seconds.
+      }
+      const tokenRes = await _this.axios.request(opt)
       // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
       // console.log(`tokenRes: `, tokenRes)
 
       // Overwrite the default value with the result from slp-api.
-      result.isValid = tokenRes.data.isValid;
+      result.isValid = tokenRes.data.isValid
 
-      res.status(200);
-      return res.json(result);
+      res.status(200)
+      return res.json(result)
     } catch (err) {
       // console.log('validate2Single error: ', err)
-      wlogger.error("Error in slp.ts/validate2Single().", err);
+      wlogger.error('Error in slp.ts/validate2Single().', err)
 
-      return _this.errorHandler(err, res);
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -1274,42 +1269,42 @@ class Slp {
    * curl -X GET "https://api.fullstack.cash/v4/slp/whitelist" -H "accept:application/json"
    *
    */
-  async getSlpWhitelist(req, res, next) {
+  async getSlpWhitelist (req, res, next) {
     try {
       const list = [
         {
-          name: "USDH",
+          name: 'USDH',
           tokenId:
-            "c4b0d62156b3fa5c8f3436079b5394f7edc1bef5dc1cd2f9d0c4d46f82cca479",
+            'c4b0d62156b3fa5c8f3436079b5394f7edc1bef5dc1cd2f9d0c4d46f82cca479'
         },
         {
-          name: "SPICE",
+          name: 'SPICE',
           tokenId:
-            "4de69e374a8ed21cbddd47f2338cc0f479dc58daa2bbe11cd604ca488eca0ddf",
+            '4de69e374a8ed21cbddd47f2338cc0f479dc58daa2bbe11cd604ca488eca0ddf'
         },
         {
-          name: "PSF",
+          name: 'PSF',
           tokenId:
-            "38e97c5d7d3585a2cbf3f9580c82ca33985f9cb0845d4dcce220cb709f9538b0",
+            '38e97c5d7d3585a2cbf3f9580c82ca33985f9cb0845d4dcce220cb709f9538b0'
         },
         {
-          name: "TROUT",
+          name: 'TROUT',
           tokenId:
-            "a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2",
+            'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
         },
         {
-          name: "PSFTEST",
+          name: 'PSFTEST',
           tokenId:
-            "d0ef4de95b78222bfee2326ab11382f4439aa0855936e2fe6ac129a8d778baa0",
-        },
-      ];
+            'd0ef4de95b78222bfee2326ab11382f4439aa0855936e2fe6ac129a8d778baa0'
+        }
+      ]
 
-      res.status(200);
-      return res.json(list);
+      res.status(200)
+      return res.json(list)
     } catch (err) {
-      wlogger.error("Error in slp.ts/whitelist().", err);
+      wlogger.error('Error in slp.ts/whitelist().', err)
 
-      return _this.errorHandler(err, res);
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -1328,70 +1323,70 @@ class Slp {
    *
    *
    */
-  async validate3Single(req, res, next) {
+  async validate3Single (req, res, next) {
     try {
-      const txid = req.params.txid;
+      const txid = req.params.txid
       // console.log('validate3Single txid: ', txid)
 
       // Validate input
-      if (!txid || txid === "") {
-        res.status(400);
-        return res.json({ error: "txid can not be empty" });
+      if (!txid || txid === '') {
+        res.status(400)
+        return res.json({ error: 'txid can not be empty' })
       }
 
-      wlogger.debug("Executing slp/validate/:txid with this txid: ", txid);
+      wlogger.debug('Executing slp/validate/:txid with this txid: ', txid)
 
       const query = {
         v: 3,
         q: {
-          db: ["c", "u"],
+          db: ['c', 'u'],
           find: {
-            "tx.h": txid,
+            'tx.h': txid
           },
           limit: 300,
-          project: { "slp.valid": 1, "tx.h": 1, "slp.invalidReason": 1 },
-        },
-      };
+          project: { 'slp.valid': 1, 'tx.h': 1, 'slp.invalidReason': 1 }
+        }
+      }
 
-      const options = _this.generateCredentialsWL();
+      const options = _this.generateCredentialsWL()
 
-      const s = JSON.stringify(query);
-      const b64 = Buffer.from(s).toString("base64");
-      const url = `${process.env.SLPDB_WHITELIST_URL}q/${b64}`;
+      const s = JSON.stringify(query)
+      const b64 = Buffer.from(s).toString('base64')
+      const url = `${process.env.SLPDB_WHITELIST_URL}q/${b64}`
       const opt = {
-        method: "get",
+        method: 'get',
         baseURL: url,
         headers: options.headers,
-        timeout: options.timeout,
-      };
+        timeout: options.timeout
+      }
       // Get data from SLPDB.
-      const tokenRes = await _this.axios.request(opt);
+      const tokenRes = await _this.axios.request(opt)
       // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
 
       // Default return value.
       let result = {
         txid: txid,
-        valid: null,
-      };
+        valid: null
+      }
 
       // Build result.
-      const concatArray = tokenRes.data.c.concat(tokenRes.data.u);
+      const concatArray = tokenRes.data.c.concat(tokenRes.data.u)
       if (concatArray.length > 0) {
         result = {
           txid: concatArray[0].tx.h,
-          valid: concatArray[0].slp.valid,
-        };
+          valid: concatArray[0].slp.valid
+        }
         if (!result.valid) {
-          result.invalidReason = concatArray[0].slp.invalidReason;
+          result.invalidReason = concatArray[0].slp.invalidReason
         }
       }
 
-      res.status(200);
-      return res.json(result);
+      res.status(200)
+      return res.json(result)
     } catch (err) {
-      wlogger.error("Error in slp.js/validate3Single().", err);
+      wlogger.error('Error in slp.js/validate3Single().', err)
 
-      return _this.errorHandler(err, res);
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -1410,77 +1405,77 @@ class Slp {
    *
    *
    */
-  async validate3Bulk(req, res, next) {
+  async validate3Bulk (req, res, next) {
     try {
-      const txids = req.body.txids;
+      const txids = req.body.txids
       // console.log(`validate3Bulk txids: `, txids)
 
       // Reject if txids is not an array.
       if (!Array.isArray(txids)) {
-        res.status(400);
-        return res.json({ error: "txids needs to be an array" });
+        res.status(400)
+        return res.json({ error: 'txids needs to be an array' })
       }
 
       // Enforce array size rate limits
       if (!_this.routeUtils.validateArraySize(req, txids)) {
-        res.status(400); // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
         return res.json({
-          error: "Array too large.",
-        });
+          error: 'Array too large.'
+        })
       }
 
-      wlogger.debug("Executing slp/validate with these txids: ", txids);
+      wlogger.debug('Executing slp/validate with these txids: ', txids)
 
       const query = {
         v: 3,
         q: {
-          db: ["c", "u"],
+          db: ['c', 'u'],
           find: {
-            "tx.h": { $in: txids },
+            'tx.h': { $in: txids }
           },
           limit: 300,
-          project: { "slp.valid": 1, "tx.h": 1, "slp.invalidReason": 1 },
-        },
-      };
-      const s = JSON.stringify(query);
-      const b64 = Buffer.from(s).toString("base64");
-      const url = `${process.env.SLPDB_WHITELIST_URL}q/${b64}`;
+          project: { 'slp.valid': 1, 'tx.h': 1, 'slp.invalidReason': 1 }
+        }
+      }
+      const s = JSON.stringify(query)
+      const b64 = Buffer.from(s).toString('base64')
+      const url = `${process.env.SLPDB_WHITELIST_URL}q/${b64}`
       // console.log('url: ', url)
 
-      const options = _this.generateCredentialsWL();
+      const options = _this.generateCredentialsWL()
 
       // Get data from SLPDB.
       const opt = {
-        method: "get",
+        method: 'get',
         baseURL: url,
         headers: options.headers,
-        timeout: options.timeout,
-      };
-      const tokenRes = await _this.axios.request(opt);
+        timeout: options.timeout
+      }
+      const tokenRes = await _this.axios.request(opt)
       // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
 
-      let formattedTokens = [];
+      let formattedTokens = []
 
       // Combine the confirmed and unconfirmed collections.
-      const concatArray = tokenRes.data.c.concat(tokenRes.data.u);
+      const concatArray = tokenRes.data.c.concat(tokenRes.data.u)
 
-      const tokenIds = [];
+      const tokenIds = []
       if (concatArray.length > 0) {
         concatArray.forEach((token) => {
-          tokenIds.push(token.tx.h); // txid
+          tokenIds.push(token.tx.h) // txid
 
           const validationResult = {
             txid: token.tx.h,
-            valid: token.slp.valid,
-          };
+            valid: token.slp.valid
+          }
 
           // If the txid is invalid, add the reason it's invalid.
           if (!validationResult.valid) {
-            validationResult.invalidReason = token.slp.invalidReason;
+            validationResult.invalidReason = token.slp.invalidReason
           }
 
-          formattedTokens.push(validationResult);
-        });
+          formattedTokens.push(validationResult)
+        })
 
         // If a user-provided txid doesn't exist in the data, add it with
         // valid:null property.
@@ -1491,36 +1486,36 @@ class Slp {
           if (!tokenIds.includes(txid)) {
             formattedTokens.push({
               txid: txid,
-              valid: null,
-            });
+              valid: null
+            })
           }
-        });
+        })
       } else {
         // Corner case: No results were returned from SLPDB. Mark each entry
         // as 'null'
         for (let i = 0; i < txids.length; i++) {
           formattedTokens.push({
             txid: txids[i],
-            valid: null,
-          });
+            valid: null
+          })
         }
       }
 
       // Catch a corner case of repeated txids. SLPDB will remove redundent TXIDs,
       // which will cause the output array to be smaller than the input array.
       if (txids.length > formattedTokens.length) {
-        const newOutput = [];
+        const newOutput = []
         for (let i = 0; i < txids.length; i++) {
-          const thisTxid = txids[i];
+          const thisTxid = txids[i]
 
           // Find the element that matches the current txid.
-          const elem = formattedTokens.filter((x) => x.txid === thisTxid);
+          const elem = formattedTokens.filter((x) => x.txid === thisTxid)
 
-          newOutput.push(elem[0]);
+          newOutput.push(elem[0])
         }
 
         // Replace the original output object with the new output object.
-        formattedTokens = newOutput;
+        formattedTokens = newOutput
       }
 
       // console.log(
@@ -1528,24 +1523,24 @@ class Slp {
       // )
 
       // Put the output array in the same order as the input array.
-      const outAry = [];
+      const outAry = []
       for (let i = 0; i < txids.length; i++) {
-        const thisTxid = txids[i];
+        const thisTxid = txids[i]
 
         // Need to use Array.find() because the returned output array is out
         // of order with respect to the txid input array.
-        const output = formattedTokens.find((elem) => elem.txid === thisTxid);
+        const output = formattedTokens.find((elem) => elem.txid === thisTxid)
         // console.log(`output: ${JSON.stringify(output, null, 2)}`)
 
-        outAry.push(output);
+        outAry.push(output)
       }
 
-      res.status(200);
-      return res.json(outAry);
+      res.status(200)
+      return res.json(outAry)
     } catch (err) {
-      wlogger.error("Error in slp.js/validate3Bulk().", err);
+      wlogger.error('Error in slp.js/validate3Bulk().', err)
 
-      return _this.errorHandler(err, res);
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -1561,55 +1556,55 @@ class Slp {
    *
    *
    */
-  async txDetails(req, res, next) {
+  async txDetails (req, res, next) {
     try {
       // Validate input parameter
-      const txid = req.params.txid;
-      if (!txid || txid === "") {
-        res.status(400);
-        return res.json({ error: "txid can not be empty" });
+      const txid = req.params.txid
+      if (!txid || txid === '') {
+        res.status(400)
+        return res.json({ error: 'txid can not be empty' })
       }
 
       if (txid.length !== 64) {
-        res.status(400);
-        return res.json({ error: "This is not a txid" });
+        res.status(400)
+        return res.json({ error: 'This is not a txid' })
       }
 
       const query = {
         v: 3,
-        db: ["g"],
+        db: ['g'],
         q: {
           find: {
-            "tx.h": txid,
+            'tx.h': txid
           },
-          limit: 300,
-        },
-      };
+          limit: 300
+        }
+      }
 
-      const s = JSON.stringify(query);
-      const b64 = Buffer.from(s).toString("base64");
-      const url = `${process.env.SLPDB_URL}q/${b64}`;
+      const s = JSON.stringify(query)
+      const b64 = Buffer.from(s).toString('base64')
+      const url = `${process.env.SLPDB_URL}q/${b64}`
 
-      const options = _this.generateCredentialsGP();
+      const options = _this.generateCredentialsGP()
       const opt = {
-        method: "get",
+        method: 'get',
         baseURL: url,
         headers: options.headers,
-        timeout: options.timeout,
-      };
+        timeout: options.timeout
+      }
       // Get token data from SLPDB
-      const tokenRes = await _this.axios.request(opt);
+      const tokenRes = await _this.axios.request(opt)
       // console.log(`tokenRes: ${util.inspect(tokenRes)}`)
 
       // Return 'not found' error if both the confirmed and unconfirmed
       // collections are empty.
       if (tokenRes.data.c.length === 0 && tokenRes.data.u.length === 0) {
-        res.status(404);
-        return res.json({ error: "TXID not found" });
+        res.status(404)
+        return res.json({ error: 'TXID not found' })
       }
 
       // Format the returned data to an object.
-      const formatted = await _this.formatToRestObject(tokenRes);
+      const formatted = await _this.formatToRestObject(tokenRes)
       // console.log(`formatted: ${JSON.stringify(formatted,null,2)}`)
 
       // Get information on the transaction from Insight API.
@@ -1617,19 +1612,19 @@ class Slp {
       const retData = await _this.rawTransactions.getRawTransactionsFromNode(
         txid,
         true
-      );
+      )
       // console.log(`retData: ${JSON.stringify(retData, null, 2)}`)
 
       // Return both the tx data from Insight and the formatted token information.
       const response = {
         retData,
-        ...formatted,
-      };
+        ...formatted
+      }
 
-      res.status(200);
-      return res.json(response);
+      res.status(200)
+      return res.json(response)
     } catch (err) {
-      wlogger.error("Error in slp.ts/txDetails().", err);
+      wlogger.error('Error in slp.ts/txDetails().', err)
 
       // Handle corner case of mis-typted txid
       // if (err.error && err.error.indexOf('Not found') > -1) {
@@ -1637,7 +1632,7 @@ class Slp {
       //   return res.json({ error: 'TXID not found' })
       // }
 
-      return _this.errorHandler(err, res);
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -1653,21 +1648,21 @@ class Slp {
    *
    *
    */
-  async tokenStats(req, res, next) {
+  async tokenStats (req, res, next) {
     try {
-      const tokenId = req.params.tokenId;
-      if (!tokenId || tokenId === "") {
-        res.status(400);
-        return res.json({ error: "tokenId can not be empty" });
+      const tokenId = req.params.tokenId
+      if (!tokenId || tokenId === '') {
+        res.status(400)
+        return res.json({ error: 'tokenId can not be empty' })
       }
 
-      const tokenStats = await _this.slpdb.getTokenStats(tokenId);
+      const tokenStats = await _this.slpdb.getTokenStats(tokenId)
 
-      res.status(200);
-      return res.json(tokenStats);
+      res.status(200)
+      return res.json(tokenStats)
     } catch (err) {
-      wlogger.error("Error in slp.ts/tokenStats().", err);
-      return _this.errorHandler(err, res);
+      wlogger.error('Error in slp.ts/tokenStats().', err)
+      return _this.errorHandler(err, res)
       // return res.json({ error: `Error in /tokenStats: ${err.message}` })
     }
   }
@@ -1685,64 +1680,64 @@ class Slp {
    *
    */
   // Retrieve transactions by tokenId and address.
-  async txsTokenIdAddressSingle(req, res, next) {
+  async txsTokenIdAddressSingle (req, res, next) {
     try {
       // Validate the input data.
-      const tokenId = req.params.tokenId;
-      if (!tokenId || tokenId === "") {
-        res.status(400);
-        return res.json({ error: "tokenId can not be empty" });
+      const tokenId = req.params.tokenId
+      if (!tokenId || tokenId === '') {
+        res.status(400)
+        return res.json({ error: 'tokenId can not be empty' })
       }
 
-      const address = req.params.address;
-      if (!address || address === "") {
-        res.status(400);
-        return res.json({ error: "address can not be empty" });
+      const address = req.params.address
+      if (!address || address === '') {
+        res.status(400)
+        return res.json({ error: 'address can not be empty' })
       }
 
       const query = {
         v: 3,
         q: {
           find: {
-            db: ["c", "u"],
+            db: ['c', 'u'],
             $query: {
               $or: [
                 {
-                  "in.e.a": address,
+                  'in.e.a': address
                 },
                 {
-                  "out.e.a": address,
-                },
+                  'out.e.a': address
+                }
               ],
-              "slp.detail.tokenIdHex": tokenId,
+              'slp.detail.tokenIdHex': tokenId
             },
             $orderby: {
-              "blk.i": -1,
-            },
+              'blk.i': -1
+            }
           },
-          limit: 100,
+          limit: 100
         },
         r: {
-          f: "[.[] | { txid: .tx.h, tokenDetails: .slp } ]",
-        },
-      };
+          f: '[.[] | { txid: .tx.h, tokenDetails: .slp } ]'
+        }
+      }
 
-      const s = JSON.stringify(query);
-      const b64 = Buffer.from(s).toString("base64");
-      const url = `${process.env.SLPDB_URL}q/${b64}`;
+      const s = JSON.stringify(query)
+      const b64 = Buffer.from(s).toString('base64')
+      const url = `${process.env.SLPDB_URL}q/${b64}`
       const opt = {
-        method: "get",
-        baseURL: url,
-      };
+        method: 'get',
+        baseURL: url
+      }
       // Get data from SLPDB.
-      const tokenRes = await _this.axios.request(opt);
+      const tokenRes = await _this.axios.request(opt)
       // console.log(`tokenRes.data: ${JSON.stringify(tokenRes.data, null, 2)}`)
 
-      return res.json(tokenRes.data.c);
+      return res.json(tokenRes.data.c)
     } catch (err) {
-      wlogger.error("Error in slp.ts/txsTokenIdAddressSingle().", err);
+      wlogger.error('Error in slp.ts/txsTokenIdAddressSingle().', err)
 
-      return _this.errorHandler(err, res);
+      return _this.errorHandler(err, res)
       // return res.json({
       //   error: `Error in /transactions/:tokenId/:address: ${err.message}`
       // })
@@ -1750,75 +1745,76 @@ class Slp {
   }
 
   // Generates a Basic Authorization header for slpserve.
-  generateCredentialsGP() {
+  generateCredentialsGP () {
     // Generate the Basic Authentication header for a private instance of SLPDB.
-    const username = "BITBOX";
-    const password = SLPDB_PASS_GP;
-    const combined = `${username}:${password}`;
+    const username = 'BITBOX'
+    const password = SLPDB_PASS_GP
+    const combined = `${username}:${password}`
     // console.log(`combined: ${combined}`)
-    var base64Credential = Buffer.from(combined).toString("base64");
-    var readyCredential = `Basic ${base64Credential}`;
+    const base64Credential = Buffer.from(combined).toString('base64')
+    const readyCredential = `Basic ${base64Credential}`
 
     const options = {
       headers: {
-        authorization: readyCredential,
+        authorization: readyCredential
       },
-      timeout: 15000,
-    };
+      timeout: 15000
+    }
 
-    return options;
+    return options
   }
 
   // Generates a Basic Authorization header for slpserve.
-  generateCredentialsWL() {
+  generateCredentialsWL () {
     // Generate the Basic Authentication header for a private instance of SLPDB.
-    const username = "BITBOX";
-    const password = SLPDB_PASS_WL;
-    const combined = `${username}:${password}`;
+    const username = 'BITBOX'
+    const password = SLPDB_PASS_WL
+    const combined = `${username}:${password}`
     // console.log(`combined: ${combined}`)
-    var base64Credential = Buffer.from(combined).toString("base64");
-    var readyCredential = `Basic ${base64Credential}`;
+    const base64Credential = Buffer.from(combined).toString('base64')
+    const readyCredential = `Basic ${base64Credential}`
 
     const options = {
       headers: {
-        authorization: readyCredential,
+        authorization: readyCredential
       },
-      timeout: 15000,
-    };
+      timeout: 15000
+    }
 
-    return options;
+    return options
   }
 
   // Format the response from SLPDB into an object.
-  async formatToRestObject(slpDBFormat) {
+  async formatToRestObject (slpDBFormat) {
     // console.log(`slpDBFormat.data: ${JSON.stringify(slpDBFormat.data, null, 2)}`)
 
     const transaction = slpDBFormat.data.u.length
       ? slpDBFormat.data.u[0]
-      : slpDBFormat.data.c[0];
+      : slpDBFormat.data.c[0]
 
     // const inputs = transaction.in
 
     // const outputs = transaction.out
-    const tokenOutputs = transaction.slp.detail.outputs;
+    const tokenOutputs = transaction.slp.detail.outputs
 
-    const sendOutputs = ["0"];
+    const sendOutputs = ['0']
     tokenOutputs.map((x) => {
-      const string = parseFloat(x.amount) * 100000000;
-      sendOutputs.push(string.toString());
-    });
+      const string = parseFloat(x.amount) * 100000000
+      sendOutputs.push(string.toString())
+      return 1 // Making the linter happy
+    })
 
     // Because you are not using Insight API indexer, you do not get the
     // sending addresses from an indexer or from the node.
     // However, they are available from the SLPDB output.
-    const tokenInputs = transaction.in;
+    const tokenInputs = transaction.in
     // Collect the input addresses
-    const sendInputs = [];
+    const sendInputs = []
     for (let i = 0; i < tokenInputs.length; i += 1) {
-      const tokenInput = tokenInputs[i];
-      const sendInput = {};
-      sendInput.address = tokenInput.e.a;
-      sendInputs.push(sendInput);
+      const tokenInput = tokenInputs[i]
+      const sendInput = {}
+      sendInput.address = tokenInput.e.a
+      sendInputs.push(sendInput)
     }
 
     const obj = {
@@ -1830,66 +1826,66 @@ class Slp {
         tokenIdHex: transaction.slp.detail.tokenIdHex,
         sendOutputs: sendOutputs,
         sendInputsFull: sendInputs,
-        sendOutputsFull: transaction.slp.detail.outputs,
+        sendOutputsFull: transaction.slp.detail.outputs
       },
-      tokenIsValid: transaction.slp.valid,
-    };
+      tokenIsValid: transaction.slp.valid
+    }
 
-    return obj;
+    return obj
   }
 
   // Retrieve transactions by address.
-  async txsByAddressSingle(req, res, next) {
+  async txsByAddressSingle (req, res, next) {
     try {
       // Validate the input data.
-      const address = req.params.address;
-      if (!address || address === "") {
-        res.status(400);
-        return res.json({ error: "address can not be empty" });
+      const address = req.params.address
+      if (!address || address === '') {
+        res.status(400)
+        return res.json({ error: 'address can not be empty' })
       }
 
       // Ensure the input is a valid BCH address.
       try {
-        _this.bchjs.SLP.Address.toCashAddress(address);
+        _this.bchjs.SLP.Address.toCashAddress(address)
       } catch (err) {
-        res.status(400);
+        res.status(400)
         return res.json({
-          error: `Invalid BCH address. Double check your address is valid: ${address}`,
-        });
+          error: `Invalid BCH address. Double check your address is valid: ${address}`
+        })
       }
 
       // Ensure it is using the correct network.
-      const cashAddr = _this.bchjs.SLP.Address.toCashAddress(address);
-      const networkIsValid = routeUtils.validateNetwork(cashAddr);
+      const cashAddr = _this.bchjs.SLP.Address.toCashAddress(address)
+      const networkIsValid = routeUtils.validateNetwork(cashAddr)
       if (!networkIsValid) {
-        res.status(400);
+        res.status(400)
         return res.json({
           error:
-            "Invalid network. Trying to use a testnet address on mainnet, or vice versa.",
-        });
+            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+        })
       }
 
       const transactions = await _this.slpdb.getHistoricalSlpTransactions([
-        address,
-      ]);
+        address
+      ])
       // console.log(`transactions: ${JSON.stringify(transactions, null, 2)}`)
 
-      res.status(200);
-      return res.json(transactions);
+      res.status(200)
+      return res.json(transactions)
     } catch (err) {
-      wlogger.error("Error in slp.ts/txsByAddressSingle().", err);
+      wlogger.error('Error in slp.ts/txsByAddressSingle().', err)
 
       // Decode the error message.
-      const { msg, status } = routeUtils.decodeError(err);
+      const { msg, status } = routeUtils.decodeError(err)
       if (msg) {
-        res.status(status);
-        return res.json({ error: msg });
+        res.status(status)
+        return res.json({ error: msg })
       }
 
-      res.status(500);
+      res.status(500)
       return res.json({
-        error: `Error in /transactionHistoryAllTokens/:address: ${err.message}`,
-      });
+        error: `Error in /transactionHistoryAllTokens/:address: ${err.message}`
+      })
     }
   }
 
@@ -1909,38 +1905,38 @@ class Slp {
    *
    */
   // Get OP_RETURN script and outputs
-  async generateSendOpReturn(req, res, next) {
+  async generateSendOpReturn (req, res, next) {
     try {
-      const tokenUtxos = req.body.tokenUtxos;
+      const tokenUtxos = req.body.tokenUtxos
       // console.log(`tokenUtxos: `, tokenUtxos)
 
-      const _sendQty = req.body.sendQty;
-      const sendQty = Number(_sendQty);
+      const _sendQty = req.body.sendQty
+      const sendQty = Number(_sendQty)
 
       // console.log(`sendQty: `, sendQty)
 
       // Reject if tokenUtxos is not an array.
       if (!Array.isArray(tokenUtxos)) {
-        res.status(400);
+        res.status(400)
         return res.json({
-          error: "tokenUtxos needs to be an array.",
-        });
+          error: 'tokenUtxos needs to be an array.'
+        })
       }
 
       // Reject if tokenUtxos array is empty.
       if (!tokenUtxos.length) {
-        res.status(400);
+        res.status(400)
         return res.json({
-          error: "tokenUtxos array can not be empty.",
-        });
+          error: 'tokenUtxos array can not be empty.'
+        })
       }
 
       // Reject if sendQty is not an number.
       if (!sendQty) {
-        res.status(400);
+        res.status(400)
         return res.json({
-          error: "sendQty must be a number.",
-        });
+          error: 'sendQty must be a number.'
+        })
       }
 
       // console.log('sendQty: ', sendQty)
@@ -1948,28 +1944,28 @@ class Slp {
       const opReturn = await _this.bchjs.SLP.TokenType1.generateSendOpReturn(
         tokenUtxos,
         sendQty
-      );
+      )
 
-      const script = opReturn.script.toString("hex");
+      const script = opReturn.script.toString('hex')
       // console.log(`script: ${script}`)
 
-      res.status(200);
-      return res.json({ script, outputs: opReturn.outputs });
+      res.status(200)
+      return res.json({ script, outputs: opReturn.outputs })
     } catch (err) {
-      console.log("err: ", err);
-      wlogger.error("Error in slp.js/generateSendOpReturn().", err);
+      console.log('err: ', err)
+      wlogger.error('Error in slp.js/generateSendOpReturn().', err)
 
       // Decode the error message.
-      const { msg, status } = routeUtils.decodeError(err);
+      const { msg, status } = routeUtils.decodeError(err)
       if (msg) {
-        res.status(status);
-        return res.json({ error: msg });
+        res.status(status)
+        return res.json({ error: msg })
       }
 
-      res.status(500);
+      res.status(500)
       return res.json({
-        error: "Error in /generateSendOpReturn()",
-      });
+        error: 'Error in /generateSendOpReturn()'
+      })
     }
   }
 
@@ -1993,15 +1989,15 @@ class Slp {
    *
    *
    */
-  async hydrateUtxos(req, res, next) {
+  async hydrateUtxos (req, res, next) {
     try {
-      const utxos = req.body.utxos;
+      const utxos = req.body.utxos
 
       // Extract a delay value if the user passed it in.
-      const usrObjIn = req.body.usrObj;
-      let utxoDelay = 0;
+      const usrObjIn = req.body.usrObj
+      let utxoDelay = 0
       if (usrObjIn && usrObjIn.utxoDelay) {
-        utxoDelay = usrObjIn.utxoDelay;
+        utxoDelay = usrObjIn.utxoDelay
       }
 
       // console.log('req: ', req)
@@ -2014,74 +2010,74 @@ class Slp {
         jwtToken: req.locals.jwtToken,
         proLimit: req.locals.proLimit,
         apiLevel: req.locals.apiLevel,
-        utxoDelay,
-      };
+        utxoDelay
+      }
 
       // Validate inputs
       if (!Array.isArray(utxos)) {
-        res.status(422);
+        res.status(422)
         return res.json({
-          error: "Input must be an array.",
-        });
+          error: 'Input must be an array.'
+        })
       }
 
       if (!utxos.length) {
-        res.status(422);
+        res.status(422)
         return res.json({
-          error: "Array should not be empty",
-        });
+          error: 'Array should not be empty'
+        })
       }
 
       if (utxos.length > 20) {
-        res.status(422);
+        res.status(422)
         return res.json({
-          error: "Array too long, max length is 20",
-        });
+          error: 'Array too long, max length is 20'
+        })
       }
 
       if (!utxos[0].utxos) {
-        res.status(422);
+        res.status(422)
         return res.json({
-          error: "Each element in array should have a utxos property",
-        });
+          error: 'Each element in array should have a utxos property'
+        })
       }
 
       // Loop through each address and query the UTXOs for that element.
       for (let i = 0; i < utxos.length; i++) {
-        const theseUtxos = utxos[i].utxos;
+        const theseUtxos = utxos[i].utxos
 
         // Get SLP token details.
         const details = await _this.bchjs.SLP.Utils.tokenUtxoDetails(
           theseUtxos,
           usrObj
-        );
+        )
         // console.log('details: ', details)
 
         // Replace the original UTXO data with the hydrated data.
-        utxos[i].utxos = details;
+        utxos[i].utxos = details
       }
 
-      res.status(200);
-      return res.json({ slpUtxos: utxos });
+      res.status(200)
+      return res.json({ slpUtxos: utxos })
     } catch (err) {
-      wlogger.error("Error in slp.js/hydrateUtxos().", err);
+      wlogger.error('Error in slp.js/hydrateUtxos().', err)
       // console.error('Error in slp.js/hydrateUtxos().', err)
 
       // Decode the error message.
-      const { msg, status } = routeUtils.decodeError(err);
+      const { msg, status } = routeUtils.decodeError(err)
       // console.log('msg: ', msg)
       // console.log('status: ', status)
 
       if (msg) {
-        res.status(status);
-        return res.json({ error: msg, message: msg, success: false });
+        res.status(status)
+        return res.json({ error: msg, message: msg, success: false })
       }
 
-      res.status(500);
+      res.status(500)
       return res.json({
-        error: "Undetermined error in hydrateUtxos()",
-        message: err.message,
-      });
+        error: 'Undetermined error in hydrateUtxos()',
+        message: err.message
+      })
     }
   }
 
@@ -2102,15 +2098,15 @@ class Slp {
    *
    *
    */
-  async hydrateUtxosWL(req, res, next) {
+  async hydrateUtxosWL (req, res, next) {
     try {
-      const utxos = req.body.utxos;
+      const utxos = req.body.utxos
 
       // Extract a delay value if the user passed it in.
-      const usrObjIn = req.body.usrObj;
-      let utxoDelay = 0;
+      const usrObjIn = req.body.usrObj
+      let utxoDelay = 0
       if (usrObjIn && usrObjIn.utxoDelay) {
-        utxoDelay = usrObjIn.utxoDelay;
+        utxoDelay = usrObjIn.utxoDelay
       }
 
       // Generate a user object that can be passed along with internal calls
@@ -2120,74 +2116,74 @@ class Slp {
         jwtToken: req.locals.jwtToken,
         proLimit: req.locals.proLimit,
         apiLevel: req.locals.apiLevel,
-        utxoDelay,
-      };
+        utxoDelay
+      }
 
       // Validate inputs
       if (!Array.isArray(utxos)) {
-        res.status(422);
+        res.status(422)
         return res.json({
-          error: "Input must be an array.",
-        });
+          error: 'Input must be an array.'
+        })
       }
 
       if (!utxos.length) {
-        res.status(422);
+        res.status(422)
         return res.json({
-          error: "Array should not be empty",
-        });
+          error: 'Array should not be empty'
+        })
       }
 
       if (utxos.length > 20) {
-        res.status(422);
+        res.status(422)
         return res.json({
-          error: "Array too long, max length is 20",
-        });
+          error: 'Array too long, max length is 20'
+        })
       }
 
       if (!utxos[0].utxos) {
-        res.status(422);
+        res.status(422)
         return res.json({
-          error: "Each element in array should have a utxos property",
-        });
+          error: 'Each element in array should have a utxos property'
+        })
       }
 
       // Loop through each address and query the UTXOs for that element.
       for (let i = 0; i < utxos.length; i++) {
-        const theseUtxos = utxos[i].utxos;
+        const theseUtxos = utxos[i].utxos
         // console.log(`theseUtxos: ${JSON.stringify(theseUtxos, null, 2)}`)
 
         // Get SLP token details.
         const details = await _this.bchjs.SLP.Utils.tokenUtxoDetailsWL(
           theseUtxos,
           usrObj
-        );
+        )
         // console.log('details : ', details)
 
         // Replace the original UTXO data with the hydrated data.
-        utxos[i].utxos = details;
+        utxos[i].utxos = details
       }
 
-      res.status(200);
-      return res.json({ slpUtxos: utxos });
+      res.status(200)
+      return res.json({ slpUtxos: utxos })
     } catch (err) {
-      wlogger.error("Error in slp.js/hydrateUtxosWL().", err);
-      console.error("Error in slp.js/hydrateUtxosWL().", err);
+      wlogger.error('Error in slp.js/hydrateUtxosWL().', err)
+      console.error('Error in slp.js/hydrateUtxosWL().', err)
 
       // Decode the error message.
-      const { msg, status } = routeUtils.decodeError(err);
-      console.log("msg: ", msg);
-      console.log("status: ", status);
+      const { msg, status } = routeUtils.decodeError(err)
+      console.log('msg: ', msg)
+      console.log('status: ', status)
       if (msg) {
-        res.status(status);
-        return res.json({ error: msg, message: msg, success: false });
+        res.status(status)
+        return res.json({ error: msg, message: msg, success: false })
       }
 
-      res.status(500);
+      res.status(500)
       return res.json({
-        error: "Error in hydrateUtxosWL()",
-        message: "Error in hydrateUtxosWL()",
-      });
+        error: 'Error in hydrateUtxosWL()',
+        message: 'Error in hydrateUtxosWL()'
+      })
     }
   }
 
@@ -2202,35 +2198,35 @@ class Slp {
    * curl -X GET "https://api.fullstack.cash/v4/slp/status" -H "accept:application/json" -H "Content-Type: application/json"
    *
    */
-  async getStatus(req, res, next) {
+  async getStatus (req, res, next) {
     try {
       const query = {
         v: 3,
         q: {
-          db: ["s"],
-          find: { context: "SLPDB" },
-          limit: 10,
-        },
-      };
+          db: ['s'],
+          find: { context: 'SLPDB' },
+          limit: 10
+        }
+      }
 
-      const s = JSON.stringify(query);
-      const b64 = Buffer.from(s).toString("base64");
-      const url = `${process.env.SLPDB_URL}q/${b64}`;
+      const s = JSON.stringify(query)
+      const b64 = Buffer.from(s).toString('base64')
+      const url = `${process.env.SLPDB_URL}q/${b64}`
       // Request options
       const opt = {
-        method: "get",
-        baseURL: url,
-      };
-      const tokenRes = await _this.axios.request(opt);
+        method: 'get',
+        baseURL: url
+      }
+      const tokenRes = await _this.axios.request(opt)
 
-      const status = tokenRes.data.s[0];
+      const status = tokenRes.data.s[0]
 
-      res.status(200);
-      return res.json(status);
+      res.status(200)
+      return res.json(status)
     } catch (err) {
       // console.log(err)
-      wlogger.error("Error in slp.js/getStatus().", err);
-      return _this.errorHandler(err, res);
+      wlogger.error('Error in slp.js/getStatus().', err)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -2245,68 +2241,68 @@ class Slp {
    * curl -X GET "https://api.fullstack.cash/v4/slp/nftChildren/68cd33ecd909068fbea318ae5ff1d6207cf754e53b191327d6d73b6916424c0a" -H "accept:application/json"
    *
    */
-  async getNftChildren(req, res, next) {
+  async getNftChildren (req, res, next) {
     try {
       // Validate the input data.
-      const tokenId = req.params.tokenId;
+      const tokenId = req.params.tokenId
 
-      if (!tokenId || tokenId === "") {
-        res.status(400);
-        return res.json({ error: "tokenId can not be empty" });
+      if (!tokenId || tokenId === '') {
+        res.status(400)
+        return res.json({ error: 'tokenId can not be empty' })
       }
 
-      const token = await _this.lookupToken(tokenId);
+      const token = await _this.lookupToken(tokenId)
       // console.log(`token: ${JSON.stringify(token, null, 2)}`)
 
-      if (!token || token.id === "not found" || token.versionType !== 129) {
-        res.status(400);
-        return res.json({ error: "NFT group does not exists" });
+      if (!token || token.id === 'not found' || token.versionType !== 129) {
+        res.status(400)
+        return res.json({ error: 'NFT group does not exists' })
       }
 
       const query = {
         v: 3,
         q: {
-          db: ["t"],
+          db: ['t'],
           aggregate: [
             { $match: { nftParentId: tokenId } },
             { $skip: 0 }, // TODO: pass start point
-            { $limit: 100 }, // TODO: pass count limit
-          ],
-        },
-      };
+            { $limit: 100 } // TODO: pass count limit
+          ]
+        }
+      }
 
-      const s = JSON.stringify(query);
-      const b64 = Buffer.from(s).toString("base64");
-      const url = `${process.env.SLPDB_URL}q/${b64}`;
+      const s = JSON.stringify(query)
+      const b64 = Buffer.from(s).toString('base64')
+      const url = `${process.env.SLPDB_URL}q/${b64}`
       // Request options
       const opt = {
-        method: "get",
-        baseURL: url,
-      };
-      const childrenIds = [];
-      const childrenRes = await _this.axios.request(opt);
+        method: 'get',
+        baseURL: url
+      }
+      const childrenIds = []
+      const childrenRes = await _this.axios.request(opt)
       // console.log(`childrenRes.data: ${JSON.stringify(childrenRes.data, null, 2)}`)
       if (!childrenRes || !childrenRes.data || !childrenRes.data.t) {
-        res.status(400);
-        return res.json({ error: "No children data in the group" });
+        res.status(400)
+        return res.json({ error: 'No children data in the group' })
       }
 
       childrenRes.data.t.forEach(function (token) {
         // console.log(`info: ${JSON.stringify(token, null, 2)}`)
         if (
           token.tokenDetails.versionType === 65 &&
-          token.tokenDetails.transactionType === "GENESIS"
+          token.tokenDetails.transactionType === 'GENESIS'
         ) {
-          childrenIds.push(token.tokenDetails.tokenIdHex);
+          childrenIds.push(token.tokenDetails.tokenIdHex)
         }
-      });
+      })
 
-      res.status(200);
-      return res.json({ nftChildren: childrenIds });
+      res.status(200)
+      return res.json({ nftChildren: childrenIds })
     } catch (err) {
       // console.log(err)
-      wlogger.error("Error in slp.js/getNftChildren().", err);
-      return _this.errorHandler(err, res);
+      wlogger.error('Error in slp.js/getNftChildren().', err)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -2321,48 +2317,48 @@ class Slp {
    * curl -X GET "https://api.fullstack.cash/v4/slp/nftGroup/45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9" -H "accept:application/json"
    *
    */
-  async getNftGroup(req, res, next) {
+  async getNftGroup (req, res, next) {
     try {
       // Validate the input data.
-      const tokenId = req.params.tokenId;
+      const tokenId = req.params.tokenId
 
-      if (!tokenId || tokenId === "") {
-        res.status(400);
-        return res.json({ error: "tokenId can not be empty" });
+      if (!tokenId || tokenId === '') {
+        res.status(400)
+        return res.json({ error: 'tokenId can not be empty' })
       }
 
-      const token = await _this.lookupToken(tokenId);
+      const token = await _this.lookupToken(tokenId)
       // console.log(`token: ${JSON.stringify(token, null, 2)}`)
 
       if (
         !token ||
-        token.id === "not found" ||
+        token.id === 'not found' ||
         token.versionType !== 65 ||
         !token.nftParentId
       ) {
-        res.status(400);
-        return res.json({ error: "NFT child does not exists" });
+        res.status(400)
+        return res.json({ error: 'NFT child does not exists' })
       }
 
-      const parentToken = await _this.lookupToken(token.nftParentId);
+      const parentToken = await _this.lookupToken(token.nftParentId)
       // console.log(`parentToken: ${JSON.stringify(token, null, 2)}`)
       if (
         !parentToken ||
-        parentToken.id === "not found" ||
+        parentToken.id === 'not found' ||
         parentToken.versionType !== 129
       ) {
-        res.status(400);
-        return res.json({ error: "NFT group does not exists" });
+        res.status(400)
+        return res.json({ error: 'NFT group does not exists' })
       }
 
-      res.status(200);
-      return res.json({ nftGroup: parentToken });
+      res.status(200)
+      return res.json({ nftGroup: parentToken })
     } catch (err) {
       // console.log(err)
-      wlogger.error("Error in slp.js/getNftGroup().", err);
-      return _this.errorHandler(err, res);
+      wlogger.error('Error in slp.js/getNftGroup().', err)
+      return _this.errorHandler(err, res)
     }
   }
 }
 
-module.exports = Slp;
+module.exports = Slp

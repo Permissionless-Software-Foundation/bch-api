@@ -36,7 +36,7 @@ if (process.env.TEST === 'unit') {
   process.env.BITDB_URL = 'http://fakeurl/'
   process.env.BITCOINCOM_BASEURL = 'http://fakeurl/'
   process.env.SLPDB_URL = 'http://fakeurl/'
-  mockServerUrl = 'http://fakeurl'
+  // mockServerUrl = 'http://fakeurl'
 }
 
 // Prepare the slpRoute for stubbing dependcies on slpjs.
@@ -577,7 +577,7 @@ describe('#SLP', () => {
 
     it('should throw 400 error if array is too large', async () => {
       const testArray = []
-      for (var i = 0; i < 25; i++) testArray.push('')
+      for (let i = 0; i < 25; i++) testArray.push('')
 
       req.body.txids = testArray
 
@@ -787,7 +787,7 @@ describe('#SLP', () => {
 
     it('should throw 400 error if array is too large', async () => {
       const testArray = []
-      for (var i = 0; i < 25; i++) testArray.push('')
+      for (let i = 0; i < 25; i++) testArray.push('')
 
       req.body.txids = testArray
 
@@ -1406,8 +1406,7 @@ describe('#SLP', () => {
 
     it('should throw error if Array is too long', async () => {
       const utxo = {
-        txid:
-          'bd158c564dd4ef54305b14f44f8e94c44b649f246dab14bcb42fb0d0078b8a90',
+        txid: 'bd158c564dd4ef54305b14f44f8e94c44b649f246dab14bcb42fb0d0078b8a90',
         vout: 3,
         amount: 0.00002015,
         satoshis: 2015,
@@ -1435,8 +1434,7 @@ describe('#SLP', () => {
         {
           utxos: [
             {
-              txid:
-                'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+              txid: 'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
               vout: 3,
               value: '6816',
               height: 606848,
@@ -1444,8 +1442,7 @@ describe('#SLP', () => {
               satoshis: 6816
             },
             {
-              txid:
-                'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+              txid: 'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
               vout: 2,
               value: '546',
               height: 606848,
@@ -1459,8 +1456,7 @@ describe('#SLP', () => {
       // Mock the external network call.
       sandbox.stub(slpRoute.bchjs.SLP.Utils, 'tokenUtxoDetails').resolves([
         {
-          txid:
-            'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+          txid: 'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
           vout: 3,
           value: '6816',
           height: 606848,
@@ -1469,8 +1465,7 @@ describe('#SLP', () => {
           isValid: false
         },
         {
-          txid:
-            'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+          txid: 'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
           vout: 2,
           value: '546',
           height: 606848,
@@ -1581,8 +1576,7 @@ describe('#SLP', () => {
 
     it('should throw error if Array is too long', async () => {
       const utxo = {
-        txid:
-          'bd158c564dd4ef54305b14f44f8e94c44b649f246dab14bcb42fb0d0078b8a90',
+        txid: 'bd158c564dd4ef54305b14f44f8e94c44b649f246dab14bcb42fb0d0078b8a90',
         vout: 3,
         amount: 0.00002015,
         satoshis: 2015,
@@ -1610,8 +1604,7 @@ describe('#SLP', () => {
         {
           utxos: [
             {
-              txid:
-                'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+              txid: 'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
               vout: 3,
               value: '6816',
               height: 606848,
@@ -1619,8 +1612,7 @@ describe('#SLP', () => {
               satoshis: 6816
             },
             {
-              txid:
-                'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+              txid: 'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
               vout: 2,
               value: '546',
               height: 606848,
@@ -1634,8 +1626,7 @@ describe('#SLP', () => {
       // Mock the external network call.
       sandbox.stub(slpRoute.bchjs.SLP.Utils, 'tokenUtxoDetailsWL').resolves([
         {
-          txid:
-            'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+          txid: 'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
           vout: 3,
           value: '6816',
           height: 606848,
@@ -1644,8 +1635,7 @@ describe('#SLP', () => {
           isValid: false
         },
         {
-          txid:
-            'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+          txid: 'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
           vout: 2,
           value: '546',
           height: 606848,

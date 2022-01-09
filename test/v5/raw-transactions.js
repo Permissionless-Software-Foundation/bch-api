@@ -216,7 +216,7 @@ describe('#Raw-Transactions', () => {
 
     it('should throw 400 error if hexes array is too large', async () => {
       const testArray = []
-      for (var i = 0; i < 25; i++) testArray.push('')
+      for (let i = 0; i < 25; i++) testArray.push('')
 
       req.body.hexes = testArray
 
@@ -459,7 +459,7 @@ describe('#Raw-Transactions', () => {
 
     it('should throw 400 error if hexes array is too large', async () => {
       const testArray = []
-      for (var i = 0; i < 25; i++) testArray.push('')
+      for (let i = 0; i < 25; i++) testArray.push('')
 
       req.body.hexes = testArray
 
@@ -599,7 +599,7 @@ describe('#Raw-Transactions', () => {
 
     it('should throw 400 error if txids array is too large', async () => {
       const testArray = []
-      for (var i = 0; i < 25; i++) testArray.push('')
+      for (let i = 0; i < 25; i++) testArray.push('')
 
       req.body.txids = testArray
 
@@ -885,7 +885,7 @@ describe('#Raw-Transactions', () => {
 
     it('should throw 400 error if hexs array is too large', async () => {
       const testArray = []
-      for (var i = 0; i < 25; i++) testArray.push('')
+      for (let i = 0; i < 25; i++) testArray.push('')
 
       req.body.hexes = testArray
 

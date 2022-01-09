@@ -433,7 +433,7 @@ class UtilRoute {
 
       // Loop through each input and sign
       let redeemScript
-      for (var i = 0; i < utxos.length; i++) {
+      for (let i = 0; i < utxos.length; i++) {
         const utxo = utxos[i]
 
         transactionBuilder.sign(

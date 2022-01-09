@@ -100,7 +100,7 @@ app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'jade')
 
 // Mount the docs
-app.use('/docs', express.static(`${__dirname}/../docs`))
+app.use('/docs', express.static(`${__dirname.toString()}/../docs`))
 
 // Log each request to the console with IP addresses.
 // app.use(logger("dev"))
@@ -200,6 +200,9 @@ app.use(`/${v5prefix}/` + 'ninsight', ninsight.router)
 
 app.use(`/${v5prefix}/` + 'bcash/slp', bcashSLP.router)
 
+// Daniel:
+// app.use(`/${v5prefix}/` + 'psfslp', psfSlp.router)
+
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
   const err = {
@@ -285,11 +288,11 @@ function onError (error) {
     case 'EACCES':
       console.error(`${bind} requires elevated privileges`)
       process.exit(1)
-    // break
+      break
     case 'EADDRINUSE':
       console.error(`${bind} is already in use`)
       process.exit(1)
-    // break
+      break
     default:
       throw error
   }
