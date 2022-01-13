@@ -55,6 +55,7 @@ const EncryptionV5 = require('./routes/v5/encryption')
 const PriceV5 = require('./routes/v5/price')
 const JWTV5 = require('./routes/v5/jwt')
 const BcashSLP = require('./routes/v5/bcash/slp')
+const PsfSlpIndexer = require('./routes/v5/psf-slp-indexer')
 // const Ninsight = require('./routes/v5/ninsight')
 
 require('dotenv').config()
@@ -84,6 +85,7 @@ const utilV5 = new UtilV5({ electrumx: electrumxv5 })
 const dsproofV5 = new DSProofV5()
 const jwtV5 = new JWTV5()
 const bcashSLP = new BcashSLP()
+const psfSlpIndexer = new PsfSlpIndexer()
 const app = express()
 
 app.locals.env = process.env
@@ -199,6 +201,8 @@ app.use(`/${v5prefix}/` + 'jwt', jwtV5.router)
 app.use(`/${v5prefix}/` + 'ninsight', ninsight.router)
 
 app.use(`/${v5prefix}/` + 'bcash/slp', bcashSLP.router)
+
+app.use(`/${v5prefix}/` + 'psf/slp', psfSlpIndexer.router)
 
 // Daniel:
 // app.use(`/${v5prefix}/` + 'psfslp', psfSlp.router)
