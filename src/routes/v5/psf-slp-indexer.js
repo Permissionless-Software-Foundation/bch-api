@@ -6,34 +6,39 @@
 const express = require('express')
 const router = express.Router()
 const axios = require('axios')
+const util = require('util')
+
+// Local libraries
 const RouteUtils = require('../../util/route-utils')
 const routeUtils = new RouteUtils()
 
 // Local libraries
 // const wlogger = require('../../../util/winston-logging')
-// const config = require('../../../../config')
-let _this
+const config = require('../../../config')
+
+// let _this
+
 class PsfSlpIndexer {
   constructor () {
     // Encapsulate dependencies
-    _this = this
-    _this.axios = axios
-    _this.router = router
-    _this.routeUtils = routeUtils
-    _this.psfSlpIndexerApi = process.env.SLP_INDEXER_API
-    if (!this.psfSlpIndexerApi) {
-      // console.warn('FULCRUM_API env var not set. Can not connect to Fulcrum indexer.')
-      throw new Error(
-        'SLP_INDEXER_API env var not set. Can not connect to psf slp indexer.'
-      )
-    }
+    this.axios = axios
+    this.router = router
+    this.routeUtils = routeUtils
+    this.config = config
 
     // Define routes
-    _this.router.get('/', this.root)
+    this.router.get('/', this.root)
     // this.router.get('/status', this.getStatus)
     // this.router.post('/address', this.getAddress)
     // this.router.post('/txid', this.getTxid)
-    _this.router.post('/token', this.getTokenStats)
+    this.router.post('/token', this.getTokenStats)
+
+    // _this = this
+  }
+
+  // Root API endpoint. Simply acknowledges that it exists.
+  root (req, res, next) {
+    return res.json({ status: 'psf-slp-indexer' })
   }
 
   /**
@@ -50,6 +55,9 @@ class PsfSlpIndexer {
    */
   async getTokenStats (req, res, next) {
     try {
+      // Verify env var is set for interacting with the indexer.
+      this.checkEnvVar()
+
       const tokenId = req.body.tokenId
       if (!tokenId || tokenId === '') {
         res.status(400)
@@ -58,22 +66,33 @@ class PsfSlpIndexer {
           error: 'tokenId can not be empty'
         })
       }
-      const response = await _this.axios.post(
-        `${_this.psfSlpIndexerApi}slp/token/`,
+
+      const response = await this.axios.post(
+        `${this.psfSlpIndexerApi}slp/token/`,
         { tokenId }
       )
 
       res.status(200)
       return res.json(response.data)
     } catch (err) {
-      return _this.errorHandler(err, res)
+      return this.errorHandler(err, res)
+    }
+  }
+
+  // Check the the environment variable is set correctly.
+  checkEnvVar () {
+    this.psfSlpIndexerApi = process.env.SLP_INDEXER_API
+    if (!this.psfSlpIndexerApi) {
+      throw new Error(
+        'SLP_INDEXER_API env var not set. Can not connect to PSF SLP indexer.'
+      )
     }
   }
 
   // DRY error handler.
   errorHandler (err, res) {
     // Attempt to decode the error message.
-    const { msg, status } = _this.routeUtils.decodeError(err)
+    const { msg, status } = this.routeUtils.decodeError(err)
     // console.log('errorHandler msg: ', msg)
     // console.log('errorHandler status: ', status)
 
@@ -91,11 +110,6 @@ class PsfSlpIndexer {
     // If error can be handled, return the stack trace
     res.status(500)
     return res.json({ error: util.inspect(err) })
-  }
-
-  // Root API endpoint. Simply acknowledges that it exists.
-  root (req, res, next) {
-    return res.json({ status: 'psf-slp-indexer' })
   }
 }
 
