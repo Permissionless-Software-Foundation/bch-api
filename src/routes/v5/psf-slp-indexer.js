@@ -19,7 +19,7 @@ const bchjs = new BCHJS()
 // const wlogger = require('../../../util/winston-logging')
 const config = require('../../../config')
 
-// let _this
+let _this
 
 class PsfSlpIndexer {
   constructor () {
@@ -36,7 +36,7 @@ class PsfSlpIndexer {
     this.router.post('/txid', this.getTxid)
     this.router.post('/token', this.getTokenStats)
 
-    // _this = this
+    _this = this
   }
 
   // Root API endpoint. Simply acknowledges that it exists.
@@ -59,14 +59,14 @@ class PsfSlpIndexer {
   async getStatus (req, res, next) {
     try {
       // Verify env var is set for interacting with the indexer.
-      this.checkEnvVar()
+      _this.checkEnvVar()
 
-      const response = await this.axios.get(`${this.psfSlpIndexerApi}slp/status/`)
+      const response = await _this.axios.get(`${_this.psfSlpIndexerApi}slp/status/`)
 
       res.status(200)
       return res.json(response.data)
     } catch (err) {
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -85,7 +85,7 @@ class PsfSlpIndexer {
   async getAddress (req, res, next) {
     try {
       // Verify env var is set for interacting with the indexer.
-      this.checkEnvVar()
+      _this.checkEnvVar()
 
       // Validate the input data.
       const address = req.body.address
@@ -99,7 +99,7 @@ class PsfSlpIndexer {
 
       // Ensure the input is a valid BCH address.
       try {
-        this.bchjs.SLP.Address.toCashAddress(address)
+        _this.bchjs.SLP.Address.toCashAddress(address)
       } catch (err) {
         res.status(400)
         return res.json({
@@ -109,8 +109,8 @@ class PsfSlpIndexer {
       }
 
       // Prevent a common user error. Ensure they are using the correct network address.
-      const cashAddr = this.bchjs.SLP.Address.toCashAddress(address)
-      const networkIsValid = this.routeUtils.validateNetwork(cashAddr)
+      const cashAddr = _this.bchjs.SLP.Address.toCashAddress(address)
+      const networkIsValid = _this.routeUtils.validateNetwork(cashAddr)
       if (!networkIsValid) {
         res.status(400)
         return res.json({
@@ -120,8 +120,8 @@ class PsfSlpIndexer {
         })
       }
 
-      const response = await this.axios.post(
-        `${this.psfSlpIndexerApi}slp/address/`,
+      const response = await _this.axios.post(
+        `${_this.psfSlpIndexerApi}slp/address/`,
         { address }
       )
 
@@ -129,7 +129,7 @@ class PsfSlpIndexer {
       return res.json(response.data)
     } catch (err) {
       // console.log('err', err)
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -148,7 +148,7 @@ class PsfSlpIndexer {
   async getTxid (req, res, next) {
     try {
       // Verify env var is set for interacting with the indexer.
-      this.checkEnvVar()
+      _this.checkEnvVar()
 
       const txid = req.body.txid
       if (!txid || txid === '') {
@@ -167,8 +167,8 @@ class PsfSlpIndexer {
         })
       }
 
-      const response = await this.axios.post(
-        `${this.psfSlpIndexerApi}slp/tx/`,
+      const response = await _this.axios.post(
+        `${_this.psfSlpIndexerApi}slp/tx/`,
         { txid }
       )
 
@@ -176,7 +176,7 @@ class PsfSlpIndexer {
       return res.json(response.data)
     } catch (err) {
       // console.log('err', err)
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
@@ -195,7 +195,7 @@ class PsfSlpIndexer {
   async getTokenStats (req, res, next) {
     try {
       // Verify env var is set for interacting with the indexer.
-      this.checkEnvVar()
+      _this.checkEnvVar()
 
       const tokenId = req.body.tokenId
       if (!tokenId || tokenId === '') {
@@ -206,22 +206,22 @@ class PsfSlpIndexer {
         })
       }
 
-      const response = await this.axios.post(
-        `${this.psfSlpIndexerApi}slp/token/`,
+      const response = await _this.axios.post(
+        `${_this.psfSlpIndexerApi}slp/token/`,
         { tokenId }
       )
 
       res.status(200)
       return res.json(response.data)
     } catch (err) {
-      return this.errorHandler(err, res)
+      return _this.errorHandler(err, res)
     }
   }
 
   // Check the the environment variable is set correctly.
   checkEnvVar () {
-    this.psfSlpIndexerApi = process.env.SLP_INDEXER_API
-    if (!this.psfSlpIndexerApi) {
+    _this.psfSlpIndexerApi = process.env.SLP_INDEXER_API
+    if (!_this.psfSlpIndexerApi) {
       throw new Error(
         'SLP_INDEXER_API env var not set. Can not connect to PSF SLP indexer.'
       )
@@ -231,7 +231,7 @@ class PsfSlpIndexer {
   // DRY error handler.
   errorHandler (err, res) {
     // Attempt to decode the error message.
-    const { msg, status } = this.routeUtils.decodeError(err)
+    const { msg, status } = _this.routeUtils.decodeError(err)
     // console.log('errorHandler msg: ', msg)
     // console.log('errorHandler status: ', status)
 
