@@ -12,6 +12,9 @@ const util = require('util')
 const RouteUtils = require('../../util/route-utils')
 const routeUtils = new RouteUtils()
 
+const BCHJS = require('@psf/bch-js')
+const bchjs = new BCHJS()
+
 // Local libraries
 // const wlogger = require('../../../util/winston-logging')
 const config = require('../../../config')
@@ -25,12 +28,12 @@ class PsfSlpIndexer {
     this.router = router
     this.routeUtils = routeUtils
     this.config = config
-
+    this.bchjs = bchjs
     // Define routes
     this.router.get('/', this.root)
-    // this.router.get('/status', this.getStatus)
-    // this.router.post('/address', this.getAddress)
-    // this.router.post('/txid', this.getTxid)
+    this.router.get('/status', this.getStatus)
+    this.router.post('/address', this.getAddress)
+    this.router.post('/txid', this.getTxid)
     this.router.post('/token', this.getTokenStats)
 
     // _this = this
@@ -39,6 +42,142 @@ class PsfSlpIndexer {
   // Root API endpoint. Simply acknowledges that it exists.
   root (req, res, next) {
     return res.json({ status: 'psf-slp-indexer' })
+  }
+
+  /**
+ * @api {get} /psf/slp/status/  Indexer Status.
+ * @apiName SLP indexer status.
+ * @apiGroup PSF SLP
+ * @apiDescription Return SLP  indexer status
+ *
+ *
+ * @apiExample Example usage:
+ * curl -H "Content-Type: application/json" -X GET localhost:3000/v5/psf/slp/status
+ *
+ *
+ */
+  async getStatus (req, res, next) {
+    try {
+      // Verify env var is set for interacting with the indexer.
+      this.checkEnvVar()
+
+      const response = await this.axios.get(`${this.psfSlpIndexerApi}slp/status/`)
+
+      res.status(200)
+      return res.json(response.data)
+    } catch (err) {
+      return this.errorHandler(err, res)
+    }
+  }
+
+  /**
+     * @api {post} /psf/slp/address/  SLP  balance for address.
+     * @apiName SLP  balance for address.
+     * @apiGroup PSF SLP
+     * @apiDescription Return SLP  balance for address
+     *
+     *
+     * @apiExample Example usage:
+     * curl -H "Content-Type: application/json" -X POST -d '{ "address": "bitcoincash:qzmd5vxgh9m22m6fgvm57yd6kjnjl9qnwywsf3583n" }' localhost:3000/v5/psf/slp/address
+     *
+     *
+     */
+  async getAddress (req, res, next) {
+    try {
+      // Verify env var is set for interacting with the indexer.
+      this.checkEnvVar()
+
+      // Validate the input data.
+      const address = req.body.address
+      if (!address || address === '') {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'address can not be empty'
+        })
+      }
+
+      // Ensure the input is a valid BCH address.
+      try {
+        this.bchjs.SLP.Address.toCashAddress(address)
+      } catch (err) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: `Invalid BCH address. Double check your address is valid: ${address}`
+        })
+      }
+
+      // Prevent a common user error. Ensure they are using the correct network address.
+      const cashAddr = this.bchjs.SLP.Address.toCashAddress(address)
+      const networkIsValid = this.routeUtils.validateNetwork(cashAddr)
+      if (!networkIsValid) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error:
+            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+        })
+      }
+
+      const response = await this.axios.post(
+        `${this.psfSlpIndexerApi}slp/address/`,
+        { address }
+      )
+
+      res.status(200)
+      return res.json(response.data)
+    } catch (err) {
+      // console.log('err', err)
+      return this.errorHandler(err, res)
+    }
+  }
+
+  /**
+   * @api {post} /psf/slp/txid/  SLP transaction data.
+   * @apiName SLP transaction data.
+   * @apiGroup PSF SLP
+   * @apiDescription Return slp transaction data.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -H "Content-Type: application/json" -X POST -d '{ "txid": "f3e14cd871402a766e85045dc552f2c1e87857dd3ea1b15efab6334ccef5e315" }' localhost:3000/v5/psf/slp/txid
+   *
+   *
+   */
+  async getTxid (req, res, next) {
+    try {
+      // Verify env var is set for interacting with the indexer.
+      this.checkEnvVar()
+
+      const txid = req.body.txid
+      if (!txid || txid === '') {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'txid can not be empty'
+        })
+      }
+
+      if (txid.length !== 64) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'This is not a txid'
+        })
+      }
+
+      const response = await this.axios.post(
+        `${this.psfSlpIndexerApi}slp/tx/`,
+        { txid }
+      )
+
+      res.status(200)
+      return res.json(response.data)
+    } catch (err) {
+      // console.log('err', err)
+      return this.errorHandler(err, res)
+    }
   }
 
   /**
