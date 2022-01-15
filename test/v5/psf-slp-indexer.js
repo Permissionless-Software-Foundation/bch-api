@@ -27,19 +27,13 @@ describe('#PsfSlpIndexer', () => {
   before(() => {
     // Save existing environment variables.
     originalEnvVars = {
-      BITCOINCOM_BASEURL: process.env.BITCOINCOM_BASEURL,
-      RPC_BASEURL: process.env.RPC_BASEURL,
-      RPC_USERNAME: process.env.RPC_USERNAME,
-      RPC_PASSWORD: process.env.RPC_PASSWORD
+      SLP_INDEXER_API: process.env.SLP_INDEXER_API
     }
 
     // Set default environment variables for unit tests.
     if (!process.env.TEST) process.env.TEST = 'unit'
     if (process.env.TEST === 'unit') {
-      process.env.BITCOINCOM_BASEURL = 'http://fakeurl/api/'
-      process.env.RPC_BASEURL = 'http://fakeurl/api'
-      process.env.RPC_USERNAME = 'fakeusername'
-      process.env.RPC_PASSWORD = 'fakepassword'
+      process.env.SLP_INDEXER_API = 'http://fakeurl/api/'
     }
   })
 
@@ -64,10 +58,7 @@ describe('#PsfSlpIndexer', () => {
 
   after(() => {
     // Restore any pre-existing environment variables.
-    process.env.BITCOINCOM_BASEURL = originalEnvVars.BITCOINCOM_BASEURL
-    process.env.RPC_BASEURL = originalEnvVars.RPC_BASEURL
-    process.env.RPC_USERNAME = originalEnvVars.RPC_USERNAME
-    process.env.RPC_PASSWORD = originalEnvVars.RPC_PASSWORD
+    process.env.SLP_INDEXER_API = originalEnvVars.SLP_INDEXER_API
   })
 
   describe('#root', async () => {
