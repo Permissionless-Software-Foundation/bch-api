@@ -45,23 +45,25 @@ class PsfSlpIndexer {
   }
 
   /**
- * @api {get} /psf/slp/status/  Indexer Status.
- * @apiName SLP indexer status.
- * @apiGroup PSF SLP
- * @apiDescription Return SLP  indexer status
- *
- *
- * @apiExample Example usage:
- * curl -H "Content-Type: application/json" -X GET localhost:3000/v5/psf/slp/status
- *
- *
- */
+   * @api {get} /psf/slp/status/  Indexer Status.
+   * @apiName SLP indexer status.
+   * @apiGroup PSF SLP
+   * @apiDescription Return SLP  indexer status
+   *
+   *
+   * @apiExample Example usage:
+   * curl -H "Content-Type: application/json" -X GET localhost:3000/v5/psf/slp/status
+   *
+   *
+   */
   async getStatus (req, res, next) {
     try {
       // Verify env var is set for interacting with the indexer.
       _this.checkEnvVar()
 
-      const response = await _this.axios.get(`${_this.psfSlpIndexerApi}slp/status/`)
+      const response = await _this.axios.get(
+        `${_this.psfSlpIndexerApi}slp/status/`
+      )
 
       res.status(200)
       return res.json(response.data)
@@ -71,17 +73,17 @@ class PsfSlpIndexer {
   }
 
   /**
-     * @api {post} /psf/slp/address/  SLP  balance for address.
-     * @apiName SLP  balance for address.
-     * @apiGroup PSF SLP
-     * @apiDescription Return SLP  balance for address
-     *
-     *
-     * @apiExample Example usage:
-     * curl -H "Content-Type: application/json" -X POST -d '{ "address": "bitcoincash:qzmd5vxgh9m22m6fgvm57yd6kjnjl9qnwywsf3583n" }' localhost:3000/v5/psf/slp/address
-     *
-     *
-     */
+   * @api {post} /psf/slp/address/  SLP  balance for address.
+   * @apiName SLP  balance for address.
+   * @apiGroup PSF SLP
+   * @apiDescription Return SLP  balance for address
+   *
+   *
+   * @apiExample Example usage:
+   * curl -H "Content-Type: application/json" -X POST -d '{ "address": "bitcoincash:qzmd5vxgh9m22m6fgvm57yd6kjnjl9qnwywsf3583n" }' localhost:3000/v5/psf/slp/address
+   *
+   *
+   */
   async getAddress (req, res, next) {
     try {
       // Verify env var is set for interacting with the indexer.

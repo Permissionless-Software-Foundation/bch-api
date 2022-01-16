@@ -86,16 +86,16 @@ describe('#PsfSlpIndexer', () => {
         'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
 
       // Save the existing RPC URL.
-      const savedUrl2 = process.env.RPC_BASEURL
+      const savedUrl2 = process.env.SLP_INDEXER_API
 
       // Manipulate the URL to cause a 500 network error.
-      process.env.RPC_BASEURL = 'http://fakeurl/api/'
+      process.env.SLP_INDEXER_API = 'http://fakeurl/api/'
 
       await uut.getTokenStats(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
-      process.env.RPC_BASEURL = savedUrl2
+      process.env.SLP_INDEXER_API = savedUrl2
 
       assert.isAbove(
         res.statusCode,
@@ -104,6 +104,7 @@ describe('#PsfSlpIndexer', () => {
       )
       // assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
     })
+
     it('returns proper error when downstream service stalls', async () => {
       req.body.tokenId =
         'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
@@ -145,9 +146,7 @@ describe('#PsfSlpIndexer', () => {
         'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox
-          .stub(uut.axios, 'post')
-          .resolves({ data: mockData.tokenStats })
+        sandbox.stub(uut.axios, 'post').resolves({ data: mockData.tokenStats })
       } else {
         return this.skip()
       }
@@ -190,21 +189,22 @@ describe('#PsfSlpIndexer', () => {
       assert.isFalse(result.success)
       assert.include(result.error, 'This is not a txid')
     })
+
     it('should throw 503 when network issues', async () => {
       req.body.txid =
         'f3e14cd871402a766e85045dc552f2c1e87857dd3ea1b15efab6334ccef5e315'
 
       // Save the existing RPC URL.
-      const savedUrl2 = process.env.RPC_BASEURL
+      const savedUrl2 = process.env.SLP_INDEXER_API
 
       // Manipulate the URL to cause a 500 network error.
-      process.env.RPC_BASEURL = 'http://fakeurl/api/'
+      process.env.SLP_INDEXER_API = 'http://fakeurl/api/'
 
       await uut.getTxid(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
-      process.env.RPC_BASEURL = savedUrl2
+      process.env.SLP_INDEXER_API = savedUrl2
 
       assert.isAbove(
         res.statusCode,
@@ -254,9 +254,7 @@ describe('#PsfSlpIndexer', () => {
         'f3e14cd871402a766e85045dc552f2c1e87857dd3ea1b15efab6334ccef5e315'
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox
-          .stub(uut.axios, 'post')
-          .resolves({ data: mockData.txData })
+        sandbox.stub(uut.axios, 'post').resolves({ data: mockData.txData })
       } else {
         return this.skip()
       }
@@ -306,7 +304,10 @@ describe('#PsfSlpIndexer', () => {
 
       assert.hasAllKeys(result, ['error', 'success'])
       assert.isFalse(result.success)
-      assert.include(result.error, 'Invalid BCH address. Double check your address is valid')
+      assert.include(
+        result.error,
+        'Invalid BCH address. Double check your address is valid'
+      )
     })
     it('should throw 400 error for invalid network address', async () => {
       req.body.address = 'bchtest:qq89kjkeqz9mngp8kl3dpmu43y2wztdjqu500gn4c4'
@@ -316,23 +317,27 @@ describe('#PsfSlpIndexer', () => {
 
       assert.hasAllKeys(result, ['error', 'success'])
       assert.isFalse(result.success)
-      assert.include(result.error, 'Invalid network. Trying to use a testnet address on mainnet, or vice versa.')
+      assert.include(
+        result.error,
+        'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+      )
     })
 
     it('should throw 503 when network issues', async () => {
-      req.body.address = 'bitcoincash:qzmd5vxgh9m22m6fgvm57yd6kjnjl9qnwywsf3583n'
+      req.body.address =
+        'bitcoincash:qzmd5vxgh9m22m6fgvm57yd6kjnjl9qnwywsf3583n'
 
       // Save the existing RPC URL.
-      const savedUrl2 = process.env.RPC_BASEURL
+      const savedUrl2 = process.env.SLP_INDEXER_API
 
       // Manipulate the URL to cause a 500 network error.
-      process.env.RPC_BASEURL = 'http://fakeurl/api/'
+      process.env.SLP_INDEXER_API = 'http://fakeurl/api/'
 
       await uut.getAddress(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
-      process.env.RPC_BASEURL = savedUrl2
+      process.env.SLP_INDEXER_API = savedUrl2
       assert.isAbove(
         res.statusCode,
         499,
@@ -340,8 +345,10 @@ describe('#PsfSlpIndexer', () => {
       )
       // assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
     })
+
     it('returns proper error when downstream service stalls', async () => {
-      req.body.address = 'bitcoincash:qzmd5vxgh9m22m6fgvm57yd6kjnjl9qnwywsf3583n'
+      req.body.address =
+        'bitcoincash:qzmd5vxgh9m22m6fgvm57yd6kjnjl9qnwywsf3583n'
 
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'post').throws({ code: 'ECONNABORTED' })
@@ -358,7 +365,8 @@ describe('#PsfSlpIndexer', () => {
     })
 
     it('returns proper error when downstream service is down', async () => {
-      req.body.address = 'bitcoincash:qzmd5vxgh9m22m6fgvm57yd6kjnjl9qnwywsf3583n'
+      req.body.address =
+        'bitcoincash:qzmd5vxgh9m22m6fgvm57yd6kjnjl9qnwywsf3583n'
 
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'post').throws({ code: 'ECONNREFUSED' })
@@ -375,13 +383,12 @@ describe('#PsfSlpIndexer', () => {
     })
 
     it('should GET address data', async function () {
-      req.body.address = 'bitcoincash:qzmd5vxgh9m22m6fgvm57yd6kjnjl9qnwywsf3583n'
+      req.body.address =
+        'bitcoincash:qzmd5vxgh9m22m6fgvm57yd6kjnjl9qnwywsf3583n'
 
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox
-          .stub(uut.axios, 'post')
-          .resolves({ data: mockData.balance })
+        sandbox.stub(uut.axios, 'post').resolves({ data: mockData.balance })
       } else {
         return this.skip()
       }
@@ -400,16 +407,16 @@ describe('#PsfSlpIndexer', () => {
   describe('#getStatus', async () => {
     it('should throw 503 when network issues', async () => {
       // Save the existing RPC URL.
-      const savedUrl2 = process.env.RPC_BASEURL
+      const savedUrl2 = process.env.SLP_INDEXER_API
 
       // Manipulate the URL to cause a 500 network error.
-      process.env.RPC_BASEURL = 'http://fakeurl/api/'
+      process.env.SLP_INDEXER_API = 'http://fakeurl/api/'
 
       await uut.getStatus(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
       // Restore the saved URL.
-      process.env.RPC_BASEURL = savedUrl2
+      process.env.SLP_INDEXER_API = savedUrl2
       assert.isAbove(
         res.statusCode,
         499,
@@ -417,6 +424,7 @@ describe('#PsfSlpIndexer', () => {
       )
       // assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
     })
+
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'get').throws({ code: 'ECONNABORTED' })
@@ -450,9 +458,7 @@ describe('#PsfSlpIndexer', () => {
     it('should GET indexer status', async function () {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
-        sandbox
-          .stub(uut.axios, 'get')
-          .resolves({ data: mockData.status })
+        sandbox.stub(uut.axios, 'get').resolves({ data: mockData.status })
       } else {
         return this.skip()
       }
