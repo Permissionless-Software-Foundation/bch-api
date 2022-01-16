@@ -73,4 +73,7 @@ export LOG_MAX_FILES=5d
 # (Optional) if using a bcash node, set this variable. Otherwise leave it as-is.
 export BCASH_SERVER=http://localhost
 
+# PSF SLP indexer
+export SLP_INDEXER_API=https://psf-slp-indexer.fullstack.cash/
+
 npm start
