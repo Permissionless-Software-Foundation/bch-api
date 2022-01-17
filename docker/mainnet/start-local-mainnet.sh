@@ -26,6 +26,8 @@ export SLPDB_WHITELIST_URL=http://172.17.0.1:12300/
 export SLP_API_URL=http://10.0.0.5:5001/
 
 # Mainnet Fulcrum / ElectrumX
+export FULCRUM_URL=172.17.0.1
+export FULCRUM_PORT=50002
 export FULCRUM_API=http://172.17.0.1:3001/v1/
 
 # Redis DB - Used for rate limiting
