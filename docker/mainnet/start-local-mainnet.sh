@@ -26,8 +26,6 @@ export SLPDB_WHITELIST_URL=http://172.17.0.1:12300/
 export SLP_API_URL=http://10.0.0.5:5001/
 
 # Mainnet Fulcrum / ElectrumX
-export FULCRUM_URL=172.17.0.1
-export FULCRUM_PORT=50002
 export FULCRUM_API=http://172.17.0.1:3001/v1/
 
 # Redis DB - Used for rate limiting
@@ -40,7 +38,7 @@ export REDIS_HOST=172.17.0.1
 export TOKENSECRET=somelongsecretvalue
 
 # So that bch-api can call bch-js locally.
-export LOCAL_RESTURL=http://127.0.0.1:3000/v4/
+export LOCAL_RESTURL=http://127.0.0.1:3000/v5/
 
 # Basic Authentication password
 export PRO_PASS=somerandomepassword:someotherrandompassword:aThirdPassword
@@ -65,6 +63,11 @@ export LOG_MAX_SIZE=1m
 #5d means store no more than 5 days
 export LOG_MAX_FILES=5d
 
+# (Optional) bcash full node
 export BCASH_SERVER=http://localhost:3002/
+
+# psf-slp-indexer
+#export SLP_INDEXER_API=https://psf-slp-indexer.fullstack.cash/
+export SLP_INDEXER_API=http://172.17.0.1:5010/
 
 npm start
