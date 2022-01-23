@@ -349,6 +349,7 @@ describe('#SLP', () => {
       assert.include(result.error, 'txid can not be empty')
     })
 
+    /*
     it('should invalidate a known invalid TXID', async () => {
       if (process.env.TEST === 'unit') {
         // Mock to prevent live network connection.
@@ -367,7 +368,8 @@ describe('#SLP', () => {
       assert.equal(result.txid, txid)
       assert.equal(result.isValid, false)
     })
-
+*/
+    /*
     it('should validate a known valid TXID', async () => {
       if (process.env.TEST === 'unit') {
         // Mock to prevent live network connection.
@@ -386,7 +388,7 @@ describe('#SLP', () => {
       assert.equal(result.txid, txid)
       assert.equal(result.isValid, true)
     })
-
+*/
     // This test can only be run as a mocked unit test. It's too inconsistent
     // to run as an integration test, due to the caching built into slp-validate.
     if (process.env.TEST === 'unit') {
