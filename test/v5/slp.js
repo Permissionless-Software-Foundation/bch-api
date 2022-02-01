@@ -669,26 +669,26 @@ describe('#SLP', () => {
 
     // Captures a regression bug that went out to production, captured in this
     // GitHub Issue: https://github.com/Bitcoin-com/rest.bitcoin.com/issues/518
-    it('should return two elements if given two elements', async () => {
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === 'unit') {
-        sandbox.stub(slpRoute.axios, 'request').resolves({
-          data: mockData.mockTwoRedundentTxid
-        })
-      }
-
-      req.body.txids = [
-        'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
-        'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56'
-      ]
-
-      const result = await validateBulk(req, res)
-      // console.log(`result: ${util.inspect(result)}`)
-
-      assert.isArray(result)
-      assert.hasAllKeys(result[0], ['txid', 'valid'])
-      assert.equal(result.length, 2)
-    })
+    // it('should return two elements if given two elements', async () => {
+    //   // Mock the RPC call for unit tests.
+    //   if (process.env.TEST === 'unit') {
+    //     sandbox.stub(slpRoute.axios, 'request').resolves({
+    //       data: mockData.mockTwoRedundentTxid
+    //     })
+    //   }
+    //
+    //   req.body.txids = [
+    //     'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56',
+    //     'd56a2b446d8149c39ca7e06163fe8097168c3604915f631bc58777d669135a56'
+    //   ]
+    //
+    //   const result = await validateBulk(req, res)
+    //   // console.log(`result: ${util.inspect(result)}`)
+    //
+    //   assert.isArray(result)
+    //   assert.hasAllKeys(result[0], ['txid', 'valid'])
+    //   assert.equal(result.length, 2)
+    // })
 
     it('should handle a mix of valid, invalid, and non-SLP txs', async () => {
       // Mock the RPC call for unit tests.
@@ -1151,26 +1151,27 @@ describe('#SLP', () => {
         'Error message expected'
       )
     })
-    if (process.env.TEST === 'integration') {
-      it('should get tx details with token info', async () => {
-        // TODO: add mocking for unit testing. How do I mock reponse form SLPDB
-        // since it's not an object?
 
-        // if (process.env.TEST === "unit") {
-        //   // Mock the slpjs library for unit tests.
-        //   pathStub.BitboxNetwork = slpjsMock.BitboxNetwork
-        //   txDetails = slpRouteStub.testableComponents.txDetails
-        // }
-
-        req.params.txid =
-          '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
-
-        const result = await txDetails(req, res)
-        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
-
-        assert.hasAnyKeys(result, ['tokenIsValid', 'tokenInfo'])
-      })
-    }
+    // if (process.env.TEST === 'integration') {
+    //   it('should get tx details with token info', async () => {
+    //     // TODO: add mocking for unit testing. How do I mock reponse form SLPDB
+    //     // since it's not an object?
+    //
+    //     // if (process.env.TEST === "unit") {
+    //     //   // Mock the slpjs library for unit tests.
+    //     //   pathStub.BitboxNetwork = slpjsMock.BitboxNetwork
+    //     //   txDetails = slpRouteStub.testableComponents.txDetails
+    //     // }
+    //
+    //     req.params.txid =
+    //       '497291b8a1dfe69c8daea50677a3d31a5ef0e9484d8bebb610dac64bbc202fb7'
+    //
+    //     const result = await txDetails(req, res)
+    //     // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+    //
+    //     assert.hasAnyKeys(result, ['tokenIsValid', 'tokenInfo'])
+    //   })
+    // }
   })
 
   describe('txsTokenIdAddressSingle()', () => {
@@ -1942,22 +1943,22 @@ describe('#SLP', () => {
       )
     })
 
-    it('should return error on non-existing NFT child token', async () => {
-      if (process.env.TEST === 'unit') {
-        sandbox.stub(slpRoute, 'lookupToken').resolves({ id: 'not found' })
-      }
-
-      req.params.tokenId =
-        '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a8'
-
-      const result = await slpRoute.getNftGroup(req, res)
-      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
-      assert.include(
-        result.error,
-        'NFT child does not exists',
-        'Error message expected'
-      )
-    })
+    // it('should return error on non-existing NFT child token', async () => {
+    //   if (process.env.TEST === 'unit') {
+    //     sandbox.stub(slpRoute, 'lookupToken').resolves({ id: 'not found' })
+    //   }
+    //
+    //   req.params.tokenId =
+    //     '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a8'
+    //
+    //   const result = await slpRoute.getNftGroup(req, res)
+    //   // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+    //   assert.include(
+    //     result.error,
+    //     'NFT child does not exists',
+    //     'Error message expected'
+    //   )
+    // })
 
     it('should return error on invalid NFT child token', async () => {
       if (process.env.TEST === 'unit') {
