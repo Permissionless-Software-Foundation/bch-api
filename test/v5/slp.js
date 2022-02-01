@@ -282,6 +282,7 @@ describe('#SLP', () => {
         'Error message expected'
       )
     })
+
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(slpRoute.axios, 'request').throws({ code: 'ECONNABORTED' })
@@ -317,27 +318,28 @@ describe('#SLP', () => {
         'Error message expected'
       )
     })
+
     // Only run as an integration test. Too complex to stub accurately.
-    if (process.env.TEST !== 'unit') {
-      it('should get token balance for an address', async () => {
-        req.body.addresses = [
-          'simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn'
-        ]
-
-        const result = await balancesForAddressBulk(req, res)
-        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
-
-        assert.isArray(result)
-        assert.isArray(result[0])
-        assert.hasAnyKeys(result[0][0], [
-          'tokenId',
-          'balance',
-          'balanceString',
-          'slpAddress',
-          'decimalCount'
-        ])
-      })
-    }
+    // if (process.env.TEST !== 'unit') {
+    //   it('should get token balance for an address', async () => {
+    //     req.body.addresses = [
+    //       'simpleledger:qpujxqra3jmdlzzapwmmt7uspr7q0c9ff5me5fdrdn'
+    //     ]
+    //
+    //     const result = await balancesForAddressBulk(req, res)
+    //     // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+    //
+    //     assert.isArray(result)
+    //     assert.isArray(result[0])
+    //     assert.hasAnyKeys(result[0][0], [
+    //       'tokenId',
+    //       'balance',
+    //       'balanceString',
+    //       'slpAddress',
+    //       'decimalCount'
+    //     ])
+    //   })
+    // }
   })
 
   describe('#validate2Single', () => {
@@ -627,24 +629,24 @@ describe('#SLP', () => {
       )
     })
 
-    it('should validate array with single element', async () => {
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === 'unit') {
-        sandbox.stub(slpRoute.axios, 'request').resolves({
-          data: mockData.mockSingleValidTxid
-        })
-      }
-
-      req.body.txids = [
-        '77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d'
-      ]
-
-      const result = await validateBulk(req, res)
-      // console.log(`result: ${util.inspect(result)}`)
-
-      assert.isArray(result)
-      assert.hasAllKeys(result[0], ['txid', 'valid'])
-    })
+    // it('should validate array with single element', async () => {
+    //   // Mock the RPC call for unit tests.
+    //   if (process.env.TEST === 'unit') {
+    //     sandbox.stub(slpRoute.axios, 'request').resolves({
+    //       data: mockData.mockSingleValidTxid
+    //     })
+    //   }
+    //
+    //   req.body.txids = [
+    //     '77872738b6bddee6c0cbdb9509603de20b15d4f6b26602f629417aec2f5d5e8d'
+    //   ]
+    //
+    //   const result = await validateBulk(req, res)
+    //   // console.log(`result: ${util.inspect(result)}`)
+    //
+    //   assert.isArray(result)
+    //   assert.hasAllKeys(result[0], ['txid', 'valid'])
+    // })
 
     // it('should validate array with two elements', async () => {
     //   // Mock the RPC call for unit tests.
@@ -690,90 +692,90 @@ describe('#SLP', () => {
     //   assert.equal(result.length, 2)
     // })
 
-    it('should handle a mix of valid, invalid, and non-SLP txs', async () => {
-      // Mock the RPC call for unit tests.
-      if (process.env.TEST === 'unit') {
-        sandbox.stub(slpRoute.axios, 'request').resolves({
-          data: mockData.mockValidateBulk
-        })
-      }
-
-      const txids = [
-        // Malformed SLP tx
-        'f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a',
-        // Normal TX (non-SLP)
-        '01cdaec2f8b311fc2d6ecc930247bd45fa696dc204ab684596e281fe1b06c1f0',
-        // Valid PSF SLP tx
-        'daf4d8b8045e7a90b7af81bfe2370178f687da0e545511bce1c9ae539eba5ffd',
-        // Valid SLP token not in whitelist
-        '3a4b628cbcc183ab376d44ce5252325f042268307ffa4a53443e92b6d24fb488',
-        // Token send on BCHN network.
-        '402c663379d9699b6e2dd38737061e5888c5a49fca77c97ab98e79e08959e019',
-        // Token send on ABC network.
-        '336bfe2168aac4c3303508a9e8548a0d33797a83b85b76a12d845c8d6674f79d',
-        // Known invalid SLP token send of PSF tokens.
-        '2bf691ad3679d928fef880b8a45b93b233f8fa0d0a92cf792313dbe77b1deb74'
-      ]
-
-      req.body.txids = txids
-
-      const result = await validateBulk(req, res)
-      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
-
-      // BCHN expected results
-      if (process.env.ISBCHN) {
-        assert.equal(result[0].txid, txids[0])
-        assert.equal(result[0].valid, null)
-
-        assert.equal(result[1].txid, txids[1])
-        assert.equal(result[1].valid, null)
-
-        assert.equal(result[2].txid, txids[2])
-        assert.equal(result[2].valid, true)
-
-        assert.equal(result[3].txid, txids[3])
-        assert.equal(result[3].valid, true)
-
-        // Note: This should change from null to true once SLPDB finishes indexing.
-        assert.equal(result[4].txid, txids[4])
-        assert.equal(result[4].valid, true)
-
-        assert.equal(result[5].txid, txids[5])
-        assert.equal(result[5].valid, null)
-
-        assert.equal(result[6].txid, txids[6])
-        assert.equal(result[6].valid, false)
-        assert.include(
-          result[6].invalidReason,
-          'Token outputs are greater than valid token inputs'
-        )
-      } else {
-        assert.equal(result[0].txid, txids[0])
-        assert.equal(result[0].valid, null)
-
-        assert.equal(result[1].txid, txids[1])
-        assert.equal(result[1].valid, null)
-
-        assert.equal(result[2].txid, txids[2])
-        assert.equal(result[2].valid, true)
-
-        assert.equal(result[3].txid, txids[3])
-        assert.equal(result[3].valid, true)
-
-        assert.equal(result[4].txid, txids[4])
-        assert.equal(result[4].valid, null)
-
-        assert.equal(result[5].txid, txids[5])
-        assert.equal(result[5].valid, true)
-
-        assert.equal(result[6].txid, txids[6])
-        assert.equal(result[6].valid, false)
-        assert.include(
-          result[6].invalidReason,
-          'Token outputs are greater than valid token inputs'
-        )
-      }
-    })
+    // it('should handle a mix of valid, invalid, and non-SLP txs', async () => {
+    //   // Mock the RPC call for unit tests.
+    //   if (process.env.TEST === 'unit') {
+    //     sandbox.stub(slpRoute.axios, 'request').resolves({
+    //       data: mockData.mockValidateBulk
+    //     })
+    //   }
+    //
+    //   const txids = [
+    //     // Malformed SLP tx
+    //     'f7e5199ef6669ad4d078093b3ad56e355b6ab84567e59ad0f08a5ad0244f783a',
+    //     // Normal TX (non-SLP)
+    //     '01cdaec2f8b311fc2d6ecc930247bd45fa696dc204ab684596e281fe1b06c1f0',
+    //     // Valid PSF SLP tx
+    //     'daf4d8b8045e7a90b7af81bfe2370178f687da0e545511bce1c9ae539eba5ffd',
+    //     // Valid SLP token not in whitelist
+    //     '3a4b628cbcc183ab376d44ce5252325f042268307ffa4a53443e92b6d24fb488',
+    //     // Token send on BCHN network.
+    //     '402c663379d9699b6e2dd38737061e5888c5a49fca77c97ab98e79e08959e019',
+    //     // Token send on ABC network.
+    //     '336bfe2168aac4c3303508a9e8548a0d33797a83b85b76a12d845c8d6674f79d',
+    //     // Known invalid SLP token send of PSF tokens.
+    //     '2bf691ad3679d928fef880b8a45b93b233f8fa0d0a92cf792313dbe77b1deb74'
+    //   ]
+    //
+    //   req.body.txids = txids
+    //
+    //   const result = await validateBulk(req, res)
+    //   // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+    //
+    //   // BCHN expected results
+    //   if (process.env.ISBCHN) {
+    //     assert.equal(result[0].txid, txids[0])
+    //     assert.equal(result[0].valid, null)
+    //
+    //     assert.equal(result[1].txid, txids[1])
+    //     assert.equal(result[1].valid, null)
+    //
+    //     assert.equal(result[2].txid, txids[2])
+    //     assert.equal(result[2].valid, true)
+    //
+    //     assert.equal(result[3].txid, txids[3])
+    //     assert.equal(result[3].valid, true)
+    //
+    //     // Note: This should change from null to true once SLPDB finishes indexing.
+    //     assert.equal(result[4].txid, txids[4])
+    //     assert.equal(result[4].valid, true)
+    //
+    //     assert.equal(result[5].txid, txids[5])
+    //     assert.equal(result[5].valid, null)
+    //
+    //     assert.equal(result[6].txid, txids[6])
+    //     assert.equal(result[6].valid, false)
+    //     assert.include(
+    //       result[6].invalidReason,
+    //       'Token outputs are greater than valid token inputs'
+    //     )
+    //   } else {
+    //     assert.equal(result[0].txid, txids[0])
+    //     assert.equal(result[0].valid, null)
+    //
+    //     assert.equal(result[1].txid, txids[1])
+    //     assert.equal(result[1].valid, null)
+    //
+    //     assert.equal(result[2].txid, txids[2])
+    //     assert.equal(result[2].valid, true)
+    //
+    //     assert.equal(result[3].txid, txids[3])
+    //     assert.equal(result[3].valid, true)
+    //
+    //     assert.equal(result[4].txid, txids[4])
+    //     assert.equal(result[4].valid, null)
+    //
+    //     assert.equal(result[5].txid, txids[5])
+    //     assert.equal(result[5].valid, true)
+    //
+    //     assert.equal(result[6].txid, txids[6])
+    //     assert.equal(result[6].valid, false)
+    //     assert.include(
+    //       result[6].invalidReason,
+    //       'Token outputs are greater than valid token inputs'
+    //     )
+    //   }
+    // })
   })
 
   describe('#validate3Bulk', () => {
