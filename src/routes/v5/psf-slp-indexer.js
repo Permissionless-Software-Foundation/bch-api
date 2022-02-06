@@ -161,6 +161,10 @@ class PsfSlpIndexer {
         })
       }
 
+      // Flag to toggle tx history of the token.
+      let withTxHistory = false
+      if (req.body.withTxHistory) withTxHistory = true
+
       if (txid.length !== 64) {
         res.status(400)
         return res.json({
@@ -171,7 +175,7 @@ class PsfSlpIndexer {
 
       const response = await _this.axios.post(
         `${_this.psfSlpIndexerApi}slp/tx/`,
-        { txid }
+        { txid, withTxHistory }
       )
 
       res.status(200)
