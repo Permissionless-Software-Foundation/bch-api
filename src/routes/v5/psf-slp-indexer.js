@@ -161,10 +161,6 @@ class PsfSlpIndexer {
         })
       }
 
-      // Flag to toggle tx history of the token.
-      let withTxHistory = false
-      if (req.body.withTxHistory) withTxHistory = true
-
       if (txid.length !== 64) {
         res.status(400)
         return res.json({
@@ -175,7 +171,7 @@ class PsfSlpIndexer {
 
       const response = await _this.axios.post(
         `${_this.psfSlpIndexerApi}slp/tx/`,
-        { txid, withTxHistory }
+        { txid }
       )
 
       res.status(200)
@@ -187,7 +183,7 @@ class PsfSlpIndexer {
   }
 
   /**
-   * @api {post} /psf/slp/tokenStats/  List stats for a single slp token.
+   * @api {post} /psf/slp/token  List stats for a single slp token.
    * @apiName List stats for a single slp token.
    * @apiGroup PSF SLP
    * @apiDescription Return list stats for a single slp token.
@@ -212,9 +208,13 @@ class PsfSlpIndexer {
         })
       }
 
+      // Flag to toggle tx history of the token.
+      let withTxHistory = false
+      if (req.body.withTxHistory) withTxHistory = true
+
       const response = await _this.axios.post(
         `${_this.psfSlpIndexerApi}slp/token/`,
-        { tokenId }
+        { tokenId, withTxHistory }
       )
 
       res.status(200)
