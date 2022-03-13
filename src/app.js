@@ -24,21 +24,6 @@ const jwtAuth = require('./middleware/jwt-auth')
 // Logging for API requests.
 const logReqInfo = require('./middleware/req-logging')
 
-// v4
-const healthCheckV4 = require('./routes/v4/health-check')
-const BlockchainV4 = require('./routes/v4/full-node/blockchain')
-const ControlV4 = require('./routes/v4/full-node/control')
-const MiningV4 = require('./routes/v4/full-node/mining')
-const networkV4 = require('./routes/v4/full-node/network')
-const RawtransactionsV4 = require('./routes/v4/full-node/rawtransactions')
-const UtilV4 = require('./routes/v4/util')
-const SlpV4 = require('./routes/v4/slp')
-const xpubV4 = require('./routes/v4/xpub')
-const ElectrumXV4 = require('./routes/v4/electrumx')
-const EncryptionV4 = require('./routes/v4/encryption')
-const PriceV4 = require('./routes/v4/price')
-const Ninsight = require('./routes/v4/ninsight')
-
 // v5
 const healthCheckV5 = require('./routes/v5/health-check')
 const BlockchainV5 = require('./routes/v5/full-node/blockchain')
@@ -56,21 +41,8 @@ const PriceV5 = require('./routes/v5/price')
 const JWTV5 = require('./routes/v5/jwt')
 const BcashSLP = require('./routes/v5/bcash/slp')
 const PsfSlpIndexer = require('./routes/v5/psf-slp-indexer')
-// const Ninsight = require('./routes/v5/ninsight')
 
 require('dotenv').config()
-
-// Instantiate v4 route libraries.
-const blockchainV4 = new BlockchainV4()
-const controlV4 = new ControlV4()
-const miningV4 = new MiningV4()
-const rawtransactionsV4 = new RawtransactionsV4()
-const slpV4 = new SlpV4()
-const electrumxv4 = new ElectrumXV4()
-electrumxv4.connect()
-const encryptionv4 = new EncryptionV4()
-const pricev4 = new PriceV4()
-const utilV4 = new UtilV4({ electrumx: electrumxv4 })
 
 // Instantiate v5 route libraries.
 const blockchainV5 = new BlockchainV5()
@@ -107,7 +79,7 @@ app.use('/docs', express.static(`${__dirname.toString()}/../docs`))
 // Log each request to the console with IP addresses.
 // app.use(logger("dev"))
 const morganFormat =
-  ':remote-addr :remote-user :method :url :status :response-time ms - :res[content-length] :user-agent'
+':remote-addr :remote-user :method :url :status :response-time ms - :res[content-length] :user-agent'
 app.use(logger(morganFormat))
 
 // Log the same data to the winston logs.
@@ -126,14 +98,12 @@ app.use(express.static(path.join(__dirname, 'public')))
 // Log requests for later analysis.
 app.use('/', logReqInfo)
 
-const v4prefix = 'v4'
 const v5prefix = 'v5'
 
 // START Rate Limits
 const auth = new AuthMW()
 
 // Ensure req.locals and res.locals objects exist.
-app.use(`/${v4prefix}/`, rateLimits.populateLocals)
 app.use(`/${v5prefix}/`, rateLimits.populateLocals)
 
 // Allow users to turn off rate limits with an environment variable.
@@ -144,42 +114,22 @@ console.log(`DO_NOT_USE_RATE_LIMITS: ${DO_NOT_USE_RATE_LIMITS}`)
 if (!DO_NOT_USE_RATE_LIMITS) {
   console.log('Rate limits are being used')
   // Inspect the header for a JWT token.
-  app.use(`/${v4prefix}/`, jwtAuth.getTokenFromHeaders)
   app.use(`/${v5prefix}/`, jwtAuth.getTokenFromHeaders)
 
   // Instantiate the authorization middleware, used to implement pro-tier rate limiting.
   // Handles Anonymous and Basic Authorization schemes used by passport.js
-  app.use(`/${v4prefix}/`, auth.mw())
   app.use(`/${v5prefix}/`, auth.mw())
 
   // Experimental rate limits
-  app.use(`/${v4prefix}/`, rateLimits.applyRateLimits)
   app.use(`/${v5prefix}/`, rateLimits.applyRateLimits)
 
-  // Rate limit on all v4 routes
-  // Establish and enforce rate limits.
-  // app.use(`/${v4prefix}/`, rateLimits.rateLimitByResource)
+// Rate limit on all v4 routes
+// Establish and enforce rate limits.
+// app.use(`/${v4prefix}/`, rateLimits.rateLimitByResource)
 } else {
   console.log('Rate limits are NOT being used')
 }
 // END Rate Limits
-
-// Connect v4 routes
-app.use(`/${v4prefix}/` + 'health-check', healthCheckV4)
-app.use(`/${v4prefix}/` + 'blockchain', blockchainV4.router)
-app.use(`/${v4prefix}/` + 'control', controlV4.router)
-app.use(`/${v4prefix}/` + 'mining', miningV4.router)
-app.use(`/${v4prefix}/` + 'network', networkV4)
-app.use(`/${v4prefix}/` + 'rawtransactions', rawtransactionsV4.router)
-app.use(`/${v4prefix}/` + 'slp', slpV4.router)
-app.use(`/${v4prefix}/` + 'xpub', xpubV4.router)
-app.use(`/${v4prefix}/` + 'electrumx', electrumxv4.router)
-app.use(`/${v4prefix}/` + 'encryption', encryptionv4.router)
-app.use(`/${v4prefix}/` + 'price', pricev4.router)
-app.use(`/${v4prefix}/` + 'util', utilV4.router)
-
-const ninsight = new Ninsight()
-app.use(`/${v4prefix}/` + 'ninsight', ninsight.router)
 
 // Connect v5 routes
 app.use(`/${v5prefix}/` + 'health-check', healthCheckV5)
@@ -196,9 +146,6 @@ app.use(`/${v5prefix}/` + 'price', pricev5.router)
 app.use(`/${v5prefix}/` + 'util', utilV5.router)
 app.use(`/${v5prefix}/` + 'dsproof', dsproofV5.router)
 app.use(`/${v5prefix}/` + 'jwt', jwtV5.router)
-
-// const ninsight = new Ninsight()
-app.use(`/${v5prefix}/` + 'ninsight', ninsight.router)
 
 app.use(`/${v5prefix}/` + 'bcash/slp', bcashSLP.router)
 
@@ -312,4 +259,4 @@ function onListening () {
   debug(`Listening on ${bind}`)
 }
 //
-// module.exports = app;
+// module.exports = app
