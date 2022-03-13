@@ -41,7 +41,6 @@ const PriceV5 = require('./routes/v5/price')
 const JWTV5 = require('./routes/v5/jwt')
 const BcashSLP = require('./routes/v5/bcash/slp')
 const PsfSlpIndexer = require('./routes/v5/psf-slp-indexer')
-// const Ninsight = require('./routes/v5/ninsight')
 
 require('dotenv').config()
 
