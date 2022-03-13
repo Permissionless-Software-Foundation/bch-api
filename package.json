@@ -1,6 +1,6 @@
 {
   "name": "bch-api",
-  "version": "1.16.0",
+  "version": "2.0.0",
   "description": "The REST API powering FullStack.cash",
   "author": "Chris Troutner <chris.troutner@gmail.com>",
   "contributors": [
