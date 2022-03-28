@@ -1,6 +1,4 @@
 /*
-This file will replace the original rate-limit.js file.
-
 Sets the rate limits for the anonymous and paid tiers. Current rate limits:
 - 10000 points in 60 seconds
 - 500 points per call for anonymous tier (20 RPM)
@@ -258,6 +256,15 @@ class RateLimits {
       // const rateLimitData = await _this.rateLimiter.consume(key, pointsToConsume)
       // console.log(`rateLimitData: `, rateLimitData)
 
+      // Add data to logs for analytics.
+      const logData = {
+        ip: req.ip,
+        key,
+        pointsToConsume,
+        status: 'OK'
+      }
+      wlogger.info(logData)
+
       res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
 
       // Signal that the user has not exceeded their rate limits.
@@ -273,6 +280,15 @@ class RateLimits {
       // console.log(
       //   `rate limit debug info: ${JSON.stringify(debugInfo, null, 2)}`
       // )
+
+      // Add data to logs for analytics.
+      const logData = {
+        ip: req.ip,
+        key,
+        pointsToConsume,
+        status: 429
+      }
+      wlogger.info(logData)
 
       // Rate limited was triggered
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
