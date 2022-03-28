@@ -40,7 +40,7 @@ const logReqInfo = function (req, res, next) {
       body: req.body
     }
 
-    wlogger.verbose(`Request: ${ip} ${method} ${url}`, dataToLog)
+    wlogger.info(`Request: ${ip} ${method} ${url}`, dataToLog)
 
     next()
   } catch (err) {
