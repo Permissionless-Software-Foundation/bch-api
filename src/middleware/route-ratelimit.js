@@ -213,6 +213,10 @@ class RateLimits {
     next()
   }
 
+  sleep (ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
   // A wrapper for Redis-based rate limiter.
   // Will return false if the user has not exceeded the rate limit. Otherwise
   // it will return the 'res' object with an error status and message, which
@@ -266,6 +270,11 @@ class RateLimits {
       wlogger.info(logData)
 
       res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
+
+      // Add artificial delay to slow down freeloaders.
+      if (pointsToConsume === ANON_LIMITS) {
+        await this.sleep(500)
+      }
 
       // Signal that the user has not exceeded their rate limits.
       return false
