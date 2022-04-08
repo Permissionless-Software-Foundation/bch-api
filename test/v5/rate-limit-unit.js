@@ -204,6 +204,9 @@ describe('#rate-routelimit', () => {
 
   describe('#trackRateLimits', () => {
     it('should apply anonymous rate limits if no JWT token is provided', async () => {
+      // Mock sleep function
+      sandbox.stub(uut, 'sleep').resolves()
+
       req.ip = '127.0.0.1'
 
       const result = await uut.trackRateLimits(req, res)
@@ -278,6 +281,9 @@ describe('#rate-routelimit', () => {
     })
 
     it('should apply rate limits to anonymous users', async () => {
+      // Mock sleep function
+      sandbox.stub(uut, 'sleep').resolves()
+
       req.ip = '123.456.7.8'
 
       // console.log('next.callCount: ', next.callCount)
@@ -302,6 +308,9 @@ describe('#rate-routelimit', () => {
     })
 
     it('should return 429 error when anonymous users exceed rate limit', async () => {
+      // Mock sleep function
+      sandbox.stub(uut, 'sleep').resolves()
+
       req.ip = '123.456.7.8'
 
       // force req.locals.jwtToken to be empty.
