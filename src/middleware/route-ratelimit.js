@@ -35,7 +35,7 @@ const config = require('../../config')
 
 // The amount of delay in milliseconds to add to anonymous requests, in order
 // to slow down freeloaders that are hitting the system too hard.
-const ANON_DELAY = 1000
+const ANON_DELAY = 3000
 
 let _this // Global pointer to instance of class, when 'this' context is lost.
 
