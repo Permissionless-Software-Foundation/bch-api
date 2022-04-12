@@ -326,7 +326,7 @@ describe('#rate-routelimit', () => {
       assert.property(val, 'error')
       assert.include(
         val.error,
-        'Too many requests. Your limits are currently 20 requests per minute.'
+        'Too many requests. Your limits are currently 10 requests per minute.'
       )
 
       assert.equal(res.locals.rateLimitTriggered, true, 'Rate limits triggered')
