@@ -114,6 +114,30 @@ const balance = {
     ]
   }
 }
+const transactions = {
+  success: true,
+  transactions: [
+    {
+      height: 734439,
+      tx_hash: '0bd2a8a72108659cd39a59bde89c45fff7d51c334531f036b1e102ab4b62f33f'
+    },
+    {
+      height: 734441,
+      tx_hash: '4f2837b7fff325c0442b550863de3470e016df234561d9151cbb6949fe43ac17'
+    },
+    {
+      height: 735564,
+      tx_hash: '1bfa83355839c0ef0f974463415fa983466e0286d7bcdfdd825f244e357ad1e5'
+    },
+    {
+      height: 735564,
+      tx_hash: '6eba09627175af4b50ac75fa8b3a15a9015df8a19b5b28a992f26044f4fd8891'
+    },
+    {
+      height: 735564,
+      tx_hash: 'c37ba29f40ecc61662ea56324fdb72a5f1e66add2078854c2144765b9030358a'
+    }]
+}
 
 const status = {
   status: {
@@ -122,9 +146,26 @@ const status = {
     chainBlockHeight: 722679
   }
 }
+const immutableData = {
+  payloadCid: 'QmY3EaRaUcc5bNuqDfc7TaeNPThBGUefbqJeJVDjCqxqFZ',
+  about: 'This is a placeholder'
+}
+const mutableData = {
+  tokenIcon: 'https://gateway.ipfs.io/ipfs/bafybeiehitanirn5gmhqjg44xrmdtomn4n5lu5yjoepsvgpswk5mggaw6i/LP_logo-1.png',
+  about: 'Mutable data managed with npm package: https://www.npmjs.com/package/slp-mutable-data'
+}
+
+const decodedOpReturn = JSON.stringify({
+  mspAdddress: 'bitcoincash:qrg77j4jf2pl7azgvzrz2z567ls464gkuuhplt30dp',
+  cid: 'bafybeie6t5uyupddc7azms737xg4hxrj7i5t5ov3lb5g2qeehaujj6ak64'
+})
 module.exports = {
   tokenStats,
   txData,
   balance,
-  status
+  status,
+  transactions,
+  immutableData,
+  mutableData,
+  decodedOpReturn
 }

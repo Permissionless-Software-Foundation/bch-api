@@ -505,4 +505,340 @@ describe('#PsfSlpIndexer', () => {
       process.env.SLP_INDEXER_API = savedSlpIndexerUrl
     })
   })
+  describe('#getCIDData', () => {
+    it('should throw errors if cid is not provided', async () => {
+      try {
+        await uut.getCIDData()
+        assert.fail('unexpected code path')
+      } catch (error) {
+        assert.include(
+          error.message,
+          'cid must be a string.',
+          'Error message expected'
+        )
+      }
+    })
+    it('should handle axios error', async () => {
+      try {
+        sandbox.stub(uut.axios, 'get').throws(new Error('test error'))
+        const cid = 'bafybeigp3bfmj6woms7pywb7s7r6npcdudvsabvzne2chyspxtdendrwmy'
+        await uut.getCIDData(cid)
+        assert.fail('unexpected code path')
+      } catch (error) {
+        assert.include(
+          error.message,
+          'test error',
+          'Error message expected'
+        )
+      }
+    })
+    it('should return cid object data', async () => {
+      sandbox.stub(uut.axios, 'get').resolves({ data: mockData.immutableData })
+      const cid = 'bafybeigp3bfmj6woms7pywb7s7r6npcdudvsabvzne2chyspxtdendrwmy'
+      const result = await uut.getCIDData(cid)
+      assert.isObject(result)
+    })
+  })
+
+  describe('#decodeOpReturn', () => {
+    it('should throw errors if txid is not provided', async () => {
+      try {
+        await uut.decodeOpReturn()
+        assert.fail('unexpected code path')
+      } catch (error) {
+        assert.include(
+          error.message,
+          'txid must be a string.',
+          'Error message expected'
+        )
+      }
+    })
+    it('should handle bchjs error', async () => {
+      try {
+        sandbox.stub(uut.bchjs.Electrumx, 'txData').throws(new Error('test error'))
+        const txid = 'c37ba29f40ecc61662ea56324fdb72a5f1e66add2078854c2144765b9030358a'
+        await uut.decodeOpReturn(txid)
+        assert.fail('unexpected code path')
+      } catch (error) {
+        assert.include(
+          error.message,
+          'test error',
+          'Error message expected'
+        )
+      }
+    })
+    it('should return  data', async () => {
+      sandbox.stub(uut.bchjs.Electrumx, 'txData').resolves({ details: mockData.txData.txData })
+      const txid = 'c37ba29f40ecc61662ea56324fdb72a5f1e66add2078854c2144765b9030358a'
+      const result = await uut.decodeOpReturn(txid)
+      assert.isString(result)
+    })
+    it('should return  false if data is not found', async () => {
+      sandbox.stub(uut.bchjs.Electrumx, 'txData').resolves({ details: { vout: [] } })
+      const txid = 'c37ba29f40ecc61662ea56324fdb72a5f1e66add2078854c2144765b9030358a'
+      const result = await uut.decodeOpReturn(txid)
+      assert.isFalse(result)
+    })
+  })
+  describe('#getTokenData', async () => {
+    it('should throw 400 error if tokenId  is missing', async () => {
+      const result = await uut.getTokenData(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.hasAllKeys(result, ['error', 'success'])
+      assert.isFalse(result.success)
+      assert.include(result.error, 'tokenId can not be empty')
+    })
+
+    it('should throw 503 when network issues', async () => {
+      req.body.tokenId =
+        'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
+
+      // Save the existing RPC URL.
+      const savedUrl2 = process.env.SLP_INDEXER_API
+
+      // Manipulate the URL to cause a 500 network error.
+      process.env.SLP_INDEXER_API = 'http://fakeurl/api/'
+
+      await uut.getTokenData(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      // Restore the saved URL.
+      process.env.SLP_INDEXER_API = savedUrl2
+
+      assert.isAbove(
+        res.statusCode,
+        499,
+        'HTTP status code 500 or greater expected.'
+      )
+      // assert.include(result.error,"Network error: Could not communicate with full node","Error message expected")
+    })
+
+    it('returns proper error when downstream service stalls', async () => {
+      req.body.tokenId =
+        'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
+
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, 'post').throws({ code: 'ECONNABORTED' })
+
+      const result = await uut.getTokenData(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+
+    it('returns proper error when downstream service is down', async () => {
+      req.body.tokenId =
+        'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
+
+      // Mock the timeout error.
+      sandbox.stub(uut.axios, 'post').throws({ code: 'ECONNREFUSED' })
+
+      const result = await uut.getTokenData(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.isAbove(res.statusCode, 499, 'HTTP status code 503 expected.')
+      assert.include(
+        result.error,
+        'Could not communicate with full node',
+        'Error message expected'
+      )
+    })
+
+    it('should GET tokens data', async function () {
+      req.body.tokenId =
+        'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === 'unit') {
+        sandbox.stub(uut.axios, 'post').resolves({ data: mockData.tokenStats })
+        sandbox.stub(uut, 'getCIDData').resolves(mockData.immutableData)
+        sandbox.stub(uut, 'getMutableData').resolves(mockData.mutableData)
+      } else {
+        return this.skip()
+      }
+
+      const result = await uut.getTokenData(req, res)
+      assert.property(result, 'genesisData')
+      assert.property(result, 'immutableData')
+      assert.property(result, 'mutableData')
+
+      assert.isObject(result.genesisData)
+      assert.isObject(result.immutableData)
+      assert.isObject(result.mutableData)
+
+      const genesisData = result.genesisData
+      assert.property(genesisData, 'ticker')
+      assert.property(genesisData, 'name')
+      assert.property(genesisData, 'type')
+      assert.property(genesisData, 'tokenId')
+      assert.property(genesisData, 'documentUri')
+      assert.property(genesisData, 'documentHash')
+      assert.property(genesisData, 'decimals')
+      assert.property(genesisData, 'mintBatonIsActive')
+      assert.property(genesisData, 'tokensInCirculationBN')
+      assert.property(genesisData, 'tokensInCirculationStr')
+      assert.property(genesisData, 'blockCreated')
+      assert.property(genesisData, 'totalBurned')
+      assert.property(genesisData, 'totalMinted')
+      assert.property(genesisData, 'txs')
+    })
+    it('should GET tokens data if immutableData data not found', async function () {
+      req.body.tokenId =
+        'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === 'unit') {
+        sandbox.stub(uut.axios, 'post').resolves({ data: mockData.tokenStats })
+        sandbox.stub(uut, 'getCIDData').throws(new Error('test error'))
+        sandbox.stub(uut, 'getMutableData').resolves(mockData.mutableData)
+      } else {
+        return this.skip()
+      }
+
+      const result = await uut.getTokenData(req, res)
+      assert.property(result, 'genesisData')
+      assert.property(result, 'immutableData')
+      assert.property(result, 'mutableData')
+
+      assert.isObject(result.genesisData)
+      assert.isObject(result.mutableData)
+      assert.equal(result.immutableData, '')
+
+      const genesisData = result.genesisData
+      assert.property(genesisData, 'ticker')
+      assert.property(genesisData, 'name')
+      assert.property(genesisData, 'type')
+      assert.property(genesisData, 'tokenId')
+      assert.property(genesisData, 'documentUri')
+      assert.property(genesisData, 'documentHash')
+      assert.property(genesisData, 'decimals')
+      assert.property(genesisData, 'mintBatonIsActive')
+      assert.property(genesisData, 'tokensInCirculationBN')
+      assert.property(genesisData, 'tokensInCirculationStr')
+      assert.property(genesisData, 'blockCreated')
+      assert.property(genesisData, 'totalBurned')
+      assert.property(genesisData, 'totalMinted')
+      assert.property(genesisData, 'txs')
+    })
+    it('should GET tokens data if mutable data not found', async function () {
+      req.body.tokenId =
+        'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === 'unit') {
+        sandbox.stub(uut.axios, 'post').resolves({ data: mockData.tokenStats })
+        sandbox.stub(uut, 'getCIDData').resolves(mockData.immutableData)
+        sandbox.stub(uut, 'getMutableData').throws(new Error('test error'))
+      } else {
+        return this.skip()
+      }
+
+      const result = await uut.getTokenData(req, res)
+      assert.property(result, 'genesisData')
+      assert.property(result, 'immutableData')
+      assert.property(result, 'mutableData')
+
+      assert.isObject(result.genesisData)
+      assert.isObject(result.immutableData)
+      assert.equal(result.mutableData, '')
+
+      const genesisData = result.genesisData
+      assert.property(genesisData, 'ticker')
+      assert.property(genesisData, 'name')
+      assert.property(genesisData, 'type')
+      assert.property(genesisData, 'tokenId')
+      assert.property(genesisData, 'documentUri')
+      assert.property(genesisData, 'documentHash')
+      assert.property(genesisData, 'decimals')
+      assert.property(genesisData, 'mintBatonIsActive')
+      assert.property(genesisData, 'tokensInCirculationBN')
+      assert.property(genesisData, 'tokensInCirculationStr')
+      assert.property(genesisData, 'blockCreated')
+      assert.property(genesisData, 'totalBurned')
+      assert.property(genesisData, 'totalMinted')
+      assert.property(genesisData, 'txs')
+    })
+  })
+  describe('#getMutableData', () => {
+    it('should throw errors if documentHash is not provided', async () => {
+      try {
+        await uut.getMutableData()
+        assert.fail('unexpected code path')
+      } catch (error) {
+        assert.include(
+          error.message,
+          'documentHash string required when calling mutableData().',
+          'Error message expected'
+        )
+      }
+    })
+    it('should throw errors if cid is not provided in OP Return', async () => {
+      try {
+        sandbox.stub(uut, 'decodeOpReturn').resolves('{}')
+        sandbox.stub(uut.bchjs.Electrumx, 'transactions').resolves(mockData.transactions)
+        sandbox.stub(uut, 'getCIDData').resolves(mockData.mutableData)
+
+        const documentHash = 'c37ba29f40ecc61662ea56324fdb72a5f1e66add2078854c2144765b9030358a'
+        await uut.getMutableData(documentHash)
+        assert.fail('unexpected code path')
+      } catch (error) {
+        assert.include(
+          error.message,
+          'CID could not be found in OP_RETURN data',
+          'Error message expected'
+        )
+      }
+    })
+
+    it('should throw errors if data is not found', async () => {
+      try {
+        sandbox.stub(uut, 'decodeOpReturn').resolves(mockData.decodedOpReturn)
+        sandbox.stub(uut.bchjs.Electrumx, 'transactions').resolves({ transactions: [] })
+        sandbox.stub(uut, 'getCIDData').resolves(mockData.mutableData)
+
+        const documentHash = 'c37ba29f40ecc61662ea56324fdb72a5f1e66add2078854c2144765b9030358a'
+        await uut.getMutableData(documentHash)
+        assert.fail('unexpected code path')
+      } catch (error) {
+        assert.include(
+          error.message,
+          'CID could not be found in OP_RETURN data',
+          'Error message expected'
+        )
+      }
+    })
+    it('should  handle bchjs error', async () => {
+      try {
+        sandbox.stub(uut, 'decodeOpReturn').resolves(mockData.decodedOpReturn)
+        sandbox.stub(uut.bchjs.Electrumx, 'transactions').throws(new Error('test error'))
+
+        const documentHash = 'c37ba29f40ecc61662ea56324fdb72a5f1e66add2078854c2144765b9030358a'
+        await uut.getMutableData(documentHash)
+        assert.fail('unexpected code path')
+      } catch (error) {
+        assert.include(
+          error.message,
+          'test error',
+          'Error message expected'
+        )
+      }
+    })
+    it('should return  mutable data', async () => {
+      sandbox.stub(uut, 'decodeOpReturn')
+        .onFirstCall().resolves(mockData.decodedOpReturn)
+        .onSecondCall().resolves(JSON.parse(mockData.decodedOpReturn)) // data to force an error while parsing the JSON
+        .onThirdCall().resolves(mockData.decodedOpReturn)
+
+      sandbox.stub(uut.bchjs.Electrumx, 'transactions').resolves(mockData.transactions)
+      sandbox.stub(uut, 'getCIDData').resolves(mockData.mutableData)
+
+      const documentHash = 'c37ba29f40ecc61662ea56324fdb72a5f1e66add2078854c2144765b9030358a'
+
+      const result = await uut.getMutableData(documentHash)
+      assert.isObject(result)
+    })
+  })
 })
