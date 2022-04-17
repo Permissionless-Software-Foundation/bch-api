@@ -225,6 +225,8 @@ class PsfSlpIndexer {
     }
   }
 
+  // Get mutable and immutable data for a token, if the token was created with
+  // such data.
   async getTokenData (req, res, next) {
     try {
       // Verify env var is set for interacting with the indexer.
@@ -240,7 +242,7 @@ class PsfSlpIndexer {
         })
       }
 
-      // get token stats
+      // get token stats from the Genesis TX of the token.
       const withTxHistory = false
       const response = await _this.axios.post(
         `${_this.psfSlpIndexerApi}slp/token/`,
@@ -251,6 +253,7 @@ class PsfSlpIndexer {
       const tokenStats = response.data.tokenData
 
       tokenData.genesisData = tokenStats
+
       // try to get immutable data
       try {
         const immutableData = await _this.getCIDData(tokenStats.documentUri)
@@ -266,6 +269,7 @@ class PsfSlpIndexer {
       } catch (error) {
         tokenData.mutableData = ''
       }
+
       res.status(200)
       return res.json(tokenData)
     } catch (err) {
@@ -282,13 +286,13 @@ class PsfSlpIndexer {
         )
       }
 
-      // Gets the OP_RETURN data and decodes it
+      // Get the OP_RETURN data and decode it.
       const mutableData = await _this.decodeOpReturn(documentHash)
       const jsonData = JSON.parse(mutableData)
 
       const mspAddress = jsonData.mspAddress
 
-      // Gets the mspAddress transactions
+      // Gets the mutable data address (MDA) transaction history.
       const transactions = await _this.bchjs.Electrumx.transactions(mspAddress)
 
       const mspTxs = transactions.transactions
@@ -355,9 +359,11 @@ class PsfSlpIndexer {
       if (!txid || typeof txid !== 'string') {
         throw new Error('txid must be a string.')
       }
+
       // get transaction data
       const txData = await _this.bchjs.Electrumx.txData(txid)
       let data = false
+
       // Maps the vout of the transaction in search of an OP_RETURN
       for (let i = 0; i < txData.details.vout.length; i++) {
         const vout = txData.details.vout[i]
@@ -366,11 +372,13 @@ class PsfSlpIndexer {
           Buffer.from(vout.scriptPubKey.hex, 'hex')
         ).split(' ')
 
+        // Exit on the first OP_RETURN found.
         if (script[0] === 'OP_RETURN') {
           data = Buffer.from(script[1], 'hex').toString('ascii')
           break
         }
       }
+
       return data
     } catch (error) {
       console.log('Error in decodeOpReturn().')
@@ -378,6 +386,7 @@ class PsfSlpIndexer {
     }
   }
 
+  // Get the immutable data stored in the documentUrl field of the token.
   async getCIDData (cid) {
     try {
       if (!cid || typeof cid !== 'string') {
