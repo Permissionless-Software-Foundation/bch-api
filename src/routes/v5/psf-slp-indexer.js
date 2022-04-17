@@ -227,6 +227,9 @@ class PsfSlpIndexer {
 
   // Get mutable and immutable data for a token, if the token was created with
   // such data.
+  //
+  // Example:
+  // curl -H "Content-Type: application/json" -X POST -d '{ "tokenId": "afca62f07560b4c72c2ed6c9c3995315f964ccdfc37dded316d182640b42d88a" }' localhost:3000/v5/psf/slp/token/data
   async getTokenData (req, res, next) {
     try {
       // Verify env var is set for interacting with the indexer.
