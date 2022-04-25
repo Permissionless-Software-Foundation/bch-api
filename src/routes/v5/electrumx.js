@@ -115,6 +115,8 @@ class Electrum {
         cashAddr
       )
 
+      console.log('req.locals: ', req.locals)
+
       const response = await _this.axios.get(
         `${_this.fulcrumApi}electrumx/balance/${address}`
       )
