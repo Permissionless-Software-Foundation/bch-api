@@ -195,6 +195,8 @@ class Electrum {
         }
       }
 
+      console.log('req.locals: ', req.locals)
+
       const response = await _this.axios.post(
         `${_this.fulcrumApi}electrumx/balance/`,
         { addresses }
