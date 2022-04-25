@@ -115,7 +115,7 @@ class Electrum {
         cashAddr
       )
 
-      console.log('req.locals: ', req.locals)
+      // console.log('req.locals: ', req.locals)
 
       const response = await _this.axios.get(
         `${_this.fulcrumApi}electrumx/balance/${address}`
@@ -197,7 +197,7 @@ class Electrum {
         }
       }
 
-      console.log('req.locals: ', req.locals)
+      // console.log('req.locals: ', req.locals)
 
       // Use the cache for anonymous users. If the user has a valid JWT token
       // or is using Basic Authentiation, then do not use the cache.
