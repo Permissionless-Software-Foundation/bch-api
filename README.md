@@ -103,7 +103,7 @@ Website domain names can be added to the `WHITELIST_DOMAINS` environment variabl
 
 ## Donate
 
-The open source software is developed and maintained by the [Permissionless Software Foundation](https://psfoundation.cash). If this library provides value to you, please consider making a donation to support the PSF developers:
+This open source software is developed and maintained by the [Permissionless Software Foundation](https://psfoundation.cash). If this library provides value to you, please consider making a donation to support the PSF developers:
 
 <div align="center">
 <img src="./diagrams/donation-qr.png" />
