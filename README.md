@@ -8,17 +8,21 @@ This is a REST API server, written in node.js JavaScript, using the [Express.js]
 
 While developers are encouraged to run and manage their own infrastructure, cloud-based infrastructure is available via [FullStack.cash](https://fullstack.cash). Free and paid tiers are available. You can use this REST API right away with the [bch-js](https://github.com/Permissionless-Software-Foundation/bch-js) JavaScript library.
 
-This repository is intended to be paired with [bch-js](https://github.com/Permissionless-Software-Foundation/bch-js), an npm JavaScript library for building Bitcoin Cash apps.
+This repository is intended to be paired with [bch-js](https://github.com/Permissionless-Software-Foundation/bch-js), an npm JavaScript library for building Bitcoin Cash apps. [Code examples](https://github.com/Permissionless-Software-Foundation/bch-js-examples) for common use-cases are available. And the [minimal-slp-wallet](https://www.npmjs.com/package/minimal-slp-wallet) is a front end JavaScript library that incorporates bch-js and provides basic wallet functionality.
 
-![Cash Stack Network Diagram](./generic-network-diagram.png)
+![bch-api dependency diagram](./diagrams/bch-api-dependency-graph.png)
 
-Both bch-api and bch-js are part of the 'Cash Stack' [full stack of BCH software](https://troutsblog.com/research/bitcoin-cash/how-to-bch-full-stack-developer).
+Both bch-api and bch-js are part of the [Cash Stack](https://cashstack.info).
 
-- [API Documentation](https://fullstack.cash/documentation)
-- [Example Code](https://fullstack.cash/examples)
+- [CashStack](https://cashstack.info) high-level documentation.
+- [bch-api REST API reference](https://api.fullstack.cash/docs/)
+- [bch-js JavaScript API reference](https://bchjs.fullstack.cash/)
+- [bch-js example code](https://github.com/Permissionless-Software-Foundation/bch-js-examples)
+- [Additional documentation on FullStack.cash](https://fullstack.cash/documentation)
+- [Additional examples on FullStack.cash](https://fullstack.cash/examples)
 
 Have questions? Need help? Join our community support:
-[Telegram channel](https://t.me/bch_js_toolkit)
+- [Telegram channel](https://t.me/bch_js_toolkit)
 
 ## Features
 The following features set this repository apart from rest.bitcoin.com:
