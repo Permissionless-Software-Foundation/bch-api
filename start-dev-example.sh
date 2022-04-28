@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Docker containers for the below infrastructure is described here:
-# https://psfoundation.cash/blog/cash-stack
+# https://CashStack.info
 # Pre-synced databases can be downloaded on the CashStrap page:
 # https://fullstack.cash/cashstrap
 
@@ -20,20 +20,10 @@ export RPC_PASSWORD=password
 # double spends.
 #export RPC_SENDURL=http://$RPC_IP/
 
-# SLPDB
-export SLPDB_PASS_GP=somelongpassword
-export SLPDB_URL=http://<SLPDB IP>:12300/
-# Use the same address as SLPDB_URL if you don't have a separate whitelist server.
-export SLPDB_PASS_WL=somelongpassword
-export SLPDB_WHITELIST_URL=http://<SLPDB IP>:12300/
-# slp-api alternative SLP validator using slp-validate:
-# https://github.com/Permissionless-Software-Foundation/slp-api
-export SLP_API_URL=http://10.0.0.5:5001/
+# psf-slp-indxer
+export SLP_INDEXER_API=http://<ip>:<port>/
 
 # Mainnet Fulcrum / ElectrumX
-export FULCRUM_URL=192.168.0.6
-export FULCRUM_PORT=50002
-# Fulcrum API (used for /v5+ routes)
 export FULCRUM_API=http://172.17.0.1:3001/v1/
 
 # Redis DB - Used for rate limiting - customize to your own Redis installation.
@@ -46,7 +36,7 @@ export REDIS_HOST=172.17.0.1
 export TOKENSECRET=somelongpassword
 
 # So that bch-api can call bch-js locally.
-export LOCAL_RESTURL=http://127.0.0.1:3000/v4/
+export LOCAL_RESTURL=http://127.0.0.1:3000/v5/
 
 # Basic Authentication password
 export PRO_PASS=somerandomepassword:someotherrandompassword:aThirdPassword
