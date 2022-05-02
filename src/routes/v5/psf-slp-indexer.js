@@ -225,6 +225,18 @@ class PsfSlpIndexer {
     }
   }
 
+  /**
+   * @api {post} /psf/slp/token/data  Get token data
+   * @apiName Get token data
+   * @apiGroup PSF SLP
+   * @apiDescription Get mutable and immutable data if the token contains them.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -H "Content-Type: application/json" -X POST -d '{ "tokenId": "f055256b938f1ecfa270459d6f12c7c8c82b66d3263c03d5074445a2b1a498a3" }' localhost:3000/v5/psf/slp/token/data
+   *
+   *
+   */
   // Get mutable and immutable data for a token, if the token was created with
   // such data.
   //
@@ -276,6 +288,7 @@ class PsfSlpIndexer {
       res.status(200)
       return res.json(tokenData)
     } catch (err) {
+      console.log('Error in getTokenData(): ', err)
       return _this.errorHandler(err, res)
     }
   }
