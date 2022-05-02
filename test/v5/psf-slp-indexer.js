@@ -168,6 +168,34 @@ describe('#PsfSlpIndexer', () => {
       assert.property(tokenData, 'totalMinted')
       assert.property(tokenData, 'txs')
     })
+    it('should GET tokens stats with tx hisroty', async function () {
+      req.body.tokenId =
+        'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
+      req.body.withTxHistory = true
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === 'unit') {
+        sandbox.stub(uut.axios, 'post').resolves({ data: mockData.tokenStats })
+      } else {
+        return this.skip()
+      }
+
+      const result = await uut.getTokenStats(req, res)
+      const tokenData = result.tokenData
+      assert.property(tokenData, 'type')
+      assert.property(tokenData, 'ticker')
+      assert.property(tokenData, 'name')
+      assert.property(tokenData, 'tokenId')
+      assert.property(tokenData, 'documentUri')
+      assert.property(tokenData, 'documentHash')
+      assert.property(tokenData, 'decimals')
+      assert.property(tokenData, 'mintBatonIsActive')
+      assert.property(tokenData, 'tokensInCirculationBN')
+      assert.property(tokenData, 'tokensInCirculationStr')
+      assert.property(tokenData, 'blockCreated')
+      assert.property(tokenData, 'totalBurned')
+      assert.property(tokenData, 'totalMinted')
+      assert.property(tokenData, 'txs')
+    })
   })
 
   describe('#getTxid', async () => {
@@ -470,6 +498,7 @@ describe('#PsfSlpIndexer', () => {
       assert.property(status, 'chainBlockHeight')
     })
   })
+
   describe('#errorHandler', () => {
     it('should handle unexpected errors', () => {
       sandbox.stub(uut.routeUtils, 'decodeError').returns({ msg: false })
@@ -479,6 +508,7 @@ describe('#PsfSlpIndexer', () => {
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
       assert.property(result, 'error')
     })
+
     it('should handle unknow errors', () => {
       sandbox.stub(uut.routeUtils, 'decodeError').returns({ msg: false })
 
@@ -488,6 +518,7 @@ describe('#PsfSlpIndexer', () => {
       assert.property(result, 'error')
     })
   })
+
   describe('#checkEnvVar', () => {
     it('should throw errors if SLP_INDEXER_API env var is not provided', () => {
       const savedSlpIndexerUrl = process.env.SLP_INDEXER_API
@@ -505,6 +536,7 @@ describe('#PsfSlpIndexer', () => {
       process.env.SLP_INDEXER_API = savedSlpIndexerUrl
     })
   })
+
   describe('#getCIDData', () => {
     it('should throw errors if cid is not provided', async () => {
       try {
@@ -518,6 +550,7 @@ describe('#PsfSlpIndexer', () => {
         )
       }
     })
+
     it('should handle axios error', async () => {
       try {
         sandbox.stub(uut.axios, 'get').throws(new Error('test error'))
@@ -532,6 +565,7 @@ describe('#PsfSlpIndexer', () => {
         )
       }
     })
+
     it('should return cid object data', async () => {
       sandbox.stub(uut.axios, 'get').resolves({ data: mockData.immutableData })
       const cid = 'bafybeigp3bfmj6woms7pywb7s7r6npcdudvsabvzne2chyspxtdendrwmy'
@@ -553,6 +587,7 @@ describe('#PsfSlpIndexer', () => {
         )
       }
     })
+
     it('should handle bchjs error', async () => {
       try {
         sandbox.stub(uut.bchjs.Electrumx, 'txData').throws(new Error('test error'))
@@ -567,12 +602,14 @@ describe('#PsfSlpIndexer', () => {
         )
       }
     })
+
     it('should return  data', async () => {
       sandbox.stub(uut.bchjs.Electrumx, 'txData').resolves({ details: mockData.txData.txData })
       const txid = 'c37ba29f40ecc61662ea56324fdb72a5f1e66add2078854c2144765b9030358a'
       const result = await uut.decodeOpReturn(txid)
       assert.isString(result)
     })
+
     it('should return  false if data is not found', async () => {
       sandbox.stub(uut.bchjs.Electrumx, 'txData').resolves({ details: { vout: [] } })
       const txid = 'c37ba29f40ecc61662ea56324fdb72a5f1e66add2078854c2144765b9030358a'
@@ -580,6 +617,7 @@ describe('#PsfSlpIndexer', () => {
       assert.isFalse(result)
     })
   })
+
   describe('#getTokenData', async () => {
     it('should throw 400 error if tokenId  is missing', async () => {
       const result = await uut.getTokenData(req, res)
@@ -687,6 +725,7 @@ describe('#PsfSlpIndexer', () => {
       assert.property(genesisData, 'totalMinted')
       assert.property(genesisData, 'txs')
     })
+
     it('should GET tokens data if immutableData data not found', async function () {
       req.body.tokenId =
         'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
@@ -724,6 +763,7 @@ describe('#PsfSlpIndexer', () => {
       assert.property(genesisData, 'totalMinted')
       assert.property(genesisData, 'txs')
     })
+
     it('should GET tokens data if mutable data not found', async function () {
       req.body.tokenId =
         'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
@@ -762,6 +802,7 @@ describe('#PsfSlpIndexer', () => {
       assert.property(genesisData, 'txs')
     })
   })
+
   describe('#getMutableData', () => {
     it('should throw errors if documentHash is not provided', async () => {
       try {
@@ -775,6 +816,7 @@ describe('#PsfSlpIndexer', () => {
         )
       }
     })
+
     it('should throw errors if cid is not provided in OP Return', async () => {
       try {
         sandbox.stub(uut, 'decodeOpReturn').resolves('{}')
@@ -810,6 +852,7 @@ describe('#PsfSlpIndexer', () => {
         )
       }
     })
+
     it('should  handle bchjs error', async () => {
       try {
         sandbox.stub(uut, 'decodeOpReturn').resolves(mockData.decodedOpReturn)
@@ -826,6 +869,27 @@ describe('#PsfSlpIndexer', () => {
         )
       }
     })
+
+    it('should skip mutable data if was not generated by the MDA private key', async () => {
+      try {
+        sandbox.stub(uut, 'decodeOpReturn').resolves(mockData.decodedOpReturn)
+
+        sandbox.stub(uut.bchjs.Electrumx, 'transactions').resolves(mockData.transactions)
+        sandbox.stub(uut.bchjs.Transaction, 'get').resolves(mockData.txData)
+
+        const documentHash = 'c37ba29f40ecc61662ea56324fdb72a5f1e66add2078854c2144765b9030358a'
+
+        await uut.getMutableData(documentHash)
+        assert.fail('unexpected code path')
+      } catch (error) {
+        assert.include(
+          error.message,
+          'CID could not be found in OP_RETURN data',
+          'Error message expected'
+        )
+      }
+    })
+
     it('should return  mutable data', async () => {
       sandbox.stub(uut, 'decodeOpReturn')
         .onFirstCall().resolves(mockData.decodedOpReturn)
@@ -833,6 +897,8 @@ describe('#PsfSlpIndexer', () => {
         .onThirdCall().resolves(mockData.decodedOpReturn)
 
       sandbox.stub(uut.bchjs.Electrumx, 'transactions').resolves(mockData.transactions)
+      sandbox.stub(uut.bchjs.Transaction, 'get').resolves(mockData.txDataByMDA)
+
       sandbox.stub(uut, 'getCIDData').resolves(mockData.mutableData)
 
       const documentHash = 'c37ba29f40ecc61662ea56324fdb72a5f1e66add2078854c2144765b9030358a'
