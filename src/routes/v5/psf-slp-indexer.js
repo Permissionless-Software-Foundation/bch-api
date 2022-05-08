@@ -271,7 +271,8 @@ class PsfSlpIndexer {
 
       // try to get immutable data
       try {
-        const immutableData = await _this.getCIDData(tokenStats.documentUri)
+        // const immutableData = await _this.getCIDData(tokenStats.documentUri)
+        const immutableData = tokenStats.documentUri
         tokenData.immutableData = immutableData
       } catch (error) {
         tokenData.immutableData = ''
@@ -367,8 +368,9 @@ class PsfSlpIndexer {
       if (!cid) {
         throw new Error('CID could not be found in OP_RETURN data')
       }
+      const result = cid
 
-      const result = await _this.getCIDData(cid)
+      // const result = await _this.getCIDData(cid)
       // console.log(`response.data: ${JSON.stringify(response.data, null, 2)}`)
 
       return result
