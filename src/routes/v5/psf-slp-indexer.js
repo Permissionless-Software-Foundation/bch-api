@@ -375,8 +375,8 @@ class PsfSlpIndexer {
 
       return result
     } catch (err) {
-      console.log('Error in getMutableData().')
-      // console.log('Error in getMutableData(): ', err)
+      // console.log('Error in getMutableData().')
+      console.log('Error in getMutableData(): ', err)
       throw err
     }
   }
@@ -432,7 +432,7 @@ class PsfSlpIndexer {
 
       return response.data
     } catch (error) {
-      console.log('Error in getCIDData().')
+      console.log('Error in getCIDData(): ', err)
       throw error
     }
   }
