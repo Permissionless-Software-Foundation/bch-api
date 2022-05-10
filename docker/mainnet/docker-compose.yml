@@ -1,19 +1,33 @@
-bch-api-main:
-  build: .
-  dockerfile: Dockerfile
-  #image: bitcore
-  container_name: bch-api-main
-  links:
-    - redis-main
-  ports:
-    - "3000:3000"
-  volumes:
-    - ../../logs:/home/safeuser/bch-api/logs
-  restart: always
+version: '3.9'
 
-redis-main:
-  image: redis:latest
-  container_name: redis-main
-  restart: always
-  ports:
-    - "172.17.0.1:6379:6379"
+services:
+  bch-api-main:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    #image: bitcore
+    container_name: bch-api-main
+    links:
+      - redis-main
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../../logs:/home/safeuser/bch-api/logs
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '10'
+    restart: always
+
+  redis-main:
+    image: redis:latest
+    container_name: redis-main
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '10'
+    restart: always
+    ports:
+      - "172.17.0.1:6379:6379"
