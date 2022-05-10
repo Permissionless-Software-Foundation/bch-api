@@ -7,17 +7,15 @@ const express = require('express')
 const router = express.Router()
 const axios = require('axios')
 const util = require('util')
+const BCHJS = require('@psf/bch-js')
 
 // Local libraries
 const RouteUtils = require('../../util/route-utils')
-const routeUtils = new RouteUtils()
-
-const BCHJS = require('@psf/bch-js')
-const bchjs = new BCHJS()
-
-// Local libraries
-// const wlogger = require('../../../util/winston-logging')
 const config = require('../../../config')
+
+const routeUtils = new RouteUtils()
+const bchjs = new BCHJS({restURL: config.restURL})
+
 
 let _this
 

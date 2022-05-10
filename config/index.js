@@ -24,7 +24,9 @@ const config = {
     : 10000,
   whitelistDomains: process.env.WHITELIST_DOMAINS
     ? process.env.WHITELIST_DOMAINS.split(',')
-    : ['fullstack.cash', 'psfoundation.cash', '10.0.']
+    : ['fullstack.cash', 'psfoundation.cash', '10.0.'],
+
+  restURL: process.env.LOCAL_RESTURL ? process.env.LOCAL_RESTURL : 'http://127.0.0.1:3000/v5/'
 }
 
 module.exports = config
