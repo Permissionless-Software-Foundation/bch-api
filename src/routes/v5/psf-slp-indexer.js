@@ -432,7 +432,7 @@ class PsfSlpIndexer {
 
       return response.data
     } catch (error) {
-      console.log('Error in getCIDData(): ', err)
+      console.log('Error in getCIDData(): ', error)
       throw error
     }
   }
