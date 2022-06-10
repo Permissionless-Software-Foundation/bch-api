@@ -14,8 +14,7 @@ const RouteUtils = require('../../util/route-utils')
 const config = require('../../../config')
 
 const routeUtils = new RouteUtils()
-const bchjs = new BCHJS({restURL: config.restURL})
-
+const bchjs = new BCHJS({ restURL: config.restURL })
 
 let _this
 
