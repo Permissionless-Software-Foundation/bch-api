@@ -42,6 +42,6 @@ logs/*
 docs/*
 docker/mainnet/start-local-mainnet.sh
 docker/testnet/start-local-testnet.sh
-
+start-local-bchn.sh
 
 !logs/README.md
