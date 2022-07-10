@@ -12,7 +12,7 @@ const config = {
   // Rate Limits
   anonRateLimit: process.env.ANON_RATE_LIMIT
     ? Number(process.env.ANON_RATE_LIMIT)
-    : 500,
+    : 1000,
   whitelistRateLimit: process.env.WHITELIST_RATE_LIMIT
     ? Number(process.env.WHITELIST_RATE_LIMIT)
     : 10,
@@ -24,7 +24,9 @@ const config = {
     : 10000,
   whitelistDomains: process.env.WHITELIST_DOMAINS
     ? process.env.WHITELIST_DOMAINS.split(',')
-    : ['fullstack.cash', 'psfoundation.cash', '10.0.']
+    : ['fullstack.cash', 'psfoundation.cash', '10.0.'],
+
+  restURL: process.env.LOCAL_RESTURL ? process.env.LOCAL_RESTURL : 'http://127.0.0.1:3000/v5/'
 }
 
 module.exports = config

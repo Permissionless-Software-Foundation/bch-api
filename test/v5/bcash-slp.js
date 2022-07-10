@@ -13,7 +13,7 @@ const BcashSlp = require('../../src/routes/v5/bcash/slp')
 
 // Mocking data.
 const { mockReq, mockRes } = require('./mocks/express-mocks')
-// const mockData = require('./mocks/electrumx-mock')
+const mockData = require('./mocks/bcash-slp-mock')
 
 // Used for debugging.
 const util = require('util')
@@ -88,8 +88,157 @@ describe('#bcash-slp', () => {
 
   describe('#getUtxos', () => {
     it('should return UTXOs for an address, hydrated with SLP info', async () => {
-      // TODO: Add unit tests.
-      assert.isOk(true)
+      sandbox.stub(bcashSlp.axios, 'get').resolves({ data: mockData.utxos })
+      sandbox.stub(bcashSlp, 'getTokenInfo').resolves(mockData.tokenInfo)
+      req.params.address =
+        'bitcoincash:qpnty9t0w93fez04h7yzevujpv8pun204qv6yfuahk'
+
+      const utxos = await bcashSlp.getUtxos(req, res)
+      assert.isArray(utxos)
+      const utxo = utxos[0]
+
+      assert.property(utxo, 'version')
+      assert.property(utxo, 'height')
+      assert.property(utxo, 'value')
+      assert.property(utxo, 'script')
+      assert.property(utxo, 'address')
+      assert.property(utxo, 'coinbase')
+      assert.property(utxo, 'hash')
+      assert.property(utxo, 'index')
+      assert.property(utxo, 'slp')
+
+      assert.property(utxo.slp, 'tokenId')
+      assert.property(utxo.slp, 'ticker')
+      assert.property(utxo.slp, 'name')
+      assert.property(utxo.slp, 'uri')
+      assert.property(utxo.slp, 'hash')
+      assert.property(utxo.slp, 'decimals')
+      assert.property(utxo.slp, 'vout')
+      assert.property(utxo.slp, 'value')
+      assert.property(utxo.slp, 'type')
+    })
+    it('should handle error if address is array', async () => {
+      req.params.address = [
+        'bchtest:qpnty9t0w93fez04h7yzevujpv8pun204qv6yfuahk'
+      ]
+
+      const result = await bcashSlp.getUtxos(req, res)
+      assert.include(
+        result.error,
+        'address can not be an array. Use POST for bulk upload.'
+      )
+    })
+    it('should throw error if address has invalid format', async () => {
+      sandbox.stub(bcashSlp.routeUtils, 'validateNetwork').returns(false)
+
+      req.params.address = 'qpnty9t0w93fez04h7yzevujpv8pun204qv6yfuahk'
+
+      const result = await bcashSlp.getUtxos(req, res)
+      assert.include(
+        result.error,
+        'Invalid network. Trying to use a testnet address on mainnet'
+      )
+    })
+    it('should catch axios error', async () => {
+      sandbox.stub(bcashSlp.axios, 'get').throws(new Error('test error'))
+      req.params.address =
+        'bitcoincash:qpnty9t0w93fez04h7yzevujpv8pun204qv6yfuahk'
+      const result = await bcashSlp.getUtxos(req, res)
+      assert.include(result.error, 'test error')
+    })
+  })
+
+  describe('#hydrateUTXOS', () => {
+    it('should hydrate slp utxos', async () => {
+      sandbox.stub(bcashSlp, 'getTokenInfo').resolves(mockData.tokenInfo)
+
+      const hydratedUtxos = await bcashSlp.hydrateUTXOS(mockData.utxos)
+      assert.isArray(hydratedUtxos)
+      const hydratedUtxo = hydratedUtxos[0]
+      assert.property(hydratedUtxo, 'version')
+      assert.property(hydratedUtxo, 'height')
+      assert.property(hydratedUtxo, 'value')
+      assert.property(hydratedUtxo, 'script')
+      assert.property(hydratedUtxo, 'address')
+      assert.property(hydratedUtxo, 'coinbase')
+      assert.property(hydratedUtxo, 'hash')
+      assert.property(hydratedUtxo, 'index')
+      assert.property(hydratedUtxo, 'slp')
+
+      assert.property(hydratedUtxo.slp, 'tokenId')
+      assert.property(hydratedUtxo.slp, 'ticker')
+      assert.property(hydratedUtxo.slp, 'name')
+      assert.property(hydratedUtxo.slp, 'uri')
+      assert.property(hydratedUtxo.slp, 'hash')
+      assert.property(hydratedUtxo.slp, 'decimals')
+      assert.property(hydratedUtxo.slp, 'vout')
+      assert.property(hydratedUtxo.slp, 'value')
+      assert.property(hydratedUtxo.slp, 'type')
+    })
+
+    it('should throw error if utxos is not provided', async () => {
+      try {
+        await bcashSlp.hydrateUTXOS()
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'UTXOs must be an array of slp utxos')
+      }
+    })
+    it('should handle error', async () => {
+      try {
+        sandbox.stub(bcashSlp, 'getTokenInfo').throws(new Error('test error'))
+
+        await bcashSlp.getTokenInfo(mockData.utxos)
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'test error')
+      }
+    })
+  })
+
+  describe('#getTokenInfo', () => {
+    it('should return SLP info for an token id', async () => {
+      sandbox.stub(bcashSlp.axios, 'get').resolves({ data: mockData.tokenInfo })
+
+      const tokenId =
+        'afd88e9afab110e7b75410417edb5c98798c08aa892cee8d97b44f2e5545a900'
+      const slpInfo = await bcashSlp.getTokenInfo(tokenId)
+      assert.isObject(slpInfo)
+      assert.property(slpInfo, 'tokenId')
+      assert.property(slpInfo, 'ticker')
+      assert.property(slpInfo, 'name')
+      assert.property(slpInfo, 'uri')
+      assert.property(slpInfo, 'hash')
+      assert.property(slpInfo, 'decimals')
+    })
+    it('should throw error if token id is not provided', async () => {
+      try {
+        await bcashSlp.getTokenInfo()
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'tokenId must be string')
+      }
+    })
+    it('should catch axios error', async () => {
+      try {
+        sandbox.stub(bcashSlp.axios, 'get').throws(new Error('test error'))
+        const tokenId =
+          'afd88e9afab110e7b75410417edb5c98798c08aa892cee8d97b44f2e5545a900'
+        await bcashSlp.getTokenInfo(tokenId)
+        assert.fail('Unexpected code path')
+      } catch (error) {
+        assert.include(error.message, 'test error')
+      }
+    })
+  })
+  describe('#errorHandler', () => {
+    it('should handle unexpected errors', () => {
+      sandbox.stub(bcashSlp.routeUtils, 'decodeError').returns({ msg: false })
+
+      const result = bcashSlp.errorHandler(new Error('test error'), res)
+      // console.log('result: ', result)
+      assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
+      assert.property(result, 'error')
     })
   })
 })

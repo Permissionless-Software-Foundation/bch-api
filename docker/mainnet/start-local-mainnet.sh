@@ -28,6 +28,7 @@ export SLP_API_URL=http://10.0.0.5:5001/
 # Mainnet Fulcrum / ElectrumX
 export FULCRUM_URL=172.17.0.1
 export FULCRUM_PORT=50002
+export FULCRUM_API=http://172.17.0.1:3001/v1/
 
 # Redis DB - Used for rate limiting
 export REDIS_PORT=6379
@@ -39,7 +40,7 @@ export REDIS_HOST=172.17.0.1
 export TOKENSECRET=somelongsecretvalue
 
 # So that bch-api can call bch-js locally.
-export LOCAL_RESTURL=http://127.0.0.1:3000/v4/
+export LOCAL_RESTURL=http://127.0.0.1:3000/v5/
 
 # Basic Authentication password
 export PRO_PASS=somerandomepassword:someotherrandompassword:aThirdPassword
@@ -47,6 +48,9 @@ export PRO_PASS=somerandomepassword:someotherrandompassword:aThirdPassword
 # Whitelisted domains. Automatically give pro-tier rate limit access to apps
 # that originate froma domain on the whitelist.
 export WHITELIST_DOMAINS=fullstack.cash,psfoundation.cash,torlist.cash
+
+# Disable rate limits
+export DO_NOT_USE_RATE_LIMITS=1
 
 # Rate Limits. Numbers are divided into 1000. e.g. 1000 / 50 = 20 RPM for ANON.
 # Requests use the ANON rate limit if they fail to pass in a JWT token.
@@ -60,5 +64,12 @@ export WHITELIST_RATE_LIMIT=10
 export LOG_MAX_SIZE=1m
 #5d means store no more than 5 days
 export LOG_MAX_FILES=5d
+
+# (Optional) bcash full node
+export BCASH_SERVER=http://localhost:3002/
+
+# psf-slp-indexer
+#export SLP_INDEXER_API=https://psf-slp-indexer.fullstack.cash/
+export SLP_INDEXER_API=http://172.17.0.1:5010/
 
 npm start

@@ -6,24 +6,26 @@
 
 'use strict'
 
-var winston = require('winston')
+const winston = require('winston')
 require('winston-daily-rotate-file')
 
-var NETWORK = process.env.NETWORK
+const NETWORK = process.env.NETWORK
 
 // Default 1 Megabyte
-var LOG_MAX_SIZE = process.env.LOG_MAX_SIZE ? process.env.LOG_MAX_SIZE : '1m'
+const LOG_MAX_SIZE = process.env.LOG_MAX_SIZE ? process.env.LOG_MAX_SIZE : '1m'
 
 // Default 5 days.
 // This was causing a problem with popularity. Creating over a gigabyte of files.
 // var LOG_MAX_FILES = process.env.LOG_MAX_FILES ? process.env.LOG_MAX_FILES : '5d'
 
 // 250 files @ 1Meg each = 250 megs
-var LOG_MAX_FILES = process.env.LOG_MAX_FILES ? process.env.LOG_MAX_FILES : '250'
+const LOG_MAX_FILES = process.env.LOG_MAX_FILES
+  ? process.env.LOG_MAX_FILES
+  : '250'
 
 // Configure daily-rotation transport.
-var transport = new winston.transports.DailyRotateFile({
-  filename: `${__dirname}/../../logs/rest-${NETWORK}-%DATE%.log`,
+const transport = new winston.transports.DailyRotateFile({
+  filename: `${__dirname.toString()}/../../logs/rest-${NETWORK}-%DATE%.log`,
   datePattern: 'YYYY-MM-DD',
   zippedArchive: false,
   maxSize: LOG_MAX_SIZE,
@@ -39,7 +41,7 @@ transport.on('rotate', function (oldFilename, newFilename) {
 })
 
 // This controls what goes into the log FILES
-var wlogger = winston.createLogger({
+const wlogger = winston.createLogger({
   level: 'verbose',
   format: winston.format.json(),
   transports: [

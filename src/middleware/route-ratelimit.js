@@ -1,6 +1,4 @@
 /*
-This file will replace the original rate-limit.js file.
-
 Sets the rate limits for the anonymous and paid tiers. Current rate limits:
 - 10000 points in 60 seconds
 - 500 points per call for anonymous tier (20 RPM)
@@ -34,6 +32,10 @@ const { RateLimiterRedis } = require('rate-limiter-flexible')
 // local libraries.
 const wlogger = require('../util/winston-logging')
 const config = require('../../config')
+
+// The amount of delay in milliseconds to add to anonymous requests, in order
+// to slow down freeloaders that are hitting the system too hard.
+const ANON_DELAY = 3000
 
 let _this // Global pointer to instance of class, when 'this' context is lost.
 
@@ -215,6 +217,10 @@ class RateLimits {
     next()
   }
 
+  sleep (ms) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
   // A wrapper for Redis-based rate limiter.
   // Will return false if the user has not exceeded the rate limit. Otherwise
   // it will return the 'res' object with an error status and message, which
@@ -258,7 +264,21 @@ class RateLimits {
       // const rateLimitData = await _this.rateLimiter.consume(key, pointsToConsume)
       // console.log(`rateLimitData: `, rateLimitData)
 
+      // Add data to logs for analytics.
+      const logData = {
+        ip: req.ip,
+        key,
+        pointsToConsume,
+        status: 'OK'
+      }
+      wlogger.info(logData)
+
       res.locals.pointsToConsume = pointsToConsume // Feedback for tests.
+
+      // Add artificial delay to slow down freeloaders.
+      if (pointsToConsume === ANON_LIMITS) {
+        await this.sleep(ANON_DELAY)
+      }
 
       // Signal that the user has not exceeded their rate limits.
       return false
@@ -273,6 +293,20 @@ class RateLimits {
       // console.log(
       //   `rate limit debug info: ${JSON.stringify(debugInfo, null, 2)}`
       // )
+
+      // Add data to logs for analytics.
+      const logData = {
+        ip: req.ip,
+        key,
+        pointsToConsume,
+        status: 429
+      }
+      wlogger.info(logData)
+
+      // Add artificial delay to slow down freeloaders.
+      if (pointsToConsume === ANON_LIMITS) {
+        await this.sleep(ANON_DELAY)
+      }
 
       // Rate limited was triggered
       res.status(429) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330

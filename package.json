@@ -1,6 +1,6 @@
 {
   "name": "bch-api",
-  "version": "1.16.0",
+  "version": "2.0.0",
   "description": "The REST API powering FullStack.cash",
   "author": "Chris Troutner <chris.troutner@gmail.com>",
   "contributors": [
@@ -18,20 +18,20 @@
     "lint": "standard --env mocha --fix",
     "test-v4": "export NETWORK=mainnet && nyc --reporter=text mocha --exit --timeout 60000 test/v4/",
     "test-v5": "export NETWORK=mainnet && nyc --reporter=text mocha --exit --timeout 60000 test/v5/",
-    "test:integration": "mocha test/v4/integration",
-    "test:integration:slpdb": "mocha --timeout 25000 -g '#validate2Single' test/v4/integration/slp*.js",
-    "test:integration:nft": "mocha --timeout 25000 -g '#nft' test/v4/integration/nft.js",
+    "test:integration": "mocha test/v5/integration",
+    "test:integration:slpdb": "mocha --timeout 25000 -g '#validate2Single' test/v5/integration/slp*.js",
+    "test:integration:nft": "mocha --timeout 25000 -g '#nft' test/v5/integration/nft.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "coverage:report": "export NETWORK=mainnet && nyc --reporter=html mocha --timeout 25000 test/v4/",
     "docs": "./node_modules/.bin/apidoc -i src/routes/v5 -o docs",
     "test:temp1": "export NETWORK=mainnet && export TEST=integration && mocha -g '#utxosBulk' --exit --timeout 30000 test/v5/",
-    "test:temp2": "export NETWORK=mainnet && mocha -g '#utxosBulk' --exit --timeout 30000 test/v5/"
+    "test:temp2": "export SLP_INDEXER_API=http://fakeurl/api/ && export NETWORK=mainnet && mocha  --exit --timeout 30000 test/v5/psf-slp-indexer"
   },
   "engines": {
     "node": ">=10.15.1"
   },
   "dependencies": {
-    "@psf/bch-js": "^4.20.7",
+    "@psf/bch-js": "6.3.4",
     "apidoc": "^0.26.0",
     "axios": "^0.21.1",
     "bitcore-lib-cash": "^8.23.1",
@@ -62,19 +62,19 @@
     "bignumber.js": "^9.0.0",
     "chai": "^4.1.2",
     "coveralls": "^3.0.2",
-    "eslint": "5.16.0",
-    "eslint-config-prettier": "^6.0.0",
-    "eslint-config-standard": "^13.0.1",
-    "eslint-plugin-prettier": "^3.1.0",
-    "eslint-plugin-standard": "^4.0.0",
+    "eslint": "7.17.0",
+    "eslint-config-prettier": "7.1.0",
+    "eslint-config-standard": "16.0.2",
+    "eslint-plugin-node": "11.1.0",
+    "eslint-plugin-prettier": "3.3.1",
+    "eslint-plugin-standard": "4.0.0",
     "fs-extra": "^9.0.0",
     "lodash.clonedeep": "^4.5.0",
     "nock": "^13.0.5",
     "nyc": "^15.0.0",
-    "prettier": "^2.0.0",
     "semantic-release": "^17.4.2",
     "sinon": "^9.0.0",
-    "standard": "^14.3.1"
+    "standard": "^16.0.4"
   },
   "release": {
     "publish": [
