@@ -133,7 +133,7 @@ class Electrum {
       // console.log('req.locals: ', req.locals)
 
       const response = await _this.axios.get(
-        `${_this.fulcrumApi}electrumx/balance/${address}`
+        `${_this.fulcrumApi}electrumx/balance/${cashAddr}`
       )
 
       res.status(200)
@@ -341,7 +341,7 @@ class Electrum {
 
       // Get data from ElectrumX server.
       const response = await _this.axios.get(
-        `${_this.fulcrumApi}electrumx/utxos/${address}`
+        `${_this.fulcrumApi}electrumx/utxos/${cashAddr}`
       )
       // console.log('response', response, _this.fulcrumApi)
 
