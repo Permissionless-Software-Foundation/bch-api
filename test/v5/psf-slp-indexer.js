@@ -430,6 +430,27 @@ describe('#PsfSlpIndexer', () => {
       assert.isArray(balance.txs)
       assert.isArray(balance.balances)
     })
+
+    it('should GET data for ecash address', async function () {
+      req.body.address =
+        'ecash:qr5c4hfy52zn87484cucvzle5pljz0gtr5vhtw9z09'
+
+      // Mock the RPC call for unit tests.
+      if (process.env.TEST === 'unit') {
+        sandbox.stub(uut.axios, 'post').resolves({ data: mockData.balance })
+      } else {
+        return this.skip()
+      }
+
+      const result = await uut.getAddress(req, res)
+      const balance = result.balance
+      assert.property(balance, 'utxos')
+      assert.property(balance, 'txs')
+      assert.property(balance, 'balances')
+      assert.isArray(balance.utxos)
+      assert.isArray(balance.txs)
+      assert.isArray(balance.balances)
+    })
   })
 
   describe('#getStatus', async () => {

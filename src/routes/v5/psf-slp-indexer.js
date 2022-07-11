@@ -97,27 +97,29 @@ class PsfSlpIndexer {
         })
       }
 
-      // Ensure the input is a valid BCH address.
-      try {
-        _this.bchjs.SLP.Address.toCashAddress(address)
-      } catch (err) {
-        res.status(400)
-        return res.json({
-          success: false,
-          error: `Invalid BCH address. Double check your address is valid: ${address}`
-        })
-      }
+      if (!address.includes('ecash')) {
+        // Ensure the input is a valid BCH address.
+        try {
+          _this.bchjs.SLP.Address.toCashAddress(address)
+        } catch (err) {
+          res.status(400)
+          return res.json({
+            success: false,
+            error: `Invalid BCH address. Double check your address is valid: ${address}`
+          })
+        }
 
-      // Prevent a common user error. Ensure they are using the correct network address.
-      const cashAddr = _this.bchjs.SLP.Address.toCashAddress(address)
-      const networkIsValid = _this.routeUtils.validateNetwork(cashAddr)
-      if (!networkIsValid) {
-        res.status(400)
-        return res.json({
-          success: false,
-          error:
-            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
-        })
+        // Prevent a common user error. Ensure they are using the correct network address.
+        const cashAddr = _this.bchjs.SLP.Address.toCashAddress(address)
+        const networkIsValid = _this.routeUtils.validateNetwork(cashAddr)
+        if (!networkIsValid) {
+          res.status(400)
+          return res.json({
+            success: false,
+            error:
+              'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+          })
+        }
       }
 
       const response = await _this.axios.post(
