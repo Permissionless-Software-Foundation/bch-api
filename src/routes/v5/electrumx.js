@@ -311,7 +311,7 @@ class Electrum {
 
       // Convert an ecash to bitcoincash address.
       if (cashAddr.includes('ecash')) {
-        cashAddr = this.bchjs.Address.ecashtoCashAddress(cashAddr)
+        cashAddr = _this.bchjs.Address.ecashtoCashAddress(cashAddr)
       } else {
         cashAddr = _this.bchjs.Address.toCashAddress(address)
 
