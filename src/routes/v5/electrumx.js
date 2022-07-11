@@ -133,7 +133,7 @@ class Electrum {
       // console.log('req.locals: ', req.locals)
 
       const response = await _this.axios.get(
-        `${_this.fulcrumApi}electrumx/balance/${address}`
+        `${_this.fulcrumApi}electrumx/balance/${cashAddr}`
       )
 
       res.status(200)
@@ -313,7 +313,7 @@ class Electrum {
       if (cashAddr.includes('ecash')) {
         cashAddr = _this.bchjs.Address.ecashtoCashAddress(cashAddr)
       } else {
-        cashAddr = _this.bchjs.Address.toCashAddress(address)
+        cashAddr = _this.bchjs.Address.toCashAddress(cashAddr)
 
         // Prevent a common user error. Ensure they are using the correct network address.
         const networkIsValid = _this.routeUtils.validateNetwork(cashAddr)
@@ -334,7 +334,7 @@ class Electrum {
 
       // Get data from ElectrumX server.
       const response = await _this.axios.get(
-        `${_this.fulcrumApi}electrumx/utxos/${address}`
+        `${_this.fulcrumApi}electrumx/utxos/${cashAddr}`
       )
       // console.log('response', response, _this.fulcrumApi)
 
