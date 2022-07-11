@@ -187,25 +187,27 @@ class Electrum {
       for (let i = 0; i < addresses.length; i++) {
         const thisAddress = addresses[i]
 
-        // Ensure the input is a valid BCH address.
-        try {
-          _this.bchjs.Address.toLegacyAddress(thisAddress)
-        } catch (err) {
-          res.status(400)
-          return res.json({
-            success: false,
-            error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`
-          })
-        }
+        if (!thisAddress.includes('ecash')) {
+          // Ensure the input is a valid BCH address.
+          try {
+            _this.bchjs.Address.toLegacyAddress(thisAddress)
+          } catch (err) {
+            res.status(400)
+            return res.json({
+              success: false,
+              error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`
+            })
+          }
 
-        // Prevent a common user error. Ensure they are using the correct network address.
-        const networkIsValid = _this.routeUtils.validateNetwork(thisAddress)
-        if (!networkIsValid) {
-          res.status(400)
-          return res.json({
-            success: false,
-            error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`
-          })
+          // Prevent a common user error. Ensure they are using the correct network address.
+          const networkIsValid = _this.routeUtils.validateNetwork(thisAddress)
+          if (!networkIsValid) {
+            res.status(400)
+            return res.json({
+              success: false,
+              error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`
+            })
+          }
         }
       }
 
