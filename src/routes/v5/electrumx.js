@@ -106,7 +106,10 @@ class Electrum {
 
       let cashAddr = address
 
-      if (!address.includes('ecash')) {
+      // Convert an ecash to bitcoincash address.
+      if (cashAddr.includes('ecash')) {
+        cashAddr = this.bchjs.Address.ecashtoCashAddress(cashAddr)
+      } else {
         // Ensure the address is in cash address format.
         cashAddr = _this.bchjs.Address.toCashAddress(address)
 
@@ -117,7 +120,7 @@ class Electrum {
           return res.json({
             success: false,
             error:
-              'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+                'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
           })
         }
       }
@@ -185,29 +188,32 @@ class Electrum {
 
       // Validate each element in the address array.
       for (let i = 0; i < addresses.length; i++) {
-        const thisAddress = addresses[i]
+        let thisAddress = addresses[i]
 
-        if (!thisAddress.includes('ecash')) {
-          // Ensure the input is a valid BCH address.
-          try {
-            _this.bchjs.Address.toLegacyAddress(thisAddress)
-          } catch (err) {
-            res.status(400)
-            return res.json({
-              success: false,
-              error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`
-            })
-          }
+        // Convert an ecash to bitcoincash address.
+        if (thisAddress.includes('ecash')) {
+          thisAddress = this.bchjs.Address.ecashtoCashAddress(thisAddress)
+        }
 
-          // Prevent a common user error. Ensure they are using the correct network address.
-          const networkIsValid = _this.routeUtils.validateNetwork(thisAddress)
-          if (!networkIsValid) {
-            res.status(400)
-            return res.json({
-              success: false,
-              error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`
-            })
-          }
+        // Ensure the input is a valid BCH address.
+        try {
+          _this.bchjs.Address.toLegacyAddress(thisAddress)
+        } catch (err) {
+          res.status(400)
+          return res.json({
+            success: false,
+            error: `Invalid BCH address. Double check your address is valid: ${thisAddress}`
+          })
+        }
+
+        // Prevent a common user error. Ensure they are using the correct network address.
+        const networkIsValid = _this.routeUtils.validateNetwork(thisAddress)
+        if (!networkIsValid) {
+          res.status(400)
+          return res.json({
+            success: false,
+            error: `Invalid network for address ${thisAddress}. Trying to use a testnet address on mainnet, or vice versa.`
+          })
         }
       }
 
