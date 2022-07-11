@@ -327,6 +327,7 @@ describe('#Electrumx', () => {
       assert.property(result, 'error')
       assert.include(result.error, 'Invalid BCH address')
     })
+
     it('should handle error', async () => {
       req.body.addresses = [
         'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7',
@@ -345,6 +346,7 @@ describe('#Electrumx', () => {
       assert.property(result, 'error')
       assert.include(result.error, 'Test error')
     })
+
     it('should get balance for an array of addresses', async () => {
       req.body.addresses = [
         'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7',
@@ -374,7 +376,37 @@ describe('#Electrumx', () => {
       assert.property(result.balances[0].balance, 'confirmed')
       assert.property(result.balances[0].balance, 'unconfirmed')
     })
+
+    it('should get balance for an array of ecash addresses', async () => {
+      req.body.addresses = [
+        'ecash:qr5c4hfy52zn87484cucvzle5pljz0gtr5vhtw9z09'
+      ]
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.axios, 'post')
+          .resolves({ data: mockData.balances })
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.balanceBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'balances')
+      assert.property(result.balances[0], 'balance')
+      assert.property(result.balances[0], 'address')
+
+      assert.property(result.balances[0].balance, 'confirmed')
+      assert.property(result.balances[0].balance, 'unconfirmed')
+    })
   })
+
   describe('#getUtxos', () => {
     it('should throw 400 if address is empty', async () => {
       const result = await electrumxRoute.getUtxos(req, res)
