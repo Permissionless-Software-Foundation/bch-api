@@ -332,6 +332,7 @@ class Electrum {
           })
         }
       }
+      console.log(`final cashAddr: ${cashAddr}`)
 
       wlogger.debug(
         'Executing electrumx/getUtxos with this address: ',
