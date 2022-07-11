@@ -96,18 +96,30 @@ class Electrum {
         })
       }
 
-      // Ensure the address is in cash address format.
-      const cashAddr = _this.bchjs.Address.toCashAddress(address)
-
-      // Prevent a common user error. Ensure they are using the correct network address.
-      const networkIsValid = _this.routeUtils.validateNetwork(cashAddr)
-      if (!networkIsValid) {
+      if (!address) {
         res.status(400)
         return res.json({
           success: false,
-          error:
-            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+          error: 'address is empty'
         })
+      }
+
+      let cashAddr = address
+
+      if (!address.includes('ecash')) {
+        // Ensure the address is in cash address format.
+        cashAddr = _this.bchjs.Address.toCashAddress(address)
+
+        // Prevent a common user error. Ensure they are using the correct network address.
+        const networkIsValid = _this.routeUtils.validateNetwork(cashAddr)
+        if (!networkIsValid) {
+          res.status(400)
+          return res.json({
+            success: false,
+            error:
+              'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+          })
+        }
       }
 
       wlogger.debug(

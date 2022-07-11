@@ -113,10 +113,10 @@ describe('#Electrumx', () => {
       const result = await electrumxRoute.getBalance(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(res.statusCode, 422, 'Expect 422 status code')
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
 
       assert.property(result, 'error')
-      assert.include(result.error, 'Unsupported address format')
+      assert.include(result.error, 'address is empty')
 
       assert.property(result, 'success')
       assert.equal(result.success, false)
@@ -207,7 +207,33 @@ describe('#Electrumx', () => {
       assert.property(result.balance, 'confirmed')
       assert.property(result.balance, 'unconfirmed')
     })
+
+    it('should get balance for a single eCash address', async () => {
+      req.params.address =
+        'ecash:qr5c4hfy52zn87484cucvzle5pljz0gtr5vhtw9z09'
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.axios, 'get')
+          .resolves({ data: mockData.balance })
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.getBalance(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'balance')
+      assert.property(result.balance, 'confirmed')
+      assert.property(result.balance, 'unconfirmed')
+    })
   })
+
   describe('#balanceBulk', () => {
     it('should throw 400 if addresses is empty', async () => {
       const result = await electrumxRoute.balanceBulk(req, res)
