@@ -308,18 +308,12 @@ class Electrum {
       }
 
       let cashAddr = address
-      console.log('cashAddr 01: ', cashAddr)
-
-      const hasEcash = cashAddr.includes('ecash')
-      console.log('hasEcash: ', hasEcash)
 
       // Convert an ecash to bitcoincash address.
       if (cashAddr.includes('ecash')) {
         cashAddr = _this.bchjs.Address.ecashtoCashAddress(cashAddr)
       } else {
-        console.log(`cashAddr before: ${cashAddr}`)
         cashAddr = _this.bchjs.Address.toCashAddress(cashAddr)
-        console.log(`cashAddr after: ${cashAddr}`)
 
         // Prevent a common user error. Ensure they are using the correct network address.
         const networkIsValid = _this.routeUtils.validateNetwork(cashAddr)
@@ -332,7 +326,6 @@ class Electrum {
           })
         }
       }
-      console.log(`final cashAddr: ${cashAddr}`)
 
       wlogger.debug(
         'Executing electrumx/getUtxos with this address: ',
