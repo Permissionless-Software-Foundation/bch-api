@@ -299,17 +299,32 @@ class Electrum {
         })
       }
 
-      const cashAddr = _this.bchjs.Address.toCashAddress(address)
-
-      // Prevent a common user error. Ensure they are using the correct network address.
-      const networkIsValid = _this.routeUtils.validateNetwork(cashAddr)
-      if (!networkIsValid) {
+      if (!address) {
         res.status(400)
         return res.json({
           success: false,
-          error:
-            'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+          error: 'address is empty'
         })
+      }
+
+      let cashAddr = address
+
+      // Convert an ecash to bitcoincash address.
+      if (cashAddr.includes('ecash')) {
+        cashAddr = this.bchjs.Address.ecashtoCashAddress(cashAddr)
+      } else {
+        cashAddr = _this.bchjs.Address.toCashAddress(address)
+
+        // Prevent a common user error. Ensure they are using the correct network address.
+        const networkIsValid = _this.routeUtils.validateNetwork(cashAddr)
+        if (!networkIsValid) {
+          res.status(400)
+          return res.json({
+            success: false,
+            error:
+              'Invalid network. Trying to use a testnet address on mainnet, or vice versa.'
+          })
+        }
       }
 
       wlogger.debug(
@@ -376,7 +391,12 @@ class Electrum {
 
       // Validate each element in the address array.
       for (let i = 0; i < addresses.length; i++) {
-        const thisAddress = addresses[i]
+        let thisAddress = addresses[i]
+
+        // Convert an ecash to bitcoincash address.
+        if (thisAddress.includes('ecash')) {
+          thisAddress = this.bchjs.Address.ecashtoCashAddress(thisAddress)
+        }
 
         // Ensure the input is a valid BCH address.
         try {

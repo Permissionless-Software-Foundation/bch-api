@@ -412,10 +412,10 @@ describe('#Electrumx', () => {
       const result = await electrumxRoute.getUtxos(req, res)
       // console.log(`result: ${util.inspect(result)}`)
 
-      assert.equal(res.statusCode, 422, 'Expect 422 status code')
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
 
       assert.property(result, 'error')
-      assert.include(result.error, 'Unsupported address format')
+      assert.include(result.error, 'address is empty')
 
       assert.property(result, 'success')
       assert.equal(result.success, false)
@@ -485,6 +485,35 @@ describe('#Electrumx', () => {
     it('should get utxos for a single address', async () => {
       req.params.address =
         'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7'
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.axios, 'get')
+          .resolves({ data: { success: true, utxos: mockData.utxos } })
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.getUtxos(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'utxos')
+      assert.isArray(result.utxos)
+
+      assert.property(result.utxos[0], 'height')
+      assert.property(result.utxos[0], 'tx_hash')
+      assert.property(result.utxos[0], 'tx_pos')
+      assert.property(result.utxos[0], 'value')
+    })
+
+    it('should get utxos for an ecash address', async () => {
+      req.params.address =
+        'ecash:qr5c4hfy52zn87484cucvzle5pljz0gtr5vhtw9z09'
 
       // Mock unit tests to prevent live network calls.
       if (process.env.TEST === 'unit') {
@@ -605,6 +634,7 @@ describe('#Electrumx', () => {
       assert.property(result, 'error')
       assert.include(result.error, 'Invalid BCH address')
     })
+
     it('should handle error', async () => {
       req.body.addresses = [
         'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7',
@@ -623,10 +653,46 @@ describe('#Electrumx', () => {
       assert.property(result, 'error')
       assert.include(result.error, 'Test error')
     })
+
     it('should get utxos for an array of addresses', async () => {
       req.body.addresses = [
         'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7',
         'bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf'
+      ]
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.axios, 'post')
+          .resolves({ data: mockData.utxosArray })
+      }
+
+      // Call the details API.
+      const result = await electrumxRoute.utxosBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'utxos')
+      assert.property(result.utxos[0], 'utxos')
+      assert.property(result.utxos[0], 'address')
+
+      assert.isArray(result.utxos[0].utxos)
+      assert.isString(result.utxos[0].address)
+
+      const firtsAddrUtxos = result.utxos[0].utxos[0]
+      assert.property(firtsAddrUtxos, 'height')
+      assert.property(firtsAddrUtxos, 'tx_hash')
+      assert.property(firtsAddrUtxos, 'tx_pos')
+      assert.property(firtsAddrUtxos, 'value')
+    })
+
+    it('should get utxos for an ecash address', async () => {
+      req.body.addresses = [
+        'ecash:qr5c4hfy52zn87484cucvzle5pljz0gtr5vhtw9z09'
       ]
 
       // Mock unit tests to prevent live network calls.
