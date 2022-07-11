@@ -308,6 +308,7 @@ class Electrum {
       }
 
       let cashAddr = address
+      console.log('cashAddr 01: ', cashAddr)
 
       // Convert an ecash to bitcoincash address.
       if (cashAddr.includes('ecash')) {
