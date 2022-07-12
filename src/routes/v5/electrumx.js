@@ -193,6 +193,7 @@ class Electrum {
         // Convert an ecash to bitcoincash address.
         if (thisAddress.includes('ecash')) {
           thisAddress = _this.bchjs.Address.ecashtoCashAddress(thisAddress)
+          addresses[i] = thisAddress
         }
 
         // Ensure the input is a valid BCH address.
@@ -396,6 +397,7 @@ class Electrum {
         // Convert an ecash to bitcoincash address.
         if (thisAddress.includes('ecash')) {
           thisAddress = this.bchjs.Address.ecashtoCashAddress(thisAddress)
+          addresses[i] = thisAddress
         }
 
         // Ensure the input is a valid BCH address.
