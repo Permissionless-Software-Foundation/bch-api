@@ -188,6 +188,9 @@ class PsfSlpIndexer {
    * @apiGroup PSF SLP
    * @apiDescription Return list stats for a single slp token.
    *
+   * Inputs to POST body:
+   *   - tokenId - (required) string containing the ID of the token to lookup.
+   *   - withTxHistory - (optional) boolean if TX history should be included. Default is false.
    *
    * @apiExample Example usage:
    * curl -H "Content-Type: application/json" -X POST -d '{ "tokenId": "a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2" }' localhost:3000/v5/psf/slp/token
@@ -234,6 +237,10 @@ class PsfSlpIndexer {
    * @apiExample Example usage:
    * curl -H "Content-Type: application/json" -X POST -d '{ "tokenId": "f055256b938f1ecfa270459d6f12c7c8c82b66d3263c03d5074445a2b1a498a3" }' localhost:3000/v5/psf/slp/token/data
    *
+   * Inputs to POST body:
+   *   - tokenId - (required) string containing the ID of the token to lookup.
+   *   - withTxHistory - (optional) boolean if TX history should be included. Default is false.
+   *
    *
    */
   // Get mutable and immutable data for a token, if the token was created with
@@ -256,8 +263,11 @@ class PsfSlpIndexer {
         })
       }
 
+      // Flag to toggle tx history of the token.
+      let withTxHistory = false
+      if (req.body.withTxHistory) withTxHistory = true
+
       // get token stats from the Genesis TX of the token.
-      const withTxHistory = false
       const response = await _this.axios.post(
         `${_this.psfSlpIndexerApi}slp/token/`,
         { tokenId, withTxHistory }

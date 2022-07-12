@@ -822,6 +822,49 @@ describe('#PsfSlpIndexer', () => {
       assert.property(genesisData, 'totalMinted')
       assert.property(genesisData, 'txs')
     })
+
+    if (process.env.ISBCHN) {
+      it('should GET token data with transaction history', async function () {
+        req.body.tokenId =
+          '43eddfb11c9941edffb8c8815574bb0a43969a7b1de39ad14cd043eaa24fd38d'
+        req.body.withTxHistory = true
+
+        // Mock the RPC call for unit tests.
+        if (process.env.TEST === 'unit') {
+          sandbox.stub(uut.axios, 'post').resolves({ data: mockData.tokenStats02 })
+          sandbox.stub(uut, 'getCIDData').resolves(mockData.immutableData)
+          sandbox.stub(uut, 'getMutableData').resolves(mockData.mutableData)
+        }
+        // } else {
+        //   return this.skip()
+        // }
+
+        const result = await uut.getTokenData(req, res)
+        console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+        assert.property(result, 'genesisData')
+        assert.property(result, 'immutableData')
+        assert.property(result, 'mutableData')
+
+        assert.isObject(result.genesisData)
+
+        const genesisData = result.genesisData
+        assert.property(genesisData, 'ticker')
+        assert.property(genesisData, 'name')
+        assert.property(genesisData, 'type')
+        assert.property(genesisData, 'tokenId')
+        assert.property(genesisData, 'documentUri')
+        assert.property(genesisData, 'documentHash')
+        assert.property(genesisData, 'decimals')
+        assert.property(genesisData, 'mintBatonIsActive')
+        assert.property(genesisData, 'tokensInCirculationBN')
+        assert.property(genesisData, 'tokensInCirculationStr')
+        assert.property(genesisData, 'blockCreated')
+        assert.property(genesisData, 'totalBurned')
+        assert.property(genesisData, 'totalMinted')
+        assert.property(genesisData, 'txs')
+      })
+    }
   })
 
   describe('#getMutableData', () => {

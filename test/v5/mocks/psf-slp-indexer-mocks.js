@@ -214,8 +214,34 @@ const decodedOpReturn = JSON.stringify({
   mda: 'bitcoincash:qrg77j4jf2pl7azgvzrz2z567ls464gkuuhplt30dp',
   cid: 'bafybeie6t5uyupddc7azms737xg4hxrj7i5t5ov3lb5g2qeehaujj6ak64'
 })
+
+const tokenStats02 = {
+  type: 1,
+  ticker: 'Payload 1',
+  name: 'Payload 1',
+  tokenId: '43eddfb11c9941edffb8c8815574bb0a43969a7b1de39ad14cd043eaa24fd38d',
+  documentUri: 'ipfs://bafybeicp4n4jxm6z6yuftlqvkrgxj3elzctnjn2ufmwz7ivijfowleg6j4',
+  documentHash: '99b9f3833309f08fa262aa7ce796aed5e610a4c0c0329794ea1a86cc6a343624',
+  decimals: 0,
+  mintBatonIsActive: false,
+  tokensInCirculationBN: '1',
+  tokensInCirculationStr: '1',
+  blockCreated: 748445,
+  totalBurned: '0',
+  totalMinted: '1',
+  txs: [
+    {
+      txid: '43eddfb11c9941edffb8c8815574bb0a43969a7b1de39ad14cd043eaa24fd38d',
+      height: 748445,
+      type: 'GENESIS',
+      qty: '1'
+    }
+  ]
+}
+
 module.exports = {
   tokenStats,
+  tokenStats02,
   txDataByMDA,
   txData,
   balance,
