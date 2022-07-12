@@ -394,7 +394,7 @@ describe('#Electrumx', () => {
 
         // Call the details API.
         const result = await electrumxRoute.balanceBulk(req, res)
-        // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+        console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
         assert.property(result, 'success')
         assert.equal(result.success, true)
