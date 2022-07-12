@@ -46,7 +46,7 @@ export PRO_PASS=somerandomepassword:someotherrandompassword:aThirdPassword
 export WHITELIST_DOMAINS=fullstack.cash,psfoundation.cash,torlist.cash
 
 # Uncomment the line below if you do not want to use rate limits
-#export export DO_NOT_USE_RATE_LIMITS=1
+#export DO_NOT_USE_RATE_LIMITS=1
 # Rate Limits. Numbers are divided into 1000. e.g. 10000 / 500 = 20 RPM for ANON.
 # Requests use the ANON rate limit if they fail to pass in a JWT token.
 # ANON = 20 requests per minute (RPM)
