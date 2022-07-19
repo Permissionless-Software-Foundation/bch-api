@@ -235,7 +235,14 @@ const mockCoinexFeed = {
   message: 'OK'
 }
 
+const mockCurrencyInfo = {
+  ticker: 'BCHA',
+  satoshisperunit: 100000000,
+  decimals: 8
+}
+
 module.exports = {
   mockCoinbaseFeed,
+  mockCurrencyInfo,
   mockCoinexFeed
 }
