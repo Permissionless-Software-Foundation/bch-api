@@ -26,6 +26,7 @@ class PsfSlpIndexer {
     this.routeUtils = routeUtils
     this.config = config
     this.bchjs = bchjs
+
     // Define routes
     this.router.get('/', this.root)
     this.router.get('/status', this.getStatus)
@@ -33,6 +34,7 @@ class PsfSlpIndexer {
     this.router.post('/txid', this.getTxid)
     this.router.post('/token', this.getTokenStats)
     this.router.post('/token/data', this.getTokenData)
+    this.router.post('/token/data2', this.getTokenData2)
 
     _this = this
   }
@@ -303,6 +305,54 @@ class PsfSlpIndexer {
     }
   }
 
+  /**
+   * @api {post} /psf/slp/token/data2  Get expanded token data
+   * @apiName Get expanded token data
+   * @apiGroup PSF SLP
+   * @apiDescription Get expanded data for the token, including icons.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -H "Content-Type: application/json" -X POST -d '{ "tokenId": "f055256b938f1ecfa270459d6f12c7c8c82b66d3263c03d5074445a2b1a498a3" }' localhost:3000/v5/psf/slp/token/data2
+   *
+   * Inputs to POST body:
+   *   - tokenId - (required) string containing the ID of the token to lookup.
+   *   - withTxHistory - (optional) boolean if TX history should be included. Default is false.
+   *
+   *
+   */
+  // Get mutable and immutable data for a token, if the token was created with
+  // such data.
+  //
+  // Example:
+  // curl -H "Content-Type: application/json" -X POST -d '{ "tokenId": "f055256b938f1ecfa270459d6f12c7c8c82b66d3263c03d5074445a2b1a498a3" }' localhost:3000/v5/psf/slp/token/data
+  async getTokenData2 (req, res, next) {
+    try {
+      // Verify env var is set for interacting with the indexer.
+      _this.checkEnvVar()
+      // const tokenData = {}
+
+      // Input validation
+      const tokenId = req.body.tokenId
+      if (!tokenId || tokenId === '') {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'tokenId can not be empty'
+        })
+      }
+
+      const initialData = await this.getTokenData(req, res)
+      console.log('initialData ', initialData)
+
+      res.status(200)
+      return res.json(initialData)
+    } catch (err) {
+      console.log('Error in getTokenData(): ', err)
+      return _this.errorHandler(err, res)
+    }
+  }
+
   // Retrieves the mutable data associated with a token document hash.
   async getMutableData (documentHash) {
     try {
@@ -315,7 +365,7 @@ class PsfSlpIndexer {
       // Get the OP_RETURN data and decode it.
       const mutableData = await _this.decodeOpReturn(documentHash)
       const jsonData = JSON.parse(mutableData)
-      // console.log(`jsonData: ${JSON.stringify(jsonData, null, 2)}`)
+      console.log(`jsonData: ${JSON.stringify(jsonData, null, 2)}`)
 
       const mutableDataAddr = jsonData.mda
 

@@ -16,7 +16,6 @@
     "dev": "nodemon ./dist/app.js",
     "test": "npm run lint && npm run test-v5",
     "lint": "standard --env mocha --fix",
-    "test-v4": "export NETWORK=mainnet && nyc --reporter=text mocha --exit --timeout 60000 test/v4/",
     "test-v5": "export NETWORK=mainnet && nyc --reporter=text mocha --exit --timeout 60000 test/v5/",
     "test:integration": "mocha test/v5/integration",
     "test:integration:slpdb": "mocha --timeout 25000 -g '#validate2Single' test/v5/integration/slp*.js",

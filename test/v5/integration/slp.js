@@ -1,7 +1,7 @@
 /*
   These integration tests need to be run against a live SLPDB. They query
   against a live SLPDB and test the results against known token stats.
- */
+*/
 
 'use strict'
 
@@ -19,7 +19,7 @@ if (!process.env.SLPDB_URL) {
   )
 }
 
-const SLP = require('../../../src/routes/v4/slp')
+const SLP = require('../../../src/routes/v5/slp')
 const slp = new SLP()
 
 const BCHJS = require('@psf/bch-js')

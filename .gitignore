@@ -33,6 +33,7 @@ start-decatur-bchn.sh
 shell-scripts/
 start-bitfinex-main.sh
 test-bitfinex-main.sh
+test-decatur-bchn.sh
 
 coverage
 start-my-infra
