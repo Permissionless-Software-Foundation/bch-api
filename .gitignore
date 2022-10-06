@@ -31,6 +31,8 @@ start-fullstack-bchn.sh
 start-ss-main.sh
 start-decatur-bchn.sh
 shell-scripts/
+start-bitfinex-main.sh
+test-bitfinex-main.sh
 
 coverage
 start-my-infra
