@@ -8,6 +8,8 @@ const router = express.Router()
 const axios = require('axios')
 const util = require('util')
 const BCHJS = require('@psf/bch-js')
+const SlpWallet = require('minimal-slp-wallet')
+const SlpTokenMedia = require('slp-token-media')
 
 // Local libraries
 const RouteUtils = require('../../util/route-utils')
@@ -36,7 +38,29 @@ class PsfSlpIndexer {
     this.router.post('/token/data', this.getTokenData)
     this.router.post('/token/data2', this.getTokenData2)
 
+    // Encapsulate dependencies
+    this.wallet = new SlpWallet(undefined, {
+      restURL: config.restURL,
+      interface: 'rest-api'
+    })
+    this.slpTokenMedia = null // placeholder
+
+    this.initialize()
+
     _this = this
+  }
+
+  // This is an async function that is kicked off by the constructor at startup.
+  // it is a way to initialize the libraries that have an async component, and
+  // so can not be loaded in the constructor.
+  async initialize () {
+    // Wait for the wallet to initialize.
+    await this.wallet.walletInfoPromise
+
+    this.slpTokenMedia = new SlpTokenMedia({
+      wallet: this.wallet,
+      ipfsGatewayUrl: this.config.ipfsGateway
+    })
   }
 
   // Root API endpoint. Simply acknowledges that it exists.
@@ -342,11 +366,11 @@ class PsfSlpIndexer {
         })
       }
 
-      const initialData = await this.getTokenData(req, res)
-      console.log('initialData ', initialData)
+      const tokenData = await this.slpTokenMedia.getIcon({ tokenId })
+      // console.log('tokenData: ', tokenData)
 
       res.status(200)
-      return res.json(initialData)
+      return res.json(tokenData)
     } catch (err) {
       console.log('Error in getTokenData(): ', err)
       return _this.errorHandler(err, res)
