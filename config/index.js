@@ -26,7 +26,9 @@ const config = {
     ? process.env.WHITELIST_DOMAINS.split(',')
     : ['fullstack.cash', 'psfoundation.cash', '10.0.'],
 
-  restURL: process.env.LOCAL_RESTURL ? process.env.LOCAL_RESTURL : 'http://127.0.0.1:3000/v5/'
+  restURL: process.env.LOCAL_RESTURL ? process.env.LOCAL_RESTURL : 'http://127.0.0.1:3000/v5/',
+
+  ipfsGateway: process.env.IPFS_GATEWAY ? process.env.IPFS_GATEWAY : 'p2wdb-gateway-678.fullstack.cash'
 }
 
 module.exports = config

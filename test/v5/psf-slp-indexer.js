@@ -971,4 +971,23 @@ describe('#PsfSlpIndexer', () => {
       assert.isString(result)
     })
   })
+
+  describe('#getTokenData2', () => {
+    it('should get expanded token data', async () => {
+      // Mock dependencies and force desired code path.
+      sandbox.stub(uut.slpTokenMedia, 'getIcon').resolves(mockData.tokenIconData01)
+
+      req.body.tokenId = '0e4543f820699294ab57e02ee2b1815a8bbc7b17a4333e4a138034e4b2324a61'
+
+      const result = await uut.getTokenData2(req, res)
+      // console.log('result: ', result)
+
+      assert.property(result, 'tokenStats')
+      assert.property(result, 'mutableData')
+      assert.property(result, 'immutableData')
+      assert.property(result, 'tokenIcon')
+      assert.property(result, 'iconRepoCompatible')
+      assert.property(result, 'ps002Compatible')
+    })
+  })
 })
