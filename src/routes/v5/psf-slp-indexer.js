@@ -366,7 +366,7 @@ class PsfSlpIndexer {
         })
       }
 
-      const tokenData = await this.slpTokenMedia.getIcon({ tokenId })
+      const tokenData = await _this.slpTokenMedia.getIcon({ tokenId })
       // console.log('tokenData: ', tokenData)
 
       res.status(200)
