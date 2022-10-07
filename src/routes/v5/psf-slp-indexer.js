@@ -334,6 +334,18 @@ class PsfSlpIndexer {
    * @apiName Get expanded token data
    * @apiGroup PSF SLP
    * @apiDescription Get expanded data for the token, including icons.
+   * Get the icon for a token, given it's token ID.
+   * This function expects an object input with a tokenId property.
+   * This function returns an object with a tokenIcon property that contains
+   * the URL to the icon.
+   *
+   * The output object always have these properties:
+   * - tokenIcon: A url to the token icon, if it exists.
+   * - tokenStats: Data about the token from psf-slp-indexer.
+   * - optimizedTokenIcon: An alternative, potentially more optimal, url to the token icon, if it exists.
+   * - iconRepoCompatible: true if the token icon is available via token.bch.sx
+   * - ps002Compatible: true if the token icon is compatible with PS007 specification.
+   *
    *
    *
    * @apiExample Example usage:
