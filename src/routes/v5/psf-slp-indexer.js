@@ -334,8 +334,9 @@ class PsfSlpIndexer {
    * @apiName Get expanded token data
    * @apiGroup PSF SLP
    * @apiDescription Get expanded data for the token, including icons.
+   *
    * Get the icon for a token, given it's token ID.
-   * This function expects an object input with a tokenId property.
+   * This function expects a string input of a token ID.
    * This function returns an object with a tokenIcon property that contains
    * the URL to the icon.
    *
