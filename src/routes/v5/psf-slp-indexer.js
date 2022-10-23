@@ -9,6 +9,7 @@ const axios = require('axios')
 const util = require('util')
 const BCHJS = require('@psf/bch-js')
 const SlpWallet = require('minimal-slp-wallet')
+const XecWallet = require('minimal-ecash-wallet')
 const SlpTokenMedia = require('slp-token-media')
 
 // Local libraries
@@ -39,11 +40,18 @@ class PsfSlpIndexer {
     this.router.post('/token/data2', this.getTokenData2)
 
     // Encapsulate dependencies
-    this.wallet = new SlpWallet(undefined, {
-      restURL: config.restURL,
-      interface: 'rest-api'
-    })
     this.slpTokenMedia = null // placeholder
+    if (config.chain === 'xec') {
+      this.wallet = new XecWallet(undefined, {
+        restURL: config.restURL,
+        interface: 'rest-api'
+      })
+    } else {
+      this.wallet = new SlpWallet(undefined, {
+        restURL: config.restURL,
+        interface: 'rest-api'
+      })
+    }
 
     this.initialize()
 

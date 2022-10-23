@@ -28,7 +28,9 @@ const config = {
 
   restURL: process.env.LOCAL_RESTURL ? process.env.LOCAL_RESTURL : 'http://127.0.0.1:3000/v5/',
 
-  ipfsGateway: process.env.IPFS_GATEWAY ? process.env.IPFS_GATEWAY : 'p2wdb-gateway-678.fullstack.cash'
+  ipfsGateway: process.env.IPFS_GATEWAY ? process.env.IPFS_GATEWAY : 'p2wdb-gateway-678.fullstack.cash',
+
+  chain: process.env.CHAIN ? process.env.CHAIN : 'bch'
 }
 
 module.exports = config
