@@ -387,7 +387,9 @@ class PsfSlpIndexer {
         })
       }
 
-      const tokenData = await _this.slpTokenMedia.getIcon({ tokenId })
+      const updateCache = req.body.updateCache
+
+      const tokenData = await _this.slpTokenMedia.getIcon({ tokenId, updateCache })
       // console.log('tokenData: ', tokenData)
 
       res.status(200)
