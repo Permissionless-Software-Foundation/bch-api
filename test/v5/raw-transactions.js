@@ -442,9 +442,11 @@ describe('#Raw-Transactions', () => {
         '0200000001b9b598d7d6d72fc486b2b3a3c03c79b5bade6ec9a77ced850515ab5e64edcc21010000006b483045022100a7b1b08956abb8d6f322aa709d8583c8ea492ba0585f1a6f4f9983520af74a5a0220411aee4a9a54effab617b0508c504c31681b15f9b187179b4874257badd4139041210360cfc66fdacb650bc4c83b4e351805181ee696b7d5ab4667c57b2786f51c413dffffffff0210270000000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac786e9800000000001976a914eb4b180def88e3f5625b2d8ae2c098ff7d85f66488ac00000000'
 
       const result = await uut.decodeScriptSingle(req, res)
-      // console.log(`result: ${util.inspect(result)}`)
+      console.log(`result: ${util.inspect(result)}`)
 
-      assert.hasAllKeys(result, ['asm', 'type', 'p2sh'])
+      assert.property(result, 'asm')
+      assert.property(result, 'type')
+      assert.property(result, 'p2sh')
     })
   })
 
@@ -563,7 +565,9 @@ describe('#Raw-Transactions', () => {
       // console.log(`result: ${util.inspect(result)}`)
 
       assert.isArray(result)
-      assert.hasAllKeys(result[0], ['asm', 'type', 'p2sh'])
+      assert.property(result[0], 'asm')
+      assert.property(result[0], 'type')
+      assert.property(result[0], 'p2sh')
     })
 
     it('should decode an array with a multiple hexes', async () => {
@@ -584,7 +588,9 @@ describe('#Raw-Transactions', () => {
 
       assert.isArray(result)
       assert.equal(result.length, 2)
-      assert.hasAllKeys(result[0], ['asm', 'type', 'p2sh'])
+      assert.property(result[0], 'asm')
+      assert.property(result[0], 'type')
+      assert.property(result[0], 'p2sh')
     })
   })
 

@@ -1360,6 +1360,7 @@ describe('#Electrumx', () => {
       assert.property(result.transactions[0], 'tx_hash')
     })
   })
+
   describe('#transactionsBulk', () => {
     it('should throw 400 if addresses is empty', async () => {
       const result = await electrumxRoute.transactionsBulk(req, res)
@@ -1453,6 +1454,7 @@ describe('#Electrumx', () => {
       assert.property(result, 'error')
       assert.include(result.error, 'Invalid BCH address')
     })
+
     it('should handle error', async () => {
       req.body.addresses = [
         'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7',
@@ -1471,6 +1473,7 @@ describe('#Electrumx', () => {
       assert.property(result, 'error')
       assert.include(result.error, 'Test error')
     })
+
     it('should get transaction for an array of addresses', async () => {
       req.body.addresses = [
         'bitcoincash:qp3sn6vlwz28ntmf3wmyra7jqttfx7z6zgtkygjhc7',
@@ -1503,6 +1506,7 @@ describe('#Electrumx', () => {
       assert.property(result.transactions[0].transactions[0], 'tx_hash')
     })
   })
+
   describe('#getMempool', () => {
     it('should throw 400 if address is empty', async () => {
       const result = await electrumxRoute.getMempool(req, res)

@@ -5,6 +5,7 @@
 
 'use strict'
 
+// Global npm libraries
 const chai = require('chai')
 const assert = chai.assert
 // const axios = require('axios')
@@ -47,6 +48,7 @@ describe('#nft', () => {
         'Error message expected'
       )
     })
+
     it('should return error on non-group NFT token', async () => {
       req.params.tokenId =
         '45a30085691d6ea586e3ec2aa9122e9b0e0d6c3c1fd357decccc15d8efde48a9'

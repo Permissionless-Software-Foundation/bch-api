@@ -63,7 +63,7 @@ class Electrum {
     this.router.post('/tx/broadcast', this.broadcastTransaction)
     this.router.get('/block/headers/:height', this.getBlockHeaders)
     this.router.post('/block/headers', this.blockHeadersBulk)
-    this.router.get('/transactions/:address', this.getTransactions)
+    this.router.get('/transactions/:address/:allTxs', this.getTransactions)
     this.router.post('/transactions', this.transactionsBulk)
     this.router.get('/unconfirmed/:address', this.getMempool)
     this.router.post('/unconfirmed', this.mempoolBulk)
@@ -793,44 +793,14 @@ class Electrum {
     }
   }
 
-  // Returns a promise that resolves an array of transaction history for an
-  // address. Expects input to be a cash address, and input validation to have
-  // already been done by parent, calling function.
-  // async _transactionsFromElectrumx (address) {
-  //   try {
-  //     // Convert the address to a scripthash.
-  //     const scripthash = _this.addressToScripthash(address)
-  //
-  //     if (!_this.isReady) {
-  //       throw new Error(
-  //         'ElectrumX server connection is not ready. Call await connectToServer() first.'
-  //       )
-  //     }
-  //
-  //     // Query the address transaction history from the ElectrumX server.
-  //     const electrumResponse = await _this.electrumx.request(
-  //       'blockchain.scripthash.get_history',
-  //       scripthash
-  //     )
-  //     // console.log(
-  //     //   `electrumResponse: ${JSON.stringify(electrumResponse, null, 2)}`
-  //     // )
-  //
-  //     return electrumResponse
-  //   } catch (err) {
-  //     // console.log('err1: ', err)
-  //
-  //     // Write out error to error log.
-  //     wlogger.error('Error in elecrumx.js/_transactionsFromElectrumx(): ', err)
-  //     throw err
-  //   }
-  // }
-
   /**
    * @api {get} /electrumx/transactions/{addr} Get transaction history for a single address.
    * @apiName Transaction history for a single address
    * @apiGroup ElectrumX / Fulcrum
    * @apiDescription Returns an array of historical transactions associated with an address.
+   * Results are returned in descending order (most recent TX first).
+   * Passing allTxs=true will return the entire transaction history, otherwise,
+   * only the last 100 TXIDs will be returned.
    *
    *
    * @apiExample Example usage:
@@ -841,6 +811,9 @@ class Electrum {
   async getTransactions (req, res, next) {
     try {
       const address = req.params.address
+
+      let allTxs = false
+      if (req.params.allTxs) allTxs = req.body.allTxs
 
       // Reject if address is an array.
       if (Array.isArray(address)) {
@@ -876,6 +849,16 @@ class Electrum {
       )
       // console.log('response', response, _this.fulcrumApi)
 
+      // Sort transactions in descending order, so that newest transactions are
+      // first.
+      response.data.transactions = await this.bchjs.Electrumx.sortAllTxs(response.data.transactions, 'DESCENDING')
+
+      if (!allTxs) {
+        // Return only the first 100 transactions of the history. This reduces
+        // the amount of data transmitted over the internet.
+        response.data.transactions = response.data.transactions.slice(0, 100)
+      }
+
       res.status(200)
       return res.json(response.data)
     } catch (err) {
@@ -892,6 +875,8 @@ class Electrum {
    * @apiGroup ElectrumX / Fulcrum
    * @apiDescription Returns an array of transactions associated with an array of address.
    * Limited to 20 items per request.
+   * Passing allTxs=true will return the entire transaction history, otherwise,
+   * only the last 100 TXIDs will be returned.
    *
    * @apiExample Example usage:
    * curl -X POST "https://api.fullstack.cash/v5/electrumx/transactions" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
@@ -902,6 +887,7 @@ class Electrum {
   async transactionsBulk (req, res, next) {
     try {
       const addresses = req.body.addresses
+      const allTxs = req.body.allTxs
 
       // Reject if addresses is not an array.
       if (!Array.isArray(addresses)) {
@@ -957,8 +943,34 @@ class Electrum {
         { addresses }
       )
 
-      res.status(200)
-      return res.json(response.data)
+      // Sort transactions in descending order, so that newest transactions are
+      // first.
+      for (let i = 0; i < response.data.transactions.length; i++) {
+        const thisEntry = response.data.transactions[i]
+        thisEntry.transactions = await this.bchjs.Electrumx.sortAllTxs(thisEntry.transactions, 'DESCENDING')
+      }
+
+      if (allTxs) {
+        // Return all transactions if allTxs flag is set to true.
+        res.status(200)
+        return res.json(response.data)
+      } else {
+        // Return only the first 100 transactions of the history. This reduces
+        // the amount of data transmitted over the internet.
+
+        for (let i = 0; i < response.data.transactions.length; i++) {
+          const thisEntry = response.data.transactions[i]
+
+          if (thisEntry.transactions.length < 100) continue
+
+          // Extract only the first 100 transactions.
+          thisEntry.transactions = thisEntry.transactions.slice(0, 100)
+        }
+
+        // Reduce txs to 100
+        res.status(200)
+        return res.json(response.data)
+      }
     } catch (err) {
       wlogger.error('Error in electrumx.js/transactionsBulk().', err)
 
