@@ -40,18 +40,11 @@ class Electrum {
       )
     }
 
-    // _this.electrumx = new ElectrumCash(
-    //   'bch-api',
-    //   '1.4.1',
-    //   process.env.FULCRUM_URL,
-    //   process.env.FULCRUM_PORT
-    //   // '192.168.0.6',
-    //   // '50002'
-    // )
+    // Bind the 'this' object to all subfunctions
+    this.getTransactions = this.getTransactions.bind(this)
+    this.transactionsBulk = this.transactionsBulk.bind(this)
 
-    // _this.isReady = false
-    // _this.connectToServers()
-
+    // Attach the express.js router to a corresponding subfunction.
     this.router = router
     this.router.get('/', this.root)
     this.router.get('/balance/:address', this.getBalance)
@@ -63,6 +56,7 @@ class Electrum {
     this.router.post('/tx/broadcast', this.broadcastTransaction)
     this.router.get('/block/headers/:height', this.getBlockHeaders)
     this.router.post('/block/headers', this.blockHeadersBulk)
+    this.router.get('/transactions/:address', this.getTransactions) // Preserve backward compatibility
     this.router.get('/transactions/:address/:allTxs', this.getTransactions)
     this.router.post('/transactions', this.transactionsBulk)
     this.router.get('/unconfirmed/:address', this.getMempool)
@@ -804,7 +798,7 @@ class Electrum {
    *
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v5/electrumx/transactions/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v5/electrumx/transactions/bitcoincash:qr69kyzha07dcecrsvjwsj4s6slnlq4r8c30lxnur3/false" -H "accept: application/json"
    *
    */
   // GET handler for single balance
