@@ -69,4 +69,42 @@ describe('#electrumx', () => {
       assert.isAbove(firstElem.height, lastElem[0].height)
     })
   })
+
+  describe('#getTransactions', () => {
+    it('should return only last 100 tx in history', async () => {
+      const testAddr = 'bitcoincash:qqlrzp23w08434twmvr4fxw672whkjy0py26r63g3d'
+      req.params.address = testAddr
+      req.params.allTxs = false
+
+      const result = await uut.getTransactions(req, res)
+      // console.log('result: ', JSON.stringify(result, null, 2))
+
+      // Assert that the number of transaction are only 100, and not the
+      // complete transaction history.
+      assert.equal(result.transactions.length, 100)
+
+      // Assert that the first element is larger than the last element
+      const firstElem = result.transactions[0]
+      const lastElem = result.transactions.slice(-1)
+      assert.isAbove(firstElem.height, lastElem[0].height)
+    })
+
+    it('should return the entire tx history', async () => {
+      const testAddr = 'bitcoincash:qqlrzp23w08434twmvr4fxw672whkjy0py26r63g3d'
+      req.params.address = testAddr
+      req.params.allTxs = true
+
+      const result = await uut.getTransactions(req, res)
+      // console.log('result: ', JSON.stringify(result, null, 2))
+
+      // Assert that the number of transaction are only 100, and not the
+      // complete transaction history.
+      assert.isAbove(result.transactions.length, 100)
+
+      // Assert that the first element is larger than the last element
+      const firstElem = result.transactions[0]
+      const lastElem = result.transactions.slice(-1)
+      assert.isAbove(firstElem.height, lastElem[0].height)
+    })
+  })
 })
