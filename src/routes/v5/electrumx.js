@@ -892,6 +892,8 @@ class Electrum {
    * @apiGroup ElectrumX / Fulcrum
    * @apiDescription Returns an array of transactions associated with an array of address.
    * Limited to 20 items per request.
+   * Passing allTxs=true will return the entire transaction history, otherwise,
+   * only the last 100 TXIDs will be returned.
    *
    * @apiExample Example usage:
    * curl -X POST "https://api.fullstack.cash/v5/electrumx/transactions" -H "accept: application/json" -H "Content-Type: application/json" -d '{"addresses":["bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf","bitcoincash:qrdka2205f4hyukutc2g0s6lykperc8nsu5u2ddpqf"]}'
@@ -902,6 +904,7 @@ class Electrum {
   async transactionsBulk (req, res, next) {
     try {
       const addresses = req.body.addresses
+      const allTxs = req.body.allTxs
 
       // Reject if addresses is not an array.
       if (!Array.isArray(addresses)) {
@@ -957,8 +960,34 @@ class Electrum {
         { addresses }
       )
 
-      res.status(200)
-      return res.json(response.data)
+      // Sort transactions in descending order, so that newest transactions are
+      // first.
+      for (let i = 0; i < response.data.transactions.length; i++) {
+        const thisEntry = response.data.transactions[i]
+        thisEntry.transactions = await this.bchjs.Electrumx.sortAllTxs(thisEntry.transactions, 'DESCENDING')
+      }
+
+      if (allTxs) {
+        // Return all transactions if allTxs flag is set to true.
+        res.status(200)
+        return res.json(response.data)
+      } else {
+        // Return only the first 100 transactions of the history. This reduces
+        // the amount of data transmitted over the internet.
+
+        for (let i = 0; i < response.data.transactions.length; i++) {
+          const thisEntry = response.data.transactions[i]
+
+          if (thisEntry.transactions.length < 100) continue
+
+          // Extract only the first 100 transactions.
+          thisEntry.transactions = thisEntry.transactions.slice(0, 100)
+        }
+
+        // Reduce txs to 100
+        res.status(200)
+        return res.json(response.data)
+      }
     } catch (err) {
       wlogger.error('Error in electrumx.js/transactionsBulk().', err)
 

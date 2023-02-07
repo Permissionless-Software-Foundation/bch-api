@@ -63,12 +63,15 @@ class RouteUtils {
   // trest.bitcoin.com.
   validateNetwork (addr) {
     try {
-      const network = process.env.NETWORK
+      let network = process.env.NETWORK
 
       // Return false if NETWORK is not defined.
       if (!network || network === '') {
-        console.log('Warning: NETWORK environment variable is not defined!')
-        return false
+        // console.log('Warning: NETWORK environment variable is not defined!')
+        // return false
+
+        // Default to mainnet
+        network = 'mainnet'
       }
 
       // Convert the user-provided address to a cashaddress, for easy detection
