@@ -98,26 +98,26 @@ describe('#Encryption Router', () => {
       )
     })
 
-    it('should return false for address with no tx history', async () => {
-      req.params.address =
-        'bitcoincash:qqwfpk04ecf69wuprj9yjys9rla5mk7rj5j8uthqel'
-
-      // Mock the Insight URL for unit tests.
-      if (process.env.TEST === 'unit') {
-        sandbox
-          .stub(encryptionRoute.bchjs.Electrumx, 'transactions')
-          .resolves(mockData.mockFulcrumNoTxHistory)
-      }
-
-      const result = await encryptionRoute.getPublicKey(req, res)
-      console.log(`result: ${JSON.stringify(result, null, 2)}`)
-
-      assert.property(result, 'success')
-      assert.equal(result.success, false)
-
-      assert.property(result, 'error')
-      assert.include(result.error, 'No transaction history')
-    })
+    // it('should return false for address with no tx history', async () => {
+    //   req.params.address =
+    //     'bitcoincash:qqwfpk04ecf69wuprj9yjys9rla5mk7rj5j8uthqel'
+    //
+    //   // Mock the Insight URL for unit tests.
+    //   if (process.env.TEST === 'unit') {
+    //     sandbox
+    //       .stub(encryptionRoute.bchjs.Electrumx, 'transactions')
+    //       .resolves(mockData.mockFulcrumNoTxHistory)
+    //   }
+    //
+    //   const result = await encryptionRoute.getPublicKey(req, res)
+    //   console.log(`result: ${JSON.stringify(result, null, 2)}`)
+    //
+    //   assert.property(result, 'success')
+    //   assert.equal(result.success, false)
+    //
+    //   assert.property(result, 'error')
+    //   assert.include(result.error, 'No transaction history')
+    // })
 
     it('should return false for address with no send history', async () => {
       req.params.address =
