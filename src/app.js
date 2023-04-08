@@ -108,7 +108,6 @@ app.use(`/${v5prefix}/`, rateLimits.populateLocals)
 
 // Allow users to turn off rate limits with an environment variable.
 const DO_NOT_USE_RATE_LIMITS = process.env.DO_NOT_USE_RATE_LIMITS || false
-
 console.log(`DO_NOT_USE_RATE_LIMITS: ${DO_NOT_USE_RATE_LIMITS}`)
 
 if (!DO_NOT_USE_RATE_LIMITS) {
@@ -130,6 +129,10 @@ if (!DO_NOT_USE_RATE_LIMITS) {
   console.log('Rate limits are NOT being used')
 }
 // END Rate Limits
+
+// LOCAL_RESTURL is commonly misconfigured. Report it at startup for feedback
+// to the administrator
+console.log(`LOCAL_RESTURL: ${process.env.LOCAL_RESTURL}`)
 
 // Connect v5 routes
 app.use(`/${v5prefix}/` + 'health-check', healthCheckV5)
