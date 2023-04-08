@@ -20,7 +20,7 @@ const RouteUtils = require('../../util/route-utils')
 const routeUtils = new RouteUtils()
 
 const BCHJS = require('@psf/bch-js')
-const bchjs = new BCHJS()
+const bchjs = new BCHJS({ restURL: config.restURL })
 
 let _this
 
