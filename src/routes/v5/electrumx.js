@@ -20,7 +20,7 @@ const RouteUtils = require('../../util/route-utils')
 const routeUtils = new RouteUtils()
 
 const BCHJS = require('@psf/bch-js')
-const bchjs = new BCHJS()
+const bchjs = new BCHJS({ restURL: config.restURL })
 
 let _this
 
@@ -956,7 +956,7 @@ class Electrum {
           const thisEntry = response.data.transactions[i]
 
           if (thisEntry.transactions.length < 100) continue
-
+          console.log('thisEntry.transactions: ', thisEntry.transactions)
           // Extract only the first 100 transactions.
           thisEntry.transactions = thisEntry.transactions.slice(0, 100)
         }

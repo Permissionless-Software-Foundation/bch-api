@@ -1344,6 +1344,7 @@ describe('#Electrumx', () => {
         sandbox.stub(electrumxRoute.axios, 'get').resolves({
           data: { success: true, transactions: mockData.transactions }
         })
+        sandbox.stub(electrumxRoute.bchjs.Electrumx, 'sortAllTxs').resolves(mockData.transactions)
       }
 
       // Call the details API.
@@ -1487,11 +1488,12 @@ describe('#Electrumx', () => {
         sandbox
           .stub(electrumxRoute.axios, 'post')
           .resolves({ data: mockData.transactionsBulk })
+        sandbox.stub(electrumxRoute.bchjs.Electrumx, 'sortAllTxs').resolves(mockData.transactionsBulk.transactions[0].transactions)
       }
 
       // Call the details API.
       const result = await electrumxRoute.transactionsBulk(req, res)
-      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+      console.log(`result: ${JSON.stringify(result, null, 2)}`)
 
       assert.property(result, 'success')
       assert.equal(result.success, true)
