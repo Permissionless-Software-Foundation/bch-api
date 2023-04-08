@@ -956,7 +956,7 @@ class Electrum {
           const thisEntry = response.data.transactions[i]
 
           if (thisEntry.transactions.length < 100) continue
-
+          console.log('thisEntry.transactions: ', thisEntry.transactions)
           // Extract only the first 100 transactions.
           thisEntry.transactions = thisEntry.transactions.slice(0, 100)
         }
