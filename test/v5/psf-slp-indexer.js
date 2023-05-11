@@ -168,6 +168,7 @@ describe('#PsfSlpIndexer', () => {
       assert.property(tokenData, 'totalMinted')
       assert.property(tokenData, 'txs')
     })
+
     it('should GET tokens stats with tx hisroty', async function () {
       req.body.tokenId =
         'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
@@ -709,9 +710,10 @@ describe('#PsfSlpIndexer', () => {
       )
     })
 
-    it('should GET tokens data', async function () {
+    it('should GET token data', async function () {
       req.body.tokenId =
         'a4fb5c2da1aa064e25018a43f9165040071d9e984ba190c222a7f59053af84b2'
+
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
         sandbox.stub(uut.axios, 'post').resolves({ data: mockData.tokenStats })
@@ -722,6 +724,8 @@ describe('#PsfSlpIndexer', () => {
       }
 
       const result = await uut.getTokenData(req, res)
+      console.log('result: ', result)
+
       assert.property(result, 'genesisData')
       assert.property(result, 'immutableData')
       assert.property(result, 'mutableData')
@@ -746,6 +750,17 @@ describe('#PsfSlpIndexer', () => {
       assert.property(genesisData, 'totalMinted')
       assert.property(genesisData, 'txs')
     })
+
+    if (process.env.TEST !== 'unit') {
+      it('should get token data for problematic token', async () => {
+        req.body.tokenId = '5f31905f335fa932879c5aabfd1c14ac748f6696148bd300f845ea5016ad573e'
+
+        const result = await uut.getTokenData(req, res)
+        console.log('result: ', result)
+
+        assert.notInclude(result.mutableData, '908e0ea3e255cc0aee8d517b41bcd79c574d9dad310dec87c34c3520b9ef000a')
+      })
+    }
 
     it('should GET tokens data if immutableData data not found', async function () {
       req.body.tokenId =
@@ -917,7 +932,7 @@ describe('#PsfSlpIndexer', () => {
       }
     })
 
-    it('should  handle bchjs error', async () => {
+    it('should handle bchjs error', async () => {
       try {
         sandbox.stub(uut, 'decodeOpReturn').resolves(mockData.decodedOpReturn)
         sandbox.stub(uut.bchjs.Electrumx, 'transactions').throws(new Error('test error'))
@@ -954,7 +969,7 @@ describe('#PsfSlpIndexer', () => {
       }
     })
 
-    it('should return  mutable data', async () => {
+    it('should return mutable data', async () => {
       sandbox.stub(uut, 'decodeOpReturn')
         .onFirstCall().resolves(mockData.decodedOpReturn)
         .onSecondCall().resolves(JSON.parse(mockData.decodedOpReturn)) // data to force an error while parsing the JSON
