@@ -324,6 +324,7 @@ class PsfSlpIndexer {
       // try to get mutable data
       try {
         const mutableData = await _this.getMutableData(tokenStats.documentHash)
+        console.log('getTokenData() mutableData: ', mutableData)
         tokenData.mutableData = mutableData
       } catch (error) {
         tokenData.mutableData = ''
@@ -419,6 +420,7 @@ class PsfSlpIndexer {
 
       // Gets the mutable data address (MDA) transaction history.
       const transactions = await _this.bchjs.Electrumx.transactions(mutableDataAddr)
+      // console.log(`transactions: ${JSON.stringify(transactions.transactions, null, 2)}`)
 
       const mdaTxs = transactions.transactions
       // console.log(`mdaTxs: ${JSON.stringify(mdaTxs, null, 2)}`)
@@ -429,7 +431,8 @@ class PsfSlpIndexer {
       // valid mutable data entry is found.
       // Start with the newest TXID entry and scan the history to find the first
       // entry with an IPFS CID.
-      for (let i = mdaTxs.length - 1; i > -1; i--) {
+      // for (let i = mdaTxs.length - 1; i > -1; i--) {
+      for (let i = 0; i < mdaTxs.length; i++) {
         const tx = mdaTxs[i]
         const txid = tx.tx_hash
         console.log(`Retrieving and decoding txid ${txid}`)
