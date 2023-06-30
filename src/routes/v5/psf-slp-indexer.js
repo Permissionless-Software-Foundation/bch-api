@@ -306,7 +306,7 @@ class PsfSlpIndexer {
         `${_this.psfSlpIndexerApi}slp/token/`,
         { tokenId, withTxHistory }
       )
-      // console.log('response', response.data)
+      // console.log(`response.data: ${JSON.stringify(response.data, null, 2)}`)
 
       const tokenStats = response.data.tokenData
 
