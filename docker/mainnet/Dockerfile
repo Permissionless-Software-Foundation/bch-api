@@ -6,7 +6,7 @@ RUN apt-get update
 RUN apt-get install -y sudo git curl nano gnupg wget
 
 #Install Node and NPM
-RUN curl -sL https://deb.nodesource.com/setup_14.x -o nodesource_setup.sh
+RUN curl -sL https://deb.nodesource.com/setup_16.x -o nodesource_setup.sh
 RUN bash nodesource_setup.sh
 RUN apt-get install -y nodejs build-essential
 
@@ -28,7 +28,7 @@ RUN runuser -l safeuser -c "npm config set prefix '~/.npm-global'"
 
 # Update to the latest version of npm.
 # Working with npm@7.21.1
-RUN npm install -g npm
+#RUN npm install -g npm
 
 #FROM christroutner/ct-base-ubuntu
 #MAINTAINER Chris Troutner <chris.troutner@gmail.com>
@@ -48,7 +48,7 @@ WORKDIR /home/safeuser
 RUN git clone https://github.com/Permissionless-Software-Foundation/bch-api
 WORKDIR /home/safeuser/bch-api
 RUN git checkout ct-unstable
-RUN npm install --silent
+RUN npm ci
 
 # Generate documentation
 RUN npm run docs
