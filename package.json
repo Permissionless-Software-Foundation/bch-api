@@ -55,6 +55,7 @@
     "passport": "^0.4.0",
     "passport-anonymous": "^1.0.1",
     "passport-http": "^0.3.0",
+    "psffpp": "1.1.8",
     "rate-limiter-flexible": "^2.0.0",
     "slp-token-media": "1.2.10",
     "winston": "3.13.1",
