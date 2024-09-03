@@ -6,13 +6,16 @@
 
 'use strict'
 
+// Global npm libraries
 const express = require('express')
 const axios = require('axios')
-const wlogger = require('../../util/winston-logging')
 const util = require('util')
 
+// Local libraries
+const wlogger = require('../../util/winston-logging')
 const RouteUtils = require('../../util/route-utils')
 const routeUtils = new RouteUtils()
+const WritePrice = require('./minimal-slp-wallet/write-price.js')
 
 let _this // Global context for 'this' instance of the Class.
 
@@ -36,6 +39,7 @@ class Price {
     this.router.get('/rates', _this.getBCHRate)
     this.router.get('/bchausd', _this.getBCHAUSD)
     this.router.get('/bchusd', _this.getBCHUSD)
+    this.router.get('/psffpp', this.getPsffppWritePrice)
   }
 
   // DRY error handler.
@@ -184,6 +188,33 @@ class Price {
     } catch (err) {
       // Write out error to error log.
       wlogger.error('Error in price.js/getBCHUSD().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  /**
+   * @api {get} /price/PSFFPP Get the PSF price for writing to the PSFFPP
+   * @apiName Get the price to write 1MB to the PSFFPP in PSF tokens.
+   * @apiGroup Price
+   * @apiDescription Get the price to pin 1MB of content to the PSFFPP pinning
+   * network on IPFS. The price is denominated in PSF tokens.
+   *
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v5/price/psffpp" -H "accept: application/json"
+   *
+   */
+  async getPsffppWritePrice (req, res, next) {
+    try {
+      const writePriceLib = new WritePrice()
+
+      const writePrice = await writePriceLib.getPsffppWritePrice()
+
+      return res.json({ writePrice })
+    } catch (err) {
+      // Write out error to error log.
+      wlogger.error('Error in price.js/getPsffppWritePrice().', err)
 
       return _this.errorHandler(err, res)
     }
