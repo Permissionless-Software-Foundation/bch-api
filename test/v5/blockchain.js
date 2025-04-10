@@ -308,6 +308,7 @@ describe('#BlockchainRouter', () => {
       assert.hasAllKeys(result, ['error'])
       assert.include(result.error, 'hash can not be empty')
     })
+
     it('should throw 503 when network issues', async () => {
       // Save the existing RPC URL.
       const savedUrl2 = process.env.RPC_BASEURL
@@ -331,6 +332,7 @@ describe('#BlockchainRouter', () => {
         'Error message expected'
       )
     })
+
     it('returns proper error when downstream service stalls', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNABORTED' })
@@ -348,6 +350,7 @@ describe('#BlockchainRouter', () => {
         'Error message expected'
       )
     })
+
     it('returns proper error when downstream service is down', async () => {
       // Mock the timeout error.
       sandbox.stub(uut.axios, 'request').throws({ code: 'ECONNREFUSED' })
@@ -365,6 +368,7 @@ describe('#BlockchainRouter', () => {
         'Error message expected'
       )
     })
+
     it('should GET block header', async () => {
       // Mock the RPC call for unit tests.
       if (process.env.TEST === 'unit') {
