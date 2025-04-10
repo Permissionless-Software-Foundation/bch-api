@@ -778,6 +778,7 @@ describe('#Raw-Transactions', () => {
       assert.equal(res.statusCode, 400, 'HTTP status code 400 expected.')
       assert.include(result.error, 'parameter 1 must be of length 64 (not 6)')
     })
+
     it('returns proper error when downstream service stalls', async () => {
       // Save the existing RPC URL.
       const savedUrl2 = process.env.RPC_BASEURL

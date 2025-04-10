@@ -8,6 +8,7 @@ const RouteUtils = require('../../../util/route-utils')
 const routeUtils = new RouteUtils()
 
 const wlogger = require('../../../util/winston-logging')
+const Blockchain = require('./blockchain.js')
 
 // Used to convert error messages to strings, to safely pass to users.
 const util = require('util')
@@ -21,6 +22,7 @@ class RawTransactions {
     // Encapsulate external dependencies.
     this.axios = axios
     this.routeUtils = routeUtils
+    this.blockchain = new Blockchain()
 
     // Define Express routes.
     this.router = router
@@ -280,7 +282,6 @@ class RawTransactions {
   }
 
   // Retrieve raw transactions details from the full node.
-
   async getRawTransactionsFromNode (txid, verbose) {
     try {
       const options = _this.routeUtils.getAxiosOptions()
@@ -294,6 +295,24 @@ class RawTransactions {
       return response.data.result
     } catch (err) {
       wlogger.error('Error in rawtransactions.ts/getRawTransactionsFromNode().')
+      throw err
+    }
+  }
+
+  // Retrieve raw transactions details from the full node.
+  async getBlockHeaderFromNode (blockHash, verbose) {
+    try {
+      const options = _this.routeUtils.getAxiosOptions()
+
+      options.data.id = 'getblockheader'
+      options.data.method = 'getblockheader'
+      options.data.params = [blockHash, verbose]
+
+      const response = await _this.axios.request(options)
+
+      return response.data.result
+    } catch (err) {
+      wlogger.error('Error in rawtransactions.ts/getBlockHeaderFromNode().')
       throw err
     }
   }
@@ -398,6 +417,15 @@ class RawTransactions {
       }
 
       const data = await _this.getRawTransactionsFromNode(txid, verbose)
+      // console.log(`getRawTransactionSingle() data: ${JSON.stringify(data, null, 2)}`)
+
+      if (verbose) {
+        // Look up the block height and append it to the TX response.
+        const blockhash = data.blockhash
+        const blockHeader = await _this.getBlockHeaderFromNode(blockhash, true)
+        // console.log(`getRawTransactionSingle() blockHeader: ${JSON.stringify(blockHeader, null, 2)}`)
+        data.height = blockHeader.height
+      }
 
       return res.json(data)
     } catch (err) {
