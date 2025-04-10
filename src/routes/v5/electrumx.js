@@ -336,6 +336,7 @@ class Electrum {
       res.status(200)
       return res.json(response.data)
     } catch (err) {
+      console.log('Error in elecrumx.js/getUtxos().', err)
       // Write out error to error log.
       wlogger.error('Error in elecrumx.js/getUtxos().', err)
 
