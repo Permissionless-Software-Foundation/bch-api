@@ -420,17 +420,23 @@ class RawTransactions {
       // console.log(`getRawTransactionSingle() data: ${JSON.stringify(data, null, 2)}`)
 
       if (verbose) {
-        // Look up the block height and append it to the TX response.
-        const blockhash = data.blockhash
-        const blockHeader = await _this.getBlockHeaderFromNode(blockhash, true)
-        // console.log(`getRawTransactionSingle() blockHeader: ${JSON.stringify(blockHeader, null, 2)}`)
-        data.height = blockHeader.height
+        data.height = null
+
+        try {
+          // Look up the block height and append it to the TX response.
+          const blockhash = data.blockhash
+          const blockHeader = await _this.getBlockHeaderFromNode(blockhash, true)
+          // console.log(`getRawTransactionSingle() blockHeader: ${JSON.stringify(blockHeader, null, 2)}`)
+          data.height = blockHeader.height
+        } catch (err) {
+          /* exit quietly */
+        }
       }
 
       return res.json(data)
     } catch (err) {
       // Write out error to error log.
-      // logger.error(`Error in rawtransactions/getRawTransaction: `, err)
+      // console.error(`Error in rawtransactions/getRawTransaction: `, err)
       wlogger.error(
         'Error in rawtransactions.ts/getRawTransactionSingle().',
         err
