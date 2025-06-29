@@ -170,12 +170,13 @@ class Blockchain {
       options.data.params = []
 
       const response = await _this.axios.request(options)
+      // console.log('getBlockCount() response: ', response)
 
       return res.json(response.data.result)
     } catch (err) {
       // Write out error to error log.
       // logger.error(`Error in rawtransactions/decodeRawTransaction: `, err)
-      wlogger.error('Error in blockchain.ts/getBlockCount().', err)
+      wlogger.error('Error in blockchain.js/getBlockCount().', err)
 
       return _this.errorHandler(err, res)
     }
