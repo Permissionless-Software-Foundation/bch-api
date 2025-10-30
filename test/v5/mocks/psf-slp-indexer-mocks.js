@@ -281,6 +281,89 @@ const tokenIconData01 = {
   ps002Compatible: true
 }
 
+const transactions02 = [
+  {
+    height: 739414,
+    tx_hash: '154cc735206f8401f293a0792a77c3730325e78281de6b6edeb983eb71a91c5f'
+  },
+  {
+    height: 739413,
+    tx_hash: '56ed1a5768076a318d02b5db64e125544dca57ab6b2cc7ca61dfa4645d244463'
+  },
+  {
+    height: 739413,
+    tx_hash: '724727bd619ceb4031cc4147ff6bdee2d178bc0c43222598f5a71a4d36e4e143'
+  }
+]
+
+const txData02 = [
+  {
+    txid: '154cc735206f8401f293a0792a77c3730325e78281de6b6edeb983eb71a91c5f',
+    hash: '154cc735206f8401f293a0792a77c3730325e78281de6b6edeb983eb71a91c5f',
+    version: 2,
+    size: 279,
+    locktime: 0,
+    vin: [
+      {
+        txid: '724727bd619ceb4031cc4147ff6bdee2d178bc0c43222598f5a71a4d36e4e143',
+        vout: 0,
+        scriptSig: {
+          asm: '30440220110f0805772b5b65dfd617bcc98303bf6e41182e4e3fec4840baecced0888f4f02205ed50d614894a3119a29b20ed10acb83cdcdf9fe1feffc08993cd58cb0b77a8e[ALL|FORKID] 027c43656d6907c5af5296cd4817a23983124d54b8b8c7d63426b891d68868a06e',
+          hex: '4730440220110f0805772b5b65dfd617bcc98303bf6e41182e4e3fec4840baecced0888f4f02205ed50d614894a3119a29b20ed10acb83cdcdf9fe1feffc08993cd58cb0b77a8e4121027c43656d6907c5af5296cd4817a23983124d54b8b8c7d63426b891d68868a06e'
+        },
+        sequence: 4294967295,
+        address: 'bitcoincash:qplnej5md740lkl6qt0qf0g2mkv7dwfscskjask5s8',
+        value: 0.00043081
+      }
+    ],
+    vout: [
+      {
+        value: 0,
+        n: 0,
+        scriptPubKey: {
+          asm: 'OP_RETURN 7b22636964223a22697066733a2f2f62616679626569676f74756f6e7935336c6579336e3633687177797869717275716e3575616d736b6d636936663634357075746e6334366a6a7534227d',
+          hex: '6a4c4c7b22636964223a22697066733a2f2f62616679626569676f74756f6e7935336c6579336e3633687177797869717275716e3575616d736b6d636936663634357075746e6334366a6a7534227d',
+          type: 'nulldata'
+        }
+      },
+      {
+        value: 0.00042031,
+        n: 1,
+        scriptPubKey: {
+          asm: 'OP_DUP OP_HASH160 7f3cca9b6faaffdbfa02de04bd0add99e6b930c4 OP_EQUALVERIFY OP_CHECKSIG',
+          hex: '76a9147f3cca9b6faaffdbfa02de04bd0add99e6b930c488ac',
+          reqSigs: 1,
+          type: 'pubkeyhash',
+          addresses: [
+            'bitcoincash:qplnej5md740lkl6qt0qf0g2mkv7dwfscskjask5s8'
+          ]
+        }
+      }
+    ],
+    hex: '020000000143e1e4364d1aa7f5982522430cbc78d1e2de6bff4741cc3140eb9c61bd274772000000006a4730440220110f0805772b5b65dfd617bcc98303bf6e41182e4e3fec4840baecced0888f4f02205ed50d614894a3119a29b20ed10acb83cdcdf9fe1feffc08993cd58cb0b77a8e4121027c43656d6907c5af5296cd4817a23983124d54b8b8c7d63426b891d68868a06effffffff0200000000000000004f6a4c4c7b22636964223a22697066733a2f2f62616679626569676f74756f6e7935336c6579336e3633687177797869717275716e3575616d736b6d636936663634357075746e6334366a6a7534227d2fa40000000000001976a9147f3cca9b6faaffdbfa02de04bd0add99e6b930c488ac00000000',
+    blockhash: '00000000000000000484c6a139dcaaa5b9047092bb1d14142d6d197dba561070',
+    confirmations: 17771,
+    time: 1652121096,
+    blocktime: 1652121096,
+    isValidSlp: false
+  }
+]
+
+const transactions03 = [
+  {
+    height: 762681,
+    tx_hash: '67edcf3e45c64ce6829cd3e53484e08fe8a6b9f0b0bc0a202f0cd3123d9177a8'
+  },
+  {
+    height: 762681,
+    tx_hash: '7588959fbd2f1baf86a5bd27616a96e103bcd89d25affee46f1e8c67b96881a6'
+  },
+  {
+    height: 762678,
+    tx_hash: '54d4bfe9ef8dd7a0a7fe6091499ac9a80a63b4cf3657757665b1af8154477972'
+  }
+]
+
 module.exports = {
   tokenStats,
   tokenStats02,
@@ -292,5 +375,8 @@ module.exports = {
   immutableData,
   mutableData,
   decodedOpReturn,
-  tokenIconData01
+  tokenIconData01,
+  transactions02,
+  txData02,
+  transactions03
 }
