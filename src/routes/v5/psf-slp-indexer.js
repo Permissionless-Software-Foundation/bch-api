@@ -56,6 +56,20 @@ class PsfSlpIndexer {
     this.initialize()
 
     _this = this
+
+    // Bind 'this' object to the class methods.
+    this.getMutableData = this.getMutableData.bind(this)
+    this.decodeOpReturn = this.decodeOpReturn.bind(this)
+    this.getCIDData = this.getCIDData.bind(this)
+    this.checkEnvVar = this.checkEnvVar.bind(this)
+    this.errorHandler = this.errorHandler.bind(this)
+    this.root = this.root.bind(this)
+    this.getStatus = this.getStatus.bind(this)
+    this.getAddress = this.getAddress.bind(this)
+    this.getTxid = this.getTxid.bind(this)
+    this.getTokenStats = this.getTokenStats.bind(this)
+    this.getTokenData = this.getTokenData.bind(this)
+    this.getTokenData2 = this.getTokenData2.bind(this)
   }
 
   // This is an async function that is kicked off by the constructor at startup.
