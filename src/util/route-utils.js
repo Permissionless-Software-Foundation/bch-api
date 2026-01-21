@@ -86,6 +86,10 @@ class RouteUtils {
       const addrIsMain = this.bchjs.Address.isMainnetAddress(cashAddr)
       if (network === 'mainnet' && addrIsMain) return true
 
+      // Return true if the network and address both match regtest
+      const addrIsRegtest = this.bchjs.Address.isRegTestAddress(cashAddr)
+      if (network === 'regtest' && addrIsRegtest) return true
+
       return false
     } catch (err) {
       wlogger.error('Error in validateNetwork()')
