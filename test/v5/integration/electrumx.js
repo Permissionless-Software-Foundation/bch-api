@@ -107,4 +107,50 @@ describe('#electrumx', () => {
       assert.isAbove(firstElem.height, lastElem[0].height)
     })
   })
+
+  describe('#getTransactionMerkle', () => {
+    it('should get the merkle branch for a single tx', async () => {
+      req.params.txid =
+        'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d'
+      req.params.height = 617812
+
+      const result = await uut.getTransactionMerkle(req, res)
+      // console.log('result: ', JSON.stringify(result, null, 2))
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'merkle')
+      assert.property(result.merkle, 'block_height')
+      assert.property(result.merkle, 'merkle')
+      assert.property(result.merkle, 'pos')
+      assert.isArray(result.merkle.merkle)
+    })
+  })
+
+  describe('#transactionMerkleBulk', () => {
+    it('should get merkle branches for an array of txids', async () => {
+      req.body.txids = [
+        {
+          txid: 'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d',
+          height: 617812
+        }
+      ]
+
+      const result = await uut.transactionMerkleBulk(req, res)
+      // console.log('result: ', JSON.stringify(result, null, 2))
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'branches')
+      const branch = result.branches[0]
+      assert.property(branch, 'txid')
+      assert.property(branch, 'height')
+      assert.property(branch, 'merkle')
+      assert.property(branch.merkle, 'block_height')
+      assert.property(branch.merkle, 'merkle')
+      assert.property(branch.merkle, 'pos')
+    })
+  })
 })

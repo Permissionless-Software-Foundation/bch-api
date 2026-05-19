@@ -53,6 +53,8 @@ class Electrum {
     this.router.post('/utxos', this.utxosBulk)
     this.router.get('/tx/data/:txid', this.getTransactionDetails)
     this.router.post('/tx/data', this.transactionDetailsBulk)
+    this.router.get('/tx/merkle/:txid/:height', this.getTransactionMerkle)
+    this.router.post('/tx/merkle', this.transactionMerkleBulk)
     this.router.post('/tx/broadcast', this.broadcastTransaction)
     this.router.get('/block/headers/:height', this.getBlockHeaders)
     this.router.post('/block/headers', this.blockHeadersBulk)
@@ -564,6 +566,114 @@ class Electrum {
       return res.json(response.data)
     } catch (err) {
       wlogger.error('Error in electrumx.js/transactionDetailsBulk().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  /**
+   * @api {get} /electrumx/tx/merkle/{txid}/{height} Get merkle branch for a TXID
+   * @apiName Merkle branch for a TXID
+   * @apiGroup ElectrumX / Fulcrum
+   * @apiDescription Returns the merkle branch for a transaction confirmed at the given block height.
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v5/electrumx/tx/merkle/a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d/617812" -H "accept: application/json"
+   *
+   */
+  // GET handler for a single transaction merkle branch
+  async getTransactionMerkle (req, res, next) {
+    try {
+      const txid = req.params.txid
+      const height = Number(req.params.height)
+
+      // Reject if txid is anything other than a string
+      if (typeof txid !== 'string') {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'txid must be a string'
+        })
+      }
+
+      // Reject if height is not a number
+      if (Number.isNaN(height) || height < 0) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'height must be a positive number'
+        })
+      }
+
+      wlogger.debug(
+        'Executing electrumx/getTransactionMerkle with this txid and height: ',
+        { txid, height }
+      )
+
+      // Get data from ElectrumX server.
+      const response = await _this.axios.get(
+        `${_this.fulcrumApi}electrumx/tx/merkle/${txid}/${height}`
+      )
+
+      res.status(200)
+      return res.json(response.data)
+    } catch (err) {
+      // Write out error to error log.
+      wlogger.error('Error in electrumx.js/getTransactionMerkle().', err)
+
+      return _this.errorHandler(err, res)
+    }
+  }
+
+  /**
+   * @api {post} /electrumx/tx/merkle Get merkle branches for an array of TXID + height pairs
+   * @apiName  Merkle branches for an array of TXID + height pairs
+   * @apiGroup ElectrumX / Fulcrum
+   * @apiDescription Returns an array of merkle branch results for an array of TXID + height pairs.
+   * Limited to 20 items per request.
+   *
+   * @apiExample Example usage:
+   * curl -X POST "https://api.fullstack.cash/v5/electrumx/tx/merkle" -H "accept: application/json" -H "Content-Type: application/json" -d '{"txids":[{ "txid": "a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d", "height": 617812 }, { "txid": "a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d", "height": 617812 }]}'
+   *
+   */
+  // POST handler for bulk queries on transaction merkle branches
+  async transactionMerkleBulk (req, res, next) {
+    try {
+      const txids = req.body.txids
+
+      // Reject if txids is not an array.
+      if (!Array.isArray(txids)) {
+        res.status(400)
+        return res.json({
+          success: false,
+          error: 'txids needs to be an array. Use GET for single txid.'
+        })
+      }
+
+      // Enforce array size rate limits
+      if (!_this.routeUtils.validateArraySize(req, txids)) {
+        res.status(400) // https://github.com/Bitcoin-com/rest.bitcoin.com/issues/330
+        return res.json({
+          success: false,
+          error: 'Array too large.'
+        })
+      }
+
+      wlogger.debug(
+        'Executing electrumx.js/transactionMerkleBulk with these txids: ',
+        txids
+      )
+
+      const response = await _this.axios.post(
+        `${_this.fulcrumApi}electrumx/tx/merkle`,
+        { txids }
+      )
+
+      // Return the array of retrieved transaction merkle branches.
+      res.status(200)
+      return res.json(response.data)
+    } catch (err) {
+      wlogger.error('Error in electrumx.js/transactionMerkleBulk().', err)
 
       return _this.errorHandler(err, res)
     }
