@@ -932,6 +932,234 @@ describe('#Electrumx', () => {
     })
   })
 
+  describe('#getTransactionMerkle', () => {
+    it('should throw 400 if tx is empty', async () => {
+      const result = await electrumxRoute.getTransactionMerkle(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'txid must be a string')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw 400 on array input', async () => {
+      req.params.txid = [
+        'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d'
+      ]
+      req.params.height = 617812
+
+      const result = await electrumxRoute.getTransactionMerkle(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'txid must be a string')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw 400 if height is empty', async () => {
+      req.params.txid =
+        'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d'
+
+      const result = await electrumxRoute.getTransactionMerkle(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'height must be a positive number')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw 400 if height is not a number', async () => {
+      req.params.txid =
+        'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d'
+      req.params.height = 'wrong type'
+
+      const result = await electrumxRoute.getTransactionMerkle(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'height must be a positive number')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should pass errors from electrum-cash to user', async () => {
+      if (process.env.TEST === 'unit') {
+        sandbox.stub(electrumxRoute.axios, 'get').rejects({
+          response: {
+            data: {
+              error: {
+                message: {
+                  success: false,
+                  error: 'Invalid tx hash'
+                }
+              }
+            }
+          }
+        })
+      }
+
+      req.params.txid = '02v05l7qs5s24srqju498qu55dwuj0cx5ehjm2c'
+      req.params.height = 617812
+
+      const result = await electrumxRoute.getTransactionMerkle(req, res)
+      // console.log('result: ', result)
+
+      assert.property(result, 'error')
+      assert.include(result.error.error, 'Invalid tx hash')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should get the merkle branch for a single tx', async () => {
+      req.params.txid =
+        'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d'
+      req.params.height = 617812
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.axios, 'get')
+          .resolves({ data: { success: true, merkle: mockData.merkleBranch } })
+      }
+
+      // Call the merkle API.
+      const result = await electrumxRoute.getTransactionMerkle(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'merkle')
+      assert.property(result.merkle, 'block_height')
+      assert.property(result.merkle, 'merkle')
+      assert.property(result.merkle, 'pos')
+      assert.isArray(result.merkle.merkle)
+    })
+  })
+
+  describe('#transactionMerkleBulk', () => {
+    it('should throw 400 if txids is empty', async () => {
+      const result = await electrumxRoute.transactionMerkleBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'txids needs to be an array')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw 400 if input provided is not array', async () => {
+      req.body.txids = {
+        txid: 'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d',
+        height: 617812
+      }
+
+      const result = await electrumxRoute.transactionMerkleBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.equal(res.statusCode, 400, 'Expect 400 status code')
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'txids needs to be an array')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should throw 400 error if txids array is too large', async () => {
+      const testArray = []
+      for (let i = 0; i < 25; i++) testArray.push('')
+
+      req.body.txids = testArray
+
+      const result = await electrumxRoute.transactionMerkleBulk(req, res)
+      // console.log(`result: ${util.inspect(result)}`)
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Array too large')
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+    })
+
+    it('should handle error', async () => {
+      req.body.txids = [
+        {
+          txid: 'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d',
+          height: 617812
+        }
+      ]
+      // Force error
+      sandbox.stub(electrumxRoute.axios, 'post').throws(new Error('Test error'))
+
+      // Call the merkle API.
+      const result = await electrumxRoute.transactionMerkleBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, false)
+
+      assert.property(result, 'error')
+      assert.include(result.error, 'Test error')
+    })
+
+    it('should get merkle branches for an array of txids', async () => {
+      req.body.txids = [
+        {
+          txid: 'a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d',
+          height: 617812
+        }
+      ]
+
+      // Mock unit tests to prevent live network calls.
+      if (process.env.TEST === 'unit') {
+        electrumxRoute.isReady = true // Force flag.
+
+        sandbox
+          .stub(electrumxRoute.axios, 'post')
+          .resolves({ data: mockData.merkleBranchBulk })
+      }
+
+      // Call the merkle API.
+      const result = await electrumxRoute.transactionMerkleBulk(req, res)
+      // console.log(`result: ${JSON.stringify(result, null, 2)}`)
+
+      assert.property(result, 'success')
+      assert.equal(result.success, true)
+
+      assert.property(result, 'branches')
+      const branch = result.branches[0]
+
+      assert.property(branch, 'txid')
+      assert.property(branch, 'height')
+      assert.property(branch, 'merkle')
+      assert.property(branch.merkle, 'block_height')
+      assert.property(branch.merkle, 'merkle')
+      assert.property(branch.merkle, 'pos')
+    })
+  })
+
   describe('#broadcastTransaction', () => {
     it('should throw 400 if txHex is empty', async () => {
       const result = await electrumxRoute.broadcastTransaction(req, res)
